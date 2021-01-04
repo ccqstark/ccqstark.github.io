@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>其它技术 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/</link>
+    <description>Recent content in 其它技术 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 04 Oct 2020 02:44:33 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用Hugo&#43;github/gitee搭建个人博客</title>
+      <link>https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</link>
+      <pubDate>Sun, 04 Oct 2020 02:44:33 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</guid>
+      <description>基本操作 下载hugo 首先要有Golang的环境
+然后在GitHub上选择对应平台下载
+https://github.com/gohugoio/hugo/releases
+Windows下载完要设置环境变量
+创建新的站点 hugo new site &amp;lt;path&amp;gt; 
+在指定路径下创建博客站点目录，目录最后是博客站点名
+找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行蛇设置
+https://themes.gohugo.io/
+本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts
+&amp;lt;theme&amp;gt;的位置填写主题的名称
+创建博客 hugo new post/blog.md
+博客的markdown文件一开始都是放在\content\post目录下
+创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
+Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务
+部署到远端仓库  生成\public目录  hugo --theme=hugo-theme-stack --baseUrl=&amp;quot;https://ccqstark.github.io/&amp;quot; --buildDrafts
+根据具体仓库修改，也可以是&amp;quot;https://ccqstark.gitee.io/&amp;quot;
+ 三部曲  git add . git commit -m &amp;#39;...&amp;#39; git push github master 更新博客 要新增一篇博客就继续按下面这个步骤走
+hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://ccqstark.github.io/&amp;#34; --buildDrafts git add . git commit -m &amp;#39;.</description>
+    </item>
+    
+  </channel>
+</rss>

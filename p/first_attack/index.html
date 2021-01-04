@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='事情经过 11月17号这天早上上着课，突然有用户反馈应用卡顿，使用不了。我感觉上去看了果然是这样，有时数据加载很慢甚至加载不出来，我感到焦虑与害怕，害怕数据库和别人一样被黑了然后删光要钱，课都没心情听了。然后手机下了个Termius，先把服务关了。
+中午回到宿舍后看了数据库发现数据完好无损，赶紧备份了一波，然后寻找问题。
+内存和CPU和磁盘都挺正常，看了服务器的安全日志，那登录记录刷刷的，有人在暴力破解我的root密码！
+由于下午还有体育课，就先直接关了服务器，然后上课去了。
+下午来到实验室，重新打开服务器，又开始攻击了，气死了。用脚本封了攻击者一百多个肉鸡ip，以为可以了之后，把服务开启，通知用户可以用了。
+结果用户又说太卡了，我又检查了一波，CPU、内存、磁盘正常，然后这个带宽就不太正常了，我学生机的1M/s都超了，应该是这个原因导致卡的。
+用命令找了进程发现好像也没哪个占用很多呀，弄了很久还是很迷惑，攻击者的ip也明明被我加入黑名单了呀，之后还开了腾讯云的专业机阻断，还是很卡，卡到我ssh都连不太上。然后有个办法叫我改ssh的22端口，我怕操作失误连自己都直接连不上就GG了，然后就算了不这样搞了。
+最后只能屁颠屁颠去找客服，他跟我说也是其他正常带宽跑满，叫我看有没有什么进程占用很多，主要是建议我临时升级带宽。
+我想着：啊好家伙，开始了。但是也没啥其他办法，就去买了3天升级到3M/s的带宽，不贵，结果也是真香。
+后来最多手动在安全组加了几个奇怪ip封掉，服务就完成稳定下来了，看来没有什么是加钱不能解决的。
+后来过了两天攻击者还在继续冲，除了影响我带宽之外其实也没太大问题反正他进不来的，问了师兄建议说改22端口，反正重要使用期也过了，我就试试改下，还真有用，安全日志也没攻击者那些破解记录了，带宽也占用也再降了，说明攻击者也是冲22，这下直接完全被挡住，带宽也不占了。
+第一次与黑客对线还是学到了很多的，也加强了我的安全防范意识
+查看系统状态命令 下面有些命令工具需要额外安装的，直接yum install xxx安装就行
+查看服务器安全日志(动态实时)(CentOS) tail -f /var/log/secure 查看CPU等的使用情况(按进程) top 查看内存使用情况 free -h 查看磁盘使用情况 df -hl 查看网络带宽占用(按ip) iftop -i eth0 jnettop 按Q退出
+查看网络带宽占用(按进程) nethogs 还有防火墙工具iptables和firewall-cmd
+https://wangchujiang.com/linux-command/c/iptables.html
+https://wangchujiang.com/linux-command/c/firewall-cmd.html
+编写自动化脚本封禁暴力破解登录的ip 从安全日志中读取记录，把那些多次登录失败的ip写进请求黑名单中（hosts.deny），但是这种办法只是拒绝连接，如果黑客继续攻击还是会占用带宽
+先找个目录，vim建立一个脚本文件
+vim /usr/local/secure_ssh.sh 然后编写脚本
+#! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.'><title>记一次服务器被攻击</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/first_attack/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='记一次服务器被攻击'>
+<meta property='og:description' content='事情经过 11月17号这天早上上着课，突然有用户反馈应用卡顿，使用不了。我感觉上去看了果然是这样，有时数据加载很慢甚至加载不出来，我感到焦虑与害怕，害怕数据库和别人一样被黑了然后删光要钱，课都没心情听了。然后手机下了个Termius，先把服务关了。
+中午回到宿舍后看了数据库发现数据完好无损，赶紧备份了一波，然后寻找问题。
+内存和CPU和磁盘都挺正常，看了服务器的安全日志，那登录记录刷刷的，有人在暴力破解我的root密码！
+由于下午还有体育课，就先直接关了服务器，然后上课去了。
+下午来到实验室，重新打开服务器，又开始攻击了，气死了。用脚本封了攻击者一百多个肉鸡ip，以为可以了之后，把服务开启，通知用户可以用了。
+结果用户又说太卡了，我又检查了一波，CPU、内存、磁盘正常，然后这个带宽就不太正常了，我学生机的1M/s都超了，应该是这个原因导致卡的。
+用命令找了进程发现好像也没哪个占用很多呀，弄了很久还是很迷惑，攻击者的ip也明明被我加入黑名单了呀，之后还开了腾讯云的专业机阻断，还是很卡，卡到我ssh都连不太上。然后有个办法叫我改ssh的22端口，我怕操作失误连自己都直接连不上就GG了，然后就算了不这样搞了。
+最后只能屁颠屁颠去找客服，他跟我说也是其他正常带宽跑满，叫我看有没有什么进程占用很多，主要是建议我临时升级带宽。
+我想着：啊好家伙，开始了。但是也没啥其他办法，就去买了3天升级到3M/s的带宽，不贵，结果也是真香。
+后来最多手动在安全组加了几个奇怪ip封掉，服务就完成稳定下来了，看来没有什么是加钱不能解决的。
+后来过了两天攻击者还在继续冲，除了影响我带宽之外其实也没太大问题反正他进不来的，问了师兄建议说改22端口，反正重要使用期也过了，我就试试改下，还真有用，安全日志也没攻击者那些破解记录了，带宽也占用也再降了，说明攻击者也是冲22，这下直接完全被挡住，带宽也不占了。
+第一次与黑客对线还是学到了很多的，也加强了我的安全防范意识
+查看系统状态命令 下面有些命令工具需要额外安装的，直接yum install xxx安装就行
+查看服务器安全日志(动态实时)(CentOS) tail -f /var/log/secure 查看CPU等的使用情况(按进程) top 查看内存使用情况 free -h 查看磁盘使用情况 df -hl 查看网络带宽占用(按ip) iftop -i eth0 jnettop 按Q退出
+查看网络带宽占用(按进程) nethogs 还有防火墙工具iptables和firewall-cmd
+https://wangchujiang.com/linux-command/c/iptables.html
+https://wangchujiang.com/linux-command/c/firewall-cmd.html
+编写自动化脚本封禁暴力破解登录的ip 从安全日志中读取记录，把那些多次登录失败的ip写进请求黑名单中（hosts.deny），但是这种办法只是拒绝连接，如果黑客继续攻击还是会占用带宽
+先找个目录，vim建立一个脚本文件
+vim /usr/local/secure_ssh.sh 然后编写脚本
+#! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/first_attack/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='DDos' /><meta property='article:published_time' content='2020-11-22T22:10:00&#43;08:00'/><meta property='article:modified_time' content='2020-11-22T22:10:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="记一次服务器被攻击">
+<meta name="twitter:description" content="事情经过 11月17号这天早上上着课，突然有用户反馈应用卡顿，使用不了。我感觉上去看了果然是这样，有时数据加载很慢甚至加载不出来，我感到焦虑与害怕，害怕数据库和别人一样被黑了然后删光要钱，课都没心情听了。然后手机下了个Termius，先把服务关了。
+中午回到宿舍后看了数据库发现数据完好无损，赶紧备份了一波，然后寻找问题。
+内存和CPU和磁盘都挺正常，看了服务器的安全日志，那登录记录刷刷的，有人在暴力破解我的root密码！
+由于下午还有体育课，就先直接关了服务器，然后上课去了。
+下午来到实验室，重新打开服务器，又开始攻击了，气死了。用脚本封了攻击者一百多个肉鸡ip，以为可以了之后，把服务开启，通知用户可以用了。
+结果用户又说太卡了，我又检查了一波，CPU、内存、磁盘正常，然后这个带宽就不太正常了，我学生机的1M/s都超了，应该是这个原因导致卡的。
+用命令找了进程发现好像也没哪个占用很多呀，弄了很久还是很迷惑，攻击者的ip也明明被我加入黑名单了呀，之后还开了腾讯云的专业机阻断，还是很卡，卡到我ssh都连不太上。然后有个办法叫我改ssh的22端口，我怕操作失误连自己都直接连不上就GG了，然后就算了不这样搞了。
+最后只能屁颠屁颠去找客服，他跟我说也是其他正常带宽跑满，叫我看有没有什么进程占用很多，主要是建议我临时升级带宽。
+我想着：啊好家伙，开始了。但是也没啥其他办法，就去买了3天升级到3M/s的带宽，不贵，结果也是真香。
+后来最多手动在安全组加了几个奇怪ip封掉，服务就完成稳定下来了，看来没有什么是加钱不能解决的。
+后来过了两天攻击者还在继续冲，除了影响我带宽之外其实也没太大问题反正他进不来的，问了师兄建议说改22端口，反正重要使用期也过了，我就试试改下，还真有用，安全日志也没攻击者那些破解记录了，带宽也占用也再降了，说明攻击者也是冲22，这下直接完全被挡住，带宽也不占了。
+第一次与黑客对线还是学到了很多的，也加强了我的安全防范意识
+查看系统状态命令 下面有些命令工具需要额外安装的，直接yum install xxx安装就行
+查看服务器安全日志(动态实时)(CentOS) tail -f /var/log/secure 查看CPU等的使用情况(按进程) top 查看内存使用情况 free -h 查看磁盘使用情况 df -hl 查看网络带宽占用(按ip) iftop -i eth0 jnettop 按Q退出
+查看网络带宽占用(按进程) nethogs 还有防火墙工具iptables和firewall-cmd
+https://wangchujiang.com/linux-command/c/iptables.html
+https://wangchujiang.com/linux-command/c/firewall-cmd.html
+编写自动化脚本封禁暴力破解登录的ip 从安全日志中读取记录，把那些多次登录失败的ip写进请求黑名单中（hosts.deny），但是这种办法只是拒绝连接，如果黑客继续攻击还是会占用带宽
+先找个目录，vim建立一个脚本文件
+vim /usr/local/secure_ssh.sh 然后编写脚本
+#! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" >
+                网络安全
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/first_attack/">记一次服务器被攻击</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Nov 22, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h3 id="事情经过">事情经过</h3>
+<p>11月17号这天早上上着课，突然有用户反馈应用卡顿，使用不了。我感觉上去看了果然是这样，有时数据加载很慢甚至加载不出来，我感到焦虑与害怕，害怕数据库和别人一样被黑了然后删光要钱，课都没心情听了。然后手机下了个Termius，先把服务关了。</p>
+<p>中午回到宿舍后看了数据库发现数据完好无损，赶紧备份了一波，然后寻找问题。</p>
+<p>内存和CPU和磁盘都挺正常，看了服务器的安全日志，那登录记录刷刷的，有人在暴力破解我的root密码！</p>
+<p>由于下午还有体育课，就先直接关了服务器，然后上课去了。</p>
+<p>下午来到实验室，重新打开服务器，又开始攻击了，气死了。用脚本封了攻击者一百多个肉鸡ip，以为可以了之后，把服务开启，通知用户可以用了。</p>
+<p>结果用户又说太卡了，我又检查了一波，CPU、内存、磁盘正常，然后这个带宽就不太正常了，我学生机的1M/s都超了，应该是这个原因导致卡的。</p>
+<p>用命令找了进程发现好像也没哪个占用很多呀，弄了很久还是很迷惑，攻击者的ip也明明被我加入黑名单了呀，之后还开了腾讯云的专业机阻断，还是很卡，卡到我ssh都连不太上。然后有个办法叫我改ssh的22端口，我怕操作失误连自己都直接连不上就GG了，然后就算了不这样搞了。</p>
+<p>最后只能屁颠屁颠去找客服，他跟我说也是其他正常带宽跑满，叫我看有没有什么进程占用很多，主要是建议我临时升级带宽。</p>
+<p>我想着：啊好家伙，开始了。但是也没啥其他办法，就去买了3天升级到3M/s的带宽，不贵，结果也是真香。</p>
+<p>后来最多手动在安全组加了几个奇怪ip封掉，服务就完成稳定下来了，看来没有什么是加钱不能解决的。</p>
+<p>后来过了两天攻击者还在继续冲，除了影响我带宽之外其实也没太大问题反正他进不来的，问了师兄建议说改22端口，反正重要使用期也过了，我就试试改下，还真有用，安全日志也没攻击者那些破解记录了，带宽也占用也再降了，说明攻击者也是冲22，这下直接完全被挡住，带宽也不占了。</p>
+<p>第一次与黑客对线还是学到了很多的，也加强了我的安全防范意识</p>
+<h3 id="查看系统状态命令">查看系统状态命令</h3>
+<p>下面有些命令工具需要额外安装的，直接<code>yum install xxx</code>安装就行</p>
+<h4 id="查看服务器安全日志动态实时centos">查看服务器安全日志(动态实时)(CentOS)</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">tail -f /var/log/secure
+</code></pre></div><h4 id="查看cpu等的使用情况按进程">查看CPU等的使用情况(按进程)</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">top
+</code></pre></div><h4 id="查看内存使用情况">查看内存使用情况</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">free -h
+</code></pre></div><h4 id="查看磁盘使用情况">查看磁盘使用情况</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">df -hl
+</code></pre></div><h4 id="查看网络带宽占用按ip">查看网络带宽占用(按ip)</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">iftop -i eth0
+jnettop
+</code></pre></div><p>按Q退出</p>
+<h4 id="查看网络带宽占用按进程">查看网络带宽占用(按进程)</h4>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">nethogs
+</code></pre></div><p>还有防火墙工具<strong>iptables</strong>和<strong>firewall-cmd</strong></p>
+<p><a class="link" href="https://wangchujiang.com/linux-command/c/iptables.html"  target="_blank" rel="noopener"
+    >https://wangchujiang.com/linux-command/c/iptables.html</a></p>
+<p><a class="link" href="https://wangchujiang.com/linux-command/c/firewall-cmd.html"  target="_blank" rel="noopener"
+    >https://wangchujiang.com/linux-command/c/firewall-cmd.html</a></p>
+<h3 id="编写自动化脚本封禁暴力破解登录的ip">编写自动化脚本封禁暴力破解登录的ip</h3>
+<p>从安全日志中读取记录，把那些多次登录失败的ip写进请求黑名单中（hosts.deny），但是这种办法只是拒绝连接，如果黑客继续攻击还是会占用带宽</p>
+<p>先找个目录，vim建立一个脚本文件</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">vim /usr/local/secure_ssh.sh
+</code></pre></div><p>然后编写脚本</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="cp">#! /bin/bash
+</span><span class="cp"></span>cat /var/log/secure<span class="p">|</span>awk <span class="s1">&#39;/Failed/{print $(NF-3)}&#39;</span><span class="p">|</span>sort<span class="p">|</span>uniq -c<span class="p">|</span>awk <span class="s1">&#39;{print $2&#34;=&#34;$1;}&#39;</span> &gt; /usr/local/bin/black.txt
+<span class="k">for</span> i in <span class="sb">`</span>cat  /usr/local/bin/black.txt<span class="sb">`</span>
+<span class="k">do</span>
+        <span class="nv">IP</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> <span class="p">|</span>awk -F<span class="o">=</span> <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+        <span class="nv">NUM</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span><span class="p">|</span>awk -F<span class="o">=</span> <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+        <span class="nv">result</span><span class="o">=</span><span class="k">$(</span>cat /etc/hosts.deny <span class="p">|</span> grep <span class="nv">$IP</span><span class="k">)</span>
+        <span class="k">if</span> <span class="o">[[</span> <span class="nv">$NUM</span> -gt <span class="m">10</span> <span class="o">]]</span><span class="p">;</span><span class="k">then</span>
+                <span class="k">if</span> <span class="o">[[</span> <span class="nv">$result</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span> <span class="o">]]</span><span class="p">;</span><span class="k">then</span>
+                        <span class="nb">echo</span> <span class="s2">&#34;sshd: </span><span class="nv">$IP</span><span class="s2">&#34;</span> &gt;&gt; /etc/hosts.deny
+                <span class="k">fi</span>
+        <span class="k">fi</span>
+<span class="k">done</span>
+</code></pre></div><p>设置定时任务</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1">#首先打开定时任务列表</span>
+crontab -e
+
+<span class="c1">#添加下面这行，表示每十分钟</span>
+*/10 * * * * bash /usr/local/secure_ssh.sh
+
+<span class="c1">#保存退出后重启下</span>
+service crond restart 
+</code></pre></div><h3 id="修改sshd的22端口">修改sshd的22端口</h3>
+<p>这个方法可以完全把对22端口的攻击直接拒之门外，安全日志都没记录破解登录事件，带宽也不会影响，但操作过程要小心一点点</p>
+<p>修改sshd配置文件</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">vim /etc/ssh/sshd_config
+
+<span class="c1">#Port 22     //这行去掉#号，然后在下面增加自己要新开的端口，保证新端口能用再去掉这行</span>
+</code></pre></div><p>下面新增端口</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">Port xxxxx
+</code></pre></div><p>防火墙开启对应端口，安全组也记得开，或者先把防火墙关了，之后试了新端口能用再开</p>
+<pre><code>firewall-cmd --zone=public --add-port=xxxxx/tcp --permanent
+</code></pre><p>重启sshd</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">/etc/init.d/sshd restart
+<span class="c1">#或者</span>
+service sshd restart 
+</code></pre></div><p>然后重新连服务器终端试试，没问题之后可以把22直接禁掉，防火墙和安全组也封了22，对新端口放行就行</p>
+<h3 id="其他">其他</h3>
+<p>使用强密码或者只用密钥登录</p>
+<p>数据库多做备份</p>
+<p>建立快照</p>
+<p>关键数据加密</p>
+<p>要增强安全意识呀！</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ddos/">DDos</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

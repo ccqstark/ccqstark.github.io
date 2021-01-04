@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='“工欲善其事，必先利其器”，作为后端搬砖工，我们敲代码之前需要给我们的电脑配上所需的软件环境，这样我们写的代码才能跑起来，原地起飞！
+下载集成环境工具 可以选择xampp或phpenv（二选一就行）
+xampp xampp = Apache &#43; MySQL(MariaDB) &#43; PHP &#43; Perl，是一个集成环境软件，装了一个就可以轻松获得服务器，数据库和php语言的环境，轻松快捷而且免费，唯一的缺点可能是因为是外网所以速度稍慢或者可能需要科学上网
+官网下载：https://www.apachefriends.org/zh_cn/index.html
+选择自己的平台，然后点击下载，完成后运行exe
+按普通安装步骤来就好，下面这个界面也默认选择就好，有些环境之后会用到
+ 
+安装路径建议安装在D盘，然后等待安装完成就可以了，打开软件看到主面板
+ 
+点击Apache和start按钮，等待图标变绿后再点击admin按钮或者浏览器地址栏输入localhost进行访问
+如果可以看到服务器主页面说明成功
+然后点击MySQL的start和admin，或者地址栏输入localhost/phpmyadmin/
+出现一个登录界面，账号填写root，密码为空不用填，直接点击登录，出现下面画面说明成功
+ 
+phpEnv 如果xampp实在太慢或者根本无法下载，也可以用phpEnv
+官网下载：https://www.phpenv.cn/
+根据你电脑是64位或者32位进行选择对应版本下载，如果不知道自己电脑是几位的可以点击教程查看
+同样建议放在D盘，其它的默认就行，运行后出现下面界面
+ 
+点击启动服务上面的图标，再点击打开主页的图标，看到phpEnv的主页面就说明成功了
+页面拉到最下面如下
+ 
+数据库端口填3306
+用户名填root
+密码也填root（注意：这里和xampp不一样）
+点击连接按钮后再把页面拉到最下面显示连接成功就行啦
+点击顶部菜单栏的开始，再点击phpMyAdmin，然后按上面xampp的对应内容操作就行
+安装IDE IDE(Integrated Development Environment)，集成开发环境，为开发者提供了基本的代码编辑器的同时还提供了许多适用工具，功能强大，是码农开发的利器。
+php语言我们使用的比较多的是JetBrains公司出的PhpStorm
+官网下载：https://www.jetbrains.com/phpstorm/
+软件体积较大，如果你不想装它的话可以自己下载VSCode然后下载相应插件（自己查）
+由于软件是收费的，但是我们是学生，可以用学校给的邮箱进行学生认证就可以在毕业前都免费使用
+学生认证地址：https://www.jetbrains.com/community/education/#students
+学校邮箱获取方法 进入学校官网，进入智慧广外，	在个人事务中可以看到自己的邮箱地址，一般是学号@gdufs.edu.cn
+ 
+下载破解版也可以，但可能比较花时间
+按步骤完成后打开phpstorm，进行下面的配置流程
+1. 新建一个项目  
+2. 选择创建路径 建议把目录建在集成环境指定的网络根目录下，目录路径如下（以安装在D盘为例）：
+xampp：D:\xampp\htdocs
+phpEnv：D:\phpEnv\www\localhost'><title>php后台开发基础环境搭建教程</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/php_env/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='php后台开发基础环境搭建教程'>
+<meta property='og:description' content='“工欲善其事，必先利其器”，作为后端搬砖工，我们敲代码之前需要给我们的电脑配上所需的软件环境，这样我们写的代码才能跑起来，原地起飞！
+下载集成环境工具 可以选择xampp或phpenv（二选一就行）
+xampp xampp = Apache &#43; MySQL(MariaDB) &#43; PHP &#43; Perl，是一个集成环境软件，装了一个就可以轻松获得服务器，数据库和php语言的环境，轻松快捷而且免费，唯一的缺点可能是因为是外网所以速度稍慢或者可能需要科学上网
+官网下载：https://www.apachefriends.org/zh_cn/index.html
+选择自己的平台，然后点击下载，完成后运行exe
+按普通安装步骤来就好，下面这个界面也默认选择就好，有些环境之后会用到
+ 
+安装路径建议安装在D盘，然后等待安装完成就可以了，打开软件看到主面板
+ 
+点击Apache和start按钮，等待图标变绿后再点击admin按钮或者浏览器地址栏输入localhost进行访问
+如果可以看到服务器主页面说明成功
+然后点击MySQL的start和admin，或者地址栏输入localhost/phpmyadmin/
+出现一个登录界面，账号填写root，密码为空不用填，直接点击登录，出现下面画面说明成功
+ 
+phpEnv 如果xampp实在太慢或者根本无法下载，也可以用phpEnv
+官网下载：https://www.phpenv.cn/
+根据你电脑是64位或者32位进行选择对应版本下载，如果不知道自己电脑是几位的可以点击教程查看
+同样建议放在D盘，其它的默认就行，运行后出现下面界面
+ 
+点击启动服务上面的图标，再点击打开主页的图标，看到phpEnv的主页面就说明成功了
+页面拉到最下面如下
+ 
+数据库端口填3306
+用户名填root
+密码也填root（注意：这里和xampp不一样）
+点击连接按钮后再把页面拉到最下面显示连接成功就行啦
+点击顶部菜单栏的开始，再点击phpMyAdmin，然后按上面xampp的对应内容操作就行
+安装IDE IDE(Integrated Development Environment)，集成开发环境，为开发者提供了基本的代码编辑器的同时还提供了许多适用工具，功能强大，是码农开发的利器。
+php语言我们使用的比较多的是JetBrains公司出的PhpStorm
+官网下载：https://www.jetbrains.com/phpstorm/
+软件体积较大，如果你不想装它的话可以自己下载VSCode然后下载相应插件（自己查）
+由于软件是收费的，但是我们是学生，可以用学校给的邮箱进行学生认证就可以在毕业前都免费使用
+学生认证地址：https://www.jetbrains.com/community/education/#students
+学校邮箱获取方法 进入学校官网，进入智慧广外，	在个人事务中可以看到自己的邮箱地址，一般是学号@gdufs.edu.cn
+ 
+下载破解版也可以，但可能比较花时间
+按步骤完成后打开phpstorm，进行下面的配置流程
+1. 新建一个项目  
+2. 选择创建路径 建议把目录建在集成环境指定的网络根目录下，目录路径如下（以安装在D盘为例）：
+xampp：D:\xampp\htdocs
+phpEnv：D:\phpEnv\www\localhost'>
+<meta property='og:url' content='https://ccqstark.github.io/p/php_env/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='php' /><meta property='article:published_time' content='2020-10-10T11:39:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-10T11:39:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/php_env/php.png' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="php后台开发基础环境搭建教程">
+<meta name="twitter:description" content="“工欲善其事，必先利其器”，作为后端搬砖工，我们敲代码之前需要给我们的电脑配上所需的软件环境，这样我们写的代码才能跑起来，原地起飞！
+下载集成环境工具 可以选择xampp或phpenv（二选一就行）
+xampp xampp = Apache &#43; MySQL(MariaDB) &#43; PHP &#43; Perl，是一个集成环境软件，装了一个就可以轻松获得服务器，数据库和php语言的环境，轻松快捷而且免费，唯一的缺点可能是因为是外网所以速度稍慢或者可能需要科学上网
+官网下载：https://www.apachefriends.org/zh_cn/index.html
+选择自己的平台，然后点击下载，完成后运行exe
+按普通安装步骤来就好，下面这个界面也默认选择就好，有些环境之后会用到
+ 
+安装路径建议安装在D盘，然后等待安装完成就可以了，打开软件看到主面板
+ 
+点击Apache和start按钮，等待图标变绿后再点击admin按钮或者浏览器地址栏输入localhost进行访问
+如果可以看到服务器主页面说明成功
+然后点击MySQL的start和admin，或者地址栏输入localhost/phpmyadmin/
+出现一个登录界面，账号填写root，密码为空不用填，直接点击登录，出现下面画面说明成功
+ 
+phpEnv 如果xampp实在太慢或者根本无法下载，也可以用phpEnv
+官网下载：https://www.phpenv.cn/
+根据你电脑是64位或者32位进行选择对应版本下载，如果不知道自己电脑是几位的可以点击教程查看
+同样建议放在D盘，其它的默认就行，运行后出现下面界面
+ 
+点击启动服务上面的图标，再点击打开主页的图标，看到phpEnv的主页面就说明成功了
+页面拉到最下面如下
+ 
+数据库端口填3306
+用户名填root
+密码也填root（注意：这里和xampp不一样）
+点击连接按钮后再把页面拉到最下面显示连接成功就行啦
+点击顶部菜单栏的开始，再点击phpMyAdmin，然后按上面xampp的对应内容操作就行
+安装IDE IDE(Integrated Development Environment)，集成开发环境，为开发者提供了基本的代码编辑器的同时还提供了许多适用工具，功能强大，是码农开发的利器。
+php语言我们使用的比较多的是JetBrains公司出的PhpStorm
+官网下载：https://www.jetbrains.com/phpstorm/
+软件体积较大，如果你不想装它的话可以自己下载VSCode然后下载相应插件（自己查）
+由于软件是收费的，但是我们是学生，可以用学校给的邮箱进行学生认证就可以在毕业前都免费使用
+学生认证地址：https://www.jetbrains.com/community/education/#students
+学校邮箱获取方法 进入学校官网，进入智慧广外，	在个人事务中可以看到自己的邮箱地址，一般是学号@gdufs.edu.cn
+ 
+下载破解版也可以，但可能比较花时间
+按步骤完成后打开phpstorm，进行下面的配置流程
+1. 新建一个项目  
+2. 选择创建路径 建议把目录建在集成环境指定的网络根目录下，目录路径如下（以安装在D盘为例）：
+xampp：D:\xampp\htdocs
+phpEnv：D:\phpEnv\www\localhost"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/php_env/php.png' />
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/php_env/">
+                <img src="/p/php_env/php_hu30aa9710d612d752c63ae5cdcfcf5665_61468_800x0_resize_box_2.png"
+                        srcset="/p/php_env/php_hu30aa9710d612d752c63ae5cdcfcf5665_61468_800x0_resize_box_2.png 800w, /p/php_env/php_hu30aa9710d612d752c63ae5cdcfcf5665_61468_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="421" 
+                        loading="lazy"
+                        alt="Featured image of post php后台开发基础环境搭建教程" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" >
+                环境搭建
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/php_env/">php后台开发基础环境搭建教程</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 10, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <p>“工欲善其事，必先利其器”，作为后端搬砖工，我们敲代码之前需要给我们的电脑配上所需的软件环境，这样我们写的代码才能跑起来，原地起飞！</p>
+<h2 id="下载集成环境工具">下载集成环境工具</h2>
+<p>可以选择xampp或phpenv（二选一就行）</p>
+<h3 id="xampp">xampp</h3>
+<p>xampp = Apache + MySQL(MariaDB) + PHP + Perl，是一个集成环境软件，装了一个就可以轻松获得服务器，数据库和php语言的环境，轻松快捷而且免费，唯一的缺点可能是因为是外网所以速度稍慢或者可能需要科学上网</p>
+<p>官网下载：<a class="link" href="https://www.apachefriends.org/zh_cn/index.html"  target="_blank" rel="noopener"
+    >https://www.apachefriends.org/zh_cn/index.html</a></p>
+<p>选择自己的平台，然后点击下载，完成后运行exe</p>
+<p>按普通安装步骤来就好，下面这个界面也默认选择就好，有些环境之后会用到</p>
+<p><figure style="flex-grow: 119; flex-basis: 286px">
+		<a href="/p/php_env/install.png" data-size="516x432"><img src="/p/php_env/install.png"
+				srcset="/p/php_env/install_hue31cc14ecc65f74b5f882dbd70f42ad6_56886_480x0_resize_box_2.png 480w, /p/php_env/install_hue31cc14ecc65f74b5f882dbd70f42ad6_56886_1024x0_resize_box_2.png 1024w"
+				width="516"
+				height="432"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>安装路径建议安装在D盘，然后等待安装完成就可以了，打开软件看到主面板</p>
+<p><figure style="flex-grow: 141; flex-basis: 340px">
+		<a href="/p/php_env/control_panel.png" data-size="724x511"><img src="/p/php_env/control_panel.png"
+				srcset="/p/php_env/control_panel_hu7aba9f8b091ef25a84dd8d679f587861_109275_480x0_resize_box_2.png 480w, /p/php_env/control_panel_hu7aba9f8b091ef25a84dd8d679f587861_109275_1024x0_resize_box_2.png 1024w"
+				width="724"
+				height="511"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>点击<code>Apache</code>和<code>start</code>按钮，等待图标变绿后再点击<code>admin</code>按钮或者浏览器地址栏输入<code>localhost</code>进行访问</p>
+<p>如果可以看到服务器主页面说明成功</p>
+<p>然后点击<code>MySQL</code>的<code>start</code>和<code>admin</code>，或者地址栏输入<code>localhost/phpmyadmin/</code></p>
+<p>出现一个登录界面，账号填写<code>root</code>，密码为空不用填，直接点击登录，出现下面画面说明成功</p>
+<p><figure style="flex-grow: 209; flex-basis: 503px">
+		<a href="/p/php_env/phpmyadmin.png" data-size="1536x732"><img src="/p/php_env/phpmyadmin.png"
+				srcset="/p/php_env/phpmyadmin_hueeb5a04033df17881c568a42cb09d2ef_176671_480x0_resize_box_2.png 480w, /p/php_env/phpmyadmin_hueeb5a04033df17881c568a42cb09d2ef_176671_1024x0_resize_box_2.png 1024w"
+				width="1536"
+				height="732"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<h3 id="phpenv">phpEnv</h3>
+<p>如果xampp实在太慢或者根本无法下载，也可以用phpEnv</p>
+<p>官网下载：<a class="link" href="https://www.phpenv.cn/"  target="_blank" rel="noopener"
+    >https://www.phpenv.cn/</a></p>
+<p>根据你电脑是64位或者32位进行选择对应版本下载，如果不知道自己电脑是几位的可以<a class="link" href="https://jingyan.baidu.com/article/7f41ecec2f851a593d095c9b.html"  target="_blank" rel="noopener"
+    >点击教程</a>查看</p>
+<p>同样建议放在D盘，其它的默认就行，运行后出现下面界面</p>
+<p><figure style="flex-grow: 141; flex-basis: 338px">
+		<a href="/p/php_env/phpenv.png" data-size="550x390"><img src="/p/php_env/phpenv.png"
+				srcset="/p/php_env/phpenv_hu09deb755ced7358f7caf3c363107b008_30158_480x0_resize_box_2.png 480w, /p/php_env/phpenv_hu09deb755ced7358f7caf3c363107b008_30158_1024x0_resize_box_2.png 1024w"
+				width="550"
+				height="390"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>点击<code>启动服务</code>上面的图标，再点击<code>打开主页</code>的图标，看到phpEnv的主页面就说明成功了</p>
+<p>页面拉到最下面如下</p>
+<p><figure style="flex-grow: 377; flex-basis: 905px">
+		<a href="/p/php_env/phpenv_mysql.png" data-size="1090x289"><img src="/p/php_env/phpenv_mysql.png"
+				srcset="/p/php_env/phpenv_mysql_hu14ad14b930f9e9181f37a70a701c27d4_55080_480x0_resize_box_2.png 480w, /p/php_env/phpenv_mysql_hu14ad14b930f9e9181f37a70a701c27d4_55080_1024x0_resize_box_2.png 1024w"
+				width="1090"
+				height="289"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>数据库端口填<code>3306</code></p>
+<p>用户名填<code>root</code></p>
+<p>密码也填<code>root</code>（注意：这里和xampp不一样）</p>
+<p>点击连接按钮后再把页面拉到最下面显示<code>连接成功</code>就行啦</p>
+<p>点击顶部菜单栏的<code>开始</code>，再点击<code>phpMyAdmin</code>，然后按上面xampp的对应内容操作就行</p>
+<h2 id="安装ide">安装IDE</h2>
+<p>IDE(Integrated Development Environment)，集成开发环境，为开发者提供了基本的代码编辑器的同时还提供了许多适用工具，功能强大，是码农开发的利器。</p>
+<p>php语言我们使用的比较多的是<code>JetBrains</code>公司出的<code>PhpStorm</code></p>
+<p>官网下载：<a class="link" href="https://www.jetbrains.com/phpstorm/"  target="_blank" rel="noopener"
+    >https://www.jetbrains.com/phpstorm/</a></p>
+<p>软件体积较大，如果你不想装它的话可以自己下载<code>VSCode</code>然后下载相应插件（自己查）</p>
+<p>由于软件是收费的，但是我们是学生，可以用学校给的邮箱进行学生认证就可以在毕业前都免费使用</p>
+<p>学生认证地址：<a class="link" href="https://www.jetbrains.com/community/education/#students"  target="_blank" rel="noopener"
+    >https://www.jetbrains.com/community/education/#students</a></p>
+<h4 id="学校邮箱获取方法">学校邮箱获取方法</h4>
+<p>进入学校官网，进入智慧广外，	在<code>个人事务</code>中可以看到自己的邮箱地址，一般是<code>学号@gdufs.edu.cn</code></p>
+<p><figure style="flex-grow: 121; flex-basis: 291px">
+		<a href="/p/php_env/email.png" data-size="311x256"><img src="/p/php_env/email.png"
+				srcset="/p/php_env/email_hu41879ea9664d19c8125be56eb0869360_7392_480x0_resize_box_2.png 480w, /p/php_env/email_hu41879ea9664d19c8125be56eb0869360_7392_1024x0_resize_box_2.png 1024w"
+				width="311"
+				height="256"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>下载破解版也可以，但可能比较花时间</p>
+<p>按步骤完成后打开phpstorm，进行下面的配置流程</p>
+<h3 id="1-新建一个项目">1. 新建一个项目</h3>
+<p><figure style="flex-grow: 52; flex-basis: 125px">
+		<a href="/p/php_env/new_project.png" data-size="350x671"><img src="/p/php_env/new_project.png"
+				srcset="/p/php_env/new_project_hu43ab886b7565ef1ac2e56920c39e7c96_24975_480x0_resize_box_2.png 480w, /p/php_env/new_project_hu43ab886b7565ef1ac2e56920c39e7c96_24975_1024x0_resize_box_2.png 1024w"
+				width="350"
+				height="671"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<h3 id="2-选择创建路径">2. 选择创建路径</h3>
+<p>建议把目录建在集成环境指定的<strong>网络根目录</strong>下，目录路径如下（以安装在D盘为例）：</p>
+<p><strong>xampp</strong>：<code>D:\xampp\htdocs</code></p>
+<p><strong>phpEnv</strong>：<code>D:\phpEnv\www\localhost</code></p>
+<p><figure style="flex-grow: 169; flex-basis: 406px">
+		<a href="/p/php_env/path.png" data-size="793x468"><img src="/p/php_env/path.png"
+				srcset="/p/php_env/path_hu25cc411214a7879004a6c6cc7850ea82_23213_480x0_resize_box_2.png 480w, /p/php_env/path_hu25cc411214a7879004a6c6cc7850ea82_23213_1024x0_resize_box_2.png 1024w"
+				width="793"
+				height="468"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>路径最后自定义一个项目名，比如我这里叫<code>test</code>，然后点击<code>creat</code></p>
+<h3 id="3-修改运行目录">3. 修改运行目录</h3>
+<p><figure style="flex-grow: 57; flex-basis: 138px">
+		<a href="/p/php_env/settings.png" data-size="339x586"><img src="/p/php_env/settings.png"
+				srcset="/p/php_env/settings_hu34a57ba004a09d7083fd017907d7c8c4_18826_480x0_resize_box_2.png 480w, /p/php_env/settings_hu34a57ba004a09d7083fd017907d7c8c4_18826_1024x0_resize_box_2.png 1024w"
+				width="339"
+				height="586"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>如图打开设置</p>
+<p><figure style="flex-grow: 139; flex-basis: 334px">
+		<a href="/p/php_env/deployment.png" data-size="998x715"><img src="/p/php_env/deployment.png"
+				srcset="/p/php_env/deployment_hub07e4845204002a469a177b46ae686d1_31669_480x0_resize_box_2.png 480w, /p/php_env/deployment_hub07e4845204002a469a177b46ae686d1_31669_1024x0_resize_box_2.png 1024w"
+				width="998"
+				height="715"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>选择<code>Deployment</code>，点击顶部<code>+</code>号，选择<code>Local or mounted folder</code></p>
+<p><figure style="flex-grow: 139; flex-basis: 334px">
+		<a href="/p/php_env/url.png" data-size="998x715"><img src="/p/php_env/url.png"
+				srcset="/p/php_env/url_huab950ead77d67777e5aed2475a6d2e1f_32218_480x0_resize_box_2.png 480w, /p/php_env/url_huab950ead77d67777e5aed2475a6d2e1f_32218_1024x0_resize_box_2.png 1024w"
+				width="998"
+				height="715"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p><code>Folder</code>就填写自己安装的集成环境软件的<strong>网络根目录</strong></p>
+<p><code>Web server URL</code>记得要在最后补上<strong>斜杆和当前项目名</strong></p>
+<p>点击右下角的<code>Apply</code>和<code>OK</code></p>
+<h3 id="4-hello-world">4. Hello World!</h3>
+<p><figure style="flex-grow: 129; flex-basis: 311px">
+		<a href="/p/php_env/new_file.png" data-size="913x704"><img src="/p/php_env/new_file.png"
+				srcset="/p/php_env/new_file_hu2f525efb151ab03d64f55c2d2a812ae7_45131_480x0_resize_box_2.png 480w, /p/php_env/new_file_hu2f525efb151ab03d64f55c2d2a812ae7_45131_1024x0_resize_box_2.png 1024w"
+				width="913"
+				height="704"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>对项目文件夹右键新建一个php文件，自定义命名，然后开始写下第一行php代码吧：</p>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="o">&lt;?</span><span class="nx">php</span>
+    <span class="k">echo</span> <span class="s2">&#34;hello world!&#34;</span><span class="p">;</span>
+</code></pre></div><p>鼠标移到右上角选择一个浏览器运行，或者右键并选择<code>run</code>，或者快捷键<code>Ctrl+Shift+F10</code></p>
+<p><figure style="flex-grow: 291; flex-basis: 700px">
+		<a href="/p/php_env/brower.png" data-size="388x133"><img src="/p/php_env/brower.png"
+				srcset="/p/php_env/brower_hu46f655240c42d24b7222a03fd64bdc5c_4918_480x0_resize_box_2.png 480w, /p/php_env/brower_hu46f655240c42d24b7222a03fd64bdc5c_4918_1024x0_resize_box_2.png 1024w"
+				width="388"
+				height="133"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>如果出现了提醒你选择php解释器的情况</p>
+<p><figure style="flex-grow: 946; flex-basis: 2271px">
+		<a href="/p/php_env/language_level.png" data-size="757x80"><img src="/p/php_env/language_level.png"
+				srcset="/p/php_env/language_level_hu6cfe5241e8b2a4ab92bf7e05d467bc9b_3848_480x0_resize_box_2.png 480w, /p/php_env/language_level_hu6cfe5241e8b2a4ab92bf7e05d467bc9b_3848_1024x0_resize_box_2.png 1024w"
+				width="757"
+				height="80"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>就选择一个已有的版本就行，在<code>settings</code> <strong>-&gt;</strong> <code>Languages&amp;Frameworks</code>  <strong>-&gt;</strong> <code>PHP</code>也可以设置</p>
+<p>点击运行后出现</p>
+<p><figure style="flex-grow: 288; flex-basis: 692px">
+		<a href="/p/php_env/hello_world.png" data-size="358x124"><img src="/p/php_env/hello_world.png"
+				srcset="/p/php_env/hello_world_hu0efec59b83c1fcf5080df2cfb0bff2d1_4155_480x0_resize_box_2.png 480w, /p/php_env/hello_world_hu0efec59b83c1fcf5080df2cfb0bff2d1_4155_1024x0_resize_box_2.png 1024w"
+				width="358"
+				height="124"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>或者是</p>
+<p><figure style="flex-grow: 219; flex-basis: 526px">
+		<a href="/p/php_env/hello_world2.png" data-size="748x341"><img src="/p/php_env/hello_world2.png"
+				srcset="/p/php_env/hello_world2_hufe459786a09a401819265a40b14788a9_9729_480x0_resize_box_2.png 480w, /p/php_env/hello_world2_hufe459786a09a401819265a40b14788a9_9729_1024x0_resize_box_2.png 1024w"
+				width="748"
+				height="341"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>大功告成！现在可以愉快地敲代码了！</p>
+<p>当然，这是为了方便本地开发而安装的集成环境，有兴趣的小朋友可以自己尝试分别安装每个环境或者在Linux上进行编译安装</p>
+<p>PHPer现在可以带着世界上最好的语言开冲了！</p>
+<p><figure style="flex-grow: 160; flex-basis: 384px">
+		<a href="/p/php_env/phper.jpg" data-size="640x400"><img src="/p/php_env/phper.jpg"
+				srcset="/p/php_env/phper_hu98a7534b1df32e1ac5c10182a8537bd9_22265_480x0_resize_q75_box.jpg 480w, /p/php_env/phper_hu98a7534b1df32e1ac5c10182a8537bd9_22265_1024x0_resize_q75_box.jpg 1024w"
+				width="640"
+				height="400"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/php/">php</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

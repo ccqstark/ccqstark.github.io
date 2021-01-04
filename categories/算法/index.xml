@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>算法 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/categories/%E7%AE%97%E6%B3%95/</link>
+    <description>Recent content in 算法 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 31 Oct 2020 17:03:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/%E7%AE%97%E6%B3%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DP动态规划——编辑距离问题</title>
+      <link>https://ccqstark.github.io/p/dp_edit_distance/</link>
+      <pubDate>Sat, 31 Oct 2020 17:03:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_edit_distance/</guid>
+      <description>问题 设A和B是2个字符串。要用最少的字符操作将字符串A转换为字符串B。这里所说的字符操作包括 (1)删除一个字符； (2)插入一个字符； (3)将一个字符改为另一个字符。 将字符串A变换为字符串B所用的最少字符操作数称为字符串A到 B的编辑距离，记为d(A,B)。 对于给定的字符串A和字符串B，计算其编辑距离 d(A,B)。
+输入格式: 第一行是字符串A，文件的第二行是字符串B。
+提示：字符串长度不超过2000个字符。
+输出格式: 输出编辑距离d(A,B)
+输入样例: 在这里给出一组输入。例如：
+fxpimuxwrs 输出样例: 在这里给出相应的输出。例如：
+5思路 用动态规划算法可以将问题分解出最优子结构。
+设dp[i][j]表示把A字符串前i个字符组成的字符串转变为B字符串前j个字符组成的字符串所需的最少的字符操作数
+如果A字符串的第i个字符与B字符串的第j个字符串相同，则这个位置不需要操作，所需的操作等于dp[i-1][j-1]，否则需要进行修改，操作数就要+1
+由于每个位置都可以进行修改、删除、插入三种操作，因此需要把这三种操作中编辑距离最小的作为dp[i][j]的值
+递推公式(代码表示)：
+if (A[i - 1] == B[j - 1]) // dp矩阵以1开始，字符数组是0开始，因此对应的话要-1 	dp[i][j] = dp[i - 1][j - 1]; // 如果对应的位置相同就不用操作，否则要修改所以要+1 else dp[i][j] = dp[i - 1][j - 1] + 1; // 修改 删除 插入 dp[i][j] = min(dp[i][j], min(dp[i - 1][j] + 1, dp[i][j - 1] + 1)); 表的维度：二维</description>
+    </item>
+    
+    <item>
+      <title>贪心算法——会场安排问题</title>
+      <link>https://ccqstark.github.io/p/greedy_activity/</link>
+      <pubDate>Sat, 31 Oct 2020 09:45:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/greedy_activity/</guid>
+      <description>题目 假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）
+输入格式: 第一行有 1 个正整数k，表示有 k个待安排的活动。 接下来的 k行中，每行有 2个正整数，分别表示 k个待安排的活动开始时间和结束时间。时间 以 0 点开始的分钟计。
+输出格式: 输出最少会场数。
+输入样例: 51 2312 2825 3527 8036 50 输出样例: 在这里给出相应的输出。例如：
+3思路 首先这道题就很像书中那道在一个会场中安排尽可能多的活动，但是，不能完全按之前那个思路来做！
+这里是要用尽可能少的会场，而且从题中可以看出会场的结束时间没有限制，只要活动的开始时间比上一场要晚就行。如果我们按书中的办法把活动先按结束时间从小到大排序，然后对当前未安排的活动用一个会场进行尽可能多的安排，之后若还每安排完在开辟一个新的会场继续之前的操作。这样的算法是有问题的，因为这样的在一个会场中尽可能多的安排活动，而从全局来看（还有这道题的特点：会场结束时间无限制），这种策略并不能保证把所有活动安排在最少的会场，所以两个问题并不能完全等同，这就是我一开始犯的错误。
+其实原因就在于：会场结束时间无限制，要用最少的会场。
+正确解法有2种：
+ 把活动按开始时间从小到大排，当开始时间相同则结束时间早的优先。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。 把活动按结束时间从小到大排，当结束时间相同则开始时间早的优先。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序，这样直到所有活动遍历安排完毕。  所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。
+代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.</description>
+    </item>
+    
+    <item>
+      <title>DP动态规划——挖地雷</title>
+      <link>https://ccqstark.github.io/p/dp_digmines/</link>
+      <pubDate>Thu, 22 Oct 2020 01:05:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_digmines/</guid>
+      <description>题目 在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。
+输入格式: 第一行：地窖的个数；
+第二行：为依次每个地窖地雷的个数；
+下面若干行：
+xi yi //表示从xi可到yi，xi&amp;lt;yi。
+最后一行为&amp;quot;0 0&amp;quot;表示结束。
+输出格式: k1-k2−…−kv //挖地雷的顺序 挖到最多的雷。
+输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i++) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k++) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j++) { // max_last + 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last + mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i++) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } </description>
+    </item>
+    
+    <item>
+      <title>DP动态规划——单调递增最长子序列</title>
+      <link>https://ccqstark.github.io/p/dp_increasing/</link>
+      <pubDate>Wed, 21 Oct 2020 21:07:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_increasing/</guid>
+      <description>题目 设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。
+输入格式: 输入有两行： 第一行：n，代表要输入的数列的个数 第二行：n个数，数字之间用空格格开
+输出格式: 最长单调递增子序列的长度
+输入样例: 在这里给出一组输入。例如：
+51 3 5 2 9输出样例: 在这里给出相应的输出。例如：
+4思路 用动态规划的思想，利用子问题的最优解求更大一点的子问题。
+设一个数组dp[i]用于存放数组中从0到i下标的序列中，最长的递增子序列的长度
+双重遍历，如果arr[j]小于arr[i]，则dp[i]为dp[j]+1和dp[i]中较大的那个。即
+dp[i] = max{ dp[j]+1, dp[i] }
+由于每次重头又遍历了一次，并每次都分析最优解，避免了1 2 3 9 6 7 这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。
+这也说明这个算法的时间复杂度只能是O(n2)
+代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i++){ for (int j = 0;j&amp;lt;i;j++){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]+1&amp;gt;dp[i])?</description>
+    </item>
+    
+    <item>
+      <title>DP动态规划——矩阵链相乘问题</title>
+      <link>https://ccqstark.github.io/p/dp_matrix/</link>
+      <pubDate>Mon, 12 Oct 2020 21:07:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_matrix/</guid>
+      <description>问题引入 学过线性代数都知道矩阵的乘法，比如说矩阵A×B，就是A的每一行上的元素分别和B的每一列上对应位置的元素相乘再总体相加，每次得到一个位置上的元素的值。
+假设A是p × q，B是q × r，那结果矩阵就是p × r，当然，能够相乘的条件是A的列数等于B的行数。
+而A×B总共需要做的乘法数是p × q × r，由矩阵乘法的过程可知。
+可以发现，当至少3个矩阵相乘时，比如ABC，(AB)C和(A)BC两种计算顺序所需做的乘法数是不同的。
+现在的问题是一个矩阵链，比如A × B × C × D × E × F × G，要以什么样的顺序相乘才能得使得所需做的乘法数最小呢？
+题目 输入格式: 每个输入文件为一个测试用例，每个测试用例的第一行给出一个正整数(1≤n≤100)，表示一共有n个矩阵A​1​​ ,A​2​​ ,…,A​n​​ ，第二行给出n+1个整数P​0​​ ,P​1​​ …P​n​​ ，以空格分隔，其中1≤P​i​​ ≤100(0≤i≤n)，第i个矩阵A​i​​ 是阶为P​i−1​​ ∗P​i​​ 的矩阵。
+输出格式: 获得上述矩阵的乘积，所需的最少乘法次数。
+输入样例: 在这里给出一组输入。例如：
+ 5
+30 35 15 5 10 20
+ 输出样例: 在这里给出相应的输出。例如：
+ 11875
+ 思路 可以先求2个2个相邻相乘的值，然后用他们求3个3个相乘的，再4个&amp;hellip;依照此规律直到n个
+当前个数阶段也需要把每种划分方案进行尝试，并得出最小的那种。比如我在算4个4个相乘的，那划分位置就有3个，每个都要遍历算一次，最后选最小那个，为下一阶段使用。
+我们利用二维数组m[i][j]表示第i个到第j个矩阵连乘的最优解，有如下公式。
+就是每次划分为2部分，整体最优解=左部分最优解+右部分的最优解+两者相乘所需乘法数
+矩阵i的行数为p[i-1]，列数为p[i]
+ 
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
+代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.</description>
+    </item>
+    
+  </channel>
+</rss>

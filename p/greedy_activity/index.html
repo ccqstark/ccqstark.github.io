@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='题目 假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）
+输入格式: 第一行有 1 个正整数k，表示有 k个待安排的活动。 接下来的 k行中，每行有 2个正整数，分别表示 k个待安排的活动开始时间和结束时间。时间 以 0 点开始的分钟计。
+输出格式: 输出最少会场数。
+输入样例: 51 2312 2825 3527 8036 50 输出样例: 在这里给出相应的输出。例如：
+3思路 首先这道题就很像书中那道在一个会场中安排尽可能多的活动，但是，不能完全按之前那个思路来做！
+这里是要用尽可能少的会场，而且从题中可以看出会场的结束时间没有限制，只要活动的开始时间比上一场要晚就行。如果我们按书中的办法把活动先按结束时间从小到大排序，然后对当前未安排的活动用一个会场进行尽可能多的安排，之后若还每安排完在开辟一个新的会场继续之前的操作。这样的算法是有问题的，因为这样的在一个会场中尽可能多的安排活动，而从全局来看（还有这道题的特点：会场结束时间无限制），这种策略并不能保证把所有活动安排在最少的会场，所以两个问题并不能完全等同，这就是我一开始犯的错误。
+其实原因就在于：会场结束时间无限制，要用最少的会场。
+正确解法有2种：
+ 把活动按开始时间从小到大排，当开始时间相同则结束时间早的优先。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。 把活动按结束时间从小到大排，当结束时间相同则开始时间早的优先。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序，这样直到所有活动遍历安排完毕。  所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。
+代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.'><title>贪心算法——会场安排问题</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/greedy_activity/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='贪心算法——会场安排问题'>
+<meta property='og:description' content='题目 假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）
+输入格式: 第一行有 1 个正整数k，表示有 k个待安排的活动。 接下来的 k行中，每行有 2个正整数，分别表示 k个待安排的活动开始时间和结束时间。时间 以 0 点开始的分钟计。
+输出格式: 输出最少会场数。
+输入样例: 51 2312 2825 3527 8036 50 输出样例: 在这里给出相应的输出。例如：
+3思路 首先这道题就很像书中那道在一个会场中安排尽可能多的活动，但是，不能完全按之前那个思路来做！
+这里是要用尽可能少的会场，而且从题中可以看出会场的结束时间没有限制，只要活动的开始时间比上一场要晚就行。如果我们按书中的办法把活动先按结束时间从小到大排序，然后对当前未安排的活动用一个会场进行尽可能多的安排，之后若还每安排完在开辟一个新的会场继续之前的操作。这样的算法是有问题的，因为这样的在一个会场中尽可能多的安排活动，而从全局来看（还有这道题的特点：会场结束时间无限制），这种策略并不能保证把所有活动安排在最少的会场，所以两个问题并不能完全等同，这就是我一开始犯的错误。
+其实原因就在于：会场结束时间无限制，要用最少的会场。
+正确解法有2种：
+ 把活动按开始时间从小到大排，当开始时间相同则结束时间早的优先。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。 把活动按结束时间从小到大排，当结束时间相同则开始时间早的优先。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序，这样直到所有活动遍历安排完毕。  所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。
+代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/greedy_activity/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='贪心算法' /><meta property='article:published_time' content='2020-10-31T09:45:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-31T09:45:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="贪心算法——会场安排问题">
+<meta name="twitter:description" content="题目 假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）
+输入格式: 第一行有 1 个正整数k，表示有 k个待安排的活动。 接下来的 k行中，每行有 2个正整数，分别表示 k个待安排的活动开始时间和结束时间。时间 以 0 点开始的分钟计。
+输出格式: 输出最少会场数。
+输入样例: 51 2312 2825 3527 8036 50 输出样例: 在这里给出相应的输出。例如：
+3思路 首先这道题就很像书中那道在一个会场中安排尽可能多的活动，但是，不能完全按之前那个思路来做！
+这里是要用尽可能少的会场，而且从题中可以看出会场的结束时间没有限制，只要活动的开始时间比上一场要晚就行。如果我们按书中的办法把活动先按结束时间从小到大排序，然后对当前未安排的活动用一个会场进行尽可能多的安排，之后若还每安排完在开辟一个新的会场继续之前的操作。这样的算法是有问题的，因为这样的在一个会场中尽可能多的安排活动，而从全局来看（还有这道题的特点：会场结束时间无限制），这种策略并不能保证把所有活动安排在最少的会场，所以两个问题并不能完全等同，这就是我一开始犯的错误。
+其实原因就在于：会场结束时间无限制，要用最少的会场。
+正确解法有2种：
+ 把活动按开始时间从小到大排，当开始时间相同则结束时间早的优先。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。 把活动按结束时间从小到大排，当结束时间相同则开始时间早的优先。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序，这样直到所有活动遍历安排完毕。  所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。
+代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AE%97%E6%B3%95/" >
+                算法
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/greedy_activity/">贪心算法——会场安排问题</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 31, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h3 id="题目">题目</h3>
+<p>假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）</p>
+<h3 id="输入格式">输入格式:</h3>
+<p>第一行有 1 个正整数k，表示有 k个待安排的活动。 接下来的 k行中，每行有 2个正整数，分别表示 k个待安排的活动开始时间和结束时间。时间 以 0 点开始的分钟计。</p>
+<h3 id="输出格式">输出格式:</h3>
+<p>输出最少会场数。</p>
+<h3 id="输入样例">输入样例:</h3>
+<pre><code class="language-in" data-lang="in">5
+1 23
+12 28
+25 35
+27 80
+36 50 
+</code></pre><h3 id="输出样例">输出样例:</h3>
+<p>在这里给出相应的输出。例如：</p>
+<pre><code class="language-out" data-lang="out">3
+</code></pre><h3 id="思路">思路</h3>
+<p>首先这道题就很像书中那道在一个会场中安排尽可能多的活动，但是，不能完全按之前那个思路来做！</p>
+<p>这里是要用尽可能少的会场，而且从题中可以看出会场的结束时间没有限制，只要活动的开始时间比上一场要晚就行。如果我们按书中的办法把活动先按结束时间从小到大排序，然后对当前未安排的活动用一个会场进行尽可能多的安排，之后若还每安排完在开辟一个新的会场继续之前的操作。这样的算法是有问题的，因为这样的在一个会场中尽可能多的安排活动，而从全局来看（还有这道题的特点：会场结束时间无限制），这种策略并不能保证把所有活动安排在最少的会场，所以两个问题并不能完全等同，这就是我一开始犯的错误。</p>
+<p>其实原因就在于：会场结束时间无限制，要用最少的会场。</p>
+<p><strong>正确解法</strong>有2种：</p>
+<ol>
+<li>把活动<strong>按开始时间</strong>从小到大排，<strong>当开始时间相同则结束时间早的优先</strong>。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。</li>
+<li>把活动<strong>按结束时间</strong>从小到大排，<strong>当结束时间相同则开始时间早的优先</strong>。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，<strong>然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序</strong>，这样直到所有活动遍历安排完毕。</li>
+</ol>
+<p>所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。</p>
+<h3 id="代码">代码</h3>
+<h4 id="解法1">解法1：</h4>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// 按开始时间排序
+</span><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="cp">#define MAX 666
+</span><span class="cp"></span>
+<span class="k">struct</span> <span class="nc">activity</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">start</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">end</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">arrage</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">activities</span><span class="p">[</span><span class="n">MAX</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+
+<span class="kt">bool</span> <span class="nf">struct_compare</span><span class="p">(</span><span class="n">activity</span> <span class="n">a</span><span class="p">,</span> <span class="n">activity</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">start</span> <span class="o">!=</span> <span class="n">b</span><span class="p">.</span><span class="n">start</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">start</span><span class="p">;</span> <span class="c1">//优先进行最先开始的活动
+</span><span class="c1"></span>    <span class="k">else</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">end</span><span class="p">;</span> <span class="c1">//当开始时间相同时,优先进行最早结束的活动
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">start</span><span class="p">;</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">end</span><span class="p">;</span>
+        <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">arrage</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// 初始化会场数
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">room</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="c1">// 对活动&#39;开始时间&#39;进行从小到大排序
+</span><span class="c1"></span>    <span class="n">sort</span><span class="p">(</span><span class="n">activities</span><span class="p">,</span> <span class="n">activities</span> <span class="o">+</span> <span class="n">n</span><span class="p">,</span> <span class="n">struct_compare</span><span class="p">);</span>
+
+    <span class="c1">// 记录当前安排会场的结束时间，被安排的会场数
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">lastest</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">arrage_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="c1">// 如果会场还没有被全部安排完
+</span><span class="c1"></span>    <span class="k">while</span> <span class="p">(</span><span class="n">arrage_num</span> <span class="o">!=</span> <span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 新增一个会场
+</span><span class="c1"></span>        <span class="n">room</span><span class="o">++</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// 在一个会场中安排尽可能多的活动
+</span><span class="c1"></span>            <span class="k">if</span> <span class="p">(</span><span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">arrage</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">start</span> <span class="o">&gt;=</span> <span class="n">lastest</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">arrage</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// 标记活动为已被安排
+</span><span class="c1"></span>                <span class="n">arrage_num</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">lastest</span> <span class="o">=</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">end</span><span class="p">;</span> <span class="c1">// 更新当前会场的结束时间
+</span><span class="c1"></span>            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">lastest</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">//另外一种写法，效果一样
+</span><span class="c1"></span>    <span class="cm">/*
+</span><span class="cm">    for (int i = 0; i &lt; n; i++)
+</span><span class="cm">    {
+</span><span class="cm">        if (activities[i].arrage == 0)
+</span><span class="cm">        {
+</span><span class="cm">            room++;
+</span><span class="cm">            activities[i].arrage = 1;
+</span><span class="cm">            lastest = activities[i].end;
+</span><span class="cm">            for (int j = i + 1; j &lt; n; j++)
+</span><span class="cm">            {
+</span><span class="cm">                if (activities[j].arrage == 0 &amp;&amp; activities[j].start &gt;= lastest)
+</span><span class="cm">                {
+</span><span class="cm">                    activities[j].arrage = 1;
+</span><span class="cm">                    lastest = activities[j].end;
+</span><span class="cm">                }
+</span><span class="cm">            }
+</span><span class="cm">        }
+</span><span class="cm">    }
+</span><span class="cm">    */</span>
+
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">room</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="解法2">解法2：</h4>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">//按结束时间排序
+</span><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="cp">#define MAX 666
+</span><span class="cp"></span>
+<span class="k">struct</span> <span class="nc">activity</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">start</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">end</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">activities</span><span class="p">[</span><span class="n">MAX</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">end_time</span><span class="p">[</span><span class="n">MAX</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span> <span class="c1">// 记录每个会场的结束时间
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">room</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>            <span class="c1">// 会场数
+</span><span class="c1"></span>
+<span class="kt">bool</span> <span class="nf">struct_compare</span><span class="p">(</span><span class="n">activity</span> <span class="n">a</span><span class="p">,</span> <span class="n">activity</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">end</span> <span class="o">!=</span> <span class="n">b</span><span class="p">.</span><span class="n">end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">end</span><span class="p">;</span> <span class="c1">//优先进行最早结束的活动
+</span><span class="c1"></span>
+    <span class="k">else</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">start</span><span class="p">;</span> <span class="c1">//当结束时间相同时,优先进行最早开始的活动
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kt">bool</span> <span class="nf">dcmp</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">;</span> <span class="c1">// 从大到小排序
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">start</span><span class="p">;</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">end</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 对活动按&#39;结束时间&#39;进行排序
+</span><span class="c1"></span>    <span class="n">sort</span><span class="p">(</span><span class="n">activities</span><span class="p">,</span> <span class="n">activities</span> <span class="o">+</span> <span class="n">n</span><span class="p">,</span> <span class="n">struct_compare</span><span class="p">);</span>
+
+    <span class="c1">// 遍历活动
+</span><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                   <span class="c1">// 标记是否在已开辟的会场中被安排
+</span><span class="c1"></span>        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">room</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="c1">// 遍历已有会场寻找合适的
+</span><span class="c1"></span>        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">start</span> <span class="o">&gt;=</span> <span class="n">end_time</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="p">{</span>
+                <span class="n">end_time</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">end</span><span class="p">;</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1">// 已有会场找不到合适的就开辟一个新的
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">room</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">end_time</span><span class="p">[</span><span class="n">room</span><span class="p">]</span> <span class="o">=</span> <span class="n">activities</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">end</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// 每次安排完一个活动都要对会场们按结束时间从大到小重排
+</span><span class="c1"></span>        <span class="n">sort</span><span class="p">(</span><span class="n">end_time</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">end_time</span> <span class="o">+</span> <span class="n">room</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dcmp</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">room</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p><a class="link" href="https://blog.nowcoder.net/n/513cf3005bcf4093a738e722f6c463e3"  target="_blank" rel="noopener"
+    >参考博文</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/">贪心算法</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/dp_edit_distance/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——编辑距离问题</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_digmines/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——挖地雷</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_increasing/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——单调递增最长子序列</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_matrix/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——矩阵链相乘问题</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>机器学习 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/</link>
+    <description>Recent content in 机器学习 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 22 Nov 2020 22:07:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[机器学习论文]Domain Adaptive Faster R-CNN for Object Detection in the Wild</title>
+      <link>https://ccqstark.github.io/p/ml_domain_adaptation/</link>
+      <pubDate>Sun, 22 Nov 2020 22:07:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/ml_domain_adaptation/</guid>
+      <description>问题引入与研究目标 目标检测的数据集的收集往往是在现实场景中进行的，因此数据中目标的外观、背景、光照、图像质量等方面的巨大差异会导致训练数据和测试数据之间出现巨大的领域偏移。比如汽车在不同天气条件下驾驶收集到的数据，或者是相机的类型和设置的不同也会导致数据的领域偏移。这样的偏移会导致性能显著下降，尽管收集尽可能多的数据集可以降低这种影响，但是注释边界框也是一个费时费力的过程，因此开发一个新的算法来应对跨领域目标检测问题就尤为重要。
+论文中方法适用于无监督场景，在源域有完整的监督，而在目标域没有监督。这样就可以不增加人工标注成本的前提下减少跨域对目标检测效率的影响。
+关键术语介绍 目标检测 Object Detection 目标检测，也叫目标提取，是一种基于目标几何和统计特征的图像分割，它将目标的分割和识别合二为一，其准确性和实时性是整个系统的一项重要能力。尤其是在复杂场景中，需要对多个目标进行实时处理时，目标自动提取和识别就显得特别重要。目标检测主要有三个层次：
+一是分类（Classification），即是将图像结构化为某一类别的信息，用事先确定好的类别(string)或实例ID来描述图片。这一任务是最简单、最基础的图像理解任务，也是深度学习模型最先取得突破和实现大规模应用的任务。其中，ImageNet是最权威的评测集，每年的ILSVRC催生了大量的优秀深度网络结构，为其他任务提供了基础。在应用领域，人脸、场景的识别等都可以归为分类任务。
+二是检测（Detection）。分类任务关心整体，给出的是整张图片的内容描述，而检测则关注特定的物体目标，要求同时获得这一目标的类别信息和位置信息。相比分类，检测给出的是对图片前景和背景的理解，我们需要从背景中分离出感兴趣的目标，并确定这一目标的描述（类别和位置），因而，检测模型的输出是一个列表，列表的每一项使用一个数据组给出检出目标的类别和位置（常用矩形检测框的坐标表示）。
+三是分割（Segmentation）。分割包括语义分割（semantic segmentation）和实例分割（instance segmentation），前者是对前背景分离的拓展，要求分离开具有不同语义的图像部分，而后者是检测任务的拓展，要求描述出目标的轮廓（相比检测框更为精细）。分割是对图像的像素级描述，它赋予每个像素类别（实例）意义，适用于理解要求较高的场景，如无人驾驶中对道路和非道路的分割。
+领域自适应 Domain Adaptation 领域自适应（Domain Adaptation）是迁移学习中的一种代表性方法，指的是利用信息丰富的源域样本来提升目标域模型的性能。 领域自适应问题中两个至关重要的概念：
+源域（source domain）表示与测试样本不同的领域，但是有丰富的监督信息
+目标域（target domain）表示测试样本所在的领域，无标签或者只有少量标签。源域和目标域往往属于同一类任务，但是分布不同
+根据目标域和源域的不同类型，领域自适应问题有四类不同的场景：无监督的，有监督的，异构分布和多个源域问题。 通过在不同阶段进行领域自适应，研究者提出了三种不同的领域自适应方法：
+1）样本自适应，对源域样本进行加权重采样，从而逼近目标域的分布。
+2）特征层面自适应，将源域和目标域投影到公共特征子空间。
+3）模型层面自适应，对源域误差函数进行修改，考虑目标域的误差。
+散度 Divergence 在机器学习中，我们常常需要用一个分布Q去逼近一个目标分布P，我们希望能够找到一个目标函数D ( Q , P ) D( Q,P)D(Q,P)，计算Q到P的距离。而这一个目标函数，正是Divergence(散度)，比如常见的KL-Divergence，JS-Divergence等等。通过这个散度的计算我们就能不断地去优化我们的Q，寻找一个最优的参数去逼近真实的分布P。
+Faster R-CNN Faster R-CNN是何凯明等大神在2015年提出目标检测算法，该算法在2015年的ILSVRV和COCO竞赛中获得多项第一。该算法在Fast R-CNN基础上提出了RPN候选框生成算法，使得目标检测速度大大提高。
+ 
+ 
+Faster-RCNN由下面几部分组成：
+  数据集，image input
+  卷积层CNN等基础网络，提取特征得到feature map
+  RPN层，再在经过卷积层提取到的feature map上用一个3x3的slide window，去遍历整个feature map,在遍历过程中每个window中心按rate，scale（1:2,1:1,2:1）生成9个anchors，然后再利用全连接对每个anchors做二分类（是前景还是背景）和初步bbox regression，最后输出比较精确的300个ROIs。 把经过卷积层feature map用ROI pooling固定全连接层的输入维度。
+  然后把经过RPN输出的rois映射到ROIpooling的feature map上进行bbox回归和分类。</description>
+    </item>
+    
+  </channel>
+</rss>

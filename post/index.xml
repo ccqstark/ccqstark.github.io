@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/post/</link>
+    <description>Recent content in Posts on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 22 Nov 2020 22:10:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>记一次服务器被攻击</title>
+      <link>https://ccqstark.github.io/p/first_attack/</link>
+      <pubDate>Sun, 22 Nov 2020 22:10:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/first_attack/</guid>
+      <description>事情经过 11月17号这天早上上着课，突然有用户反馈应用卡顿，使用不了。我感觉上去看了果然是这样，有时数据加载很慢甚至加载不出来，我感到焦虑与害怕，害怕数据库和别人一样被黑了然后删光要钱，课都没心情听了。然后手机下了个Termius，先把服务关了。
+中午回到宿舍后看了数据库发现数据完好无损，赶紧备份了一波，然后寻找问题。
+内存和CPU和磁盘都挺正常，看了服务器的安全日志，那登录记录刷刷的，有人在暴力破解我的root密码！
+由于下午还有体育课，就先直接关了服务器，然后上课去了。
+下午来到实验室，重新打开服务器，又开始攻击了，气死了。用脚本封了攻击者一百多个肉鸡ip，以为可以了之后，把服务开启，通知用户可以用了。
+结果用户又说太卡了，我又检查了一波，CPU、内存、磁盘正常，然后这个带宽就不太正常了，我学生机的1M/s都超了，应该是这个原因导致卡的。
+用命令找了进程发现好像也没哪个占用很多呀，弄了很久还是很迷惑，攻击者的ip也明明被我加入黑名单了呀，之后还开了腾讯云的专业机阻断，还是很卡，卡到我ssh都连不太上。然后有个办法叫我改ssh的22端口，我怕操作失误连自己都直接连不上就GG了，然后就算了不这样搞了。
+最后只能屁颠屁颠去找客服，他跟我说也是其他正常带宽跑满，叫我看有没有什么进程占用很多，主要是建议我临时升级带宽。
+我想着：啊好家伙，开始了。但是也没啥其他办法，就去买了3天升级到3M/s的带宽，不贵，结果也是真香。
+后来最多手动在安全组加了几个奇怪ip封掉，服务就完成稳定下来了，看来没有什么是加钱不能解决的。
+后来过了两天攻击者还在继续冲，除了影响我带宽之外其实也没太大问题反正他进不来的，问了师兄建议说改22端口，反正重要使用期也过了，我就试试改下，还真有用，安全日志也没攻击者那些破解记录了，带宽也占用也再降了，说明攻击者也是冲22，这下直接完全被挡住，带宽也不占了。
+第一次与黑客对线还是学到了很多的，也加强了我的安全防范意识
+查看系统状态命令 下面有些命令工具需要额外安装的，直接yum install xxx安装就行
+查看服务器安全日志(动态实时)(CentOS) tail -f /var/log/secure 查看CPU等的使用情况(按进程) top 查看内存使用情况 free -h 查看磁盘使用情况 df -hl 查看网络带宽占用(按ip) iftop -i eth0 jnettop 按Q退出
+查看网络带宽占用(按进程) nethogs 还有防火墙工具iptables和firewall-cmd
+https://wangchujiang.com/linux-command/c/iptables.html
+https://wangchujiang.com/linux-command/c/firewall-cmd.html
+编写自动化脚本封禁暴力破解登录的ip 从安全日志中读取记录，把那些多次登录失败的ip写进请求黑名单中（hosts.deny），但是这种办法只是拒绝连接，如果黑客继续攻击还是会占用带宽
+先找个目录，vim建立一个脚本文件
+vim /usr/local/secure_ssh.sh 然后编写脚本
+#! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.</description>
+    </item>
+    
+    <item>
+      <title>[机器学习论文]Domain Adaptive Faster R-CNN for Object Detection in the Wild</title>
+      <link>https://ccqstark.github.io/p/ml_domain_adaptation/</link>
+      <pubDate>Sun, 22 Nov 2020 22:07:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/ml_domain_adaptation/</guid>
+      <description>问题引入与研究目标 目标检测的数据集的收集往往是在现实场景中进行的，因此数据中目标的外观、背景、光照、图像质量等方面的巨大差异会导致训练数据和测试数据之间出现巨大的领域偏移。比如汽车在不同天气条件下驾驶收集到的数据，或者是相机的类型和设置的不同也会导致数据的领域偏移。这样的偏移会导致性能显著下降，尽管收集尽可能多的数据集可以降低这种影响，但是注释边界框也是一个费时费力的过程，因此开发一个新的算法来应对跨领域目标检测问题就尤为重要。
+论文中方法适用于无监督场景，在源域有完整的监督，而在目标域没有监督。这样就可以不增加人工标注成本的前提下减少跨域对目标检测效率的影响。
+关键术语介绍 目标检测 Object Detection 目标检测，也叫目标提取，是一种基于目标几何和统计特征的图像分割，它将目标的分割和识别合二为一，其准确性和实时性是整个系统的一项重要能力。尤其是在复杂场景中，需要对多个目标进行实时处理时，目标自动提取和识别就显得特别重要。目标检测主要有三个层次：
+一是分类（Classification），即是将图像结构化为某一类别的信息，用事先确定好的类别(string)或实例ID来描述图片。这一任务是最简单、最基础的图像理解任务，也是深度学习模型最先取得突破和实现大规模应用的任务。其中，ImageNet是最权威的评测集，每年的ILSVRC催生了大量的优秀深度网络结构，为其他任务提供了基础。在应用领域，人脸、场景的识别等都可以归为分类任务。
+二是检测（Detection）。分类任务关心整体，给出的是整张图片的内容描述，而检测则关注特定的物体目标，要求同时获得这一目标的类别信息和位置信息。相比分类，检测给出的是对图片前景和背景的理解，我们需要从背景中分离出感兴趣的目标，并确定这一目标的描述（类别和位置），因而，检测模型的输出是一个列表，列表的每一项使用一个数据组给出检出目标的类别和位置（常用矩形检测框的坐标表示）。
+三是分割（Segmentation）。分割包括语义分割（semantic segmentation）和实例分割（instance segmentation），前者是对前背景分离的拓展，要求分离开具有不同语义的图像部分，而后者是检测任务的拓展，要求描述出目标的轮廓（相比检测框更为精细）。分割是对图像的像素级描述，它赋予每个像素类别（实例）意义，适用于理解要求较高的场景，如无人驾驶中对道路和非道路的分割。
+领域自适应 Domain Adaptation 领域自适应（Domain Adaptation）是迁移学习中的一种代表性方法，指的是利用信息丰富的源域样本来提升目标域模型的性能。 领域自适应问题中两个至关重要的概念：
+源域（source domain）表示与测试样本不同的领域，但是有丰富的监督信息
+目标域（target domain）表示测试样本所在的领域，无标签或者只有少量标签。源域和目标域往往属于同一类任务，但是分布不同
+根据目标域和源域的不同类型，领域自适应问题有四类不同的场景：无监督的，有监督的，异构分布和多个源域问题。 通过在不同阶段进行领域自适应，研究者提出了三种不同的领域自适应方法：
+1）样本自适应，对源域样本进行加权重采样，从而逼近目标域的分布。
+2）特征层面自适应，将源域和目标域投影到公共特征子空间。
+3）模型层面自适应，对源域误差函数进行修改，考虑目标域的误差。
+散度 Divergence 在机器学习中，我们常常需要用一个分布Q去逼近一个目标分布P，我们希望能够找到一个目标函数D ( Q , P ) D( Q,P)D(Q,P)，计算Q到P的距离。而这一个目标函数，正是Divergence(散度)，比如常见的KL-Divergence，JS-Divergence等等。通过这个散度的计算我们就能不断地去优化我们的Q，寻找一个最优的参数去逼近真实的分布P。
+Faster R-CNN Faster R-CNN是何凯明等大神在2015年提出目标检测算法，该算法在2015年的ILSVRV和COCO竞赛中获得多项第一。该算法在Fast R-CNN基础上提出了RPN候选框生成算法，使得目标检测速度大大提高。
+ 
+ 
+Faster-RCNN由下面几部分组成：
+  数据集，image input
+  卷积层CNN等基础网络，提取特征得到feature map
+  RPN层，再在经过卷积层提取到的feature map上用一个3x3的slide window，去遍历整个feature map,在遍历过程中每个window中心按rate，scale（1:2,1:1,2:1）生成9个anchors，然后再利用全连接对每个anchors做二分类（是前景还是背景）和初步bbox regression，最后输出比较精确的300个ROIs。 把经过卷积层feature map用ROI pooling固定全连接层的输入维度。
+  然后把经过RPN输出的rois映射到ROIpooling的feature map上进行bbox回归和分类。</description>
+    </item>
+    
+    <item>
+      <title>DP动态规划——编辑距离问题</title>
+      <link>https://ccqstark.github.io/p/dp_edit_distance/</link>
+      <pubDate>Sat, 31 Oct 2020 17:03:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_edit_distance/</guid>
+      <description>问题 设A和B是2个字符串。要用最少的字符操作将字符串A转换为字符串B。这里所说的字符操作包括 (1)删除一个字符； (2)插入一个字符； (3)将一个字符改为另一个字符。 将字符串A变换为字符串B所用的最少字符操作数称为字符串A到 B的编辑距离，记为d(A,B)。 对于给定的字符串A和字符串B，计算其编辑距离 d(A,B)。
+输入格式: 第一行是字符串A，文件的第二行是字符串B。
+提示：字符串长度不超过2000个字符。
+输出格式: 输出编辑距离d(A,B)
+输入样例: 在这里给出一组输入。例如：
+fxpimuxwrs 输出样例: 在这里给出相应的输出。例如：
+5思路 用动态规划算法可以将问题分解出最优子结构。
+设dp[i][j]表示把A字符串前i个字符组成的字符串转变为B字符串前j个字符组成的字符串所需的最少的字符操作数
+如果A字符串的第i个字符与B字符串的第j个字符串相同，则这个位置不需要操作，所需的操作等于dp[i-1][j-1]，否则需要进行修改，操作数就要+1
+由于每个位置都可以进行修改、删除、插入三种操作，因此需要把这三种操作中编辑距离最小的作为dp[i][j]的值
+递推公式(代码表示)：
+if (A[i - 1] == B[j - 1]) // dp矩阵以1开始，字符数组是0开始，因此对应的话要-1 	dp[i][j] = dp[i - 1][j - 1]; // 如果对应的位置相同就不用操作，否则要修改所以要+1 else dp[i][j] = dp[i - 1][j - 1] + 1; // 修改 删除 插入 dp[i][j] = min(dp[i][j], min(dp[i - 1][j] + 1, dp[i][j - 1] + 1)); 表的维度：二维</description>
+    </item>
+    
+    <item>
+      <title>贪心算法——会场安排问题</title>
+      <link>https://ccqstark.github.io/p/greedy_activity/</link>
+      <pubDate>Sat, 31 Oct 2020 09:45:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/greedy_activity/</guid>
+      <description>题目 假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）
+输入格式: 第一行有 1 个正整数k，表示有 k个待安排的活动。 接下来的 k行中，每行有 2个正整数，分别表示 k个待安排的活动开始时间和结束时间。时间 以 0 点开始的分钟计。
+输出格式: 输出最少会场数。
+输入样例: 51 2312 2825 3527 8036 50 输出样例: 在这里给出相应的输出。例如：
+3思路 首先这道题就很像书中那道在一个会场中安排尽可能多的活动，但是，不能完全按之前那个思路来做！
+这里是要用尽可能少的会场，而且从题中可以看出会场的结束时间没有限制，只要活动的开始时间比上一场要晚就行。如果我们按书中的办法把活动先按结束时间从小到大排序，然后对当前未安排的活动用一个会场进行尽可能多的安排，之后若还每安排完在开辟一个新的会场继续之前的操作。这样的算法是有问题的，因为这样的在一个会场中尽可能多的安排活动，而从全局来看（还有这道题的特点：会场结束时间无限制），这种策略并不能保证把所有活动安排在最少的会场，所以两个问题并不能完全等同，这就是我一开始犯的错误。
+其实原因就在于：会场结束时间无限制，要用最少的会场。
+正确解法有2种：
+ 把活动按开始时间从小到大排，当开始时间相同则结束时间早的优先。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。 把活动按结束时间从小到大排，当结束时间相同则开始时间早的优先。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序，这样直到所有活动遍历安排完毕。  所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。
+代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.</description>
+    </item>
+    
+    <item>
+      <title>DP动态规划——挖地雷</title>
+      <link>https://ccqstark.github.io/p/dp_digmines/</link>
+      <pubDate>Thu, 22 Oct 2020 01:05:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_digmines/</guid>
+      <description>题目 在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。
+输入格式: 第一行：地窖的个数；
+第二行：为依次每个地窖地雷的个数；
+下面若干行：
+xi yi //表示从xi可到yi，xi&amp;lt;yi。
+最后一行为&amp;quot;0 0&amp;quot;表示结束。
+输出格式: k1-k2−…−kv //挖地雷的顺序 挖到最多的雷。
+输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i++) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k++) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j++) { // max_last + 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last + mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i++) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } </description>
+    </item>
+    
+    <item>
+      <title>DP动态规划——单调递增最长子序列</title>
+      <link>https://ccqstark.github.io/p/dp_increasing/</link>
+      <pubDate>Wed, 21 Oct 2020 21:07:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_increasing/</guid>
+      <description>题目 设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。
+输入格式: 输入有两行： 第一行：n，代表要输入的数列的个数 第二行：n个数，数字之间用空格格开
+输出格式: 最长单调递增子序列的长度
+输入样例: 在这里给出一组输入。例如：
+51 3 5 2 9输出样例: 在这里给出相应的输出。例如：
+4思路 用动态规划的思想，利用子问题的最优解求更大一点的子问题。
+设一个数组dp[i]用于存放数组中从0到i下标的序列中，最长的递增子序列的长度
+双重遍历，如果arr[j]小于arr[i]，则dp[i]为dp[j]+1和dp[i]中较大的那个。即
+dp[i] = max{ dp[j]+1, dp[i] }
+由于每次重头又遍历了一次，并每次都分析最优解，避免了1 2 3 9 6 7 这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。
+这也说明这个算法的时间复杂度只能是O(n2)
+代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i++){ for (int j = 0;j&amp;lt;i;j++){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]+1&amp;gt;dp[i])?</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合shiro&#43;JWT做鉴权</title>
+      <link>https://ccqstark.github.io/p/springboot_shiro_jwt/</link>
+      <pubDate>Sat, 17 Oct 2020 16:52:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_shiro_jwt/</guid>
+      <description>添加依赖 &amp;lt;!-- shiro --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.shiro&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;shiro-spring&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.4.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- JWT --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.auth0&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;java-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.11.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.jsonwebtoken&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;jjwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; JWT加密解密验证工具类 package com.ccqstark.springbootquick.util; import com.auth0.jwt.JWT; import com.auth0.jwt.JWTVerifier; import com.auth0.jwt.algorithms.Algorithm; import io.jsonwebtoken.Claims; import io.jsonwebtoken.JwtBuilder; import io.jsonwebtoken.Jwts; import io.jsonwebtoken.SignatureAlgorithm; import org.apache.commons.codec.binary.Base64; import java.util.Date; import java.util.HashMap; import java.util.Map; import java.util.UUID; /* * 总的来说，工具类中有三个方法 * 获取JwtToken，获取JwtToken中封装的信息，判断JwtToken是否存在 * 1. encode()，参数是=签发人，存在时间，一些其他的信息=。返回值是JwtToken对应的字符串 * 2. decode()，参数是=JwtToken=。返回值是荷载部分的键值对 * 3. isVerify()，参数是=JwtToken=。返回值是这个JwtToken是否存在 * */ public class JwtUtil { // 创建默认的秘钥和算法，供无参的构造方法使用  private static final String defaultbase64EncodedSecretKey = &amp;#34;wdnmd&amp;#34;; private static final SignatureAlgorithm defaultsignatureAlgorithm = SignatureAlgorithm.</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]使用阿里云OSS上传文件</title>
+      <link>https://ccqstark.github.io/p/springboot_oss/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_oss/</guid>
+      <description>开通服务 登录阿里云，开通OSS服务，默认按量计费，为了业务稳定可以购买包月包年的资源包。
+准备工作 创建Bucket，如果是为了作为网站的静态资源存储供用户访问的话把权限设为公共读，填写信息后创建成功，可以在Bucket下新建目录什么的。
+单独创建一个RAM子用户用来调用API，选择编程访问，创建成功后一定要把AccessKeyID和AccessKeySecret等重要信息记下来，后面配置文件要用到。
+然后要给这个子用户添加权限AliyunOSSFullAccess
+Maven依赖 &amp;lt;!-- OSS --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.aliyun.oss&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;aliyun-sdk-oss&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.4.2&amp;lt;/version&amp;gt; &amp;lt;exclusions&amp;gt; &amp;lt;exclusion&amp;gt; &amp;lt;groupId&amp;gt;org.apache.httpcomponents&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;httpclient&amp;lt;/artifactId&amp;gt; &amp;lt;/exclusion&amp;gt; &amp;lt;/exclusions&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.httpcomponents&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;httpclient&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;4.4.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件 endpoint就是在存储桶的概览里地域节点，填外网访问那个就行
+url填资源访问的URL的前面部分（填到.com/）
+accessKeyId和accessKeySecret就是创建子用户时那个
+bucketName就是存储桶的名字
+# 阿里云ossoss:endpoint:*url:*accessKeyId:*accessKeySecret:*bucketName:*配置类 项目的config目录下新建OSS的配置类
+package com.ccqstark.springbootquick.config; import lombok.Data; import org.springframework.boot.context.properties.ConfigurationProperties; import org.springframework.context.annotation.Configuration; import org.springframework.stereotype.Component; import java.io.Serializable; /** * @Description: 阿里云 OSS 配置信息 * @Author: ccq * @Date: 2020/10/16 */ @Component //注册bean @Data @Configuration @ConfigurationProperties(prefix = &amp;#34;oss&amp;#34;) public class OSSConfig implements Serializable { private String endpoint; private String url; private String accessKeyId; private String accessKeySecret; private String bucketName; } 上传文件工具类 项目的util目录下新建这上传工具类</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合Druid数据源</title>
+      <link>https://ccqstark.github.io/p/springboot_druid/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_druid/</guid>
+      <description>添加依赖 &amp;lt;!-- druid数据库连接池 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;druid&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.1.21&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- MySql数据库驱动 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;mysql&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mysql-connector-java&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!--分页插件 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.github.pagehelper&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;pagehelper-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.0.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- log4j日志 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;log4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;log4j&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.17&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 添加配置 spring:datasource:username:rootpassword:root#serverTimezone=UTC解决时区的报错url:jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&amp;amp;useUnicode=true&amp;amp;characterEncoding=utf-8driver-class-name:com.mysql.cj.jdbc.Drivertype:com.alibaba.druid.pool.DruidDataSource#Spring Boot 默认是不注入这些属性值的，需要自己绑定#druid 数据源专有配置initialSize:5minIdle:5maxActive:20maxWait:60000timeBetweenEvictionRunsMillis:60000minEvictableIdleTimeMillis:300000validationQuery:SELECT 1 FROM DUALtestWhileIdle:truetestOnBorrow:falsetestOnReturn:falsepoolPreparedStatements:true#配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入#如果允许时报错 java.lang.ClassNotFoundException: org.apache.log4j.Priority#则导入 log4j 依赖即可，Maven 地址：https://mvnrepository.com/artifact/log4j/log4jfilters:stat,wall,log4jmaxPoolPreparedStatementPerConnectionSize:20useGlobalDataSourceStat:trueconnectionProperties:druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500测试 编写测试类
+@SpringBootTest class SpringbootQuickApplicationTests { @Autowired DataSource dataSource; @Test void contextLoads() throws SQLException { System.out.println(dataSource.getClass()); Connection connection = dataSource.getConnection(); System.out.println(connection); connection.close(); } } 运行后控制台出现如下druid连接池相关字样说明成功
+2020-10-15 10:40:34.179 INFO 11352 --- [ main] com.</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合Mybatis</title>
+      <link>https://ccqstark.github.io/p/springboot_mybatis/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_mybatis/</guid>
+      <description>以我的项目目录结构为例: com.ccqstark.springbootquick
+导入依赖 &amp;lt;!-- springboot的mybatis --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mybatis.spring.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mybatis-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.1.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置 #整合mybatismybatis:type-aliases-package:com.ccqstark.springbootquick.pojomapper-locations:classpath:mybatis/mapper/*.xml编写POJO(用了Lombok) 在com.ccqstark.springbootquick下新建目录pojo，然后新建类User.java，用于存储数据的对象（与数据库中的表对应）
+package com.ccqstark.springbootquick.pojo; import lombok.AllArgsConstructor; import lombok.Data; import lombok.NoArgsConstructor; @Data @NoArgsConstructor @AllArgsConstructor public class User { private int id; private String name; private String pwd; } 编写Mapper 在com.ccqstark.springbootquick下新建目录mapper，然后新建UserMapper.java，用于写接口，CRUD函数
+package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合SLF4J-log4j</title>
+      <link>https://ccqstark.github.io/p/springboot_slf4j-log4j/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_slf4j-log4j/</guid>
+      <description>导入依赖 &amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 然后要在IDEA下载插件Maven Helper中把logback相关的包给Exclude，否则会出现冲突
+配置 log4j.properties中配置
+# rootLogger参数分别为：根Logger级别，输出器stdout，输出器loglog4j.rootLogger = info,stdout,log# 输出信息到控制台log4j.appender.stdout = org.apache.log4j.ConsoleAppenderlog4j.appender.stdout.layout = org.apache.log4j.PatternLayoutlog4j.appender.stdout.layout.ConversionPattern = %d [%-5p] %l %rms: %m%n# 输出DEBUG级别以上的日志到D://log/debug.log，这个是日志文件存放的路径，根据时间情况进行设置log4j.appender.log = org.apache.log4j.DailyRollingFileAppenderlog4j.appender.log.DatePattern = &#39;.&#39;yyyy-MM-ddlog4j.appender.log.File = D://log/debug.loglog4j.appender.log.Encoding = UTF-8#log4j.appender.log.Threshold = INFOlog4j.appender.log.layout = org.apache.log4j.PatternLayoutlog4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n测试 编写测试类，使用@Slf4j注解之前确保使用了lombok
+package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import org.junit.Test; @Slf4j public class LoggerTest { // private static final Logger log = LoggerFactory.</description>
+    </item>
+    
+    <item>
+      <title>DP动态规划——矩阵链相乘问题</title>
+      <link>https://ccqstark.github.io/p/dp_matrix/</link>
+      <pubDate>Mon, 12 Oct 2020 21:07:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dp_matrix/</guid>
+      <description>问题引入 学过线性代数都知道矩阵的乘法，比如说矩阵A×B，就是A的每一行上的元素分别和B的每一列上对应位置的元素相乘再总体相加，每次得到一个位置上的元素的值。
+假设A是p × q，B是q × r，那结果矩阵就是p × r，当然，能够相乘的条件是A的列数等于B的行数。
+而A×B总共需要做的乘法数是p × q × r，由矩阵乘法的过程可知。
+可以发现，当至少3个矩阵相乘时，比如ABC，(AB)C和(A)BC两种计算顺序所需做的乘法数是不同的。
+现在的问题是一个矩阵链，比如A × B × C × D × E × F × G，要以什么样的顺序相乘才能得使得所需做的乘法数最小呢？
+题目 输入格式: 每个输入文件为一个测试用例，每个测试用例的第一行给出一个正整数(1≤n≤100)，表示一共有n个矩阵A​1​​ ,A​2​​ ,…,A​n​​ ，第二行给出n+1个整数P​0​​ ,P​1​​ …P​n​​ ，以空格分隔，其中1≤P​i​​ ≤100(0≤i≤n)，第i个矩阵A​i​​ 是阶为P​i−1​​ ∗P​i​​ 的矩阵。
+输出格式: 获得上述矩阵的乘积，所需的最少乘法次数。
+输入样例: 在这里给出一组输入。例如：
+ 5
+30 35 15 5 10 20
+ 输出样例: 在这里给出相应的输出。例如：
+ 11875
+ 思路 可以先求2个2个相邻相乘的值，然后用他们求3个3个相乘的，再4个&amp;hellip;依照此规律直到n个
+当前个数阶段也需要把每种划分方案进行尝试，并得出最小的那种。比如我在算4个4个相乘的，那划分位置就有3个，每个都要遍历算一次，最后选最小那个，为下一阶段使用。
+我们利用二维数组m[i][j]表示第i个到第j个矩阵连乘的最优解，有如下公式。
+就是每次划分为2部分，整体最优解=左部分最优解+右部分的最优解+两者相乘所需乘法数
+矩阵i的行数为p[i-1]，列数为p[i]
+ 
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
+代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.</description>
+    </item>
+    
+    <item>
+      <title>php后台开发基础环境搭建教程</title>
+      <link>https://ccqstark.github.io/p/php_env/</link>
+      <pubDate>Sat, 10 Oct 2020 11:39:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/php_env/</guid>
+      <description>“工欲善其事，必先利其器”，作为后端搬砖工，我们敲代码之前需要给我们的电脑配上所需的软件环境，这样我们写的代码才能跑起来，原地起飞！
+下载集成环境工具 可以选择xampp或phpenv（二选一就行）
+xampp xampp = Apache + MySQL(MariaDB) + PHP + Perl，是一个集成环境软件，装了一个就可以轻松获得服务器，数据库和php语言的环境，轻松快捷而且免费，唯一的缺点可能是因为是外网所以速度稍慢或者可能需要科学上网
+官网下载：https://www.apachefriends.org/zh_cn/index.html
+选择自己的平台，然后点击下载，完成后运行exe
+按普通安装步骤来就好，下面这个界面也默认选择就好，有些环境之后会用到
+ 
+安装路径建议安装在D盘，然后等待安装完成就可以了，打开软件看到主面板
+ 
+点击Apache和start按钮，等待图标变绿后再点击admin按钮或者浏览器地址栏输入localhost进行访问
+如果可以看到服务器主页面说明成功
+然后点击MySQL的start和admin，或者地址栏输入localhost/phpmyadmin/
+出现一个登录界面，账号填写root，密码为空不用填，直接点击登录，出现下面画面说明成功
+ 
+phpEnv 如果xampp实在太慢或者根本无法下载，也可以用phpEnv
+官网下载：https://www.phpenv.cn/
+根据你电脑是64位或者32位进行选择对应版本下载，如果不知道自己电脑是几位的可以点击教程查看
+同样建议放在D盘，其它的默认就行，运行后出现下面界面
+ 
+点击启动服务上面的图标，再点击打开主页的图标，看到phpEnv的主页面就说明成功了
+页面拉到最下面如下
+ 
+数据库端口填3306
+用户名填root
+密码也填root（注意：这里和xampp不一样）
+点击连接按钮后再把页面拉到最下面显示连接成功就行啦
+点击顶部菜单栏的开始，再点击phpMyAdmin，然后按上面xampp的对应内容操作就行
+安装IDE IDE(Integrated Development Environment)，集成开发环境，为开发者提供了基本的代码编辑器的同时还提供了许多适用工具，功能强大，是码农开发的利器。
+php语言我们使用的比较多的是JetBrains公司出的PhpStorm
+官网下载：https://www.jetbrains.com/phpstorm/
+软件体积较大，如果你不想装它的话可以自己下载VSCode然后下载相应插件（自己查）
+由于软件是收费的，但是我们是学生，可以用学校给的邮箱进行学生认证就可以在毕业前都免费使用
+学生认证地址：https://www.jetbrains.com/community/education/#students
+学校邮箱获取方法 进入学校官网，进入智慧广外，	在个人事务中可以看到自己的邮箱地址，一般是学号@gdufs.edu.cn
+ 
+下载破解版也可以，但可能比较花时间
+按步骤完成后打开phpstorm，进行下面的配置流程
+1. 新建一个项目  
+2. 选择创建路径 建议把目录建在集成环境指定的网络根目录下，目录路径如下（以安装在D盘为例）：
+xampp：D:\xampp\htdocs
+phpEnv：D:\phpEnv\www\localhost</description>
+    </item>
+    
+    <item>
+      <title>使用Hugo&#43;github/gitee搭建个人博客</title>
+      <link>https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</link>
+      <pubDate>Sun, 04 Oct 2020 02:44:33 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</guid>
+      <description>基本操作 下载hugo 首先要有Golang的环境
+然后在GitHub上选择对应平台下载
+https://github.com/gohugoio/hugo/releases
+Windows下载完要设置环境变量
+创建新的站点 hugo new site &amp;lt;path&amp;gt; 
+在指定路径下创建博客站点目录，目录最后是博客站点名
+找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行蛇设置
+https://themes.gohugo.io/
+本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts
+&amp;lt;theme&amp;gt;的位置填写主题的名称
+创建博客 hugo new post/blog.md
+博客的markdown文件一开始都是放在\content\post目录下
+创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
+Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务
+部署到远端仓库  生成\public目录  hugo --theme=hugo-theme-stack --baseUrl=&amp;quot;https://ccqstark.github.io/&amp;quot; --buildDrafts
+根据具体仓库修改，也可以是&amp;quot;https://ccqstark.gitee.io/&amp;quot;
+ 三部曲  git add . git commit -m &amp;#39;...&amp;#39; git push github master 更新博客 要新增一篇博客就继续按下面这个步骤走
+hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://ccqstark.github.io/&amp;#34; --buildDrafts git add . git commit -m &amp;#39;.</description>
+    </item>
+    
+  </channel>
+</rss>

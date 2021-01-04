@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='题目 在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。
+输入格式: 第一行：地窖的个数；
+第二行：为依次每个地窖地雷的个数；
+下面若干行：
+xi yi //表示从xi可到yi，xi&amp;lt;yi。
+最后一行为&amp;quot;0 0&amp;quot;表示结束。
+输出格式: k1-k2−…−kv //挖地雷的顺序 挖到最多的雷。
+输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k&#43;&#43;) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j&#43;&#43;) { // max_last &#43; 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last &#43; mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } '><title>DP动态规划——挖地雷</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/dp_digmines/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='DP动态规划——挖地雷'>
+<meta property='og:description' content='题目 在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。
+输入格式: 第一行：地窖的个数；
+第二行：为依次每个地窖地雷的个数；
+下面若干行：
+xi yi //表示从xi可到yi，xi&amp;lt;yi。
+最后一行为&amp;quot;0 0&amp;quot;表示结束。
+输出格式: k1-k2−…−kv //挖地雷的顺序 挖到最多的雷。
+输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k&#43;&#43;) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j&#43;&#43;) { // max_last &#43; 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last &#43; mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } '>
+<meta property='og:url' content='https://ccqstark.github.io/p/dp_digmines/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-22T01:05:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-22T01:05:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="DP动态规划——挖地雷">
+<meta name="twitter:description" content="题目 在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。
+输入格式: 第一行：地窖的个数；
+第二行：为依次每个地窖地雷的个数；
+下面若干行：
+xi yi //表示从xi可到yi，xi&amp;lt;yi。
+最后一行为&amp;quot;0 0&amp;quot;表示结束。
+输出格式: k1-k2−…−kv //挖地雷的顺序 挖到最多的雷。
+输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k&#43;&#43;) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j&#43;&#43;) { // max_last &#43; 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last &#43; mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } ">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AE%97%E6%B3%95/" >
+                算法
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/dp_digmines/">DP动态规划——挖地雷</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 22, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h3 id="题目">题目</h3>
+<p>在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。</p>
+<h4 id="输入格式">输入格式:</h4>
+<p>第一行：地窖的个数；</p>
+<p>第二行：为依次每个地窖地雷的个数；</p>
+<p>下面若干行：</p>
+<p>xi yi //表示从xi可到yi，xi&lt;yi。</p>
+<p>最后一行为&quot;0 0&quot;表示结束。</p>
+<h4 id="输出格式">输出格式:</h4>
+<p>k1-k2−…−kv //挖地雷的顺序 挖到最多的雷。</p>
+<h4 id="输入样例">输入样例:</h4>
+<pre><code class="language-in" data-lang="in">6
+5 10 20 5 4 5
+1 2
+1 4
+2 4
+3 4
+4 5
+4 6
+5 6
+0 0
+</code></pre><h4 id="输出样例">输出样例:</h4>
+<pre><code class="language-out" data-lang="out">3-4-5-6
+34
+</code></pre><h3 id="代码">代码</h3>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="cp">#define MAX 203
+</span><span class="cp"></span><span class="kt">int</span> <span class="n">matrix</span><span class="p">[</span><span class="n">MAX</span><span class="p">][</span><span class="n">MAX</span><span class="p">];</span>  <span class="c1">// 存放通路情况
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">mines</span><span class="p">[</span><span class="n">MAX</span><span class="p">];</span>        <span class="c1">// 存放各坑地雷数
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">dp_mat</span><span class="p">[</span><span class="n">MAX</span><span class="p">][</span><span class="n">MAX</span><span class="p">];</span>  <span class="c1">// 存放子问题最优解
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">path</span><span class="p">[</span><span class="n">MAX</span><span class="p">];</span>         <span class="c1">// 存放路径
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">last_update</span><span class="p">;</span>    <span class="c1">// last_update是最后一个更新最大值的点
+</span><span class="c1"></span>
+<span class="kt">void</span> <span class="nf">dig</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// 一行行扫
+</span><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// max_last是此点之前所有点可以挖到的最大地雷数
+</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">max_last</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点
+</span><span class="c1"></span>            <span class="k">if</span> <span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">// 按列方向扫，可以通向本点的点
+</span><span class="c1"></span>                <span class="k">if</span> <span class="p">(</span><span class="n">dp_mat</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_last</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="n">max_last</span> <span class="o">=</span> <span class="n">dp_mat</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+                    <span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>  <span class="c1">// 路径是所连接的上一点
+</span><span class="c1"></span>                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// max_last + 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数
+</span><span class="c1"></span>            <span class="n">dp_mat</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_last</span> <span class="o">+</span> <span class="n">mines</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">dp_mat</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">ans</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">// 更新最终答案的最大地雷数
+</span><span class="c1"></span>                <span class="n">ans</span> <span class="o">=</span> <span class="n">dp_mat</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+                <span class="c1">// 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径
+</span><span class="c1"></span>                <span class="n">last_update</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 递归回溯打印完整路径
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">print_path</span><span class="p">(</span><span class="kt">int</span> <span class="n">point</span><span class="p">)</span>
+<span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">point</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="n">print_path</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">point</span><span class="p">]);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">point</span> <span class="o">==</span> <span class="n">last_update</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">point</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">point</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;-&#34;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">mines</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">a</span> <span class="o">&gt;&gt;</span> <span class="n">b</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="n">a</span><span class="p">][</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">dig</span><span class="p">();</span>
+
+    <span class="n">print_path</span><span class="p">(</span><span class="n">last_update</span><span class="p">);</span>
+
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/dp_edit_distance/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——编辑距离问题</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_increasing/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——单调递增最长子序列</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_matrix/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——矩阵链相乘问题</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/greedy_activity/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">贪心算法——会场安排问题</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

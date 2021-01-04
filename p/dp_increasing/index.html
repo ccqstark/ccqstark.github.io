@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='题目 设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。
+输入格式: 输入有两行： 第一行：n，代表要输入的数列的个数 第二行：n个数，数字之间用空格格开
+输出格式: 最长单调递增子序列的长度
+输入样例: 在这里给出一组输入。例如：
+51 3 5 2 9输出样例: 在这里给出相应的输出。例如：
+4思路 用动态规划的思想，利用子问题的最优解求更大一点的子问题。
+设一个数组dp[i]用于存放数组中从0到i下标的序列中，最长的递增子序列的长度
+双重遍历，如果arr[j]小于arr[i]，则dp[i]为dp[j]&#43;1和dp[i]中较大的那个。即
+dp[i] = max{ dp[j]&#43;1, dp[i] }
+由于每次重头又遍历了一次，并每次都分析最优解，避免了1 2 3 9 6 7 这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。
+这也说明这个算法的时间复杂度只能是O(n2)
+代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?'><title>DP动态规划——单调递增最长子序列</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/dp_increasing/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='DP动态规划——单调递增最长子序列'>
+<meta property='og:description' content='题目 设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。
+输入格式: 输入有两行： 第一行：n，代表要输入的数列的个数 第二行：n个数，数字之间用空格格开
+输出格式: 最长单调递增子序列的长度
+输入样例: 在这里给出一组输入。例如：
+51 3 5 2 9输出样例: 在这里给出相应的输出。例如：
+4思路 用动态规划的思想，利用子问题的最优解求更大一点的子问题。
+设一个数组dp[i]用于存放数组中从0到i下标的序列中，最长的递增子序列的长度
+双重遍历，如果arr[j]小于arr[i]，则dp[i]为dp[j]&#43;1和dp[i]中较大的那个。即
+dp[i] = max{ dp[j]&#43;1, dp[i] }
+由于每次重头又遍历了一次，并每次都分析最优解，避免了1 2 3 9 6 7 这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。
+这也说明这个算法的时间复杂度只能是O(n2)
+代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?'>
+<meta property='og:url' content='https://ccqstark.github.io/p/dp_increasing/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-21T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-21T21:07:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="DP动态规划——单调递增最长子序列">
+<meta name="twitter:description" content="题目 设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。
+输入格式: 输入有两行： 第一行：n，代表要输入的数列的个数 第二行：n个数，数字之间用空格格开
+输出格式: 最长单调递增子序列的长度
+输入样例: 在这里给出一组输入。例如：
+51 3 5 2 9输出样例: 在这里给出相应的输出。例如：
+4思路 用动态规划的思想，利用子问题的最优解求更大一点的子问题。
+设一个数组dp[i]用于存放数组中从0到i下标的序列中，最长的递增子序列的长度
+双重遍历，如果arr[j]小于arr[i]，则dp[i]为dp[j]&#43;1和dp[i]中较大的那个。即
+dp[i] = max{ dp[j]&#43;1, dp[i] }
+由于每次重头又遍历了一次，并每次都分析最优解，避免了1 2 3 9 6 7 这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。
+这也说明这个算法的时间复杂度只能是O(n2)
+代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AE%97%E6%B3%95/" >
+                算法
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/dp_increasing/">DP动态规划——单调递增最长子序列</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 21, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h3 id="题目">题目</h3>
+<p>设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。</p>
+<h4 id="输入格式">输入格式:</h4>
+<p>输入有两行： 第一行：n，代表要输入的数列的个数 第二行：n个数，数字之间用空格格开</p>
+<h4 id="输出格式">输出格式:</h4>
+<p>最长单调递增子序列的长度</p>
+<h4 id="输入样例">输入样例:</h4>
+<p>在这里给出一组输入。例如：</p>
+<pre><code class="language-in" data-lang="in">5
+1 3 5 2 9
+</code></pre><h4 id="输出样例">输出样例:</h4>
+<p>在这里给出相应的输出。例如：</p>
+<pre><code class="language-out" data-lang="out">4
+</code></pre><h3 id="思路">思路</h3>
+<p>用动态规划的思想，利用子问题的最优解求更大一点的子问题。</p>
+<p>设一个数组<code>dp[i]</code>用于存放数组中从0到i下标的序列中，最长的递增子序列的长度</p>
+<p>双重遍历，如果arr[j]小于arr[i]，则<code>dp[i]</code>为<code>dp[j]+1</code>和<code>dp[i]</code>中较大的那个。即</p>
+<p><code>dp[i] = max{ dp[j]+1, dp[i] }</code></p>
+<p>由于每次重头又遍历了一次，并每次都分析最优解，避免了<code>1 2 3 9 6 7 </code>这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。</p>
+<p>这也说明这个算法的时间复杂度只能是O(n2)</p>
+<h3 id="代码">代码</h3>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// 单调递增最长子序列
+</span><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="cp">#define MAX 666
+</span><span class="cp"></span><span class="kt">int</span> <span class="n">arr</span><span class="p">[</span><span class="n">MAX</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">dp</span><span class="p">[</span><span class="n">MAX</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">longest_increasing</span><span class="p">(){</span>
+
+    <span class="c1">// 初始化第一个
+</span><span class="c1"></span>    <span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="c1">// 双重遍历
+</span><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">i</span><span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">){</span>
+            <span class="c1">// 利用子问题最优解
+</span><span class="c1"></span>            <span class="k">if</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]){</span>
+                <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="o">&gt;</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">?</span><span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="o">:</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 找出dp[]中最大的那个作为答案
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">max_len</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">max_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="n">max_len</span><span class="p">)</span><span class="o">?</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">:</span><span class="n">max_len</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">max_len</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">n</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">longest_increasing</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/dp_edit_distance/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——编辑距离问题</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_digmines/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——挖地雷</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_matrix/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——矩阵链相乘问题</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/greedy_activity/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">贪心算法——会场安排问题</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

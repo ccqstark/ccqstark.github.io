@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SpringBoot on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/springboot/</link>
+    <description>Recent content in SpringBoot on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 17 Oct 2020 16:52:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/springboot/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[SpringBoot]整合shiro&#43;JWT做鉴权</title>
+      <link>https://ccqstark.github.io/p/springboot_shiro_jwt/</link>
+      <pubDate>Sat, 17 Oct 2020 16:52:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_shiro_jwt/</guid>
+      <description>添加依赖 &amp;lt;!-- shiro --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.shiro&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;shiro-spring&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.4.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- JWT --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.auth0&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;java-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.11.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.jsonwebtoken&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;jjwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; JWT加密解密验证工具类 package com.ccqstark.springbootquick.util; import com.auth0.jwt.JWT; import com.auth0.jwt.JWTVerifier; import com.auth0.jwt.algorithms.Algorithm; import io.jsonwebtoken.Claims; import io.jsonwebtoken.JwtBuilder; import io.jsonwebtoken.Jwts; import io.jsonwebtoken.SignatureAlgorithm; import org.apache.commons.codec.binary.Base64; import java.util.Date; import java.util.HashMap; import java.util.Map; import java.util.UUID; /* * 总的来说，工具类中有三个方法 * 获取JwtToken，获取JwtToken中封装的信息，判断JwtToken是否存在 * 1. encode()，参数是=签发人，存在时间，一些其他的信息=。返回值是JwtToken对应的字符串 * 2. decode()，参数是=JwtToken=。返回值是荷载部分的键值对 * 3. isVerify()，参数是=JwtToken=。返回值是这个JwtToken是否存在 * */ public class JwtUtil { // 创建默认的秘钥和算法，供无参的构造方法使用  private static final String defaultbase64EncodedSecretKey = &amp;#34;wdnmd&amp;#34;; private static final SignatureAlgorithm defaultsignatureAlgorithm = SignatureAlgorithm.</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]使用阿里云OSS上传文件</title>
+      <link>https://ccqstark.github.io/p/springboot_oss/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_oss/</guid>
+      <description>开通服务 登录阿里云，开通OSS服务，默认按量计费，为了业务稳定可以购买包月包年的资源包。
+准备工作 创建Bucket，如果是为了作为网站的静态资源存储供用户访问的话把权限设为公共读，填写信息后创建成功，可以在Bucket下新建目录什么的。
+单独创建一个RAM子用户用来调用API，选择编程访问，创建成功后一定要把AccessKeyID和AccessKeySecret等重要信息记下来，后面配置文件要用到。
+然后要给这个子用户添加权限AliyunOSSFullAccess
+Maven依赖 &amp;lt;!-- OSS --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.aliyun.oss&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;aliyun-sdk-oss&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.4.2&amp;lt;/version&amp;gt; &amp;lt;exclusions&amp;gt; &amp;lt;exclusion&amp;gt; &amp;lt;groupId&amp;gt;org.apache.httpcomponents&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;httpclient&amp;lt;/artifactId&amp;gt; &amp;lt;/exclusion&amp;gt; &amp;lt;/exclusions&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.httpcomponents&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;httpclient&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;4.4.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件 endpoint就是在存储桶的概览里地域节点，填外网访问那个就行
+url填资源访问的URL的前面部分（填到.com/）
+accessKeyId和accessKeySecret就是创建子用户时那个
+bucketName就是存储桶的名字
+# 阿里云ossoss:endpoint:*url:*accessKeyId:*accessKeySecret:*bucketName:*配置类 项目的config目录下新建OSS的配置类
+package com.ccqstark.springbootquick.config; import lombok.Data; import org.springframework.boot.context.properties.ConfigurationProperties; import org.springframework.context.annotation.Configuration; import org.springframework.stereotype.Component; import java.io.Serializable; /** * @Description: 阿里云 OSS 配置信息 * @Author: ccq * @Date: 2020/10/16 */ @Component //注册bean @Data @Configuration @ConfigurationProperties(prefix = &amp;#34;oss&amp;#34;) public class OSSConfig implements Serializable { private String endpoint; private String url; private String accessKeyId; private String accessKeySecret; private String bucketName; } 上传文件工具类 项目的util目录下新建这上传工具类</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合Druid数据源</title>
+      <link>https://ccqstark.github.io/p/springboot_druid/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_druid/</guid>
+      <description>添加依赖 &amp;lt;!-- druid数据库连接池 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;druid&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.1.21&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- MySql数据库驱动 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;mysql&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mysql-connector-java&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!--分页插件 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.github.pagehelper&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;pagehelper-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.0.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- log4j日志 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;log4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;log4j&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.17&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 添加配置 spring:datasource:username:rootpassword:root#serverTimezone=UTC解决时区的报错url:jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&amp;amp;useUnicode=true&amp;amp;characterEncoding=utf-8driver-class-name:com.mysql.cj.jdbc.Drivertype:com.alibaba.druid.pool.DruidDataSource#Spring Boot 默认是不注入这些属性值的，需要自己绑定#druid 数据源专有配置initialSize:5minIdle:5maxActive:20maxWait:60000timeBetweenEvictionRunsMillis:60000minEvictableIdleTimeMillis:300000validationQuery:SELECT 1 FROM DUALtestWhileIdle:truetestOnBorrow:falsetestOnReturn:falsepoolPreparedStatements:true#配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入#如果允许时报错 java.lang.ClassNotFoundException: org.apache.log4j.Priority#则导入 log4j 依赖即可，Maven 地址：https://mvnrepository.com/artifact/log4j/log4jfilters:stat,wall,log4jmaxPoolPreparedStatementPerConnectionSize:20useGlobalDataSourceStat:trueconnectionProperties:druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500测试 编写测试类
+@SpringBootTest class SpringbootQuickApplicationTests { @Autowired DataSource dataSource; @Test void contextLoads() throws SQLException { System.out.println(dataSource.getClass()); Connection connection = dataSource.getConnection(); System.out.println(connection); connection.close(); } } 运行后控制台出现如下druid连接池相关字样说明成功
+2020-10-15 10:40:34.179 INFO 11352 --- [ main] com.</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合Mybatis</title>
+      <link>https://ccqstark.github.io/p/springboot_mybatis/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_mybatis/</guid>
+      <description>以我的项目目录结构为例: com.ccqstark.springbootquick
+导入依赖 &amp;lt;!-- springboot的mybatis --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mybatis.spring.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mybatis-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.1.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置 #整合mybatismybatis:type-aliases-package:com.ccqstark.springbootquick.pojomapper-locations:classpath:mybatis/mapper/*.xml编写POJO(用了Lombok) 在com.ccqstark.springbootquick下新建目录pojo，然后新建类User.java，用于存储数据的对象（与数据库中的表对应）
+package com.ccqstark.springbootquick.pojo; import lombok.AllArgsConstructor; import lombok.Data; import lombok.NoArgsConstructor; @Data @NoArgsConstructor @AllArgsConstructor public class User { private int id; private String name; private String pwd; } 编写Mapper 在com.ccqstark.springbootquick下新建目录mapper，然后新建UserMapper.java，用于写接口，CRUD函数
+package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合SLF4J-log4j</title>
+      <link>https://ccqstark.github.io/p/springboot_slf4j-log4j/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_slf4j-log4j/</guid>
+      <description>导入依赖 &amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 然后要在IDEA下载插件Maven Helper中把logback相关的包给Exclude，否则会出现冲突
+配置 log4j.properties中配置
+# rootLogger参数分别为：根Logger级别，输出器stdout，输出器loglog4j.rootLogger = info,stdout,log# 输出信息到控制台log4j.appender.stdout = org.apache.log4j.ConsoleAppenderlog4j.appender.stdout.layout = org.apache.log4j.PatternLayoutlog4j.appender.stdout.layout.ConversionPattern = %d [%-5p] %l %rms: %m%n# 输出DEBUG级别以上的日志到D://log/debug.log，这个是日志文件存放的路径，根据时间情况进行设置log4j.appender.log = org.apache.log4j.DailyRollingFileAppenderlog4j.appender.log.DatePattern = &#39;.&#39;yyyy-MM-ddlog4j.appender.log.File = D://log/debug.loglog4j.appender.log.Encoding = UTF-8#log4j.appender.log.Threshold = INFOlog4j.appender.log.layout = org.apache.log4j.PatternLayoutlog4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n测试 编写测试类，使用@Slf4j注解之前确保使用了lombok
+package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import org.junit.Test; @Slf4j public class LoggerTest { // private static final Logger log = LoggerFactory.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>php on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/php/</link>
+    <description>Recent content in php on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 10 Oct 2020 11:39:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/php/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>php后台开发基础环境搭建教程</title>
+      <link>https://ccqstark.github.io/p/php_env/</link>
+      <pubDate>Sat, 10 Oct 2020 11:39:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/php_env/</guid>
+      <description>“工欲善其事，必先利其器”，作为后端搬砖工，我们敲代码之前需要给我们的电脑配上所需的软件环境，这样我们写的代码才能跑起来，原地起飞！
+下载集成环境工具 可以选择xampp或phpenv（二选一就行）
+xampp xampp = Apache + MySQL(MariaDB) + PHP + Perl，是一个集成环境软件，装了一个就可以轻松获得服务器，数据库和php语言的环境，轻松快捷而且免费，唯一的缺点可能是因为是外网所以速度稍慢或者可能需要科学上网
+官网下载：https://www.apachefriends.org/zh_cn/index.html
+选择自己的平台，然后点击下载，完成后运行exe
+按普通安装步骤来就好，下面这个界面也默认选择就好，有些环境之后会用到
+ 
+安装路径建议安装在D盘，然后等待安装完成就可以了，打开软件看到主面板
+ 
+点击Apache和start按钮，等待图标变绿后再点击admin按钮或者浏览器地址栏输入localhost进行访问
+如果可以看到服务器主页面说明成功
+然后点击MySQL的start和admin，或者地址栏输入localhost/phpmyadmin/
+出现一个登录界面，账号填写root，密码为空不用填，直接点击登录，出现下面画面说明成功
+ 
+phpEnv 如果xampp实在太慢或者根本无法下载，也可以用phpEnv
+官网下载：https://www.phpenv.cn/
+根据你电脑是64位或者32位进行选择对应版本下载，如果不知道自己电脑是几位的可以点击教程查看
+同样建议放在D盘，其它的默认就行，运行后出现下面界面
+ 
+点击启动服务上面的图标，再点击打开主页的图标，看到phpEnv的主页面就说明成功了
+页面拉到最下面如下
+ 
+数据库端口填3306
+用户名填root
+密码也填root（注意：这里和xampp不一样）
+点击连接按钮后再把页面拉到最下面显示连接成功就行啦
+点击顶部菜单栏的开始，再点击phpMyAdmin，然后按上面xampp的对应内容操作就行
+安装IDE IDE(Integrated Development Environment)，集成开发环境，为开发者提供了基本的代码编辑器的同时还提供了许多适用工具，功能强大，是码农开发的利器。
+php语言我们使用的比较多的是JetBrains公司出的PhpStorm
+官网下载：https://www.jetbrains.com/phpstorm/
+软件体积较大，如果你不想装它的话可以自己下载VSCode然后下载相应插件（自己查）
+由于软件是收费的，但是我们是学生，可以用学校给的邮箱进行学生认证就可以在毕业前都免费使用
+学生认证地址：https://www.jetbrains.com/community/education/#students
+学校邮箱获取方法 进入学校官网，进入智慧广外，	在个人事务中可以看到自己的邮箱地址，一般是学号@gdufs.edu.cn
+ 
+下载破解版也可以，但可能比较花时间
+按步骤完成后打开phpstorm，进行下面的配置流程
+1. 新建一个项目  
+2. 选择创建路径 建议把目录建在集成环境指定的网络根目录下，目录路径如下（以安装在D盘为例）：
+xampp：D:\xampp\htdocs
+phpEnv：D:\phpEnv\www\localhost</description>
+    </item>
+    
+  </channel>
+</rss>

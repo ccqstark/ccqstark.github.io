@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='问题引入 学过线性代数都知道矩阵的乘法，比如说矩阵A×B，就是A的每一行上的元素分别和B的每一列上对应位置的元素相乘再总体相加，每次得到一个位置上的元素的值。
+假设A是p × q，B是q × r，那结果矩阵就是p × r，当然，能够相乘的条件是A的列数等于B的行数。
+而A×B总共需要做的乘法数是p × q × r，由矩阵乘法的过程可知。
+可以发现，当至少3个矩阵相乘时，比如ABC，(AB)C和(A)BC两种计算顺序所需做的乘法数是不同的。
+现在的问题是一个矩阵链，比如A × B × C × D × E × F × G，要以什么样的顺序相乘才能得使得所需做的乘法数最小呢？
+题目 输入格式: 每个输入文件为一个测试用例，每个测试用例的第一行给出一个正整数(1≤n≤100)，表示一共有n个矩阵A​1​​ ,A​2​​ ,…,A​n​​ ，第二行给出n&#43;1个整数P​0​​ ,P​1​​ …P​n​​ ，以空格分隔，其中1≤P​i​​ ≤100(0≤i≤n)，第i个矩阵A​i​​ 是阶为P​i−1​​ ∗P​i​​ 的矩阵。
+输出格式: 获得上述矩阵的乘积，所需的最少乘法次数。
+输入样例: 在这里给出一组输入。例如：
+ 5
+30 35 15 5 10 20
+ 输出样例: 在这里给出相应的输出。例如：
+ 11875
+ 思路 可以先求2个2个相邻相乘的值，然后用他们求3个3个相乘的，再4个&amp;hellip;依照此规律直到n个
+当前个数阶段也需要把每种划分方案进行尝试，并得出最小的那种。比如我在算4个4个相乘的，那划分位置就有3个，每个都要遍历算一次，最后选最小那个，为下一阶段使用。
+我们利用二维数组m[i][j]表示第i个到第j个矩阵连乘的最优解，有如下公式。
+就是每次划分为2部分，整体最优解=左部分最优解&#43;右部分的最优解&#43;两者相乘所需乘法数
+矩阵i的行数为p[i-1]，列数为p[i]
+ 
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
+代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.'><title>DP动态规划——矩阵链相乘问题</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/dp_matrix/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='DP动态规划——矩阵链相乘问题'>
+<meta property='og:description' content='问题引入 学过线性代数都知道矩阵的乘法，比如说矩阵A×B，就是A的每一行上的元素分别和B的每一列上对应位置的元素相乘再总体相加，每次得到一个位置上的元素的值。
+假设A是p × q，B是q × r，那结果矩阵就是p × r，当然，能够相乘的条件是A的列数等于B的行数。
+而A×B总共需要做的乘法数是p × q × r，由矩阵乘法的过程可知。
+可以发现，当至少3个矩阵相乘时，比如ABC，(AB)C和(A)BC两种计算顺序所需做的乘法数是不同的。
+现在的问题是一个矩阵链，比如A × B × C × D × E × F × G，要以什么样的顺序相乘才能得使得所需做的乘法数最小呢？
+题目 输入格式: 每个输入文件为一个测试用例，每个测试用例的第一行给出一个正整数(1≤n≤100)，表示一共有n个矩阵A​1​​ ,A​2​​ ,…,A​n​​ ，第二行给出n&#43;1个整数P​0​​ ,P​1​​ …P​n​​ ，以空格分隔，其中1≤P​i​​ ≤100(0≤i≤n)，第i个矩阵A​i​​ 是阶为P​i−1​​ ∗P​i​​ 的矩阵。
+输出格式: 获得上述矩阵的乘积，所需的最少乘法次数。
+输入样例: 在这里给出一组输入。例如：
+ 5
+30 35 15 5 10 20
+ 输出样例: 在这里给出相应的输出。例如：
+ 11875
+ 思路 可以先求2个2个相邻相乘的值，然后用他们求3个3个相乘的，再4个&amp;hellip;依照此规律直到n个
+当前个数阶段也需要把每种划分方案进行尝试，并得出最小的那种。比如我在算4个4个相乘的，那划分位置就有3个，每个都要遍历算一次，最后选最小那个，为下一阶段使用。
+我们利用二维数组m[i][j]表示第i个到第j个矩阵连乘的最优解，有如下公式。
+就是每次划分为2部分，整体最优解=左部分最优解&#43;右部分的最优解&#43;两者相乘所需乘法数
+矩阵i的行数为p[i-1]，列数为p[i]
+ 
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
+代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/dp_matrix/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-12T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-12T21:07:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="DP动态规划——矩阵链相乘问题">
+<meta name="twitter:description" content="问题引入 学过线性代数都知道矩阵的乘法，比如说矩阵A×B，就是A的每一行上的元素分别和B的每一列上对应位置的元素相乘再总体相加，每次得到一个位置上的元素的值。
+假设A是p × q，B是q × r，那结果矩阵就是p × r，当然，能够相乘的条件是A的列数等于B的行数。
+而A×B总共需要做的乘法数是p × q × r，由矩阵乘法的过程可知。
+可以发现，当至少3个矩阵相乘时，比如ABC，(AB)C和(A)BC两种计算顺序所需做的乘法数是不同的。
+现在的问题是一个矩阵链，比如A × B × C × D × E × F × G，要以什么样的顺序相乘才能得使得所需做的乘法数最小呢？
+题目 输入格式: 每个输入文件为一个测试用例，每个测试用例的第一行给出一个正整数(1≤n≤100)，表示一共有n个矩阵A​1​​ ,A​2​​ ,…,A​n​​ ，第二行给出n&#43;1个整数P​0​​ ,P​1​​ …P​n​​ ，以空格分隔，其中1≤P​i​​ ≤100(0≤i≤n)，第i个矩阵A​i​​ 是阶为P​i−1​​ ∗P​i​​ 的矩阵。
+输出格式: 获得上述矩阵的乘积，所需的最少乘法次数。
+输入样例: 在这里给出一组输入。例如：
+ 5
+30 35 15 5 10 20
+ 输出样例: 在这里给出相应的输出。例如：
+ 11875
+ 思路 可以先求2个2个相邻相乘的值，然后用他们求3个3个相乘的，再4个&amp;hellip;依照此规律直到n个
+当前个数阶段也需要把每种划分方案进行尝试，并得出最小的那种。比如我在算4个4个相乘的，那划分位置就有3个，每个都要遍历算一次，最后选最小那个，为下一阶段使用。
+我们利用二维数组m[i][j]表示第i个到第j个矩阵连乘的最优解，有如下公式。
+就是每次划分为2部分，整体最优解=左部分最优解&#43;右部分的最优解&#43;两者相乘所需乘法数
+矩阵i的行数为p[i-1]，列数为p[i]
+ 
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
+代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%AE%97%E6%B3%95/" >
+                算法
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/dp_matrix/">DP动态规划——矩阵链相乘问题</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 12, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h3 id="问题引入">问题引入</h3>
+<p>学过线性代数都知道矩阵的乘法，比如说矩阵A×B，就是A的每一行上的元素分别和B的每一列上对应位置的元素相乘再总体相加，每次得到一个位置上的元素的值。</p>
+<p>假设A是<code>p × q</code>，B是<code>q × r</code>，那结果矩阵就是<code>p × r</code>，当然，能够相乘的条件是A的列数等于B的行数。</p>
+<p>而A×B总共需要做的乘法数是<code>p × q × r</code>，由矩阵乘法的过程可知。</p>
+<p>可以发现，当至少3个矩阵相乘时，比如<code>ABC</code>，<code>(AB)C</code>和<code>(A)BC</code>两种计算顺序所需做的乘法数是不同的。</p>
+<p>现在的问题是一个矩阵链，比如<code>A × B × C × D × E × F × G</code>，要以什么样的顺序相乘才能得使得所需做的乘法数最小呢？</p>
+<h3 id="题目">题目</h3>
+<p><strong>输入格式:</strong>
+每个输入文件为一个测试用例，每个测试用例的第一行给出一个正整数(1≤n≤100)，表示一共有n个矩阵A​1​​ ,A​2​​ ,…,A​n​​ ，第二行给出n+1个整数P​0​​ ,P​1​​ …P​n​​ ，以空格分隔，其中1≤P​i​​ ≤100(0≤i≤n)，第i个矩阵A​i​​ 是阶为P​i−1​​ ∗P​i​​ 的矩阵。</p>
+<p><strong>输出格式:</strong>
+获得上述矩阵的乘积，所需的最少乘法次数。</p>
+<p><strong>输入样例:</strong>
+在这里给出一组输入。例如：</p>
+<blockquote>
+<p>5<br>
+30 35 15 5 10 20</p>
+</blockquote>
+<p><strong>输出样例:</strong>
+在这里给出相应的输出。例如：</p>
+<blockquote>
+<p>11875</p>
+</blockquote>
+<h3 id="思路">思路</h3>
+<p>可以先求2个2个相邻相乘的值，然后用他们求3个3个相乘的，再4个&hellip;依照此规律直到n个</p>
+<p>当前个数阶段也需要把每种划分方案进行尝试，并得出最小的那种。比如我在算4个4个相乘的，那划分位置就有3个，每个都要遍历算一次，最后选最小那个，为下一阶段使用。</p>
+<p>我们利用二维数组m[i][j]表示第i个到第j个矩阵连乘的最优解，有如下公式。</p>
+<p>就是每次划分为2部分，<strong>整体最优解=左部分最优解+右部分的最优解+两者相乘所需乘法数</strong></p>
+<p>矩阵i的行数为<code>p[i-1]</code>，列数为<code>p[i]</code></p>
+<p><figure style="flex-grow: 702; flex-basis: 1687px">
+		<a href="/p/dp_matrix/1.png" data-size="710x101"><img src="/p/dp_matrix/1.png"
+				srcset="/p/dp_matrix/1_hu41df461fda97076b907b58ce800c014c_7655_480x0_resize_box_2.png 480w, /p/dp_matrix/1_hu41df461fda97076b907b58ce800c014c_7655_1024x0_resize_box_2.png 1024w"
+				width="710"
+				height="101"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
+<p>我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。</p>
+<p><img src="https://img-blog.csdnimg.cn/20200811190242676.png" alt=""  /></p>
+<h3 id="代码">代码</h3>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// 矩阵链相乘问题
+</span><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">MAX</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">p</span><span class="p">[</span><span class="n">MAX</span><span class="p">];</span>      <span class="c1">// 存放行列数，就是题目输入的序列
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">m</span><span class="p">[</span><span class="n">MAX</span><span class="p">][</span><span class="n">MAX</span><span class="p">];</span> <span class="c1">// 存放局部和最终结果的矩阵
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">n</span><span class="p">;</span>           <span class="c1">// 需要相乘的矩阵个数
+</span><span class="c1"></span>
+<span class="kt">void</span> <span class="nf">matrix</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">m</span><span class="p">));</span> <span class="c1">// 初始化矩阵为0
+</span><span class="c1"></span>
+    <span class="c1">// 同时连续相乘的个数
+</span><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">r</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 从第几个开始(到第几组了)
+</span><span class="c1"></span>        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// 相乘链的最后一个
+</span><span class="c1"></span>            <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">r</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+
+            <span class="c1">// 为了通过比较从而得出最小的那个，要有一个比较的初值，这里是划分第一个和其余的为2组
+</span><span class="c1"></span>            <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+
+            <span class="c1">// 一步步移动划分点
+</span><span class="c1"></span>            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">// 以k位置为划分点，划分i到j的相乘链
+</span><span class="c1"></span>                <span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+                <span class="c1">// 比较找出最小的那个
+</span><span class="c1"></span>                <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                <span class="p">{</span>
+                    <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">;</span>
+    <span class="c1">// 输入的数字总数比矩阵个数多1
+</span><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="n">matrix</span><span class="p">();</span>
+
+    <span class="c1">// 最后答案会在右上角出现
+</span><span class="c1"></span>    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">n</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div><p><a class="link" href="https://blog.csdn.net/qq_45405490/article/details/107911349"  target="_blank" rel="noopener"
+    >参考博文</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/dp_edit_distance/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——编辑距离问题</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_digmines/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——挖地雷</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/dp_increasing/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">DP动态规划——单调递增最长子序列</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/greedy_activity/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">贪心算法——会场安排问题</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

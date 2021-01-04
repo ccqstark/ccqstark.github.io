@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>网络安全 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/</link>
+    <description>Recent content in 网络安全 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 22 Nov 2020 22:10:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>记一次服务器被攻击</title>
+      <link>https://ccqstark.github.io/p/first_attack/</link>
+      <pubDate>Sun, 22 Nov 2020 22:10:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/first_attack/</guid>
+      <description>事情经过 11月17号这天早上上着课，突然有用户反馈应用卡顿，使用不了。我感觉上去看了果然是这样，有时数据加载很慢甚至加载不出来，我感到焦虑与害怕，害怕数据库和别人一样被黑了然后删光要钱，课都没心情听了。然后手机下了个Termius，先把服务关了。
+中午回到宿舍后看了数据库发现数据完好无损，赶紧备份了一波，然后寻找问题。
+内存和CPU和磁盘都挺正常，看了服务器的安全日志，那登录记录刷刷的，有人在暴力破解我的root密码！
+由于下午还有体育课，就先直接关了服务器，然后上课去了。
+下午来到实验室，重新打开服务器，又开始攻击了，气死了。用脚本封了攻击者一百多个肉鸡ip，以为可以了之后，把服务开启，通知用户可以用了。
+结果用户又说太卡了，我又检查了一波，CPU、内存、磁盘正常，然后这个带宽就不太正常了，我学生机的1M/s都超了，应该是这个原因导致卡的。
+用命令找了进程发现好像也没哪个占用很多呀，弄了很久还是很迷惑，攻击者的ip也明明被我加入黑名单了呀，之后还开了腾讯云的专业机阻断，还是很卡，卡到我ssh都连不太上。然后有个办法叫我改ssh的22端口，我怕操作失误连自己都直接连不上就GG了，然后就算了不这样搞了。
+最后只能屁颠屁颠去找客服，他跟我说也是其他正常带宽跑满，叫我看有没有什么进程占用很多，主要是建议我临时升级带宽。
+我想着：啊好家伙，开始了。但是也没啥其他办法，就去买了3天升级到3M/s的带宽，不贵，结果也是真香。
+后来最多手动在安全组加了几个奇怪ip封掉，服务就完成稳定下来了，看来没有什么是加钱不能解决的。
+后来过了两天攻击者还在继续冲，除了影响我带宽之外其实也没太大问题反正他进不来的，问了师兄建议说改22端口，反正重要使用期也过了，我就试试改下，还真有用，安全日志也没攻击者那些破解记录了，带宽也占用也再降了，说明攻击者也是冲22，这下直接完全被挡住，带宽也不占了。
+第一次与黑客对线还是学到了很多的，也加强了我的安全防范意识
+查看系统状态命令 下面有些命令工具需要额外安装的，直接yum install xxx安装就行
+查看服务器安全日志(动态实时)(CentOS) tail -f /var/log/secure 查看CPU等的使用情况(按进程) top 查看内存使用情况 free -h 查看磁盘使用情况 df -hl 查看网络带宽占用(按ip) iftop -i eth0 jnettop 按Q退出
+查看网络带宽占用(按进程) nethogs 还有防火墙工具iptables和firewall-cmd
+https://wangchujiang.com/linux-command/c/iptables.html
+https://wangchujiang.com/linux-command/c/firewall-cmd.html
+编写自动化脚本封禁暴力破解登录的ip 从安全日志中读取记录，把那些多次登录失败的ip写进请求黑名单中（hosts.deny），但是这种办法只是拒绝连接，如果黑客继续攻击还是会占用带宽
+先找个目录，vim建立一个脚本文件
+vim /usr/local/secure_ssh.sh 然后编写脚本
+#! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.</description>
+    </item>
+    
+  </channel>
+</rss>

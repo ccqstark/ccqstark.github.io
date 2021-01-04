@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='添加依赖 &amp;lt;!-- shiro --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.shiro&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;shiro-spring&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.4.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- JWT --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.auth0&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;java-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.11.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.jsonwebtoken&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;jjwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; JWT加密解密验证工具类 package com.ccqstark.springbootquick.util; import com.auth0.jwt.JWT; import com.auth0.jwt.JWTVerifier; import com.auth0.jwt.algorithms.Algorithm; import io.jsonwebtoken.Claims; import io.jsonwebtoken.JwtBuilder; import io.jsonwebtoken.Jwts; import io.jsonwebtoken.SignatureAlgorithm; import org.apache.commons.codec.binary.Base64; import java.util.Date; import java.util.HashMap; import java.util.Map; import java.util.UUID; /* * 总的来说，工具类中有三个方法 * 获取JwtToken，获取JwtToken中封装的信息，判断JwtToken是否存在 * 1. encode()，参数是=签发人，存在时间，一些其他的信息=。返回值是JwtToken对应的字符串 * 2. decode()，参数是=JwtToken=。返回值是荷载部分的键值对 * 3. isVerify()，参数是=JwtToken=。返回值是这个JwtToken是否存在 * */ public class JwtUtil { // 创建默认的秘钥和算法，供无参的构造方法使用  private static final String defaultbase64EncodedSecretKey = &amp;#34;wdnmd&amp;#34;; private static final SignatureAlgorithm defaultsignatureAlgorithm = SignatureAlgorithm.'><title>[SpringBoot]整合shiro&#43;JWT做鉴权</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/springboot_shiro_jwt/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[SpringBoot]整合shiro&#43;JWT做鉴权'>
+<meta property='og:description' content='添加依赖 &amp;lt;!-- shiro --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.shiro&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;shiro-spring&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.4.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- JWT --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.auth0&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;java-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.11.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.jsonwebtoken&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;jjwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; JWT加密解密验证工具类 package com.ccqstark.springbootquick.util; import com.auth0.jwt.JWT; import com.auth0.jwt.JWTVerifier; import com.auth0.jwt.algorithms.Algorithm; import io.jsonwebtoken.Claims; import io.jsonwebtoken.JwtBuilder; import io.jsonwebtoken.Jwts; import io.jsonwebtoken.SignatureAlgorithm; import org.apache.commons.codec.binary.Base64; import java.util.Date; import java.util.HashMap; import java.util.Map; import java.util.UUID; /* * 总的来说，工具类中有三个方法 * 获取JwtToken，获取JwtToken中封装的信息，判断JwtToken是否存在 * 1. encode()，参数是=签发人，存在时间，一些其他的信息=。返回值是JwtToken对应的字符串 * 2. decode()，参数是=JwtToken=。返回值是荷载部分的键值对 * 3. isVerify()，参数是=JwtToken=。返回值是这个JwtToken是否存在 * */ public class JwtUtil { // 创建默认的秘钥和算法，供无参的构造方法使用  private static final String defaultbase64EncodedSecretKey = &amp;#34;wdnmd&amp;#34;; private static final SignatureAlgorithm defaultsignatureAlgorithm = SignatureAlgorithm.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/springboot_shiro_jwt/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2020-10-17T16:52:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-17T16:52:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[SpringBoot]整合shiro&#43;JWT做鉴权">
+<meta name="twitter:description" content="添加依赖 &amp;lt;!-- shiro --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.shiro&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;shiro-spring&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.4.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- JWT --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.auth0&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;java-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.11.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.jsonwebtoken&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;jjwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; JWT加密解密验证工具类 package com.ccqstark.springbootquick.util; import com.auth0.jwt.JWT; import com.auth0.jwt.JWTVerifier; import com.auth0.jwt.algorithms.Algorithm; import io.jsonwebtoken.Claims; import io.jsonwebtoken.JwtBuilder; import io.jsonwebtoken.Jwts; import io.jsonwebtoken.SignatureAlgorithm; import org.apache.commons.codec.binary.Base64; import java.util.Date; import java.util.HashMap; import java.util.Map; import java.util.UUID; /* * 总的来说，工具类中有三个方法 * 获取JwtToken，获取JwtToken中封装的信息，判断JwtToken是否存在 * 1. encode()，参数是=签发人，存在时间，一些其他的信息=。返回值是JwtToken对应的字符串 * 2. decode()，参数是=JwtToken=。返回值是荷载部分的键值对 * 3. isVerify()，参数是=JwtToken=。返回值是这个JwtToken是否存在 * */ public class JwtUtil { // 创建默认的秘钥和算法，供无参的构造方法使用  private static final String defaultbase64EncodedSecretKey = &amp;#34;wdnmd&amp;#34;; private static final SignatureAlgorithm defaultsignatureAlgorithm = SignatureAlgorithm.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/springboot_shiro_jwt/">[SpringBoot]整合shiro&#43;JWT做鉴权</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 17, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h3 id="添加依赖">添加依赖</h3>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="c">&lt;!-- shiro --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.shiro<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>shiro-spring<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.4.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="c">&lt;!-- JWT --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.auth0<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>java-jwt<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>3.11.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>io.jsonwebtoken<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>jjwt<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.9.1<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div><h3 id="jwt加密解密验证工具类">JWT加密解密验证工具类</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.util</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.auth0.jwt.JWT</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.auth0.jwt.JWTVerifier</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.auth0.jwt.algorithms.Algorithm</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.jsonwebtoken.Claims</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.jsonwebtoken.JwtBuilder</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.jsonwebtoken.Jwts</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.jsonwebtoken.SignatureAlgorithm</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.commons.codec.binary.Base64</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Date</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.HashMap</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Map</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.UUID</span><span class="o">;</span>
+<span class="cm">/*
+</span><span class="cm"> * 总的来说，工具类中有三个方法
+</span><span class="cm"> * 获取JwtToken，获取JwtToken中封装的信息，判断JwtToken是否存在
+</span><span class="cm"> * 1. encode()，参数是=签发人，存在时间，一些其他的信息=。返回值是JwtToken对应的字符串
+</span><span class="cm"> * 2. decode()，参数是=JwtToken=。返回值是荷载部分的键值对
+</span><span class="cm"> * 3. isVerify()，参数是=JwtToken=。返回值是这个JwtToken是否存在
+</span><span class="cm"> * */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JwtUtil</span> <span class="o">{</span>
+    <span class="c1">// 创建默认的秘钥和算法，供无参的构造方法使用
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">defaultbase64EncodedSecretKey</span> <span class="o">=</span> <span class="s">&#34;wdnmd&#34;</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">SignatureAlgorithm</span> <span class="n">defaultsignatureAlgorithm</span> <span class="o">=</span> <span class="n">SignatureAlgorithm</span><span class="o">.</span><span class="na">HS256</span><span class="o">;</span>
+
+    <span class="c1">// 无参构造，使用默认
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="nf">JwtUtil</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">(</span><span class="n">defaultbase64EncodedSecretKey</span><span class="o">,</span> <span class="n">defaultsignatureAlgorithm</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">base64EncodedSecretKey</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SignatureAlgorithm</span> <span class="n">signatureAlgorithm</span><span class="o">;</span>
+
+    <span class="c1">// 有参构造
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="nf">JwtUtil</span><span class="o">(</span><span class="n">String</span> <span class="n">secretKey</span><span class="o">,</span> <span class="n">SignatureAlgorithm</span> <span class="n">signatureAlgorithm</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">base64EncodedSecretKey</span> <span class="o">=</span> <span class="n">Base64</span><span class="o">.</span><span class="na">encodeBase64String</span><span class="o">(</span><span class="n">secretKey</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">signatureAlgorithm</span> <span class="o">=</span> <span class="n">signatureAlgorithm</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/*
+</span><span class="cm">     *这里就是产生jwt字符串的地方
+</span><span class="cm">     * jwt字符串包括三个部分
+</span><span class="cm">     *  1. header
+</span><span class="cm">     *      -当前字符串的类型，一般都是“JWT”
+</span><span class="cm">     *      -哪种算法加密，“HS256”或者其他的加密算法
+</span><span class="cm">     *      所以一般都是固定的，没有什么变化
+</span><span class="cm">     *  2. payload
+</span><span class="cm">     *      一般有四个最常见的标准字段（下面有）
+</span><span class="cm">     *      iat：签发时间，也就是这个jwt什么时候生成的
+</span><span class="cm">     *      jti：JWT的唯一标识
+</span><span class="cm">     *      iss：签发人，一般都是username或者userId
+</span><span class="cm">     *      exp：过期时间
+</span><span class="cm">     *
+</span><span class="cm">     * */</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">encode</span><span class="o">(</span><span class="n">String</span> <span class="n">iss</span><span class="o">,</span> <span class="kt">long</span> <span class="n">ttlMillis</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">claims</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//iss签发人，ttlMillis生存时间，claims是指还想要在jwt中存储的一些非隐私信息
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">claims</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">claims</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="o">}</span>
+        <span class="kt">long</span> <span class="n">nowMillis</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+
+        <span class="n">JwtBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">Jwts</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">setClaims</span><span class="o">(</span><span class="n">claims</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">UUID</span><span class="o">.</span><span class="na">randomUUID</span><span class="o">().</span><span class="na">toString</span><span class="o">())</span><span class="c1">// 这个是JWT的唯一标识，一般设置成唯一的，这个方法可以生成唯一标识
+</span><span class="c1"></span>                <span class="o">.</span><span class="na">setIssuedAt</span><span class="o">(</span><span class="k">new</span> <span class="n">Date</span><span class="o">(</span><span class="n">nowMillis</span><span class="o">))</span><span class="c1">// 这个地方就是以毫秒为单位，换算当前系统时间生成的iat
+</span><span class="c1"></span>                <span class="o">.</span><span class="na">setIssuer</span><span class="o">(</span><span class="n">iss</span><span class="o">)</span><span class="c1">// 签发人，也就是JWT是给谁的（逻辑上一般都是username或者userId）
+</span><span class="c1"></span>                <span class="o">.</span><span class="na">signWith</span><span class="o">(</span><span class="n">signatureAlgorithm</span><span class="o">,</span> <span class="n">base64EncodedSecretKey</span><span class="o">);</span><span class="c1">//这个地方是生成jwt使用的算法和秘钥
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">ttlMillis</span> <span class="o">&gt;=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// 过期时间 = 当前时间 + 生存时间
+</span><span class="c1"></span>            <span class="kt">long</span> <span class="n">expMillis</span> <span class="o">=</span> <span class="n">nowMillis</span> <span class="o">+</span> <span class="n">ttlMillis</span><span class="o">;</span>
+            <span class="n">Date</span> <span class="n">exp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Date</span><span class="o">(</span><span class="n">expMillis</span><span class="o">);</span><span class="c1">// 过期时间，这个也是使用毫秒生成的
+</span><span class="c1"></span>            <span class="n">builder</span><span class="o">.</span><span class="na">setExpiration</span><span class="o">(</span><span class="n">exp</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="na">compact</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="c1">//相当于encode的逆向，传入jwtToken生成对应的username和password等字段。Claim就是一个map
+</span><span class="c1"></span>    <span class="c1">//也就是拿到荷载部分所有的键值对
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="n">Claims</span> <span class="nf">decode</span><span class="o">(</span><span class="n">String</span> <span class="n">jwtToken</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="c1">// 得到 DefaultJwtParser
+</span><span class="c1"></span>        <span class="k">return</span> <span class="n">Jwts</span><span class="o">.</span><span class="na">parser</span><span class="o">()</span>
+                <span class="c1">// 设置签名的秘钥
+</span><span class="c1"></span>                <span class="o">.</span><span class="na">setSigningKey</span><span class="o">(</span><span class="n">base64EncodedSecretKey</span><span class="o">)</span>
+                <span class="c1">// 设置需要解析的 jwt
+</span><span class="c1"></span>                <span class="o">.</span><span class="na">parseClaimsJws</span><span class="o">(</span><span class="n">jwtToken</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">getBody</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="c1">//判断jwtToken是否合法
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isVerify</span><span class="o">(</span><span class="n">String</span> <span class="n">jwtToken</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//这个是官方的校验规则，这里只写了一个&#34;校验算法&#34;，可以自己加
+</span><span class="c1"></span>        <span class="n">Algorithm</span> <span class="n">algorithm</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">signatureAlgorithm</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="n">HS256</span><span class="o">:</span>
+                <span class="n">algorithm</span> <span class="o">=</span> <span class="n">Algorithm</span><span class="o">.</span><span class="na">HMAC256</span><span class="o">(</span><span class="n">Base64</span><span class="o">.</span><span class="na">decodeBase64</span><span class="o">(</span><span class="n">base64EncodedSecretKey</span><span class="o">));</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">default</span><span class="o">:</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="s">&#34;不支持该算法&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">JWTVerifier</span> <span class="n">verifier</span> <span class="o">=</span> <span class="n">JWT</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">algorithm</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+        <span class="n">verifier</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">jwtToken</span><span class="o">);</span>  <span class="c1">// 校验不通过会抛出异常
+</span><span class="c1"></span>        <span class="c1">//判断合法的标准：1. 头部和荷载部分没有篡改过。2. 没有过期
+</span><span class="c1"></span>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">JwtUtil</span> <span class="n">util</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JwtUtil</span><span class="o">(</span><span class="s">&#34;wdnmd&#34;</span><span class="o">,</span> <span class="n">SignatureAlgorithm</span><span class="o">.</span><span class="na">HS256</span><span class="o">);</span>
+        <span class="c1">//以tom作为秘钥，以HS256加密
+</span><span class="c1"></span>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;username&#34;</span><span class="o">,</span> <span class="s">&#34;ccq&#34;</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;password&#34;</span><span class="o">,</span> <span class="s">&#34;1428&#34;</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;age&#34;</span><span class="o">,</span> <span class="n">20</span><span class="o">);</span>
+
+        <span class="n">String</span> <span class="n">jwtToken</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="s">&#34;ccqstark&#34;</span><span class="o">,</span> <span class="n">30000</span><span class="o">,</span> <span class="n">map</span><span class="o">);</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">jwtToken</span><span class="o">);</span>
+        <span class="n">util</span><span class="o">.</span><span class="na">decode</span><span class="o">(</span><span class="n">jwtToken</span><span class="o">).</span><span class="na">entrySet</span><span class="o">().</span><span class="na">forEach</span><span class="o">((</span><span class="n">entry</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;: &#34;</span> <span class="o">+</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+        <span class="o">});</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h3 id="关闭shiro的session">关闭shiro的session</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.auth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.apache.shiro.subject.Subject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.subject.SubjectContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.web.mgt.DefaultWebSubjectFactory</span><span class="o">;</span>
+
+<span class="c1">// 关闭shiro的session
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JwtDefaultSubjectFactory</span> <span class="kd">extends</span> <span class="n">DefaultWebSubjectFactory</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Subject</span> <span class="nf">createSubject</span><span class="o">(</span><span class="n">SubjectContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 不创建 session
+</span><span class="c1"></span>        <span class="n">context</span><span class="o">.</span><span class="na">setSessionCreationEnabled</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+        <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">createSubject</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h3 id="使用usernamepasswordtoken">使用UsernamePasswordToken</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.auth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.apache.shiro.authc.AuthenticationToken</span><span class="o">;</span>
+
+<span class="c1">//这个就类似UsernamePasswordToken
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JwtToken</span> <span class="kd">implements</span> <span class="n">AuthenticationToken</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">jwt</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">JwtToken</span><span class="o">(</span><span class="n">String</span> <span class="n">jwt</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">jwt</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span><span class="c1">//类似是用户名
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getPrincipal</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">jwt</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span><span class="c1">//类似密码
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">jwt</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//返回的都是jwt
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><h3 id="realm验证类">Realm验证类</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.auth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.ccqstark.springbootquick.util.JwtUtil</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.extern.slf4j.Slf4j</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.authc.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.authz.AuthorizationInfo</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.realm.AuthorizingRealm</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.subject.PrincipalCollection</span><span class="o">;</span>
+<span class="nd">@Slf4j</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JwtRealm</span> <span class="kd">extends</span> <span class="n">AuthorizingRealm</span> <span class="o">{</span>
+    <span class="cm">/*
+</span><span class="cm">     * 多重写一个support
+</span><span class="cm">     * 标识这个Realm是专门用来验证JwtToken
+</span><span class="cm">     * 不负责验证其他的token（UsernamePasswordToken）
+</span><span class="cm">     * */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">supports</span><span class="o">(</span><span class="n">AuthenticationToken</span> <span class="n">token</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//这个token就是从过滤器中传入的jwtToken
+</span><span class="c1"></span>        <span class="k">return</span> <span class="n">token</span> <span class="k">instanceof</span> <span class="n">JwtToken</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">//授权
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="n">AuthorizationInfo</span> <span class="nf">doGetAuthorizationInfo</span><span class="o">(</span><span class="n">PrincipalCollection</span> <span class="n">principals</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">//认证
+</span><span class="c1"></span>    <span class="c1">//这个token就是从过滤器中传入的jwtToken
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="n">AuthenticationInfo</span> <span class="nf">doGetAuthenticationInfo</span><span class="o">(</span><span class="n">AuthenticationToken</span> <span class="n">token</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">AuthenticationException</span> <span class="o">{</span>
+
+        <span class="n">String</span> <span class="n">jwt</span> <span class="o">=</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">token</span><span class="o">.</span><span class="na">getPrincipal</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">jwt</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">NullPointerException</span><span class="o">(</span><span class="s">&#34;jwtToken 不允许为空&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="c1">//判断
+</span><span class="c1"></span>        <span class="n">JwtUtil</span> <span class="n">jwtUtil</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JwtUtil</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">jwtUtil</span><span class="o">.</span><span class="na">isVerify</span><span class="o">(</span><span class="n">jwt</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">UnknownAccountException</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="c1">//下面是验证这个user是否是真实存在的
+</span><span class="c1"></span>        <span class="n">String</span> <span class="n">username</span> <span class="o">=</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">jwtUtil</span><span class="o">.</span><span class="na">decode</span><span class="o">(</span><span class="n">jwt</span><span class="o">).</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;username&#34;</span><span class="o">);</span><span class="c1">//判断数据库中username是否存在
+</span><span class="c1"></span>        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;在使用token登录&#34;</span><span class="o">+</span><span class="n">username</span><span class="o">);</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">SimpleAuthenticationInfo</span><span class="o">(</span><span class="n">jwt</span><span class="o">,</span><span class="n">jwt</span><span class="o">,</span><span class="s">&#34;JwtRealm&#34;</span><span class="o">);</span>
+        <span class="c1">//这里返回的是类似账号密码的东西，但是jwtToken都是jwt字符串。还需要一个该Realm的类名
+</span><span class="c1"></span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><h3 id="filter过滤器">Filter过滤器</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.auth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">lombok.extern.slf4j.Slf4j</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.web.filter.AccessControlFilter</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.servlet.ServletRequest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.servlet.ServletResponse</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletRequest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletResponse</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+
+<span class="cm">/*
+</span><span class="cm"> * 自定义一个Filter，用来拦截所有的请求判断是否携带Token
+</span><span class="cm"> * isAccessAllowed()判断是否携带了有效的JwtToken
+</span><span class="cm"> * onAccessDenied()是没有携带JwtToken的时候进行账号密码登录，登录成功允许访问，登录失败拒绝访问
+</span><span class="cm"> * */</span>
+<span class="nd">@Slf4j</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JwtFilter</span> <span class="kd">extends</span> <span class="n">AccessControlFilter</span> <span class="o">{</span>
+    <span class="cm">/*
+</span><span class="cm">     * 1. 返回true，shiro就直接允许访问url
+</span><span class="cm">     * 2. 返回false，shiro才会根据onAccessDenied的方法的返回值决定是否允许访问url
+</span><span class="cm">     * */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">isAccessAllowed</span><span class="o">(</span><span class="n">ServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServletResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">Object</span> <span class="n">mappedValue</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&#34;isAccessAllowed 方法被调用&#34;</span><span class="o">);</span>
+        <span class="c1">//这里先让它始终返回false来使用onAccessDenied()方法
+</span><span class="c1"></span>        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 返回结果为true表明登录通过
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">onAccessDenied</span><span class="o">(</span><span class="n">ServletRequest</span> <span class="n">servletRequest</span><span class="o">,</span> <span class="n">ServletResponse</span> <span class="n">servletResponse</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&#34;onAccessDenied 方法被调用&#34;</span><span class="o">);</span>
+        <span class="c1">//这个地方和前端约定，要求前端将jwtToken放在请求的Header部分
+</span><span class="c1"></span>
+        <span class="c1">//所以以后发起请求的时候就需要在Header中放一个Authorization，值就是对应的Token
+</span><span class="c1"></span>        <span class="n">HttpServletRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="o">(</span><span class="n">HttpServletRequest</span><span class="o">)</span> <span class="n">servletRequest</span><span class="o">;</span>
+        <span class="n">String</span> <span class="n">jwt</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getHeader</span><span class="o">(</span><span class="s">&#34;Authorization&#34;</span><span class="o">);</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;请求的 Header 中藏有 jwtToken {}&#34;</span><span class="o">,</span> <span class="n">jwt</span><span class="o">);</span>
+        <span class="n">JwtToken</span> <span class="n">jwtToken</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JwtToken</span><span class="o">(</span><span class="n">jwt</span><span class="o">);</span>
+        <span class="cm">/*
+</span><span class="cm">         * 下面就是固定写法
+</span><span class="cm">         * */</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="c1">// 委托 realm 进行登录认证
+</span><span class="c1"></span>            <span class="c1">//所以这个地方最终还是调用JwtRealm进行的认证
+</span><span class="c1"></span>            <span class="n">getSubject</span><span class="o">(</span><span class="n">servletRequest</span><span class="o">,</span> <span class="n">servletResponse</span><span class="o">).</span><span class="na">login</span><span class="o">(</span><span class="n">jwtToken</span><span class="o">);</span>
+            <span class="c1">//也就是subject.login(token)
+</span><span class="c1"></span>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="n">onLoginFail</span><span class="o">(</span><span class="n">servletResponse</span><span class="o">);</span>
+            <span class="c1">//调用下面的方法向客户端返回错误信息
+</span><span class="c1"></span>            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="c1">//执行方法中没有抛出异常就表示登录成功
+</span><span class="c1"></span>    <span class="o">}</span>
+
+    <span class="c1">//登录失败时默认返回 401 状态码
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">onLoginFail</span><span class="o">(</span><span class="n">ServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="n">HttpServletResponse</span> <span class="n">httpResponse</span> <span class="o">=</span> <span class="o">(</span><span class="n">HttpServletResponse</span><span class="o">)</span> <span class="n">response</span><span class="o">;</span>
+        <span class="n">httpResponse</span><span class="o">.</span><span class="na">setStatus</span><span class="o">(</span><span class="n">HttpServletResponse</span><span class="o">.</span><span class="na">SC_UNAUTHORIZED</span><span class="o">);</span>
+        <span class="n">httpResponse</span><span class="o">.</span><span class="na">getWriter</span><span class="o">().</span><span class="na">write</span><span class="o">(</span><span class="s">&#34;login error&#34;</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h3 id="shiro配置">shiro配置</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.config</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.ccqstark.springbootquick.auth.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.mgt.DefaultSessionStorageEvaluator</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.mgt.DefaultSubjectDAO</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.mgt.SubjectFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.realm.Realm</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.spring.web.ShiroFilterFactoryBean</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.web.filter.authc.AnonymousFilter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.web.filter.authc.LogoutFilter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.shiro.web.mgt.DefaultWebSecurityManager</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.servlet.Filter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.HashMap</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.LinkedHashMap</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Map</span><span class="o">;</span>
+
+<span class="c1">//springBoot整合jwt实现认证有三个不一样的地方，对应下面abc
+</span><span class="c1"></span><span class="nd">@Configuration</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ShiroConfig</span> <span class="o">{</span>
+    <span class="cm">/*
+</span><span class="cm">     * a. 告诉shiro不要使用默认的DefaultSubject创建对象，因为不能创建Session
+</span><span class="cm">     * */</span>
+    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="n">SubjectFactory</span> <span class="nf">subjectFactory</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">JwtDefaultSubjectFactory</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="n">Realm</span> <span class="nf">realm</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">JwtRealm</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="n">DefaultWebSecurityManager</span> <span class="nf">securityManager</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">DefaultWebSecurityManager</span> <span class="n">securityManager</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DefaultWebSecurityManager</span><span class="o">();</span>
+        <span class="n">securityManager</span><span class="o">.</span><span class="na">setRealm</span><span class="o">(</span><span class="n">realm</span><span class="o">());</span>
+        <span class="cm">/*
+</span><span class="cm">         * b
+</span><span class="cm">         * */</span>
+        <span class="c1">// 关闭 ShiroDAO 功能
+</span><span class="c1"></span>        <span class="n">DefaultSubjectDAO</span> <span class="n">subjectDAO</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DefaultSubjectDAO</span><span class="o">();</span>
+        <span class="n">DefaultSessionStorageEvaluator</span> <span class="n">defaultSessionStorageEvaluator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DefaultSessionStorageEvaluator</span><span class="o">();</span>
+        <span class="c1">// 不需要将 Shiro Session 中的东西存到任何地方（包括 Http Session 中）
+</span><span class="c1"></span>        <span class="n">defaultSessionStorageEvaluator</span><span class="o">.</span><span class="na">setSessionStorageEnabled</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+        <span class="n">subjectDAO</span><span class="o">.</span><span class="na">setSessionStorageEvaluator</span><span class="o">(</span><span class="n">defaultSessionStorageEvaluator</span><span class="o">);</span>
+        <span class="n">securityManager</span><span class="o">.</span><span class="na">setSubjectDAO</span><span class="o">(</span><span class="n">subjectDAO</span><span class="o">);</span>
+        <span class="c1">//禁止Subject的getSession方法
+</span><span class="c1"></span>        <span class="n">securityManager</span><span class="o">.</span><span class="na">setSubjectFactory</span><span class="o">(</span><span class="n">subjectFactory</span><span class="o">());</span>
+        <span class="k">return</span> <span class="n">securityManager</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="n">ShiroFilterFactoryBean</span> <span class="nf">shiroFilterFactoryBean</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">ShiroFilterFactoryBean</span> <span class="n">shiroFilter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ShiroFilterFactoryBean</span><span class="o">();</span>
+        <span class="n">shiroFilter</span><span class="o">.</span><span class="na">setSecurityManager</span><span class="o">(</span><span class="n">securityManager</span><span class="o">());</span>
+        <span class="n">shiroFilter</span><span class="o">.</span><span class="na">setLoginUrl</span><span class="o">(</span><span class="s">&#34;/unauthenticated&#34;</span><span class="o">);</span>
+        <span class="n">shiroFilter</span><span class="o">.</span><span class="na">setUnauthorizedUrl</span><span class="o">(</span><span class="s">&#34;/unauthorized&#34;</span><span class="o">);</span>
+        <span class="cm">/*
+</span><span class="cm">         * c. 添加jwt过滤器，并在下面注册
+</span><span class="cm">         * 也就是将jwtFilter注册到shiro的Filter中
+</span><span class="cm">         * 指定除了login和logout之外的请求都先经过jwtFilter
+</span><span class="cm">         * */</span>
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Filter</span><span class="o">&gt;</span> <span class="n">filterMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="c1">//这个地方其实另外两个filter可以不设置，默认就是
+</span><span class="c1"></span>        <span class="n">filterMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;anon&#34;</span><span class="o">,</span> <span class="k">new</span> <span class="n">AnonymousFilter</span><span class="o">());</span>
+        <span class="n">filterMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;jwt&#34;</span><span class="o">,</span> <span class="k">new</span> <span class="n">JwtFilter</span><span class="o">());</span>
+        <span class="n">filterMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;logout&#34;</span><span class="o">,</span> <span class="k">new</span> <span class="n">LogoutFilter</span><span class="o">());</span>
+        <span class="n">shiroFilter</span><span class="o">.</span><span class="na">setFilters</span><span class="o">(</span><span class="n">filterMap</span><span class="o">);</span>
+
+        <span class="c1">// 拦截器
+</span><span class="c1"></span>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">filterRuleMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="n">filterRuleMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;/login&#34;</span><span class="o">,</span> <span class="s">&#34;anon&#34;</span><span class="o">);</span>
+        <span class="n">filterRuleMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;/logout&#34;</span><span class="o">,</span> <span class="s">&#34;logout&#34;</span><span class="o">);</span>
+        <span class="n">filterRuleMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;/**&#34;</span><span class="o">,</span> <span class="s">&#34;jwt&#34;</span><span class="o">);</span>
+        <span class="n">shiroFilter</span><span class="o">.</span><span class="na">setFilterChainDefinitionMap</span><span class="o">(</span><span class="n">filterRuleMap</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">shiroFilter</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h3 id="测试controller">测试Controller</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.controller</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.ccqstark.springbootquick.util.JwtUtil</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.jsonwebtoken.SignatureAlgorithm</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.extern.slf4j.Slf4j</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.http.ResponseEntity</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Controller</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RequestMapping</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.HashMap</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Map</span><span class="o">;</span>
+
+<span class="nd">@Slf4j</span>
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LoginController</span> <span class="o">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/login&#34;</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="nf">login</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;username:{},password:{}&#34;</span><span class="o">,</span><span class="n">username</span><span class="o">,</span><span class="n">password</span><span class="o">);</span>
+
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="s">&#34;tom&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">username</span><span class="o">)</span> <span class="o">||</span> <span class="o">!</span><span class="s">&#34;123&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">password</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;msg&#34;</span><span class="o">,</span> <span class="s">&#34;用户名密码错误&#34;</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">ResponseEntity</span><span class="o">.</span><span class="na">ok</span><span class="o">(</span><span class="n">map</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="n">JwtUtil</span> <span class="n">jwtUtil</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JwtUtil</span><span class="o">(</span><span class="s">&#34;wdnmd&#34;</span><span class="o">,</span> <span class="n">SignatureAlgorithm</span><span class="o">.</span><span class="na">HS256</span><span class="o">);</span>
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">chaim</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="n">chaim</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;username&#34;</span><span class="o">,</span> <span class="n">username</span><span class="o">);</span>
+
+        <span class="c1">// 生存时间在这里设置
+</span><span class="c1"></span>        <span class="n">String</span> <span class="n">jwtToken</span> <span class="o">=</span> <span class="n">jwtUtil</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">username</span><span class="o">,</span>  <span class="n">20</span><span class="o">*</span><span class="n">1000</span><span class="o">,</span> <span class="n">chaim</span><span class="o">);</span>
+
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;msg&#34;</span><span class="o">,</span> <span class="s">&#34;登录成功&#34;</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;token&#34;</span><span class="o">,</span> <span class="n">jwtToken</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">ResponseEntity</span><span class="o">.</span><span class="na">ok</span><span class="o">(</span><span class="n">map</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/testdemo&#34;</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">testdemo</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">ResponseEntity</span><span class="o">.</span><span class="na">ok</span><span class="o">(</span><span class="s">&#34;我爱蛋炒饭&#34;</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><p>请求登录接口，密码正确后返回一个<code>token</code>，以后每次请求带上这个token以<code>header</code>里的<code>Authorization</code>字段的形式</p>
+<p>之后的页面都会经过拦截器分配到对应的过滤器进行验证token是否有效，实现了鉴权。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/springboot/">SpringBoot</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/springboot_oss/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]使用阿里云OSS上传文件</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_druid/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合Druid数据源</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_mybatis/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合Mybatis</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_slf4j-log4j/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合SLF4J-log4j</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
