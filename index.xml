@@ -2181,7 +2181,7 @@ log4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n
 &lt;p&gt;&lt;code&gt;hugo new site &amp;lt;path&amp;gt; &lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;在指定路径下创建博客站点目录，目录最后是博客站点名&lt;/p&gt;
 &lt;h4 id=&#34;找到心仪主题&#34;&gt;找到心仪主题&lt;/h4&gt;
-&lt;p&gt;在下面这个网站上找到喜欢的主题，按照各自的文档进行蛇设置&lt;/p&gt;
+&lt;p&gt;在下面这个网站上找到喜欢的主题，按照各自的文档进行设置&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://themes.gohugo.io/&#34;&gt;https://themes.gohugo.io/&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id=&#34;本地预览&#34;&gt;本地预览&lt;/h4&gt;
 &lt;p&gt;&lt;code&gt;hugo server -t &amp;lt;theme&amp;gt; --buildDrafts&lt;/code&gt;&lt;/p&gt;
@@ -2197,7 +2197,9 @@ log4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n
 &lt;li&gt;生成&lt;code&gt;\public&lt;/code&gt;目录&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;code&gt;hugo --theme=hugo-theme-stack --baseUrl=&amp;quot;https://ccqstark.github.io/&amp;quot; --buildDrafts&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;根据具体仓库修改，也可以是&lt;code&gt;&amp;quot;https://ccqstark.gitee.io/&amp;quot;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;根据具体仓库修改，也可以是&lt;code&gt;&amp;quot;https://ccqstark.gitee.io/&amp;quot;&lt;/code&gt;
+然后cd进&lt;code&gt;public&lt;/code&gt;目录
+在这个目录下创建git仓库，部署也是部署这个目录中的内容&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;三部曲&lt;/li&gt;
 &lt;/ul&gt;
@@ -2208,6 +2210,7 @@ git push github master
 &lt;p&gt;要新增一篇博客就继续按下面这个步骤走&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;hugo new post/name.md
 hugo --theme&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;hugo-theme-stack --baseUrl&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;https://ccqstark.github.io/&amp;#34;&lt;/span&gt; --buildDrafts
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; public
 git add .
 git commit -m &lt;span class=&#34;s1&#34;&gt;&amp;#39;...&amp;#39;&lt;/span&gt;
 git push github master
