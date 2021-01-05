@@ -6,7 +6,94 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 22 Nov 2020 22:10:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 06 Jan 2021 02:07:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>MacOS终端美化指北</title>
+        <link>https://ccqstark.github.io/p/mac_terminal/</link>
+        <pubDate>Wed, 06 Jan 2021 02:07:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/mac_terminal/</guid>
+        <description>&lt;p&gt;终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。
+先看下我：
+&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbx5ikhcmj30ms0ei7hx.jpg&#34; alt=&#34;261609762082_.pic_hd.jpg&#34;  /&gt;
+还可以吧？&lt;/p&gt;
+&lt;h2 id=&#34;准备工作&#34;&gt;准备工作&lt;/h2&gt;
+&lt;p&gt;先保证自己下载&lt;code&gt;homebrew&lt;/code&gt;和&lt;code&gt;wget&lt;/code&gt;，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/90508170&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;下载方法&lt;/a&gt;网上也很多的，建议先下homebrew再用它下wget。&lt;/p&gt;
+&lt;h2 id=&#34;iterm2&#34;&gt;iTerm2&lt;/h2&gt;
+&lt;p&gt;首先是下载第三方终端&lt;code&gt;iTerm2&lt;/code&gt;，mac自带的终端用的比较少，大家用的最多还是这个。
+&lt;a class=&#34;link&#34; href=&#34;https://iterm2.com/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;官网下载&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;zsh&#34;&gt;zsh&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;zsh&lt;/code&gt;是shell的一种，mac默认的shell是&lt;code&gt;bash&lt;/code&gt;，一般来说我们也是用zsh比较多，因为命令更多更好用。&lt;/p&gt;
+&lt;h3 id=&#34;下载zsh&#34;&gt;下载zsh&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;brew install zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;切换shell为zsh&#34;&gt;切换shell为zsh&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;# 查看当前使用的shell
+echo $SHELL
+# 切换为zsh
+chsh -s /bin/zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行完上面命令后重启一下即可&lt;/p&gt;
+&lt;h2 id=&#34;oh-my-zsh&#34;&gt;oh-my-zsh&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;oh-my-zsh&lt;/code&gt;用于美化终端，可以让你拥有很多好看的主题。&lt;/p&gt;
+&lt;h3 id=&#34;安装&#34;&gt;安装&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
+&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;sh install.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbw4jpaddj30fv06idg6.jpg&#34; alt=&#34;191609759959_.pic.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;更换主题&#34;&gt;更换主题&lt;/h2&gt;
+&lt;p&gt;oh-my-zsh有很多默认的主题，可以在&lt;code&gt;~/.zshrc&lt;/code&gt;中修改&lt;code&gt;ZSH_THEME&lt;/code&gt;来切换不同主题。
+这里我推荐&lt;code&gt;powerlever10k&lt;/code&gt;，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲&lt;code&gt;powerlevel10k&lt;/code&gt;的安装方法。&lt;/p&gt;
+&lt;h3 id=&#34;下载&#34;&gt;下载&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;安装所需字体&#34;&gt;安装所需字体&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;# 安装 nerd-font 字体
+brew tap homebrew/cask-fonts
+
+# 其他所需字体
+cd ~
+git clone https://github.com/powerline/fonts.git --depth=1
+
+# 到目录下执行安装脚本
+cd fonts
+./install.sh
+
+# 删除刚刚下载的
+cd ..
+rm -rf fonts
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;配置&#34;&gt;配置&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;vim ~/.zshrc
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;进入zsh配置文件中修改并增加&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ZSH_THEME = &amp;quot;powerlevel10k/powerlevel10k&amp;quot;
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;之后启动向导&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;p10k configure
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以用下面命令查看颜色代号&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;for i in {0..255}; do print -Pn &amp;quot;%K{$i}  %k%F{$i}${(l:3::0:)i}%f &amp;quot; ${${(M)$((i%6)):#3}:+$&#39;\n&#39;}; done
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
+下载软件&lt;a class=&#34;link&#34; href=&#34;https://oldj.github.io/SwitchHosts/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;SwitchHosts!&lt;/a&gt;
+之后如图加上&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;199.232.68.133 raw.githubusercontent.com
+199.232.68.133 user-images.githubusercontent.com
+199.232.68.133 avatars2.githubusercontent.com
+199.232.68.133 avatars1.githubusercontent.com
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwpo0y96j30pc0gggo1.jpg&#34; alt=&#34;201609761151_.pic.jpg&#34;  /&gt;
+开启&lt;code&gt;My hosts&lt;/code&gt;后重启终端，就会自动提示下载所需字体，耐心等待它下载完（有点慢）后，就可以根据引导一步步自定义属于自己的主题了！从图标到字体颜色风格到显示信息都可以自定义！&lt;/p&gt;
+&lt;h2 id=&#34;背景透明毛玻璃&#34;&gt;背景透明+毛玻璃&lt;/h2&gt;
+&lt;p&gt;打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。
+&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwubhglpj30sy0jdq8k.jpg&#34; alt=&#34;211609761445_.pic_hd.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;快捷键唤醒&#34;&gt;快捷键唤醒&lt;/h2&gt;
+&lt;p&gt;如何让切出终端更快捷？可以设置&lt;code&gt;Hotkey&lt;/code&gt;
+按下图操作
+&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwxgx701j30vc0kcteu.jpg&#34; alt=&#34;221609761622_.pic_hd.jpg&#34;  /&gt;
+&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwxtdcmqj30hc0ba40e.jpg&#34; alt=&#34;231609761644_.pic.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;尾声&#34;&gt;尾声&lt;/h2&gt;
+&lt;p&gt;至此，一个好用又好看的mac终端基本配置完毕啦
+其他有趣的可以看下&lt;a class=&#34;link&#34; href=&#34;https://sspai.com/post/59666&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;这篇博客&lt;/a&gt;讲的&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>记一次服务器被攻击</title>
         <link>https://ccqstark.github.io/p/first_attack/</link>
         <pubDate>Sun, 22 Nov 2020 22:10:00 +0800</pubDate>
@@ -2241,93 +2328,6 @@ categories:
 &lt;p&gt;在&lt;code&gt;\content\categories&lt;/code&gt;目录下创建以各分类命名的文件夹&lt;/p&gt;
 &lt;p&gt;各分类的文件夹下放置&lt;code&gt;_index.md&lt;/code&gt;和分类的展示图&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;_index.md&lt;/code&gt;中的内容就是普通文章顶部的配置项，注意图片名配置对了就行&lt;/p&gt;
-</description>
-        </item>
-        <item>
-        <title>MacOS终端美化指北</title>
-        <link>https://ccqstark.github.io/p/mac_terminal/</link>
-        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-        
-        <guid>https://ccqstark.github.io/p/mac_terminal/</guid>
-        <description>&lt;p&gt;终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。
-先看下我：
-&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbx5ikhcmj30ms0ei7hx.jpg&#34; alt=&#34;261609762082_.pic_hd.jpg&#34;  /&gt;
-还可以吧？&lt;/p&gt;
-&lt;h2 id=&#34;准备工作&#34;&gt;准备工作&lt;/h2&gt;
-&lt;p&gt;先保证自己下载&lt;code&gt;homebrew&lt;/code&gt;和&lt;code&gt;wget&lt;/code&gt;，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/90508170&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;下载方法&lt;/a&gt;网上也很多的，建议先下homebrew再用它下wget。&lt;/p&gt;
-&lt;h2 id=&#34;iterm2&#34;&gt;iTerm2&lt;/h2&gt;
-&lt;p&gt;首先是下载第三方终端&lt;code&gt;iTerm2&lt;/code&gt;，mac自带的终端用的比较少，大家用的最多还是这个。
-&lt;a class=&#34;link&#34; href=&#34;https://iterm2.com/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;官网下载&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;zsh&#34;&gt;zsh&lt;/h2&gt;
-&lt;p&gt;&lt;code&gt;zsh&lt;/code&gt;是shell的一种，mac默认的shell是&lt;code&gt;bash&lt;/code&gt;，一般来说我们也是用zsh比较多，因为命令更多更好用。&lt;/p&gt;
-&lt;h3 id=&#34;下载zsh&#34;&gt;下载zsh&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;brew install zsh
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;切换shell为zsh&#34;&gt;切换shell为zsh&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;# 查看当前使用的shell
-echo $SHELL
-# 切换为zsh
-chsh -s /bin/zsh
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行完上面命令后重启一下即可&lt;/p&gt;
-&lt;h2 id=&#34;oh-my-zsh&#34;&gt;oh-my-zsh&lt;/h2&gt;
-&lt;p&gt;&lt;code&gt;oh-my-zsh&lt;/code&gt;用于美化终端，可以让你拥有很多好看的主题。&lt;/p&gt;
-&lt;h3 id=&#34;安装&#34;&gt;安装&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
-&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;sh install.sh
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
-&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbw4jpaddj30fv06idg6.jpg&#34; alt=&#34;191609759959_.pic.jpg&#34;  /&gt;&lt;/p&gt;
-&lt;h2 id=&#34;更换主题&#34;&gt;更换主题&lt;/h2&gt;
-&lt;p&gt;oh-my-zsh有很多默认的主题，可以在&lt;code&gt;~/.zshrc&lt;/code&gt;中修改&lt;code&gt;ZSH_THEME&lt;/code&gt;来切换不同主题。
-这里我推荐&lt;code&gt;powerlever10k&lt;/code&gt;，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲&lt;code&gt;powerlevel10k&lt;/code&gt;的安装方法。&lt;/p&gt;
-&lt;h3 id=&#34;下载&#34;&gt;下载&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;安装所需字体&#34;&gt;安装所需字体&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;# 安装 nerd-font 字体
-brew tap homebrew/cask-fonts
-
-# 其他所需字体
-cd ~
-git clone https://github.com/powerline/fonts.git --depth=1
-
-# 到目录下执行安装脚本
-cd fonts
-./install.sh
-
-# 删除刚刚下载的
-cd ..
-rm -rf fonts
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;配置&#34;&gt;配置&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;vim ~/.zshrc
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;进入zsh配置文件中修改并增加&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ZSH_THEME = &amp;quot;powerlevel10k/powerlevel10k&amp;quot;
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;之后启动向导&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;p10k configure
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以用下面命令查看颜色代号&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;for i in {0..255}; do print -Pn &amp;quot;%K{$i}  %k%F{$i}${(l:3::0:)i}%f &amp;quot; ${${(M)$((i%6)):#3}:+$&#39;\n&#39;}; done
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
-下载软件&lt;a class=&#34;link&#34; href=&#34;https://oldj.github.io/SwitchHosts/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;SwitchHosts!&lt;/a&gt;
-之后如图加上&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;199.232.68.133 raw.githubusercontent.com
-199.232.68.133 user-images.githubusercontent.com
-199.232.68.133 avatars2.githubusercontent.com
-199.232.68.133 avatars1.githubusercontent.com
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwpo0y96j30pc0gggo1.jpg&#34; alt=&#34;201609761151_.pic.jpg&#34;  /&gt;
-开启&lt;code&gt;My hosts&lt;/code&gt;后重启终端，就会自动提示下载所需字体，耐心等待它下载完（有点慢）后，就可以根据引导一步步自定义属于自己的主题了！从图标到字体颜色风格到显示信息都可以自定义！&lt;/p&gt;
-&lt;h2 id=&#34;背景透明毛玻璃&#34;&gt;背景透明+毛玻璃&lt;/h2&gt;
-&lt;p&gt;打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。
-&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwubhglpj30sy0jdq8k.jpg&#34; alt=&#34;211609761445_.pic_hd.jpg&#34;  /&gt;&lt;/p&gt;
-&lt;h2 id=&#34;快捷键唤醒&#34;&gt;快捷键唤醒&lt;/h2&gt;
-&lt;p&gt;如何让切出终端更快捷？可以设置&lt;code&gt;Hotkey&lt;/code&gt;
-按下图操作
-&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwxgx701j30vc0kcteu.jpg&#34; alt=&#34;221609761622_.pic_hd.jpg&#34;  /&gt;
-&lt;img src=&#34;http://ww1.sinaimg.cn/large/00681LYngy1gmbwxtdcmqj30hc0ba40e.jpg&#34; alt=&#34;231609761644_.pic.jpg&#34;  /&gt;&lt;/p&gt;
-&lt;h2 id=&#34;尾声&#34;&gt;尾声&lt;/h2&gt;
-&lt;p&gt;至此，一个好用又好看的mac终端基本配置完毕啦
-其他有趣的可以看下&lt;a class=&#34;link&#34; href=&#34;https://sspai.com/post/59666&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;这篇博客&lt;/a&gt;讲的&lt;/p&gt;
 </description>
         </item>
         
