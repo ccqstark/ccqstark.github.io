@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我： 还可以吧？
+准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
+iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
+zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
+下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
+oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
+安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .'><title>MacOS终端美化指北</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/mac_terminal/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='MacOS终端美化指北'>
+<meta property='og:description' content='终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我： 还可以吧？
+准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
+iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
+zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
+下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
+oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
+安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .'>
+<meta property='og:url' content='https://ccqstark.github.io/p/mac_terminal/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='MacOS' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="MacOS终端美化指北">
+<meta name="twitter:description" content="终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我： 还可以吧？
+准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
+iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
+zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
+下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
+oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
+安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .">
+    <link rel="shortcut icon" href="/icon.ico" />
+
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/" >
+                其它技术
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/mac_terminal/">MacOS终端美化指北</a>
+    </h2>
+
+    </div>
+</header>
+
+    <section class="article-content">
+    <p>终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。
+先看下我：
+<img src="http://ww1.sinaimg.cn/large/00681LYngy1gmbx5ikhcmj30ms0ei7hx.jpg" alt="261609762082_.pic_hd.jpg"  />
+还可以吧？</p>
+<h2 id="准备工作">准备工作</h2>
+<p>先保证自己下载<code>homebrew</code>和<code>wget</code>，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。<a class="link" href="https://zhuanlan.zhihu.com/p/90508170"  target="_blank" rel="noopener"
+    >下载方法</a>网上也很多的，建议先下homebrew再用它下wget。</p>
+<h2 id="iterm2">iTerm2</h2>
+<p>首先是下载第三方终端<code>iTerm2</code>，mac自带的终端用的比较少，大家用的最多还是这个。
+<a class="link" href="https://iterm2.com/"  target="_blank" rel="noopener"
+    >官网下载</a></p>
+<h2 id="zsh">zsh</h2>
+<p><code>zsh</code>是shell的一种，mac默认的shell是<code>bash</code>，一般来说我们也是用zsh比较多，因为命令更多更好用。</p>
+<h3 id="下载zsh">下载zsh</h3>
+<pre><code>brew install zsh
+</code></pre><h3 id="切换shell为zsh">切换shell为zsh</h3>
+<pre><code># 查看当前使用的shell
+echo $SHELL
+# 切换为zsh
+chsh -s /bin/zsh
+</code></pre><p>运行完上面命令后重启一下即可</p>
+<h2 id="oh-my-zsh">oh-my-zsh</h2>
+<p><code>oh-my-zsh</code>用于美化终端，可以让你拥有很多好看的主题。</p>
+<h3 id="安装">安装</h3>
+<pre><code>wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
+</code></pre><pre><code>sh install.sh
+</code></pre><p>运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+<img src="http://ww1.sinaimg.cn/large/00681LYngy1gmbw4jpaddj30fv06idg6.jpg" alt="191609759959_.pic.jpg"  /></p>
+<h2 id="更换主题">更换主题</h2>
+<p>oh-my-zsh有很多默认的主题，可以在<code>~/.zshrc</code>中修改<code>ZSH_THEME</code>来切换不同主题。
+这里我推荐<code>powerlever10k</code>，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲<code>powerlevel10k</code>的安装方法。</p>
+<h3 id="下载">下载</h3>
+<pre><code>git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+</code></pre><h3 id="安装所需字体">安装所需字体</h3>
+<pre><code># 安装 nerd-font 字体
+brew tap homebrew/cask-fonts
+
+# 其他所需字体
+cd ~
+git clone https://github.com/powerline/fonts.git --depth=1
+
+# 到目录下执行安装脚本
+cd fonts
+./install.sh
+
+# 删除刚刚下载的
+cd ..
+rm -rf fonts
+</code></pre><h3 id="配置">配置</h3>
+<pre><code>vim ~/.zshrc
+</code></pre><p>进入zsh配置文件中修改并增加</p>
+<pre><code>ZSH_THEME = &quot;powerlevel10k/powerlevel10k&quot;
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+</code></pre><p>之后启动向导</p>
+<pre><code>p10k configure
+</code></pre><p>可以用下面命令查看颜色代号</p>
+<pre><code>for i in {0..255}; do print -Pn &quot;%K{$i}  %k%F{$i}${(l:3::0:)i}%f &quot; ${${(M)$((i%6)):#3}:+$'\n'}; done
+</code></pre><p>接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
+下载软件<a class="link" href="https://oldj.github.io/SwitchHosts/"  target="_blank" rel="noopener"
+    >SwitchHosts!</a>
+之后如图加上</p>
+<pre><code>199.232.68.133 raw.githubusercontent.com
+199.232.68.133 user-images.githubusercontent.com
+199.232.68.133 avatars2.githubusercontent.com
+199.232.68.133 avatars1.githubusercontent.com
+</code></pre><p><img src="http://ww1.sinaimg.cn/large/00681LYngy1gmbwpo0y96j30pc0gggo1.jpg" alt="201609761151_.pic.jpg"  />
+开启<code>My hosts</code>后重启终端，就会自动提示下载所需字体，耐心等待它下载完（有点慢）后，就可以根据引导一步步自定义属于自己的主题了！从图标到字体颜色风格到显示信息都可以自定义！</p>
+<h2 id="背景透明毛玻璃">背景透明+毛玻璃</h2>
+<p>打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。
+<img src="http://ww1.sinaimg.cn/large/00681LYngy1gmbwubhglpj30sy0jdq8k.jpg" alt="211609761445_.pic_hd.jpg"  /></p>
+<h2 id="快捷键唤醒">快捷键唤醒</h2>
+<p>如何让切出终端更快捷？可以设置<code>Hotkey</code>
+按下图操作
+<img src="http://ww1.sinaimg.cn/large/00681LYngy1gmbwxgx701j30vc0kcteu.jpg" alt="221609761622_.pic_hd.jpg"  />
+<img src="http://ww1.sinaimg.cn/large/00681LYngy1gmbwxtdcmqj30hc0ba40e.jpg" alt="231609761644_.pic.jpg"  /></p>
+<h2 id="尾声">尾声</h2>
+<p>至此，一个好用又好看的mac终端基本配置完毕啦
+其他有趣的可以看下<a class="link" href="https://sspai.com/post/59666"  target="_blank" rel="noopener"
+    >这篇博客</a>讲的</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/macos/">MacOS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">
+        
+        
+            <div class="article-image">
+                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.c21ba899c77312de9895762f5d2f27b8_hu8b6407a07803ab5ecf8133363f04b00e_28892_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="" 
+                        data-hash="md5-whuomcdzEt6YlXYvXS8nuA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Hugo&#43;github/gitee搭建个人博客</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
