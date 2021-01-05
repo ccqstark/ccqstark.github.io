@@ -72,6 +72,8 @@ https://wangchujiang.com/linux-command/c/firewall-cmd.html
 先找个目录，vim建立一个脚本文件
 vim /usr/local/secure_ssh.sh 然后编写脚本
 #! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.">
+    <link rel="shortcut icon" href="/icon.ico" />
+
     </head>
     <body class="">
     <script>

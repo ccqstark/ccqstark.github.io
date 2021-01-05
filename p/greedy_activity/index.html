@@ -39,6 +39,8 @@
 正确解法有2种：
  把活动按开始时间从小到大排，当开始时间相同则结束时间早的优先。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。 把活动按结束时间从小到大排，当结束时间相同则开始时间早的优先。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序，这样直到所有活动遍历安排完毕。  所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。
 代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.">
+    <link rel="shortcut icon" href="/icon.ico" />
+
     </head>
     <body class="">
     <script>

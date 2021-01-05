@@ -45,6 +45,8 @@ dp[i] = max{ dp[j]&#43;1, dp[i] }
 由于每次重头又遍历了一次，并每次都分析最优解，避免了1 2 3 9 6 7 这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。
 这也说明这个算法的时间复杂度只能是O(n2)
 代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?">
+    <link rel="shortcut icon" href="/icon.ico" />
+
     </head>
     <body class="">
     <script>

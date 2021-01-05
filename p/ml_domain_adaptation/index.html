@@ -75,6 +75,8 @@ Faster-RCNN由下面几部分组成：
   卷积层CNN等基础网络，提取特征得到feature map
   RPN层，再在经过卷积层提取到的feature map上用一个3x3的slide window，去遍历整个feature map,在遍历过程中每个window中心按rate，scale（1:2,1:1,2:1）生成9个anchors，然后再利用全连接对每个anchors做二分类（是前景还是背景）和初步bbox regression，最后输出比较精确的300个ROIs。 把经过卷积层feature map用ROI pooling固定全连接层的输入维度。
   然后把经过RPN输出的rois映射到ROIpooling的feature map上进行bbox回归和分类。">
+    <link rel="shortcut icon" href="/icon.ico" />
+
     </head>
     <body class="">
     <script>
