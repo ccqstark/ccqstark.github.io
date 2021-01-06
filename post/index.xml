@@ -6,7 +6,33 @@
     <description>Recent content in Posts on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Jan 2021 02:07:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 06 Jan 2021 16:51:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[docker]容器数据卷</title>
+      <link>https://ccqstark.github.io/p/docker_volumes/</link>
+      <pubDate>Wed, 06 Jan 2021 16:51:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/docker_volumes/</guid>
+      <description>把容器内的目录挂载到宿主机的某一个目录下，实现双向同步。
+也就是说两者都指向了同一文件目录下，在其中一端所做的修改都会同步。
+好处：
+ MySQL数据持久化，不会因为删了容器就没了 方便修改文件，比如nginx的配置文件  基本使用 bind mounts 以启动一个centos容器为例
+docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
+-v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
+用此命令查看容器参数
+docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+Source 表示宿主机中被映射的目录
+Destination 表示容器内要映射的目录
+这种挂载方式称为bind mounts
+实践：MySQL挂载 拉取mysql镜像 docker search mysql docker pull mysql:5.7 启动容器 -d 后台运行
+-p 端口映射
+-v 数据卷挂载
+—name 容器名字
+docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
+-v可以一次写多个来多次挂载
+连接测试 运行成功后用navicat连接下试试</description>
+    </item>
+    
     <item>
       <title>MacOS终端美化指北</title>
       <link>https://ccqstark.github.io/p/mac_terminal/</link>

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='把容器内的目录挂载到宿主机的某一个目录下，实现双向同步。
+也就是说两者都指向了同一文件目录下，在其中一端所做的修改都会同步。
+好处：
+ MySQL数据持久化，不会因为删了容器就没了 方便修改文件，比如nginx的配置文件  基本使用 bind mounts 以启动一个centos容器为例
+docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
+-v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
+用此命令查看容器参数
+docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+Source 表示宿主机中被映射的目录
+Destination 表示容器内要映射的目录
+这种挂载方式称为bind mounts
+实践：MySQL挂载 拉取mysql镜像 docker search mysql docker pull mysql:5.7 启动容器 -d 后台运行
+-p 端口映射
+-v 数据卷挂载
+—name 容器名字
+docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
+-v可以一次写多个来多次挂载
+连接测试 运行成功后用navicat连接下试试'><title>[docker]容器数据卷</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/docker_volumes/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[docker]容器数据卷'>
+<meta property='og:description' content='把容器内的目录挂载到宿主机的某一个目录下，实现双向同步。
+也就是说两者都指向了同一文件目录下，在其中一端所做的修改都会同步。
+好处：
+ MySQL数据持久化，不会因为删了容器就没了 方便修改文件，比如nginx的配置文件  基本使用 bind mounts 以启动一个centos容器为例
+docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
+-v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
+用此命令查看容器参数
+docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+Source 表示宿主机中被映射的目录
+Destination 表示容器内要映射的目录
+这种挂载方式称为bind mounts
+实践：MySQL挂载 拉取mysql镜像 docker search mysql docker pull mysql:5.7 启动容器 -d 后台运行
+-p 端口映射
+-v 数据卷挂载
+—name 容器名字
+docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
+-v可以一次写多个来多次挂载
+连接测试 运行成功后用navicat连接下试试'>
+<meta property='og:url' content='https://ccqstark.github.io/p/docker_volumes/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Docker' /><meta property='article:published_time' content='2021-01-06T16:51:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-06T16:51:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/docker_volumes/docker.png' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[docker]容器数据卷">
+<meta name="twitter:description" content="把容器内的目录挂载到宿主机的某一个目录下，实现双向同步。
+也就是说两者都指向了同一文件目录下，在其中一端所做的修改都会同步。
+好处：
+ MySQL数据持久化，不会因为删了容器就没了 方便修改文件，比如nginx的配置文件  基本使用 bind mounts 以启动一个centos容器为例
+docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
+-v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
+用此命令查看容器参数
+docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+Source 表示宿主机中被映射的目录
+Destination 表示容器内要映射的目录
+这种挂载方式称为bind mounts
+实践：MySQL挂载 拉取mysql镜像 docker search mysql docker pull mysql:5.7 启动容器 -d 后台运行
+-p 端口映射
+-v 数据卷挂载
+—name 容器名字
+docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
+-v可以一次写多个来多次挂载
+连接测试 运行成功后用navicat连接下试试"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/docker_volumes/docker.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/docker_volumes/">
+                <img src="/p/docker_volumes/docker_hu22e70eb00a1bc79d3e2af88d0f9ef83b_73329_800x0_resize_box_2.png"
+                        srcset="/p/docker_volumes/docker_hu22e70eb00a1bc79d3e2af88d0f9ef83b_73329_800x0_resize_box_2.png 800w, /p/docker_volumes/docker_hu22e70eb00a1bc79d3e2af88d0f9ef83b_73329_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="340" 
+                        loading="lazy"
+                        alt="Featured image of post [docker]容器数据卷" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" >
+                环境搭建
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/docker_volumes/">[docker]容器数据卷</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 06, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <p>把容器内的目录挂载到宿主机的某一个目录下，实现双向同步。</p>
+<p>也就是说两者都指向了同一文件目录下，在其中一端所做的修改都会同步。</p>
+<p>好处：</p>
+<ol>
+<li>MySQL数据持久化，不会因为删了容器就没了</li>
+<li>方便修改文件，比如nginx的配置文件</li>
+</ol>
+<h2 id="基本使用-bind-mounts">基本使用 bind mounts</h2>
+<p>以启动一个centos容器为例</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -it -v <span class="o">[</span>宿主机目录<span class="o">]</span>:<span class="o">[</span>容器内目录<span class="o">]</span> centos /bin/bash
+</code></pre></div><p><code>-it</code> ：<code>-t</code>选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， <code>-i</code> 则让容器的标准输入保持打开，通常写成<code>-it</code></p>
+<p><code>-v</code> ：挂载卷所需参数，后面的映射是<code>[宿主机目录]:[容器内目录]</code></p>
+<p>用此命令查看容器参数</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker inspect <span class="o">[</span>容器id<span class="o">]</span>
+</code></pre></div><p><img src="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled.png"  /></p>
+<p>如上图，在<code>Mounts</code> 字段中可以看到：</p>
+<p><code>Source</code> 表示宿主机中被映射的目录</p>
+<p><code>Destination</code> 表示容器内要映射的目录</p>
+<p>这种挂载方式称为<code>bind mounts</code></p>
+<h2 id="实践mysql挂载"><strong>实践：MySQL挂载</strong></h2>
+<h3 id="拉取mysql镜像"><strong>拉取mysql镜像</strong></h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker search mysql
+docker pull mysql:5.7
+</code></pre></div><h3 id="启动容器"><strong>启动容器</strong></h3>
+<p><code>-d</code> 后台运行</p>
+<p><code>-p</code> 端口映射</p>
+<p><code>-v</code> 数据卷挂载</p>
+<p><code>—name</code> 容器名字</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run 
+-d 
+-p 3310:3306 
+-v /home/mysql/conf:/etc/mysql/conf.d 
+-v /home/mysql/data:/var/lib/mysql
+-e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=[</span>你配置的mysql密码<span class="o">]</span> 
+--name <span class="o">[</span>容器名<span class="o">]</span>
+mysql:5.7
+</code></pre></div><p>⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行</p>
+<p><code>-v</code>可以一次写多个来多次挂载</p>
+<h3 id="连接测试"><strong>连接测试</strong></h3>
+<p>运行成功后用navicat连接下试试</p>
+<ul>
+<li>主机地址还是服务器公网ip</li>
+<li>端口是映射出来的暴露端口，比如上面命令中的<code>3310</code></li>
+<li>密码就是<code>-e MYSQL_ROOT_PASSWORD</code>设置的密码</li>
+</ul>
+<p>可以创建新的数据库看看宿主机对应映射目录下有没有同步出现新数据库的文件</p>
+<h3 id="删除测试"><strong>删除测试</strong></h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker rm -f <span class="o">[</span>mysql容器名<span class="o">]</span>
+</code></pre></div><p>运行上面的指令删除掉容器，再在主机下查看<code>/home/mysql/data</code> 目录发现数据依旧都还在</p>
+<p>如果再次启动一个容器数据就还是和删除前一样，从而保证了数据安全，这就是MySQL数据卷挂载</p>
+<h2 id="匿名挂载和具名挂载-volumes">匿名挂载和具名挂载 volumes</h2>
+<h3 id="匿名挂载"><strong>匿名挂载</strong></h3>
+<p><code>-P</code> 随机映射端口</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -P --name nginx01 -v /etc/nginx nginx
+</code></pre></div><p>如上图的命令，<code>-v</code> 是没有指定外部目录的，只写了内部目录，所以是匿名挂载，使用下面命令查看挂载的卷</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker volume ls
+</code></pre></div><p>发现卷名是随机生成的字符串，所以是匿名的</p>
+<p><img src="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%201.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%201.png"  /></p>
+<h3 id="具名挂载"><strong>具名挂载</strong></h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -P --name nginx01 -v <span class="o">[</span>自己起的卷名<span class="o">]</span>:/etc/nginx nginx
+</code></pre></div><p><code>[卷名]:[目录名]</code> 这样指定了卷名的形式就是具名挂载</p>
+<p>这样再用<code>docker volume ls</code> 看到的卷名就是自己指定的了</p>
+<h3 id="查看挂载的目录"><strong>查看挂载的目录</strong></h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker volume inspect <span class="o">[</span>卷名<span class="o">]</span>
+</code></pre></div><p>用这条命令就可以查看卷的一些信息，其中<code>Mountpoint</code> 就是所挂载的外部目录</p>
+<p><img src="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%202.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%202.png"  /></p>
+<p>所以这种在没有指定目录的情况下（具名或匿名）都是挂载在<code>/var/lib/docker/volumes/[卷名]/_data</code>这个目录的</p>
+<p>大多数情况下都是用<code>具名挂载</code></p>
+<p>这两种挂载方式统称<code>volumes</code></p>
+<h2 id="总结">总结</h2>
+<p><code>-v [内路径]</code>        匿名挂载                                                                                                                            <code>-v 卷名:内路径</code>   具名挂载                                                                                                                   <code>-v 宿主机路径:容器内路径</code>  指定路径挂载</p>
+<h2 id="扩展">扩展</h2>
+<p>可以用参数改变读写权限</p>
+<p><code>ro</code> 只读，容器内不可修改，容器外可以</p>
+<p><code>re</code> 可读可写</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:ro nginx
+docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
+</code></pre></div><h2 id="使用dockerfile来构建和挂载">使用Dockerfile来构建和挂载</h2>
+<p>Dockerfile是用来构建docker镜像的构建文件，里面就是构建的脚本</p>
+<p>这个文件可以用来生成镜像，由于镜像是一层一层的，所以脚本命令也是一句句对应一层层的</p>
+<p>以centos来举个例子，在dockerfile里写下下面这些内容：</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker"><span class="k">FROM</span><span class="s"> centos  # 由哪个原始镜像构建</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">VOLUME</span> <span class="p">[</span><span class="s2">&#34;volume01&#34;</span><span class="p">,</span><span class="s2">&#34;volume02&#34;</span><span class="p">]</span>  <span class="c1"># 挂载，此处匿名</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span> <span class="nb">echo</span> <span class="s2">&#34;---end---&#34;</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span> /bin/bash<span class="err">
+</span></code></pre></div><p>运行构建命令如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker build -f <span class="o">[</span>dockerfile路径<span class="o">]</span> -t <span class="o">[</span>镜像名<span class="o">]</span>:<span class="o">[</span>版本tag<span class="o">]</span> <span class="o">[</span>生成目录<span class="o">]</span>
+</code></pre></div><p>然后用命令<code>docker images</code> 就可以看到自己刚刚构建的镜像了，<code>docker run</code> 就可以跑起来</p>
+<p>之后也可以<code>docker inspect</code> 查看挂载情况，挂载同样是数据内外目录同步的</p>
+<h2 id="数据卷容器">数据卷容器</h2>
+<p>之前是容器内的目录挂载到容器外到到目录，现在是一个容器挂载到另一个容器</p>
+<p>这样就实现了容器之间到数据同步</p>
+<p><code>—-volumes-from</code> 使用此参数开启一个挂载到另一容器</p>
+<p>被挂载的称为<code>父容器</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -it --name <span class="o">[</span>名字<span class="o">]</span> --volumes-from <span class="o">[</span>父容器名<span class="o">]</span> <span class="o">[</span>镜像名<span class="o">]</span>:<span class="o">[</span>版本tag<span class="o">]</span> 
+</code></pre></div><p>测试一下，开两个容器，进入挂载到一起的目录创建文件试试，发现数据是同步的</p>
+<h3 id="多重挂载">多重挂载</h3>
+<p>可以开启第三个容器挂载到第一或第二个容器，发现现在这3个容器对应到目录的数据都是同步的</p>
+<p>所以挂载其实是可以<code>套娃</code>的</p>
+<h3 id="卷的挂载机制">卷的挂载机制</h3>
+<p>不同容器的挂载机制并不是映射到单一到文件夹下的，如果这样的话其中一个容器被删除的话，其它所有容器对应都数据都会消失。</p>
+<p>实际上挂载是一种<code>拷贝</code>的机制，数据是有多份相同的备份的，删除一种一份其它的都还在，不会消失的，只是会占用更多的存储空间</p>
+<p><img src="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%203.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%203.png"  /></p>
+<p>只有把挂载这一卷的所有的容器都删除，这个卷才会消失</p>
+<p>当然，如果是bind到本地的目录那就删除全部容器数据也仍然在本地</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/docker/">Docker</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/php_env/">
+        
+        
+            <div class="article-image">
+                <img src="/p/php_env/php.f47e05875abc2e803c4f16b17f7f27b1_hu30aa9710d612d752c63ae5cdcfcf5665_61468_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="php_env" 
+                        data-hash="md5-9H4Fh1q8LoA8Txaxf38nsQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">php后台开发基础环境搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
