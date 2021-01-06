@@ -262,18 +262,18 @@ oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题�
 <h2 id="zsh">zsh</h2>
 <p><code>zsh</code>是shell的一种，mac默认的shell是<code>bash</code>，一般来说我们也是用zsh比较多，因为命令更多更好用。</p>
 <h3 id="下载zsh">下载zsh</h3>
-<pre><code>brew install zsh
-</code></pre><h3 id="切换shell为zsh">切换shell为zsh</h3>
-<pre><code># 查看当前使用的shell
-echo $SHELL
-# 切换为zsh
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">brew install zsh
+</code></pre></div><h3 id="切换shell为zsh">切换shell为zsh</h3>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 查看当前使用的shell</span>
+<span class="nb">echo</span> <span class="nv">$SHELL</span>
+<span class="c1"># 切换为zsh</span>
 chsh -s /bin/zsh
-</code></pre><p>运行完上面命令后重启一下即可</p>
+</code></pre></div><p>运行完上面命令后重启一下即可</p>
 <h2 id="oh-my-zsh">oh-my-zsh</h2>
 <p><code>oh-my-zsh</code>用于美化终端，可以让你拥有很多好看的主题。</p>
 <h3 id="安装">安装</h3>
-<pre><code>wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
-</code></pre><pre><code>sh install.sh
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - <span class="p">|</span> sh
+</code></pre></div><pre><code>sh install.sh
 </code></pre><p>运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面<br>
 <img src="https://static01.imgkr.com/temp/f72289ad7de9432aa9e9a583ac9fe56c.jpg" alt="2"  /></p>
 <h2 id="更换主题">更换主题</h2>
@@ -282,38 +282,38 @@ chsh -s /bin/zsh
 <h3 id="下载">下载</h3>
 <pre><code>git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 </code></pre><h3 id="安装所需字体">安装所需字体</h3>
-<pre><code># 安装 nerd-font 字体
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 安装 nerd-font 字体</span>
 brew tap homebrew/cask-fonts
 
-# 其他所需字体
-cd ~
-git clone https://github.com/powerline/fonts.git --depth=1
+<span class="c1"># 其他所需字体</span>
+<span class="nb">cd</span> ~
+git clone https://github.com/powerline/fonts.git --depth<span class="o">=</span><span class="m">1</span>
 
-# 到目录下执行安装脚本
-cd fonts
+<span class="c1"># 到目录下执行安装脚本</span>
+<span class="nb">cd</span> fonts
 ./install.sh
 
-# 删除刚刚下载的
-cd ..
+<span class="c1"># 删除刚刚下载的</span>
+<span class="nb">cd</span> ..
 rm -rf fonts
-</code></pre><h3 id="配置">配置</h3>
-<pre><code>vim ~/.zshrc
-</code></pre><p>进入zsh配置文件中修改并增加</p>
-<pre><code>ZSH_THEME = &quot;powerlevel10k/powerlevel10k&quot;
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-</code></pre><p>之后启动向导</p>
-<pre><code>p10k configure
-</code></pre><p>可以用下面命令查看颜色代号</p>
-<pre><code>for i in {0..255}; do print -Pn &quot;%K{$i}  %k%F{$i}${(l:3::0:)i}%f &quot; ${${(M)$((i%6)):#3}:+$'\n'}; done
-</code></pre><p>接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
+</code></pre></div><h3 id="配置">配置</h3>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">vim ~/.zshrc
+</code></pre></div><p>进入zsh配置文件中修改并增加</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="nv">ZSH_THEME</span> <span class="o">=</span> <span class="s2">&#34;powerlevel10k/powerlevel10k&#34;</span>
+<span class="o">[[</span> ! -f ~/.p10k.zsh <span class="o">]]</span> <span class="o">||</span> <span class="nb">source</span> ~/.p10k.zsh
+</code></pre></div><p>之后启动向导</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">p10k configure
+</code></pre></div><p>可以用下面命令查看颜色代号</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="k">for</span> i in <span class="o">{</span>0..255<span class="o">}</span><span class="p">;</span> <span class="k">do</span> print -Pn <span class="s2">&#34;%K{</span><span class="nv">$i</span><span class="s2">}  %k%F{</span><span class="nv">$i</span><span class="s2">}</span><span class="si">${</span><span class="p">(l:</span><span class="nv">3</span><span class="p">::</span><span class="nv">0</span><span class="p">:)i</span><span class="si">}</span><span class="s2">%f &#34;</span> <span class="si">${${</span><span class="p">(M)</span><span class="k">$((</span>i%6<span class="k">))</span><span class="p">:#3</span><span class="si">}</span><span class="p">:+</span><span class="s1">$&#39;\n&#39;</span><span class="si">}</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div><p>接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
 下载软件<a class="link" href="https://oldj.github.io/SwitchHosts/"  target="_blank" rel="noopener"
     >SwitchHosts!</a>
 之后如图加上</p>
-<pre><code>199.232.68.133 raw.githubusercontent.com
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">199.232.68.133 raw.githubusercontent.com
 199.232.68.133 user-images.githubusercontent.com
 199.232.68.133 avatars2.githubusercontent.com
 199.232.68.133 avatars1.githubusercontent.com
-</code></pre><p><img src="https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg" alt="3"  /><br>
+</code></pre></div><p><img src="https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg" alt="3"  /><br>
 开启<code>My hosts</code>后重启终端，就会自动提示下载所需字体，耐心等待它下载完（有点慢）后，就可以根据引导一步步自定义属于自己的主题了！从图标到字体颜色风格到显示信息都可以自定义！</p>
 <h2 id="背景透明毛玻璃">背景透明+毛玻璃</h2>
 <p>打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。<br>

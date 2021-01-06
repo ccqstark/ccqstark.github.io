@@ -25,18 +25,18 @@
 &lt;h2 id=&#34;zsh&#34;&gt;zsh&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;zsh&lt;/code&gt;是shell的一种，mac默认的shell是&lt;code&gt;bash&lt;/code&gt;，一般来说我们也是用zsh比较多，因为命令更多更好用。&lt;/p&gt;
 &lt;h3 id=&#34;下载zsh&#34;&gt;下载zsh&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;brew install zsh
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;切换shell为zsh&#34;&gt;切换shell为zsh&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;# 查看当前使用的shell
-echo $SHELL
-# 切换为zsh
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;brew install zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;切换shell为zsh&#34;&gt;切换shell为zsh&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 查看当前使用的shell&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$SHELL&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# 切换为zsh&lt;/span&gt;
 chsh -s /bin/zsh
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行完上面命令后重启一下即可&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;运行完上面命令后重启一下即可&lt;/p&gt;
 &lt;h2 id=&#34;oh-my-zsh&#34;&gt;oh-my-zsh&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;oh-my-zsh&lt;/code&gt;用于美化终端，可以让你拥有很多好看的主题。&lt;/p&gt;
 &lt;h3 id=&#34;安装&#34;&gt;安装&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
-&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;sh install.sh
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;pre&gt;&lt;code&gt;sh install.sh
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面&lt;br&gt;
 &lt;img src=&#34;https://static01.imgkr.com/temp/f72289ad7de9432aa9e9a583ac9fe56c.jpg&#34; alt=&#34;2&#34;  /&gt;&lt;/p&gt;
 &lt;h2 id=&#34;更换主题&#34;&gt;更换主题&lt;/h2&gt;
@@ -45,38 +45,38 @@ chsh -s /bin/zsh
 &lt;h3 id=&#34;下载&#34;&gt;下载&lt;/h3&gt;
 &lt;pre&gt;&lt;code&gt;git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 &lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;安装所需字体&#34;&gt;安装所需字体&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;# 安装 nerd-font 字体
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 安装 nerd-font 字体&lt;/span&gt;
 brew tap homebrew/cask-fonts
 
-# 其他所需字体
-cd ~
-git clone https://github.com/powerline/fonts.git --depth=1
+&lt;span class=&#34;c1&#34;&gt;# 其他所需字体&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ~
+git clone https://github.com/powerline/fonts.git --depth&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
 
-# 到目录下执行安装脚本
-cd fonts
+&lt;span class=&#34;c1&#34;&gt;# 到目录下执行安装脚本&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; fonts
 ./install.sh
 
-# 删除刚刚下载的
-cd ..
+&lt;span class=&#34;c1&#34;&gt;# 删除刚刚下载的&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ..
 rm -rf fonts
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;配置&#34;&gt;配置&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;vim ~/.zshrc
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;进入zsh配置文件中修改并增加&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ZSH_THEME = &amp;quot;powerlevel10k/powerlevel10k&amp;quot;
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;之后启动向导&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;p10k configure
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以用下面命令查看颜色代号&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;for i in {0..255}; do print -Pn &amp;quot;%K{$i}  %k%F{$i}${(l:3::0:)i}%f &amp;quot; ${${(M)$((i%6)):#3}:+$&#39;\n&#39;}; done
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;配置&#34;&gt;配置&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;vim ~/.zshrc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;进入zsh配置文件中修改并增加&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;nv&#34;&gt;ZSH_THEME&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;powerlevel10k/powerlevel10k&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt; ! -f ~/.p10k.zsh &lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; ~/.p10k.zsh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后启动向导&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;p10k configure
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;可以用下面命令查看颜色代号&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; i in &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;0..255&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; print -Pn &lt;span class=&#34;s2&#34;&gt;&amp;#34;%K{&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;}  %k%F{&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(l:&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:)i&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;%f &amp;#34;&lt;/span&gt; &lt;span class=&#34;si&#34;&gt;${${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(M)&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$((&lt;/span&gt;i%6&lt;span class=&#34;k&#34;&gt;))&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:#3&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;$&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
 下载软件&lt;a class=&#34;link&#34; href=&#34;https://oldj.github.io/SwitchHosts/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;SwitchHosts!&lt;/a&gt;
 之后如图加上&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;199.232.68.133 raw.githubusercontent.com
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;199.232.68.133 raw.githubusercontent.com
 199.232.68.133 user-images.githubusercontent.com
 199.232.68.133 avatars2.githubusercontent.com
 199.232.68.133 avatars1.githubusercontent.com
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg&#34; alt=&#34;3&#34;  /&gt;&lt;br&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg&#34; alt=&#34;3&#34;  /&gt;&lt;br&gt;
 开启&lt;code&gt;My hosts&lt;/code&gt;后重启终端，就会自动提示下载所需字体，耐心等待它下载完（有点慢）后，就可以根据引导一步步自定义属于自己的主题了！从图标到字体颜色风格到显示信息都可以自定义！&lt;/p&gt;
 &lt;h2 id=&#34;背景透明毛玻璃&#34;&gt;背景透明+毛玻璃&lt;/h2&gt;
 &lt;p&gt;打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。&lt;br&gt;
