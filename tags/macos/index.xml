@@ -18,7 +18,8 @@ iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少�
 zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
 下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
 oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
-安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
+安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
 下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .. rm -rf fonts 配置 vim ~/.</description>
     </item>
     

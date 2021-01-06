@@ -37,7 +37,7 @@ chsh -s /bin/zsh
 &lt;h3 id=&#34;安装&#34;&gt;安装&lt;/h3&gt;
 &lt;pre&gt;&lt;code&gt;wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
 &lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;sh install.sh
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面&lt;br&gt;
 &lt;img src=&#34;https://static01.imgkr.com/temp/f72289ad7de9432aa9e9a583ac9fe56c.jpg&#34; alt=&#34;2&#34;  /&gt;&lt;/p&gt;
 &lt;h2 id=&#34;更换主题&#34;&gt;更换主题&lt;/h2&gt;
 &lt;p&gt;oh-my-zsh有很多默认的主题，可以在&lt;code&gt;~/.zshrc&lt;/code&gt;中修改&lt;code&gt;ZSH_THEME&lt;/code&gt;来切换不同主题。
@@ -76,18 +76,18 @@ rm -rf fonts
 199.232.68.133 user-images.githubusercontent.com
 199.232.68.133 avatars2.githubusercontent.com
 199.232.68.133 avatars1.githubusercontent.com
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg&#34; alt=&#34;3&#34;  /&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg&#34; alt=&#34;3&#34;  /&gt;&lt;br&gt;
 开启&lt;code&gt;My hosts&lt;/code&gt;后重启终端，就会自动提示下载所需字体，耐心等待它下载完（有点慢）后，就可以根据引导一步步自定义属于自己的主题了！从图标到字体颜色风格到显示信息都可以自定义！&lt;/p&gt;
 &lt;h2 id=&#34;背景透明毛玻璃&#34;&gt;背景透明+毛玻璃&lt;/h2&gt;
-&lt;p&gt;打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。
+&lt;p&gt;打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。&lt;br&gt;
 &lt;img src=&#34;https://static01.imgkr.com/temp/4499e7e7658a44b1bbe30990cd612e5b.jpg&#34; alt=&#34;4&#34;  /&gt;&lt;/p&gt;
 &lt;h2 id=&#34;快捷键唤醒&#34;&gt;快捷键唤醒&lt;/h2&gt;
 &lt;p&gt;如何让切出终端更快捷？可以设置&lt;code&gt;Hotkey&lt;/code&gt;
-按下图操作
+按下图操作&lt;br&gt;
 &lt;img src=&#34;https://static01.imgkr.com/temp/25d34480ffb441d68d227195a335d59f.jpg&#34; alt=&#34;5&#34;  /&gt;
 &lt;img src=&#34;https://static01.imgkr.com/temp/ce75a9da5d4a4c369990af537139598e.jpg&#34; alt=&#34;6&#34;  /&gt;&lt;/p&gt;
 &lt;h2 id=&#34;尾声&#34;&gt;尾声&lt;/h2&gt;
-&lt;p&gt;至此，一个好用又好看的mac终端基本配置完毕啦
+&lt;p&gt;至此，一个好用又好看的mac终端基本配置完毕啦&lt;br&gt;
 其他有趣的可以看下&lt;a class=&#34;link&#34; href=&#34;https://sspai.com/post/59666&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;这篇博客&lt;/a&gt;讲的&lt;/p&gt;
 </description>
