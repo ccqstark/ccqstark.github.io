@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Dockerfile介绍 dockfile是用来构建docker镜像的文件，命令参数脚本
+💡构建步骤：
+ 编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
+可以发现这些镜像也是通过dockerfile来构建的
+上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+然后ADD 就是添加来一层centos相关的镜像文件
+官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
+比如我们可以直接构建一个centos&#43;jdk&#43;tomcat&#43;mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
+Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名&#43;邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子：'><title>[docker]初识Dockerfile</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/dockerfile/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[docker]初识Dockerfile'>
+<meta property='og:description' content='Dockerfile介绍 dockfile是用来构建docker镜像的文件，命令参数脚本
+💡构建步骤：
+ 编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
+可以发现这些镜像也是通过dockerfile来构建的
+上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+然后ADD 就是添加来一层centos相关的镜像文件
+官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
+比如我们可以直接构建一个centos&#43;jdk&#43;tomcat&#43;mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
+Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名&#43;邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子：'>
+<meta property='og:url' content='https://ccqstark.github.io/p/dockerfile/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Docker' /><meta property='article:published_time' content='2021-01-06T21:13:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-06T21:13:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/dockerfile/dockerfile.png' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[docker]初识Dockerfile">
+<meta name="twitter:description" content="Dockerfile介绍 dockfile是用来构建docker镜像的文件，命令参数脚本
+💡构建步骤：
+ 编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
+可以发现这些镜像也是通过dockerfile来构建的
+上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+然后ADD 就是添加来一层centos相关的镜像文件
+官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
+比如我们可以直接构建一个centos&#43;jdk&#43;tomcat&#43;mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
+Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名&#43;邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子："><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/dockerfile/dockerfile.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/dockerfile/">
+                <img src="/p/dockerfile/dockerfile_hua2299a9fb0d8a75d7ada60f608a774d6_160236_800x0_resize_box_2.png"
+                        srcset="/p/dockerfile/dockerfile_hua2299a9fb0d8a75d7ada60f608a774d6_160236_800x0_resize_box_2.png 800w, /p/dockerfile/dockerfile_hua2299a9fb0d8a75d7ada60f608a774d6_160236_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="397" 
+                        loading="lazy"
+                        alt="Featured image of post [docker]初识Dockerfile" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" >
+                环境搭建
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/dockerfile/">[docker]初识Dockerfile</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 06, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="dockerfile介绍">Dockerfile介绍</h2>
+<p>dockfile是用来构建docker镜像的文件，命令参数脚本</p>
+<p>💡构建步骤：</p>
+<ol>
+<li>编写<code>dockerfile</code>脚本</li>
+<li>用<code>docker build</code>命令构建一个镜像</li>
+<li>用<code>docker run</code>运行镜像</li>
+<li>用<code>docker push</code>发布镜像（DockerHub、阿里云仓库）</li>
+</ol>
+<p>在官网点击镜像会跳转到github对应的dockerfile</p>
+<p>可以发现这些镜像也是通过dockerfile来构建的</p>
+<p><img src="Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png" alt="Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png"  /></p>
+<p>上图是centos的dockerfile，其中<code>scratch</code>是最基本的，90%都是基于这个镜像。</p>
+<p>然后<code>ADD</code> 就是添加来一层centos相关的镜像文件</p>
+<p>官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。</p>
+<p>比如我们可以直接构建一个<code>centos+jdk+tomcat+mysql</code>的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？</p>
+<h2 id="dockerfile构建过程">Dockerfile构建过程</h2>
+<h3 id="基本规则">基本规则</h3>
+<ol>
+<li>每个关键字（保留字）都是大写的</li>
+<li>执行顺序是从上到下的</li>
+<li>&ldquo;#&rdquo; 表示注释</li>
+<li>每一个指令都会创建一个新的镜像层，并提交</li>
+</ol>
+<p><img src="Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png" alt="Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png"  /></p>
+<p>以前开发交付都是用jar包或war包，现在<strong>云原生</strong>时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile</p>
+<p><a class="link" href="https://blog.csdn.net/alitech2017/article/details/104606956"  target="_blank" rel="noopener"
+    >什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客</a></p>
+<h2 id="dockerfile常用指令">Dockerfile常用指令</h2>
+<table>
+<thead>
+<tr>
+<th>指令关键字</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FROM</td>
+<td>构建镜像所用的基础镜像</td>
+</tr>
+<tr>
+<td>MAINTAINER</td>
+<td>镜像作者，一般是姓名+邮箱</td>
+</tr>
+<tr>
+<td>RUN</td>
+<td>镜像构建时运行的命令</td>
+</tr>
+<tr>
+<td>ADD</td>
+<td>为镜像添加内容</td>
+</tr>
+<tr>
+<td>WORKDIR</td>
+<td>镜像的工作目录</td>
+</tr>
+<tr>
+<td>VOLUME</td>
+<td>挂载目录</td>
+</tr>
+<tr>
+<td>EXPOSE</td>
+<td>暴露的端口</td>
+</tr>
+<tr>
+<td>CMD</td>
+<td>容器启动时需要运行的命令，只有最后一个会生效，可被替代</td>
+</tr>
+<tr>
+<td>ENTRYPOINT</td>
+<td>也是指定启动时需要运行的命令，但是可以追加</td>
+</tr>
+<tr>
+<td>ONBUILD</td>
+<td>构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令</td>
+</tr>
+<tr>
+<td>COPY</td>
+<td>类似ADD，将文件拷贝到镜像中</td>
+</tr>
+<tr>
+<td>ENV</td>
+<td>构建时设置的环境变量</td>
+</tr>
+</tbody>
+</table>
+<h2 id="实践构建自己的centos">实践：构建自己的centos</h2>
+<p>举个例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker"><span class="k">FROM</span><span class="s"> centos  # centos为基础镜像</span><span class="err">
+</span><span class="err"></span><span class="k">MAINTAINER</span><span class="s"> ccqstark&lt;xxxxxx@qq.com&gt;  # 作者名和邮箱</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">ENV</span> MYPATH /usr/local  <span class="c1"># 环境变量</span><span class="err">
+</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> $MYPATH  # 工作目录</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># 安装vim和ifconfig命令</span><span class="err">
+</span><span class="err"></span><span class="k">RUN</span> yum -y install vim      <span class="err">
+</span><span class="err"></span><span class="k">RUN</span> yum -y install net-tools<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 80</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span> <span class="nb">echo</span> <span class="nv">$MYPATH</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span> <span class="nb">echo</span> <span class="s2">&#34;---end---&#34;</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span> /bin/bash<span class="err">
+</span></code></pre></div><p><code>docker build</code> 之后 <code>run</code> 起来就可以使用了！</p>
+<p>还可以使用下面命令查看镜像构建的过程</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker <span class="nb">history</span> <span class="o">[</span>镜像id<span class="o">]</span>
+</code></pre></div><p>参考自<a class="link" href="https://www.bilibili.com/video/BV1og4y1q7M4?p=29"  target="_blank" rel="noopener"
+    >狂神的docker教程</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/docker/">Docker</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_volumes/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_volumes/docker.194f19766fa8c825a1c52983360bb16c_hu22e70eb00a1bc79d3e2af88d0f9ef83b_73329_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_volumes" 
+                        data-hash="md5-GU8Zdm&#43;oyCWhxSmDNguxbA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]容器数据卷</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/php_env/">
+        
+        
+            <div class="article-image">
+                <img src="/p/php_env/php.f47e05875abc2e803c4f16b17f7f27b1_hu30aa9710d612d752c63ae5cdcfcf5665_61468_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="php_env" 
+                        data-hash="md5-9H4Fh1q8LoA8Txaxf38nsQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">php后台开发基础环境搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -6,7 +6,124 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Wed, 06 Jan 2021 16:51:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 06 Jan 2021 21:13:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[docker]初识Dockerfile</title>
+        <link>https://ccqstark.github.io/p/dockerfile/</link>
+        <pubDate>Wed, 06 Jan 2021 21:13:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/dockerfile/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/dockerfile/dockerfile.png" alt="Featured image of post [docker]初识Dockerfile" /&gt;&lt;h2 id=&#34;dockerfile介绍&#34;&gt;Dockerfile介绍&lt;/h2&gt;
+&lt;p&gt;dockfile是用来构建docker镜像的文件，命令参数脚本&lt;/p&gt;
+&lt;p&gt;💡构建步骤：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;编写&lt;code&gt;dockerfile&lt;/code&gt;脚本&lt;/li&gt;
+&lt;li&gt;用&lt;code&gt;docker build&lt;/code&gt;命令构建一个镜像&lt;/li&gt;
+&lt;li&gt;用&lt;code&gt;docker run&lt;/code&gt;运行镜像&lt;/li&gt;
+&lt;li&gt;用&lt;code&gt;docker push&lt;/code&gt;发布镜像（DockerHub、阿里云仓库）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在官网点击镜像会跳转到github对应的dockerfile&lt;/p&gt;
+&lt;p&gt;可以发现这些镜像也是通过dockerfile来构建的&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png&#34; alt=&#34;Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;上图是centos的dockerfile，其中&lt;code&gt;scratch&lt;/code&gt;是最基本的，90%都是基于这个镜像。&lt;/p&gt;
+&lt;p&gt;然后&lt;code&gt;ADD&lt;/code&gt; 就是添加来一层centos相关的镜像文件&lt;/p&gt;
+&lt;p&gt;官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。&lt;/p&gt;
+&lt;p&gt;比如我们可以直接构建一个&lt;code&gt;centos+jdk+tomcat+mysql&lt;/code&gt;的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？&lt;/p&gt;
+&lt;h2 id=&#34;dockerfile构建过程&#34;&gt;Dockerfile构建过程&lt;/h2&gt;
+&lt;h3 id=&#34;基本规则&#34;&gt;基本规则&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;每个关键字（保留字）都是大写的&lt;/li&gt;
+&lt;li&gt;执行顺序是从上到下的&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;#&amp;rdquo; 表示注释&lt;/li&gt;
+&lt;li&gt;每一个指令都会创建一个新的镜像层，并提交&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png&#34; alt=&#34;Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;以前开发交付都是用jar包或war包，现在&lt;strong&gt;云原生&lt;/strong&gt;时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/alitech2017/article/details/104606956&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;dockerfile常用指令&#34;&gt;Dockerfile常用指令&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;指令关键字&lt;/th&gt;
+&lt;th&gt;作用&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;FROM&lt;/td&gt;
+&lt;td&gt;构建镜像所用的基础镜像&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;MAINTAINER&lt;/td&gt;
+&lt;td&gt;镜像作者，一般是姓名+邮箱&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;RUN&lt;/td&gt;
+&lt;td&gt;镜像构建时运行的命令&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ADD&lt;/td&gt;
+&lt;td&gt;为镜像添加内容&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;WORKDIR&lt;/td&gt;
+&lt;td&gt;镜像的工作目录&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VOLUME&lt;/td&gt;
+&lt;td&gt;挂载目录&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;EXPOSE&lt;/td&gt;
+&lt;td&gt;暴露的端口&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;CMD&lt;/td&gt;
+&lt;td&gt;容器启动时需要运行的命令，只有最后一个会生效，可被替代&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ENTRYPOINT&lt;/td&gt;
+&lt;td&gt;也是指定启动时需要运行的命令，但是可以追加&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ONBUILD&lt;/td&gt;
+&lt;td&gt;构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;COPY&lt;/td&gt;
+&lt;td&gt;类似ADD，将文件拷贝到镜像中&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ENV&lt;/td&gt;
+&lt;td&gt;构建时设置的环境变量&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;实践构建自己的centos&#34;&gt;实践：构建自己的centos&lt;/h2&gt;
+&lt;p&gt;举个例子：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;&lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; centos  # centos为基础镜像&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;MAINTAINER&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; ccqstark&amp;lt;xxxxxx@qq.com&amp;gt;  # 作者名和邮箱&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;ENV&lt;/span&gt; MYPATH /usr/local  &lt;span class=&#34;c1&#34;&gt;# 环境变量&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;WORKDIR&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; $MYPATH  # 工作目录&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;c&#34;&gt;# 安装vim和ifconfig命令&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;RUN&lt;/span&gt; yum -y install vim      &lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;RUN&lt;/span&gt; yum -y install net-tools&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;EXPOSE&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; 80&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;CMD&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$MYPATH&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;CMD&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;---end---&amp;#34;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;CMD&lt;/span&gt; /bin/bash&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;docker build&lt;/code&gt; 之后 &lt;code&gt;run&lt;/code&gt; 起来就可以使用了！&lt;/p&gt;
+&lt;p&gt;还可以使用下面命令查看镜像构建的过程&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker &lt;span class=&#34;nb&#34;&gt;history&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;参考自&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1og4y1q7M4?p=29&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;狂神的docker教程&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[docker]容器数据卷</title>
         <link>https://ccqstark.github.io/p/docker_volumes/</link>
         <pubDate>Wed, 06 Jan 2021 16:51:00 +0800</pubDate>
