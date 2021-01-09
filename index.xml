@@ -226,12 +226,12 @@ docker run -d --name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;sp
 </description>
         </item>
         <item>
-        <title>用[docker]docker部署nginx</title>
+        <title>[docker]用docker部署nginx</title>
         <link>https://ccqstark.github.io/p/docker_nginx/</link>
         <pubDate>Fri, 08 Jan 2021 15:46:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/docker_nginx/</guid>
-        <description>&lt;img src="https://ccqstark.github.io/p/docker_nginx/nginx-docker.png" alt="Featured image of post 用[docker]docker部署nginx" /&gt;&lt;p&gt;如果是单体应用的话nginx用docker部署其实是更麻烦的，不过既然操作过就记录一下。&lt;/p&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/docker_nginx/nginx-docker.png" alt="Featured image of post [docker]用docker部署nginx" /&gt;&lt;p&gt;如果是单体应用的话nginx用docker部署其实是更麻烦的，不过既然操作过就记录一下。&lt;/p&gt;
 &lt;h3 id=&#34;拉取nginx镜像&#34;&gt;拉取nginx镜像&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull nginx
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;还是一样，默认是拉取latest版本，也可以选择想要的特定版本&lt;/p&gt;

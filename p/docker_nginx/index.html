@@ -7,11 +7,11 @@
 挂载配置文件目录 最后一步就是重新启动一个容器并把html和配置文件目录都挂载了
 docker run \  --name test-nginx \  -v [本机挂载html目录]:/usr/share/nginx/html \  -v [本机挂载nginx目录]:/etc/nginx \  -p 80:80 \  -d \  nginx 访问一下试试就可以了！
 参考：
-Nginx 容器教程'><title>用[docker]docker部署nginx</title>
+Nginx 容器教程'><title>[docker]用docker部署nginx</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/docker_nginx/'>
 
-<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='用[docker]docker部署nginx'>
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[docker]用docker部署nginx'>
 <meta property='og:description' content='如果是单体应用的话nginx用docker部署其实是更麻烦的，不过既然操作过就记录一下。
 拉取nginx镜像 docker pull nginx 还是一样，默认是拉取latest版本，也可以选择想要的特定版本
 启动并挂载html目录 docker container run \  -d \  -p 80:80 \  --name mynginx \  --v [本机挂载目录]:/usr/share/nginx/html \  nginx 复制出配置文件 docker container cp mynginx:/etc/nginx . 将复制出来的文件夹改名并移动到你想要的目录下，然后把容器停止并删除
@@ -22,7 +22,7 @@ Nginx 容器教程'>
 <meta property='og:url' content='https://ccqstark.github.io/p/docker_nginx/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Docker' /><meta property='article:published_time' content='2021-01-08T15:46:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-08T15:46:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/docker_nginx/nginx-docker.png' />
-<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="用[docker]docker部署nginx">
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[docker]用docker部署nginx">
 <meta name="twitter:description" content="如果是单体应用的话nginx用docker部署其实是更麻烦的，不过既然操作过就记录一下。
 拉取nginx镜像 docker pull nginx 还是一样，默认是拉取latest版本，也可以选择想要的特定版本
 启动并挂载html目录 docker container run \  -d \  -p 80:80 \  --name mynginx \  --v [本机挂载目录]:/usr/share/nginx/html \  nginx 复制出配置文件 docker container cp mynginx:/etc/nginx . 将复制出来的文件夹改名并移动到你想要的目录下，然后把容器停止并删除
@@ -211,7 +211,7 @@ Nginx 容器教程"><meta name="twitter:card" content="summary_large_image">
                         width="800" 
                         height="500" 
                         loading="lazy"
-                        alt="Featured image of post 用[docker]docker部署nginx" />
+                        alt="Featured image of post [docker]用docker部署nginx" />
                 
             </a>
         </div>
@@ -229,7 +229,7 @@ Nginx 容器教程"><meta name="twitter:card" content="summary_large_image">
     
 
     <h2 class="article-title">
-        <a href="/p/docker_nginx/">用[docker]docker部署nginx</a>
+        <a href="/p/docker_nginx/">[docker]用docker部署nginx</a>
     </h2>
 
     <footer class="article-time">
