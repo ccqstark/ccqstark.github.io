@@ -6,7 +6,329 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Wed, 06 Jan 2021 21:13:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 09 Jan 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Jenkins &#43; docker &#43; springboot 完美配合全流程教程</title>
+        <link>https://ccqstark.github.io/p/jenkins_docker_springboot/</link>
+        <pubDate>Sat, 09 Jan 2021 23:01:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/jenkins_docker_springboot/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/jenkins_docker_springboot/jenkins-docker-springboot.jpg" alt="Featured image of post Jenkins &#43; docker &#43; springboot 完美配合全流程教程" /&gt;&lt;p&gt;DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而&lt;code&gt;Jenkins&lt;/code&gt;就是自动化部署主要的工具之一。&lt;/p&gt;
+&lt;p&gt;这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。&lt;/p&gt;
+&lt;h2 id=&#34;用docker拉取jenkins镜像启动jenkins容器&#34;&gt;用docker拉取jenkins镜像，启动Jenkins容器&lt;/h2&gt;
+&lt;p&gt;这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上&lt;/p&gt;
+&lt;h3 id=&#34;首先拉取jenkins镜像&#34;&gt;首先拉取Jenkins镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull jenkins/jenkins
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;⚠️注意：切勿docker pull jenkins，已经废弃&lt;/p&gt;
+&lt;h3 id=&#34;启动jenkins容器&#34;&gt;启动Jenkins容器&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run -u root -itd --name jenkins &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-p 6001:8080 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;which docker&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;:/usr/bin/docker &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /var/run/docker.sock:/var/run/docker.sock -e &lt;span class=&#34;nv&#34;&gt;TZ&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;Asia/Shanghai&amp;#34;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /etc/localtime:/etc/localtime:ro &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /volume1/docker/jenkins:/var/jenkins_home &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;jenkins/jenkins
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-p 6001:8080&lt;/code&gt;Jenkins默认网页访问端口为8080，将端口映射到外部主机6001端口&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-v $(which docker):/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock&lt;/code&gt;使Jenkins内部可以使用docker命令&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-e TZ=&amp;quot;Asia/Shanghai&amp;quot; -v /etc/localtime:/etc/localtime:ro&lt;/code&gt;配置Jenkins容器的时区&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-v /volume1/docker/jenkins:/var/jenkins_home&lt;/code&gt; 将Jenkins的配置映射到外部主机卷，容器删除仍可保留配置&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;测试jenkins容器内部&#34;&gt;测试Jenkins容器内部&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 进入Jenkins的容器内部&lt;/span&gt;
+docker &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; -it jenkins bash
+
+&lt;span class=&#34;c1&#34;&gt;# 判断docker命令是否正常执行&lt;/span&gt;
+docker info
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;访问jenkins网页端&#34;&gt;访问Jenkins网页端&lt;/h3&gt;
+&lt;p&gt;用&lt;code&gt;http://主机IP:6001&lt;/code&gt; 就可以访问Jenkins的网页端了&lt;/p&gt;
+&lt;h2 id=&#34;jenkins初始化&#34;&gt;Jenkins初始化&lt;/h2&gt;
+&lt;p&gt;访问页面后需要输入初始密码，用&lt;code&gt;cat&lt;/code&gt; 命令查看一下页面上给出的路径就可以获得初始密码，复制进去后就可以成功进入&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;到插件这里就选择安装推荐插件即可，等待安装完毕，速度稍慢。如果很多插件一直安装失败可以等下一步配置国内源之后再安装&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;然后按提示创建一个自己的管理员账户&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;如果想重启Jenkins：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;在jenkins主页网址后加上&lt;code&gt;/restart&lt;/code&gt; 后回车，点击确定即可&lt;/p&gt;
+&lt;h2 id=&#34;安装插件和必要配置&#34;&gt;安装插件和必要配置&lt;/h2&gt;
+&lt;h3 id=&#34;修改插件国内源并安装其它插件&#34;&gt;修改插件国内源并安装其它插件&lt;/h3&gt;
+&lt;p&gt;点击侧边栏&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;插件管理&lt;/code&gt;→&lt;code&gt;高级&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg&#34; alt=&#34;https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;将图中所示URL的输入中的链接改为阿里的：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;安装一些插件&#34;&gt;安装一些插件&lt;/h3&gt;
+&lt;p&gt;在&lt;code&gt;插件管理&lt;/code&gt;中选择&lt;code&gt;可选插件&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;安装&lt;code&gt;Maven Integration&lt;/code&gt;和&lt;code&gt;Docker&lt;/code&gt;的插件，安装完重启&lt;/p&gt;
+&lt;h3 id=&#34;全局工具配置&#34;&gt;全局工具配置&lt;/h3&gt;
+&lt;p&gt;点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;全局工具配置&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;JDK&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;用&lt;code&gt;docker inspect jenkins&lt;/code&gt; 查看&lt;code&gt;JAVA_HOME&lt;/code&gt; 路径后填入即可，这是个openjdk1.8，刚好用于项目，因为jenkins就是Java开发的&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Git&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;用默认即可&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Maven&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;可以用外部安装的，这里因为下了插件就用Jenkins里的插件就行，点击自动安装&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Docker&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;都好了之后点&lt;code&gt;应用&lt;/code&gt;在点&lt;code&gt;保存&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;jenkins容器内使用vim&#34;&gt;Jenkins容器内使用vim&lt;/h3&gt;
+&lt;p&gt;进入Jenkins容器内部后想使用vim的话还需要额外安装，后面需要用到vim&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 更新一下软件源&lt;/span&gt;
+apt-get update
+
+&lt;span class=&#34;c1&#34;&gt;# 安装vim&lt;/span&gt;
+apt-get install vim
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里可能比较慢，就等一下，但只需用一次就不额外换源了&lt;/p&gt;
+&lt;h3 id=&#34;修改maven插件的镜像源&#34;&gt;修改maven插件的镜像源&lt;/h3&gt;
+&lt;p&gt;因为jenkins在容器内，所以要进入容器内&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;cd&lt;/code&gt;到目录&lt;code&gt;~/.m2&lt;/code&gt; 下，&lt;code&gt;ls&lt;/code&gt; 一下发现只有一个&lt;code&gt;repository&lt;/code&gt; 目录，这个就是默认的maven仓库目录，然后就&lt;code&gt;vim settings.xml&lt;/code&gt; 新建一个配置文件&lt;/p&gt;
+&lt;p&gt;在命令模式下用&lt;code&gt;:set paste&lt;/code&gt; 开启粘贴模式，然后把下面内容粘贴进去，记得检查一下内容和编码是不是&lt;code&gt;utf-8&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt;&lt;/span&gt;
+
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;settings&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;xmlns=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;http://maven.apache.org/SETTINGS/1.0.0&amp;#34;&lt;/span&gt;
+          &lt;span class=&#34;na&#34;&gt;xmlns:xsi=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34;&lt;/span&gt;
+          &lt;span class=&#34;na&#34;&gt;xsi:schemaLocation=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd&amp;#34;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;&amp;gt;&lt;/span&gt;
+
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;localRepository&amp;gt;&lt;/span&gt;~/.m2/repository&lt;span class=&#34;nt&#34;&gt;&amp;lt;/localRepository&amp;gt;&lt;/span&gt;
+  
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;pluginGroups&amp;gt;&lt;/span&gt;
+    
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;/pluginGroups&amp;gt;&lt;/span&gt;
+
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;proxies&amp;gt;&lt;/span&gt;
+
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;/proxies&amp;gt;&lt;/span&gt;
+
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;servers&amp;gt;&lt;/span&gt;
+    
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;/servers&amp;gt;&lt;/span&gt;
+
+  
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;mirrors&amp;gt;&lt;/span&gt;
+     &lt;span class=&#34;nt&#34;&gt;&amp;lt;mirror&amp;gt;&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;nexus-aliyun&lt;span class=&#34;nt&#34;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;lt;mirrorOf&amp;gt;&lt;/span&gt;*&lt;span class=&#34;nt&#34;&gt;&amp;lt;/mirrorOf&amp;gt;&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;Nexus aliyun&lt;span class=&#34;nt&#34;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;lt;url&amp;gt;&lt;/span&gt;http://maven.aliyun.com/nexus/content/groups/public&lt;span class=&#34;nt&#34;&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;/mirror&amp;gt;&lt;/span&gt;
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;/mirrors&amp;gt;&lt;/span&gt;
+
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;profiles&amp;gt;&lt;/span&gt;
+    
+  &lt;span class=&#34;nt&#34;&gt;&amp;lt;/profiles&amp;gt;&lt;/span&gt;
+
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/settings&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;重启jenkins，之后下载包时发现已经更改为阿里源了&lt;/p&gt;
+&lt;h2 id=&#34;创建项目准备自动化部署&#34;&gt;创建项目准备自动化部署&lt;/h2&gt;
+&lt;p&gt;左侧边栏新建一个任务，选择maven项目&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;h3 id=&#34;添加github仓库源码&#34;&gt;添加GitHub仓库源码&lt;/h3&gt;
+&lt;p&gt;这里用GitHub做代码仓库，也可以gitlab&lt;/p&gt;
+&lt;p&gt;有2种方式：&lt;code&gt;https&lt;/code&gt;和&lt;code&gt;ssh&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;如果是https的话添加&lt;code&gt;Credentials&lt;/code&gt; 的时候就直接配置自己的GitHub用户名和密码，仓库的URL填写github仓库的url就行&lt;/p&gt;
+&lt;p&gt;如果是ssh的话要配置密钥，点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;Manage Credentials&lt;/code&gt; →&lt;code&gt;全局&lt;/code&gt; ,点击左侧边栏&lt;code&gt;添加凭据&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;如果之前生成过，在自己机器上的&lt;code&gt;~/.ssh&lt;/code&gt; 下cat一下就行，没有的话就&lt;code&gt;ssh-keygen&lt;/code&gt; 生成&lt;/p&gt;
+&lt;p&gt;注意此时url就要用&lt;code&gt;ssh://git@github.com/[用户名]/[项目名].git&lt;/code&gt; 的格式&lt;/p&gt;
+&lt;h3 id=&#34;加快代码拉取速度&#34;&gt;加快代码拉取速度&lt;/h3&gt;
+&lt;p&gt;为了加快构建速度，勾选此选项可以使jenkins不拉取代码的历史版本，从而加快构建速度&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;勾选浅克隆&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;初次之外，不要在本地打出jar包，不然这么大一个文件上传到仓库再被拉取很费时间&lt;/p&gt;
+&lt;h3 id=&#34;构建触发器&#34;&gt;构建触发器&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png&#34;  /&gt;&lt;/p&gt;
+&lt;h3 id=&#34;构建脚本&#34;&gt;构建脚本&lt;/h3&gt;
+&lt;p&gt;这里是运行一些shell脚本来构建docker镜像和运行容器的&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;脚本如下，记得在项目目录下写好一个Dockerfile&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 进入项目目录&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /var/jenkins_home/workspace/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;项目名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# 执行构建Dockerfile命令&lt;/span&gt;
+docker build -f Dockerfile -t &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;tag&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; .
+
+&lt;span class=&#34;c1&#34;&gt;# 停止之前的容器运行&lt;/span&gt;
+docker stop &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# 删除之前的容器&lt;/span&gt;
+docker rm &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#运行刚刚创建的容器&lt;/span&gt;
+docker run -d --name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; -p &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;映射端口&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:8080 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;tag&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+
+&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;构建完成&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Dockerfile参考：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;&lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; openjdk:8&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;MAINTAINER&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; [作者]&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;ADD&lt;/span&gt; /target/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;项目名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;-0.0.1-SNAPSHOT.jar &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;项目名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;.jar&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;EXPOSE&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; 8080&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;ENTRYPOINT&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;java&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;-jar&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&amp;#34;/&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;项目名&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;.jar&lt;span class=&#34;s2&#34;&gt;&amp;#34;]&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;push触发构建&#34;&gt;push触发构建&lt;/h3&gt;
+&lt;p&gt;为了实现只要我们一向代码仓库push就可以自动进行构建，我们需要配置&lt;code&gt;webhook&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;系统配置&lt;/code&gt; ，找到&lt;code&gt;GitHub&lt;/code&gt;选项，点击&lt;code&gt;高级&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;按下图操作：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;打开自己GitHub项目页面&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;粘贴刚刚复制的地址&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;下面勾选&lt;code&gt;Pushes&lt;/code&gt;和&lt;code&gt;Active&lt;/code&gt; ，最后点击添加即可&lt;/p&gt;
+&lt;p&gt;点击项目内左侧栏的&lt;code&gt;立即构建&lt;/code&gt; 可以手动开始构建&lt;/p&gt;
+&lt;p&gt;在进程中点击&lt;code&gt;控制台输出&lt;/code&gt; 看到构建过程中的日志信息，这些信息很重要我们经常要看，用来发现构建过程中的错误&lt;/p&gt;
+&lt;h3 id=&#34;清除无用的镜像&#34;&gt;清除无用的镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker image prune
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在多次构建之后可能会发现一些为none的镜像，用此命令清除&lt;/p&gt;
+&lt;h2 id=&#34;配置邮箱通知&#34;&gt;配置邮箱通知&lt;/h2&gt;
+&lt;p&gt;在这之前保证安装了相关插件，如果一开始是选安装推荐插件那应该都安装了&lt;/p&gt;
+&lt;p&gt;点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;系统配置&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;先配一下管理员邮箱&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;然后拉到下面，按图中配置，这个邮箱要填刚刚上面的管理员邮箱&lt;/p&gt;
+&lt;p&gt;注意里面的密码是开启SMTP的密码，不是邮箱的密码&lt;/p&gt;
+&lt;p&gt;然后可以点击发送测试邮件试试&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;上面还有一个&lt;code&gt;Extended E-mail Notification&lt;/code&gt; 也配一下，也按这些信息填写&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Default Recipients&lt;/code&gt; 是默认接收通知的邮箱，可以填写多个，用英文半角逗号隔开&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Default Triggers&lt;/code&gt; 也可以配置一下，是触发邮件的事件&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;这里有个坑，在系统设置配置完之后，在项目里面的设置记得也要配置完整&lt;/p&gt;
+&lt;p&gt;进入要发送邮箱功能的项目的&lt;code&gt;配置&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;再点击&lt;code&gt;增加构建后操作步骤&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;点击&lt;code&gt;高级设置&lt;/code&gt;后设置触发条件&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;其他的诸如&lt;code&gt;Content Type&lt;/code&gt;和&lt;code&gt;Default Content&lt;/code&gt; 之类的就按需求配就行&lt;/p&gt;
+&lt;p&gt;之后在控制台输出就可以看到构建项目到最后有发邮件的步骤日志&lt;/p&gt;
+&lt;h3 id=&#34;主题美化&#34;&gt;主题美化&lt;/h3&gt;
+&lt;p&gt;可以参考下面这篇文章，个人觉得还是习惯于原版&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/wf19930209/article/details/80386902&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Jenkins自定义主题教程_FlyWine的博客-CSDN博客_jenkins自定义界面&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;参考文章：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://juejin.cn/post/6844903955600769031#heading-0&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;最优雅的Docker+Jenkins pipeline部署Spring boot项目&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/linfen1520/article/details/109045063&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Jenkins+Docker+github+Spring Boot自动化部署_linfen1520的博客-CSDN博客&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.qedev.com/auto/170005.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;jenkins+git+maven+docker持续集成部署_自动化_运维开发网_运维开发技术经验分享&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/xiaoxi-3-/p/9680205.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Jenkins - SSH认证方式拉取Git代码&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://codejam.blog.csdn.net/article/details/106043546?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-3.control&amp;amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-3.control&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;centos7的Jenkins的maven插件的settings.xml配置文件路径在哪里_festone000的专栏-CSDN博客&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>用[docker]docker部署nginx</title>
+        <link>https://ccqstark.github.io/p/docker_nginx/</link>
+        <pubDate>Fri, 08 Jan 2021 15:46:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/docker_nginx/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/docker_nginx/nginx-docker.png" alt="Featured image of post 用[docker]docker部署nginx" /&gt;&lt;p&gt;如果是单体应用的话nginx用docker部署其实是更麻烦的，不过既然操作过就记录一下。&lt;/p&gt;
+&lt;h3 id=&#34;拉取nginx镜像&#34;&gt;拉取nginx镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull nginx
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;还是一样，默认是拉取latest版本，也可以选择想要的特定版本&lt;/p&gt;
+&lt;h3 id=&#34;启动并挂载html目录&#34;&gt;启动并挂载html目录&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker container run &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -d &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -p 80:80 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  --name mynginx &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  --v &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;本机挂载目录&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:/usr/share/nginx/html &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  nginx
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;复制出配置文件&#34;&gt;复制出配置文件&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker container cp mynginx:/etc/nginx .
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;将复制出来的文件夹改名并移动到你想要的目录下，然后把容器停止并删除&lt;/p&gt;
+&lt;h3 id=&#34;挂载配置文件目录&#34;&gt;挂载配置文件目录&lt;/h3&gt;
+&lt;p&gt;最后一步就是重新启动一个容器并把html和配置文件目录都挂载了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  --name test-nginx &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -v &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;本机挂载html目录&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:/usr/share/nginx/html &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -v &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;本机挂载nginx目录&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:/etc/nginx &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -p 80:80 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -d &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  nginx
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;访问一下试试就可以了！&lt;/p&gt;
+&lt;p&gt;参考：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.ruanyifeng.com/blog/2018/02/nginx-docker.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Nginx 容器教程&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>[docker]用docker部署SpringBoot项目</title>
+        <link>https://ccqstark.github.io/p/docker_springboot/</link>
+        <pubDate>Thu, 07 Jan 2021 21:39:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/docker_springboot/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/docker_springboot/docker-springboot.jpg" alt="Featured image of post [docker]用docker部署SpringBoot项目" /&gt;&lt;p&gt;这篇文章介绍的是把整个Springboot后端项目部署到docker容器中，当然包括mysql和redis&lt;/p&gt;
+&lt;p&gt;按下面步骤一步步来&lt;/p&gt;
+&lt;h3 id=&#34;本地打出jar包&#34;&gt;本地打出jar包&lt;/h3&gt;
+&lt;p&gt;以Maven的话直接就IDEA里打出jar包到target目录下，这一步和以前一样&lt;/p&gt;
+&lt;h3 id=&#34;编写dockerfile&#34;&gt;编写Dockerfile&lt;/h3&gt;
+&lt;p&gt;可以用IDEA里的插件来写，也可以自己写dockerfile&lt;/p&gt;
+&lt;p&gt;在项目文件夹下新建一个文件Dockerfile&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;&lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; openjdk:8&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;MAINTAINER&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; ccqstark&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;ADD&lt;/span&gt; /target/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;项目jar包名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;.jar app.jar&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;EXPOSE&lt;/span&gt;&lt;span class=&#34;s&#34;&gt; 8080&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;ENTRYPOINT&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;java&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;-jar&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;/app.jar&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;⚠️注意：ADD后两个参数，第一个是项目jar包的相对路径，第二是把jar包在容器内重新命的名&lt;/p&gt;
+&lt;h3 id=&#34;构建镜像&#34;&gt;构建镜像&lt;/h3&gt;
+&lt;p&gt;在Dockerfile所在文件夹下运行&lt;code&gt;build&lt;/code&gt; 命令，注意最后有一个&lt;code&gt;.&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;docker build -f Dockerfile -t &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;版本tag&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; .&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;构建之后用&lt;code&gt;docker images&lt;/code&gt; 查看一下自己构架的镜像&lt;/p&gt;
+&lt;p&gt;构建完之后本地run一下容器测试下&lt;/p&gt;
+&lt;h3 id=&#34;push上传到镜像仓库&#34;&gt;push上传到镜像仓库&lt;/h3&gt;
+&lt;p&gt;其实也可以把jar包上传服务器后用服务器的docker来构建和运行&lt;/p&gt;
+&lt;p&gt;但这里采用的是把本地构建的镜像上传到repository，相当于镜像仓库，其他人想用这个镜像就可以从那拉取下来使用。&lt;/p&gt;
+&lt;p&gt;repository可以是官方的&lt;code&gt;Docker Hub&lt;/code&gt;，但是比较慢，也可以花钱上传到阿里云的容器镜像服务就会快很多&lt;/p&gt;
+&lt;p&gt;这里是上传到docker hub，首先要登陆自己到docker账号，没有的话可以去官网注册一个&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker login -u &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;账户名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;输入密码成功后登陆&lt;/p&gt;
+&lt;p&gt;在push之前要给镜像打个tag，这样才能上传到自己账号对应的仓库下&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker tag &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;账户名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像仓库名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:latest
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后就可以上传了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker push &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;账户名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像仓库名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:latest
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;pull拉取镜像&#34;&gt;pull拉取镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;账户名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像仓库名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;tag&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在服务器上拉取到镜像后就可以启动容器了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run -it -d -p &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;对外暴露端口&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:8080 app:&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;tag&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;部署mysql容器&#34;&gt;部署MySQL容器&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 拉取mysql镜像&lt;/span&gt;
+docker pull mysql:5.7
+
+&lt;span class=&#34;c1&#34;&gt;# 跑起来&lt;/span&gt;
+docker run &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-d &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-p 3306:3306 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /home/mysql/conf:/etc/mysql/conf.d &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /home/mysql/data:/var/lib/mysql &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-e &lt;span class=&#34;nv&#34;&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;设置mysql到root密码&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;
+--name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;mysql:5.7
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;mysql容器到暴露端口要和代码中配到一样就行&lt;/p&gt;
+&lt;p&gt;这里还把配置目录和数据目录挂载了出来，避免容器停止后数据丢失&lt;/p&gt;
+&lt;h2 id=&#34;部署redis容器&#34;&gt;部署redis容器&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 拉取redis镜像&lt;/span&gt;
+docker pull redis
+
+&lt;span class=&#34;c1&#34;&gt;# 运行，这个时候指定密码，不指定默认为空&lt;/span&gt;
+docker run -d --name myredis -p 6379:6379 redis --requirepass &lt;span class=&#34;s2&#34;&gt;&amp;#34;mypassword&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;⚠️注意：建议先把mysql和redis都部署好后再去启动jar包都镜像，防止应用启动时连不到它们而报错&lt;/p&gt;
+&lt;p&gt;所有容器都成功启动起来之后就把整个后端部署到docker完毕了&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[docker]初识Dockerfile</title>
         <link>https://ccqstark.github.io/p/dockerfile/</link>
         <pubDate>Wed, 06 Jan 2021 21:13:00 +0800</pubDate>
@@ -157,16 +479,15 @@ docker pull mysql:5.7
 &lt;p&gt;&lt;code&gt;-p&lt;/code&gt; 端口映射&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;-v&lt;/code&gt; 数据卷挂载&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;—name&lt;/code&gt; 容器名字&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run 
--d 
--p 3310:3306 
--v /home/mysql/conf:/etc/mysql/conf.d 
--v /home/mysql/data:/var/lib/mysql
--e &lt;span class=&#34;nv&#34;&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;你配置的mysql密码&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; 
---name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-mysql:5.7
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;-v&lt;/code&gt;可以一次写多个来多次挂载&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-d &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-p 3310:3306 &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;
+-v /home/mysql/conf:/etc/mysql/conf.d &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;
+-v /home/mysql/data:/var/lib/mysql &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-e &lt;span class=&#34;nv&#34;&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;你配置的mysql密码&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;
+--name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;mysql:5.7
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;-v&lt;/code&gt;可以一次写多个来多次挂载&lt;/p&gt;
 &lt;h3 id=&#34;连接测试&#34;&gt;&lt;strong&gt;连接测试&lt;/strong&gt;&lt;/h3&gt;
 &lt;p&gt;运行成功后用navicat连接下试试&lt;/p&gt;
 &lt;ul&gt;
@@ -224,7 +545,7 @@ docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
 &lt;h2 id=&#34;数据卷容器&#34;&gt;数据卷容器&lt;/h2&gt;
 &lt;p&gt;之前是容器内的目录挂载到容器外到到目录，现在是一个容器挂载到另一个容器&lt;/p&gt;
 &lt;p&gt;这样就实现了容器之间到数据同步&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;—-volumes-from&lt;/code&gt; 使用此参数开启一个挂载到另一容器&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;—-volumes-from&lt;/code&gt; 使用此参数开启一个容器挂载到另一个容器&lt;/p&gt;
 &lt;p&gt;被挂载的称为&lt;code&gt;父容器&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run -it --name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;名字&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; --volumes-from &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;父容器名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;镜像名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;版本tag&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;测试一下，开两个容器，进入挂载到一起的目录创建文件试试，发现数据是同步的&lt;/p&gt;

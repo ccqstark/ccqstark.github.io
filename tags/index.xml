@@ -6,11 +6,11 @@
     <description>Recent content in Tags on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Jan 2021 21:13:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 08 Jan 2021 15:46:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Docker</title>
       <link>https://ccqstark.github.io/tags/docker/</link>
-      <pubDate>Wed, 06 Jan 2021 21:13:00 +0800</pubDate>
+      <pubDate>Fri, 08 Jan 2021 15:46:00 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/tags/docker/</guid>
       <description></description>
@@ -85,6 +85,15 @@
       <pubDate>Sun, 04 Oct 2020 02:44:33 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/tags/hugo/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CI/CD</title>
+      <link>https://ccqstark.github.io/tags/ci/cd/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://ccqstark.github.io/tags/ci/cd/</guid>
       <description></description>
     </item>
     

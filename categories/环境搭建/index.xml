@@ -6,7 +6,61 @@
     <description>Recent content in 环境搭建 on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Jan 2021 21:13:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 09 Jan 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jenkins &#43; docker &#43; springboot 完美配合全流程教程</title>
+      <link>https://ccqstark.github.io/p/jenkins_docker_springboot/</link>
+      <pubDate>Sat, 09 Jan 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/jenkins_docker_springboot/</guid>
+      <description>DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而Jenkins就是自动化部署主要的工具之一。
+这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。
+用docker拉取jenkins镜像，启动Jenkins容器 这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上
+首先拉取Jenkins镜像 docker pull jenkins/jenkins ⚠️注意：切勿docker pull jenkins，已经废弃
+启动Jenkins容器 docker run -u root -itd --name jenkins \ -p 6001:8080 \ -v $(which docker):/usr/bin/docker \ -v /var/run/docker.sock:/var/run/docker.sock -e TZ=&amp;#34;Asia/Shanghai&amp;#34; \ -v /etc/localtime:/etc/localtime:ro \ -v /volume1/docker/jenkins:/var/jenkins_home \ jenkins/jenkins  -p 6001:8080Jenkins默认网页访问端口为8080，将端口映射到外部主机6001端口 -v $(which docker):/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock使Jenkins内部可以使用docker命令 -e TZ=&amp;quot;Asia/Shanghai&amp;quot; -v /etc/localtime:/etc/localtime:ro配置Jenkins容器的时区 -v /volume1/docker/jenkins:/var/jenkins_home 将Jenkins的配置映射到外部主机卷，容器删除仍可保留配置  测试Jenkins容器内部 # 进入Jenkins的容器内部 docker exec -it jenkins bash # 判断docker命令是否正常执行 docker info 访问Jenkins网页端 用http://主机IP:6001 就可以访问Jenkins的网页端了</description>
+    </item>
+    
+    <item>
+      <title>用[docker]docker部署nginx</title>
+      <link>https://ccqstark.github.io/p/docker_nginx/</link>
+      <pubDate>Fri, 08 Jan 2021 15:46:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/docker_nginx/</guid>
+      <description>如果是单体应用的话nginx用docker部署其实是更麻烦的，不过既然操作过就记录一下。
+拉取nginx镜像 docker pull nginx 还是一样，默认是拉取latest版本，也可以选择想要的特定版本
+启动并挂载html目录 docker container run \  -d \  -p 80:80 \  --name mynginx \  --v [本机挂载目录]:/usr/share/nginx/html \  nginx 复制出配置文件 docker container cp mynginx:/etc/nginx . 将复制出来的文件夹改名并移动到你想要的目录下，然后把容器停止并删除
+挂载配置文件目录 最后一步就是重新启动一个容器并把html和配置文件目录都挂载了
+docker run \  --name test-nginx \  -v [本机挂载html目录]:/usr/share/nginx/html \  -v [本机挂载nginx目录]:/etc/nginx \  -p 80:80 \  -d \  nginx 访问一下试试就可以了！
+参考：
+Nginx 容器教程</description>
+    </item>
+    
+    <item>
+      <title>[docker]用docker部署SpringBoot项目</title>
+      <link>https://ccqstark.github.io/p/docker_springboot/</link>
+      <pubDate>Thu, 07 Jan 2021 21:39:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/docker_springboot/</guid>
+      <description>这篇文章介绍的是把整个Springboot后端项目部署到docker容器中，当然包括mysql和redis
+按下面步骤一步步来
+本地打出jar包 以Maven的话直接就IDEA里打出jar包到target目录下，这一步和以前一样
+编写Dockerfile 可以用IDEA里的插件来写，也可以自己写dockerfile
+在项目文件夹下新建一个文件Dockerfile
+FROMopenjdk:8MAINTAINERccqstarkADD /target/[项目jar包名].jar app.jarEXPOSE8080ENTRYPOINT [&amp;#34;java&amp;#34;,&amp;#34;-jar&amp;#34;,&amp;#34;/app.jar&amp;#34;]⚠️注意：ADD后两个参数，第一个是项目jar包的相对路径，第二是把jar包在容器内重新命的名
+构建镜像 在Dockerfile所在文件夹下运行build 命令，注意最后有一个.
+docker build -f Dockerfile -t [镜像名]:[版本tag] .构建之后用docker images 查看一下自己构架的镜像
+构建完之后本地run一下容器测试下
+push上传到镜像仓库 其实也可以把jar包上传服务器后用服务器的docker来构建和运行
+但这里采用的是把本地构建的镜像上传到repository，相当于镜像仓库，其他人想用这个镜像就可以从那拉取下来使用。
+repository可以是官方的Docker Hub，但是比较慢，也可以花钱上传到阿里云的容器镜像服务就会快很多
+这里是上传到docker hub，首先要登陆自己到docker账号，没有的话可以去官网注册一个
+docker login -u [账户名] 输入密码成功后登陆
+在push之前要给镜像打个tag，这样才能上传到自己账号对应的仓库下
+docker tag [镜像名] [账户名]/[镜像仓库名]:latest 之后就可以上传了
+docker push [账户名]/[镜像仓库名]:latest pull拉取镜像 docker pull [账户名]/[镜像仓库名]:[tag] 在服务器上拉取到镜像后就可以启动容器了
+docker run -it -d -p [对外暴露端口]:8080 app:[tag] 部署MySQL容器 # 拉取mysql镜像 docker pull mysql:5.7 # 跑起来 docker run \ -d \ -p 3306:3306 \ -v /home/mysql/conf:/etc/mysql/conf.</description>
+    </item>
+    
     <item>
       <title>[docker]初识Dockerfile</title>
       <link>https://ccqstark.github.io/p/dockerfile/</link>
@@ -47,9 +101,7 @@ Destination 表示容器内要映射的目录
 -p 端口映射
 -v 数据卷挂载
 —name 容器名字
-docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
--v可以一次写多个来多次挂载
-连接测试 运行成功后用navicat连接下试试</description>
+docker run \ -d \ -p 3310:3306 \  -v /home/mysql/conf:/etc/mysql/conf.d \  -v /home/mysql/data:/var/lib/mysql \ -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] \  --name [容器名] \ mysql:5.</description>
     </item>
     
     <item>

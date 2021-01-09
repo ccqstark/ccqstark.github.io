@@ -16,9 +16,7 @@ Destination 表示容器内要映射的目录
 -p 端口映射
 -v 数据卷挂载
 —name 容器名字
-docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
--v可以一次写多个来多次挂载
-连接测试 运行成功后用navicat连接下试试'><title>[docker]容器数据卷</title>
+docker run \ -d \ -p 3310:3306 \  -v /home/mysql/conf:/etc/mysql/conf.d \  -v /home/mysql/data:/var/lib/mysql \ -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] \  --name [容器名] \ mysql:5.'><title>[docker]容器数据卷</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/docker_volumes/'>
 
@@ -38,9 +36,7 @@ Destination 表示容器内要映射的目录
 -p 端口映射
 -v 数据卷挂载
 —name 容器名字
-docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
--v可以一次写多个来多次挂载
-连接测试 运行成功后用navicat连接下试试'>
+docker run \ -d \ -p 3310:3306 \  -v /home/mysql/conf:/etc/mysql/conf.d \  -v /home/mysql/data:/var/lib/mysql \ -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] \  --name [容器名] \ mysql:5.'>
 <meta property='og:url' content='https://ccqstark.github.io/p/docker_volumes/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Docker' /><meta property='article:published_time' content='2021-01-06T16:51:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-06T16:51:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/docker_volumes/docker.png' />
@@ -60,9 +56,7 @@ Destination 表示容器内要映射的目录
 -p 端口映射
 -v 数据卷挂载
 —name 容器名字
-docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] --name [容器名] mysql:5.7 ⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行
--v可以一次写多个来多次挂载
-连接测试 运行成功后用navicat连接下试试"><meta name="twitter:card" content="summary_large_image">
+docker run \ -d \ -p 3310:3306 \  -v /home/mysql/conf:/etc/mysql/conf.d \  -v /home/mysql/data:/var/lib/mysql \ -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] \  --name [容器名] \ mysql:5."><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/docker_volumes/docker.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
@@ -307,16 +301,15 @@ docker pull mysql:5.7
 <p><code>-p</code> 端口映射</p>
 <p><code>-v</code> 数据卷挂载</p>
 <p><code>—name</code> 容器名字</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run 
--d 
--p 3310:3306 
--v /home/mysql/conf:/etc/mysql/conf.d 
--v /home/mysql/data:/var/lib/mysql
--e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=[</span>你配置的mysql密码<span class="o">]</span> 
---name <span class="o">[</span>容器名<span class="o">]</span>
-mysql:5.7
-</code></pre></div><p>⚠️注意：以上命令都是在写在一行内一次性运行的，为了看得清晰才换行</p>
-<p><code>-v</code>可以一次写多个来多次挂载</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run <span class="se">\
+</span><span class="se"></span>-d <span class="se">\
+</span><span class="se"></span>-p 3310:3306 <span class="se">\ </span>
+-v /home/mysql/conf:/etc/mysql/conf.d <span class="se">\ </span>
+-v /home/mysql/data:/var/lib/mysql <span class="se">\
+</span><span class="se"></span>-e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=[</span>你配置的mysql密码<span class="o">]</span> <span class="se">\ </span>
+--name <span class="o">[</span>容器名<span class="o">]</span> <span class="se">\
+</span><span class="se"></span>mysql:5.7
+</code></pre></div><p><code>-v</code>可以一次写多个来多次挂载</p>
 <h3 id="连接测试"><strong>连接测试</strong></h3>
 <p>运行成功后用navicat连接下试试</p>
 <ul>
@@ -374,7 +367,7 @@ docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
 <h2 id="数据卷容器">数据卷容器</h2>
 <p>之前是容器内的目录挂载到容器外到到目录，现在是一个容器挂载到另一个容器</p>
 <p>这样就实现了容器之间到数据同步</p>
-<p><code>—-volumes-from</code> 使用此参数开启一个挂载到另一容器</p>
+<p><code>—-volumes-from</code> 使用此参数开启一个容器挂载到另一个容器</p>
 <p>被挂载的称为<code>父容器</code></p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -it --name <span class="o">[</span>名字<span class="o">]</span> --volumes-from <span class="o">[</span>父容器名<span class="o">]</span> <span class="o">[</span>镜像名<span class="o">]</span>:<span class="o">[</span>版本tag<span class="o">]</span> 
 </code></pre></div><p>测试一下，开两个容器，进入挂载到一起的目录创建文件试试，发现数据是同步的</p>
@@ -428,6 +421,50 @@ docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
                 
                     
 <article class="has-image">
+    <a href="/p/docker_nginx/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_nginx/nginx-docker.23dd1d5d655b0db04797a64df73e9106_hu2ff739cd1ceaefb705a9e30c4218e66c_86441_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_nginx" 
+                        data-hash="md5-I90dXWVbDbBHl6ZN9z6RBg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">用[docker]docker部署nginx</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_springboot/docker-springboot.180380aae35bb65f058f26374c2966a0_hu705e70abdc72815dabd2267940e19d94_40186_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_springboot" 
+                        data-hash="md5-GAOAquNbtl8FjyY3TClmoA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署SpringBoot项目</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
     <a href="/p/dockerfile/">
         
         
@@ -444,6 +481,28 @@ docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
 
         <div class="article-details">
             <h2 class="article-title">[docker]初识Dockerfile</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/jenkins_docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/jenkins_docker_springboot/_huac9b8bcc40d9704ef8edb1ad38827231_44206_1f1ecbdac38a70a8bd0879fdc08cabc9.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="jenkins_docker_springboot" 
+                        data-hash="md5-M1AcdQJqERUBr2POFbEQbw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Jenkins &#43; docker &#43; springboot 完美配合全流程教程</h2>
         </div>
     </a>
 </article>

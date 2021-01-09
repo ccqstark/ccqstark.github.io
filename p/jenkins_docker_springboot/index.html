@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而Jenkins就是自动化部署主要的工具之一。
+这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。
+用docker拉取jenkins镜像，启动Jenkins容器 这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上
+首先拉取Jenkins镜像 docker pull jenkins/jenkins ⚠️注意：切勿docker pull jenkins，已经废弃
+启动Jenkins容器 docker run -u root -itd --name jenkins \ -p 6001:8080 \ -v $(which docker):/usr/bin/docker \ -v /var/run/docker.sock:/var/run/docker.sock -e TZ=&amp;#34;Asia/Shanghai&amp;#34; \ -v /etc/localtime:/etc/localtime:ro \ -v /volume1/docker/jenkins:/var/jenkins_home \ jenkins/jenkins  -p 6001:8080Jenkins默认网页访问端口为8080，将端口映射到外部主机6001端口 -v $(which docker):/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock使Jenkins内部可以使用docker命令 -e TZ=&amp;quot;Asia/Shanghai&amp;quot; -v /etc/localtime:/etc/localtime:ro配置Jenkins容器的时区 -v /volume1/docker/jenkins:/var/jenkins_home 将Jenkins的配置映射到外部主机卷，容器删除仍可保留配置  测试Jenkins容器内部 # 进入Jenkins的容器内部 docker exec -it jenkins bash # 判断docker命令是否正常执行 docker info 访问Jenkins网页端 用http://主机IP:6001 就可以访问Jenkins的网页端了'><title>Jenkins &#43; docker &#43; springboot 完美配合全流程教程</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/jenkins_docker_springboot/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Jenkins &#43; docker &#43; springboot 完美配合全流程教程'>
+<meta property='og:description' content='DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而Jenkins就是自动化部署主要的工具之一。
+这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。
+用docker拉取jenkins镜像，启动Jenkins容器 这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上
+首先拉取Jenkins镜像 docker pull jenkins/jenkins ⚠️注意：切勿docker pull jenkins，已经废弃
+启动Jenkins容器 docker run -u root -itd --name jenkins \ -p 6001:8080 \ -v $(which docker):/usr/bin/docker \ -v /var/run/docker.sock:/var/run/docker.sock -e TZ=&amp;#34;Asia/Shanghai&amp;#34; \ -v /etc/localtime:/etc/localtime:ro \ -v /volume1/docker/jenkins:/var/jenkins_home \ jenkins/jenkins  -p 6001:8080Jenkins默认网页访问端口为8080，将端口映射到外部主机6001端口 -v $(which docker):/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock使Jenkins内部可以使用docker命令 -e TZ=&amp;quot;Asia/Shanghai&amp;quot; -v /etc/localtime:/etc/localtime:ro配置Jenkins容器的时区 -v /volume1/docker/jenkins:/var/jenkins_home 将Jenkins的配置映射到外部主机卷，容器删除仍可保留配置  测试Jenkins容器内部 # 进入Jenkins的容器内部 docker exec -it jenkins bash # 判断docker命令是否正常执行 docker info 访问Jenkins网页端 用http://主机IP:6001 就可以访问Jenkins的网页端了'>
+<meta property='og:url' content='https://ccqstark.github.io/p/jenkins_docker_springboot/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='CI/CD' /><meta property='article:published_time' content='2021-01-09T23:01:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-09T23:01:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/jenkins_docker_springboot/jenkins-docker-springboot.jpg' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="Jenkins &#43; docker &#43; springboot 完美配合全流程教程">
+<meta name="twitter:description" content="DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而Jenkins就是自动化部署主要的工具之一。
+这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。
+用docker拉取jenkins镜像，启动Jenkins容器 这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上
+首先拉取Jenkins镜像 docker pull jenkins/jenkins ⚠️注意：切勿docker pull jenkins，已经废弃
+启动Jenkins容器 docker run -u root -itd --name jenkins \ -p 6001:8080 \ -v $(which docker):/usr/bin/docker \ -v /var/run/docker.sock:/var/run/docker.sock -e TZ=&amp;#34;Asia/Shanghai&amp;#34; \ -v /etc/localtime:/etc/localtime:ro \ -v /volume1/docker/jenkins:/var/jenkins_home \ jenkins/jenkins  -p 6001:8080Jenkins默认网页访问端口为8080，将端口映射到外部主机6001端口 -v $(which docker):/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock使Jenkins内部可以使用docker命令 -e TZ=&amp;quot;Asia/Shanghai&amp;quot; -v /etc/localtime:/etc/localtime:ro配置Jenkins容器的时区 -v /volume1/docker/jenkins:/var/jenkins_home 将Jenkins的配置映射到外部主机卷，容器删除仍可保留配置  测试Jenkins容器内部 # 进入Jenkins的容器内部 docker exec -it jenkins bash # 判断docker命令是否正常执行 docker info 访问Jenkins网页端 用http://主机IP:6001 就可以访问Jenkins的网页端了"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/jenkins_docker_springboot/jenkins-docker-springboot.jpg' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/jenkins_docker_springboot/">
+                <img src="/p/jenkins_docker_springboot/jenkins-docker-springboot_huac9b8bcc40d9704ef8edb1ad38827231_44206_800x0_resize_q75_box.jpg"
+                        srcset="/p/jenkins_docker_springboot/jenkins-docker-springboot_huac9b8bcc40d9704ef8edb1ad38827231_44206_800x0_resize_q75_box.jpg 800w, /p/jenkins_docker_springboot/jenkins-docker-springboot_huac9b8bcc40d9704ef8edb1ad38827231_44206_1600x0_resize_q75_box.jpg 1600w"
+                        width="800" 
+                        height="388" 
+                        loading="lazy"
+                        alt="Featured image of post Jenkins &#43; docker &#43; springboot 完美配合全流程教程" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" >
+                环境搭建
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/jenkins_docker_springboot/">Jenkins &#43; docker &#43; springboot 完美配合全流程教程</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 09, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <p>DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而<code>Jenkins</code>就是自动化部署主要的工具之一。</p>
+<p>这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。</p>
+<h2 id="用docker拉取jenkins镜像启动jenkins容器">用docker拉取jenkins镜像，启动Jenkins容器</h2>
+<p>这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上</p>
+<h3 id="首先拉取jenkins镜像">首先拉取Jenkins镜像</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker pull jenkins/jenkins
+</code></pre></div><p>⚠️注意：切勿docker pull jenkins，已经废弃</p>
+<h3 id="启动jenkins容器">启动Jenkins容器</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -u root -itd --name jenkins <span class="se">\
+</span><span class="se"></span>-p 6001:8080 <span class="se">\
+</span><span class="se"></span>-v <span class="k">$(</span>which docker<span class="k">)</span>:/usr/bin/docker <span class="se">\
+</span><span class="se"></span>-v /var/run/docker.sock:/var/run/docker.sock -e <span class="nv">TZ</span><span class="o">=</span><span class="s2">&#34;Asia/Shanghai&#34;</span> <span class="se">\
+</span><span class="se"></span>-v /etc/localtime:/etc/localtime:ro <span class="se">\
+</span><span class="se"></span>-v /volume1/docker/jenkins:/var/jenkins_home <span class="se">\
+</span><span class="se"></span>jenkins/jenkins
+</code></pre></div><ul>
+<li><code>-p 6001:8080</code>Jenkins默认网页访问端口为8080，将端口映射到外部主机6001端口</li>
+<li><code>-v $(which docker):/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock</code>使Jenkins内部可以使用docker命令</li>
+<li><code>-e TZ=&quot;Asia/Shanghai&quot; -v /etc/localtime:/etc/localtime:ro</code>配置Jenkins容器的时区</li>
+<li><code>-v /volume1/docker/jenkins:/var/jenkins_home</code> 将Jenkins的配置映射到外部主机卷，容器删除仍可保留配置</li>
+</ul>
+<h3 id="测试jenkins容器内部">测试Jenkins容器内部</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 进入Jenkins的容器内部</span>
+docker <span class="nb">exec</span> -it jenkins bash
+
+<span class="c1"># 判断docker命令是否正常执行</span>
+docker info
+</code></pre></div><h3 id="访问jenkins网页端">访问Jenkins网页端</h3>
+<p>用<code>http://主机IP:6001</code> 就可以访问Jenkins的网页端了</p>
+<h2 id="jenkins初始化">Jenkins初始化</h2>
+<p>访问页面后需要输入初始密码，用<code>cat</code> 命令查看一下页面上给出的路径就可以获得初始密码，复制进去后就可以成功进入</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png"  /></p>
+<p>到插件这里就选择安装推荐插件即可，等待安装完毕，速度稍慢。如果很多插件一直安装失败可以等下一步配置国内源之后再安装</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png"  /></p>
+<p>然后按提示创建一个自己的管理员账户</p>
+<p><strong>如果想重启Jenkins：</strong></p>
+<p>在jenkins主页网址后加上<code>/restart</code> 后回车，点击确定即可</p>
+<h2 id="安装插件和必要配置">安装插件和必要配置</h2>
+<h3 id="修改插件国内源并安装其它插件">修改插件国内源并安装其它插件</h3>
+<p>点击侧边栏<code>系统管理</code>→<code>插件管理</code>→<code>高级</code></p>
+<p><img src="https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg" alt="https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg"  /></p>
+<p>将图中所示URL的输入中的链接改为阿里的：</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json
+</code></pre></div><h3 id="安装一些插件">安装一些插件</h3>
+<p>在<code>插件管理</code>中选择<code>可选插件</code></p>
+<p>安装<code>Maven Integration</code>和<code>Docker</code>的插件，安装完重启</p>
+<h3 id="全局工具配置">全局工具配置</h3>
+<p>点击<code>系统管理</code>→<code>全局工具配置</code></p>
+<p>JDK</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png"  /></p>
+<p>用<code>docker inspect jenkins</code> 查看<code>JAVA_HOME</code> 路径后填入即可，这是个openjdk1.8，刚好用于项目，因为jenkins就是Java开发的</p>
+<p><strong>Git</strong></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png"  /></p>
+<p>用默认即可</p>
+<p><strong>Maven</strong></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png"  /></p>
+<p>可以用外部安装的，这里因为下了插件就用Jenkins里的插件就行，点击自动安装</p>
+<p><strong>Docker</strong></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png"  /></p>
+<p>都好了之后点<code>应用</code>在点<code>保存</code></p>
+<h3 id="jenkins容器内使用vim">Jenkins容器内使用vim</h3>
+<p>进入Jenkins容器内部后想使用vim的话还需要额外安装，后面需要用到vim</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 更新一下软件源</span>
+apt-get update
+
+<span class="c1"># 安装vim</span>
+apt-get install vim
+</code></pre></div><p>这里可能比较慢，就等一下，但只需用一次就不额外换源了</p>
+<h3 id="修改maven插件的镜像源">修改maven插件的镜像源</h3>
+<p>因为jenkins在容器内，所以要进入容器内</p>
+<p><code>cd</code>到目录<code>~/.m2</code> 下，<code>ls</code> 一下发现只有一个<code>repository</code> 目录，这个就是默认的maven仓库目录，然后就<code>vim settings.xml</code> 新建一个配置文件</p>
+<p>在命令模式下用<code>:set paste</code> 开启粘贴模式，然后把下面内容粘贴进去，记得检查一下内容和编码是不是<code>utf-8</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+
+<span class="nt">&lt;settings</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/SETTINGS/1.0.0&#34;</span>
+          <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+          <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+
+  <span class="nt">&lt;localRepository&gt;</span>~/.m2/repository<span class="nt">&lt;/localRepository&gt;</span>
+  
+  <span class="nt">&lt;pluginGroups&gt;</span>
+    
+  <span class="nt">&lt;/pluginGroups&gt;</span>
+
+  <span class="nt">&lt;proxies&gt;</span>
+
+  <span class="nt">&lt;/proxies&gt;</span>
+
+  <span class="nt">&lt;servers&gt;</span>
+    
+  <span class="nt">&lt;/servers&gt;</span>
+
+  
+  <span class="nt">&lt;mirrors&gt;</span>
+     <span class="nt">&lt;mirror&gt;</span>
+      <span class="nt">&lt;id&gt;</span>nexus-aliyun<span class="nt">&lt;/id&gt;</span>
+      <span class="nt">&lt;mirrorOf&gt;</span>*<span class="nt">&lt;/mirrorOf&gt;</span>
+      <span class="nt">&lt;name&gt;</span>Nexus aliyun<span class="nt">&lt;/name&gt;</span>
+      <span class="nt">&lt;url&gt;</span>http://maven.aliyun.com/nexus/content/groups/public<span class="nt">&lt;/url&gt;</span>
+    <span class="nt">&lt;/mirror&gt;</span>
+  <span class="nt">&lt;/mirrors&gt;</span>
+
+  <span class="nt">&lt;profiles&gt;</span>
+    
+  <span class="nt">&lt;/profiles&gt;</span>
+
+<span class="nt">&lt;/settings&gt;</span>
+</code></pre></div><p>重启jenkins，之后下载包时发现已经更改为阿里源了</p>
+<h2 id="创建项目准备自动化部署">创建项目准备自动化部署</h2>
+<p>左侧边栏新建一个任务，选择maven项目</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg"  /></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg"  /></p>
+<h3 id="添加github仓库源码">添加GitHub仓库源码</h3>
+<p>这里用GitHub做代码仓库，也可以gitlab</p>
+<p>有2种方式：<code>https</code>和<code>ssh</code></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png"  /></p>
+<p>如果是https的话添加<code>Credentials</code> 的时候就直接配置自己的GitHub用户名和密码，仓库的URL填写github仓库的url就行</p>
+<p>如果是ssh的话要配置密钥，点击<code>系统管理</code>→<code>Manage Credentials</code> →<code>全局</code> ,点击左侧边栏<code>添加凭据</code></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png"  /></p>
+<p>如果之前生成过，在自己机器上的<code>~/.ssh</code> 下cat一下就行，没有的话就<code>ssh-keygen</code> 生成</p>
+<p>注意此时url就要用<code>ssh://git@github.com/[用户名]/[项目名].git</code> 的格式</p>
+<h3 id="加快代码拉取速度">加快代码拉取速度</h3>
+<p>为了加快构建速度，勾选此选项可以使jenkins不拉取代码的历史版本，从而加快构建速度</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png"  /></p>
+<p>勾选浅克隆</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png"  /></p>
+<p>初次之外，不要在本地打出jar包，不然这么大一个文件上传到仓库再被拉取很费时间</p>
+<h3 id="构建触发器">构建触发器</h3>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png"  /></p>
+<h3 id="构建脚本">构建脚本</h3>
+<p>这里是运行一些shell脚本来构建docker镜像和运行容器的</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png"  /></p>
+<p>脚本如下，记得在项目目录下写好一个Dockerfile</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 进入项目目录</span>
+<span class="nb">cd</span> /var/jenkins_home/workspace/<span class="o">[</span>项目名<span class="o">]</span>
+
+<span class="c1"># 执行构建Dockerfile命令</span>
+docker build -f Dockerfile -t <span class="o">[</span>镜像名<span class="o">]</span>:<span class="o">[</span>tag<span class="o">]</span> .
+
+<span class="c1"># 停止之前的容器运行</span>
+docker stop <span class="o">[</span>容器名<span class="o">]</span>
+<span class="c1"># 删除之前的容器</span>
+docker rm <span class="o">[</span>容器名<span class="o">]</span>
+
+<span class="c1">#运行刚刚创建的容器</span>
+docker run -d --name <span class="o">[</span>容器名<span class="o">]</span> -p <span class="o">[</span>映射端口<span class="o">]</span>:8080 <span class="o">[</span>镜像名<span class="o">]</span>:<span class="o">[</span>tag<span class="o">]</span>
+
+<span class="nb">echo</span> <span class="s2">&#34;构建完成&#34;</span>
+</code></pre></div><p>Dockerfile参考：</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker"><span class="k">FROM</span><span class="s"> openjdk:8</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">MAINTAINER</span><span class="s"> [作者]</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">ADD</span> /target/<span class="o">[</span>项目名<span class="o">]</span>-0.0.1-SNAPSHOT.jar <span class="o">[</span>项目名<span class="o">]</span>.jar<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 8080</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;java&#34;</span><span class="p">,</span><span class="s2">&#34;-jar&#34;</span><span class="p">,</span><span class="err">&#34;/</span><span class="p">[</span><span class="err">项目名</span><span class="p">]</span>.jar<span class="s2">&#34;]</span><span class="err">
+</span></code></pre></div><h3 id="push触发构建">push触发构建</h3>
+<p>为了实现只要我们一向代码仓库push就可以自动进行构建，我们需要配置<code>webhook</code></p>
+<p>点击<code>系统管理</code>→<code>系统配置</code> ，找到<code>GitHub</code>选项，点击<code>高级</code></p>
+<p>按下图操作：</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png"  /></p>
+<p>打开自己GitHub项目页面</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png"  /></p>
+<p>粘贴刚刚复制的地址</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png"  /></p>
+<p>下面勾选<code>Pushes</code>和<code>Active</code> ，最后点击添加即可</p>
+<p>点击项目内左侧栏的<code>立即构建</code> 可以手动开始构建</p>
+<p>在进程中点击<code>控制台输出</code> 看到构建过程中的日志信息，这些信息很重要我们经常要看，用来发现构建过程中的错误</p>
+<h3 id="清除无用的镜像">清除无用的镜像</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker image prune
+</code></pre></div><p>在多次构建之后可能会发现一些为none的镜像，用此命令清除</p>
+<h2 id="配置邮箱通知">配置邮箱通知</h2>
+<p>在这之前保证安装了相关插件，如果一开始是选安装推荐插件那应该都安装了</p>
+<p>点击<code>系统管理</code>→<code>系统配置</code></p>
+<p>先配一下管理员邮箱</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png"  /></p>
+<p>然后拉到下面，按图中配置，这个邮箱要填刚刚上面的管理员邮箱</p>
+<p>注意里面的密码是开启SMTP的密码，不是邮箱的密码</p>
+<p>然后可以点击发送测试邮件试试</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png"  /></p>
+<p>上面还有一个<code>Extended E-mail Notification</code> 也配一下，也按这些信息填写</p>
+<p><code>Default Recipients</code> 是默认接收通知的邮箱，可以填写多个，用英文半角逗号隔开</p>
+<p><code>Default Triggers</code> 也可以配置一下，是触发邮件的事件</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png"  /></p>
+<p>这里有个坑，在系统设置配置完之后，在项目里面的设置记得也要配置完整</p>
+<p>进入要发送邮箱功能的项目的<code>配置</code></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png"  /></p>
+<p>再点击<code>增加构建后操作步骤</code></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png"  /></p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png"  /></p>
+<p>点击<code>高级设置</code>后设置触发条件</p>
+<p><img src="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png"  /></p>
+<p>其他的诸如<code>Content Type</code>和<code>Default Content</code> 之类的就按需求配就行</p>
+<p>之后在控制台输出就可以看到构建项目到最后有发邮件的步骤日志</p>
+<h3 id="主题美化">主题美化</h3>
+<p>可以参考下面这篇文章，个人觉得还是习惯于原版</p>
+<p><a class="link" href="https://blog.csdn.net/wf19930209/article/details/80386902"  target="_blank" rel="noopener"
+    >Jenkins自定义主题教程_FlyWine的博客-CSDN博客_jenkins自定义界面</a></p>
+<p><strong>参考文章：</strong></p>
+<p><a class="link" href="https://juejin.cn/post/6844903955600769031#heading-0"  target="_blank" rel="noopener"
+    >最优雅的Docker+Jenkins pipeline部署Spring boot项目</a></p>
+<p><a class="link" href="https://blog.csdn.net/linfen1520/article/details/109045063"  target="_blank" rel="noopener"
+    >Jenkins+Docker+github+Spring Boot自动化部署_linfen1520的博客-CSDN博客</a></p>
+<p><a class="link" href="https://www.qedev.com/auto/170005.html"  target="_blank" rel="noopener"
+    >jenkins+git+maven+docker持续集成部署_自动化_运维开发网_运维开发技术经验分享</a></p>
+<p><a class="link" href="https://www.cnblogs.com/xiaoxi-3-/p/9680205.html"  target="_blank" rel="noopener"
+    >Jenkins - SSH认证方式拉取Git代码</a></p>
+<p><a class="link" href="https://codejam.blog.csdn.net/article/details/106043546?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-3.control&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-3.control"  target="_blank" rel="noopener"
+    >centos7的Jenkins的maven插件的settings.xml配置文件路径在哪里_festone000的专栏-CSDN博客</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ci/cd/">CI/CD</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_nginx/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_nginx/nginx-docker.23dd1d5d655b0db04797a64df73e9106_hu2ff739cd1ceaefb705a9e30c4218e66c_86441_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_nginx" 
+                        data-hash="md5-I90dXWVbDbBHl6ZN9z6RBg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">用[docker]docker部署nginx</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_springboot/docker-springboot.180380aae35bb65f058f26374c2966a0_hu705e70abdc72815dabd2267940e19d94_40186_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_springboot" 
+                        data-hash="md5-GAOAquNbtl8FjyY3TClmoA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署SpringBoot项目</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/dockerfile/">
+        
+        
+            <div class="article-image">
+                <img src="/p/dockerfile/dockerfile.470c0abd459a0fe4ccbbeae7cbc0c024_hua2299a9fb0d8a75d7ada60f608a774d6_160236_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dockerfile" 
+                        data-hash="md5-RwwKvUWaD&#43;TMu&#43;rny8DAJA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]初识Dockerfile</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_volumes/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_volumes/docker.194f19766fa8c825a1c52983360bb16c_hu22e70eb00a1bc79d3e2af88d0f9ef83b_73329_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_volumes" 
+                        data-hash="md5-GU8Zdm&#43;oyCWhxSmDNguxbA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]容器数据卷</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/php_env/">
+        
+        
+            <div class="article-image">
+                <img src="/p/php_env/php.f47e05875abc2e803c4f16b17f7f27b1_hu30aa9710d612d752c63ae5cdcfcf5665_61468_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="php_env" 
+                        data-hash="md5-9H4Fh1q8LoA8Txaxf38nsQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">php后台开发基础环境搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

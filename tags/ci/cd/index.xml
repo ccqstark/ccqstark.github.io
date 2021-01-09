@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CI/CD on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/ci/cd/</link>
+    <description>Recent content in CI/CD on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="https://ccqstark.github.io/tags/ci/cd/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jenkins &#43; docker &#43; springboot 完美配合全流程教程</title>
+      <link>https://ccqstark.github.io/p/jenkins_docker_springboot/</link>
+      <pubDate>Sat, 09 Jan 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/jenkins_docker_springboot/</guid>
+      <description>DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而Jenkins就是自动化部署主要的工具之一。
+这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。
+用docker拉取jenkins镜像，启动Jenkins容器 这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上
+首先拉取Jenkins镜像 docker pull jenkins/jenkins ⚠️注意：切勿docker pull jenkins，已经废弃
+启动Jenkins容器 docker run -u root -itd --name jenkins \ -p 6001:8080 \ -v $(which docker):/usr/bin/docker \ -v /var/run/docker.sock:/var/run/docker.sock -e TZ=&amp;#34;Asia/Shanghai&amp;#34; \ -v /etc/localtime:/etc/localtime:ro \ -v /volume1/docker/jenkins:/var/jenkins_home \ jenkins/jenkins  -p 6001:8080Jenkins默认网页访问端口为8080，将端口映射到外部主机6001端口 -v $(which docker):/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock使Jenkins内部可以使用docker命令 -e TZ=&amp;quot;Asia/Shanghai&amp;quot; -v /etc/localtime:/etc/localtime:ro配置Jenkins容器的时区 -v /volume1/docker/jenkins:/var/jenkins_home 将Jenkins的配置映射到外部主机卷，容器删除仍可保留配置  测试Jenkins容器内部 # 进入Jenkins的容器内部 docker exec -it jenkins bash # 判断docker命令是否正常执行 docker info 访问Jenkins网页端 用http://主机IP:6001 就可以访问Jenkins的网页端了</description>
+    </item>
+    
+  </channel>
+</rss>
