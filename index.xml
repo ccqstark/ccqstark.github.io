@@ -183,6 +183,8 @@ apt-get install vim
 &lt;p&gt;初次之外，不要在本地打出jar包，不然这么大一个文件上传到仓库再被拉取很费时间&lt;/p&gt;
 &lt;h3 id=&#34;构建触发器&#34;&gt;构建触发器&lt;/h3&gt;
 &lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png&#34;  /&gt;&lt;/p&gt;
+&lt;h3 id=&#34;添加maven构建步骤&#34;&gt;添加maven构建步骤&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/clean_package.png&#34; alt=&#34;clean_package&#34;  /&gt;&lt;/p&gt;
 &lt;h3 id=&#34;构建脚本&#34;&gt;构建脚本&lt;/h3&gt;
 &lt;p&gt;这里是运行一些shell脚本来构建docker镜像和运行容器的&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png&#34;  /&gt;&lt;/p&gt;
