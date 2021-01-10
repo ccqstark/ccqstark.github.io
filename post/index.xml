@@ -6,7 +6,30 @@
     <description>Recent content in Posts on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 09 Jan 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 10 Jan 2021 16:35:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Alfred &#43; iTerm2 快速ssh连接服务器</title>
+      <link>https://ccqstark.github.io/p/alfred_iterm/</link>
+      <pubDate>Sun, 10 Jan 2021 16:35:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/alfred_iterm/</guid>
+      <description>为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入ssh [主机名] 就可以快速连上了，效果如下图：
+使用ssh config 在~/.ssh/config文件里添加服务器信息，没有的话就新建一个
+vim ~/.ssh/config然后在文件中输入主机的信息，有多个主机就追加在后面就行
+Host [主机名] HostName [ip] User root Port [端口]使用密钥登陆 如果本地的~/.ssh 目录下没有id_rsa 私钥文件，可以是使用下面这个目录生成，一路回车即可，如果已经有了就可以跳过这步
+ssh-keygen然后将私钥复制到远程服务器
+ssh-copy-id -i -p[端口号] root@ip按提示输入一次密码，就会自动将刚才生成的公钥id_rsa.pub追加到远程主机的~/.ssh/authorized_keys后面了，这样以后的 ssh 连接都不用输入密码了
+安装alfred-ssh插件 https://github.com/deanishe/alfred-ssh
+到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow
+添加后打开alfred的偏好设置可以看到效果如下：
+测试用alfred输入ssh+主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作
+安装alfred集成iTerm2配置 如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh
+进入下面github链接，按说明操作
+https://github.com/vitorgalvao/custom-alfred-iterm-scripts
+按上面要求运行命令并粘贴到对应地方就完成了！
+参考文章： 开发效率神器之alfred集成ssh+iTerm2实现一步登录服务器</description>
+    </item>
+    
     <item>
       <title>Jenkins &#43; docker &#43; springboot 完美配合全流程教程</title>
       <link>https://ccqstark.github.io/p/jenkins_docker_springboot/</link>

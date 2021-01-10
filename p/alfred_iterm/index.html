@@ -1,69 +1,59 @@
 <!DOCTYPE html>
 <html lang="en-us">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='基本操作 下载hugo 首先要有Golang的环境
-然后在GitHub上选择对应平台下载
-https://github.com/gohugoio/hugo/releases
-Windows下载完要设置环境变量
-创建新的站点 hugo new site &amp;lt;path&amp;gt; 
-在指定路径下创建博客站点目录，目录最后是博客站点名
-找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行设置
-https://themes.gohugo.io/
-本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts
-&amp;lt;theme&amp;gt;的位置填写主题的名称
-创建博客 hugo new post/blog.md
-博客的markdown文件一开始都是放在\content\post目录下
-创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
-Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务
-部署到远端仓库  生成\public目录  hugo --theme=hugo-theme-stack --baseUrl=&amp;quot;https://ccqstark.github.io/&amp;quot; --buildDrafts
-根据具体仓库修改，也可以是&amp;quot;https://ccqstark.gitee.io/&amp;quot; 然后cd进public目录 在这个目录下创建git仓库，部署也是部署这个目录中的内容
- 三部曲  git add . git commit -m &amp;#39;...&amp;#39; git push github master 更新博客 要新增一篇博客就继续按下面这个步骤走
-hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://ccqstark.github.io/&amp;#34; --buildDrafts cd public git add .'><title>使用Hugo&#43;github/gitee搭建个人博客</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入ssh [主机名] 就可以快速连上了，效果如下图：
+使用ssh config 在~/.ssh/config文件里添加服务器信息，没有的话就新建一个
+vim ~/.ssh/config然后在文件中输入主机的信息，有多个主机就追加在后面就行
+Host [主机名] HostName [ip] User root Port [端口]使用密钥登陆 如果本地的~/.ssh 目录下没有id_rsa 私钥文件，可以是使用下面这个目录生成，一路回车即可，如果已经有了就可以跳过这步
+ssh-keygen然后将私钥复制到远程服务器
+ssh-copy-id -i -p[端口号] root@ip按提示输入一次密码，就会自动将刚才生成的公钥id_rsa.pub追加到远程主机的~/.ssh/authorized_keys后面了，这样以后的 ssh 连接都不用输入密码了
+安装alfred-ssh插件 https://github.com/deanishe/alfred-ssh
+到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow
+添加后打开alfred的偏好设置可以看到效果如下：
+测试用alfred输入ssh&#43;主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作
+安装alfred集成iTerm2配置 如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh
+进入下面github链接，按说明操作
+https://github.com/vitorgalvao/custom-alfred-iterm-scripts
+按上面要求运行命令并粘贴到对应地方就完成了！
+参考文章： 开发效率神器之alfred集成ssh&#43;iTerm2实现一步登录服务器'><title>Alfred &#43; iTerm2 快速ssh连接服务器</title>
 
-<link rel='canonical' href='https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/'>
+<link rel='canonical' href='https://ccqstark.github.io/p/alfred_iterm/'>
 
-<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='使用Hugo&#43;github/gitee搭建个人博客'>
-<meta property='og:description' content='基本操作 下载hugo 首先要有Golang的环境
-然后在GitHub上选择对应平台下载
-https://github.com/gohugoio/hugo/releases
-Windows下载完要设置环境变量
-创建新的站点 hugo new site &amp;lt;path&amp;gt; 
-在指定路径下创建博客站点目录，目录最后是博客站点名
-找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行设置
-https://themes.gohugo.io/
-本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts
-&amp;lt;theme&amp;gt;的位置填写主题的名称
-创建博客 hugo new post/blog.md
-博客的markdown文件一开始都是放在\content\post目录下
-创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
-Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务
-部署到远端仓库  生成\public目录  hugo --theme=hugo-theme-stack --baseUrl=&amp;quot;https://ccqstark.github.io/&amp;quot; --buildDrafts
-根据具体仓库修改，也可以是&amp;quot;https://ccqstark.gitee.io/&amp;quot; 然后cd进public目录 在这个目录下创建git仓库，部署也是部署这个目录中的内容
- 三部曲  git add . git commit -m &amp;#39;...&amp;#39; git push github master 更新博客 要新增一篇博客就继续按下面这个步骤走
-hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://ccqstark.github.io/&amp;#34; --buildDrafts cd public git add .'>
-<meta property='og:url' content='https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/'>
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Alfred &#43; iTerm2 快速ssh连接服务器'>
+<meta property='og:description' content='为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入ssh [主机名] 就可以快速连上了，效果如下图：
+使用ssh config 在~/.ssh/config文件里添加服务器信息，没有的话就新建一个
+vim ~/.ssh/config然后在文件中输入主机的信息，有多个主机就追加在后面就行
+Host [主机名] HostName [ip] User root Port [端口]使用密钥登陆 如果本地的~/.ssh 目录下没有id_rsa 私钥文件，可以是使用下面这个目录生成，一路回车即可，如果已经有了就可以跳过这步
+ssh-keygen然后将私钥复制到远程服务器
+ssh-copy-id -i -p[端口号] root@ip按提示输入一次密码，就会自动将刚才生成的公钥id_rsa.pub追加到远程主机的~/.ssh/authorized_keys后面了，这样以后的 ssh 连接都不用输入密码了
+安装alfred-ssh插件 https://github.com/deanishe/alfred-ssh
+到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow
+添加后打开alfred的偏好设置可以看到效果如下：
+测试用alfred输入ssh&#43;主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作
+安装alfred集成iTerm2配置 如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh
+进入下面github链接，按说明操作
+https://github.com/vitorgalvao/custom-alfred-iterm-scripts
+按上面要求运行命令并粘贴到对应地方就完成了！
+参考文章： 开发效率神器之alfred集成ssh&#43;iTerm2实现一步登录服务器'>
+<meta property='og:url' content='https://ccqstark.github.io/p/alfred_iterm/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hugo' /><meta property='article:published_time' content='2020-10-04T02:44:33&#43;08:00'/><meta property='article:modified_time' content='2020-10-04T02:44:33&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.png' />
-<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="使用Hugo&#43;github/gitee搭建个人博客">
-<meta name="twitter:description" content="基本操作 下载hugo 首先要有Golang的环境
-然后在GitHub上选择对应平台下载
-https://github.com/gohugoio/hugo/releases
-Windows下载完要设置环境变量
-创建新的站点 hugo new site &amp;lt;path&amp;gt; 
-在指定路径下创建博客站点目录，目录最后是博客站点名
-找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行设置
-https://themes.gohugo.io/
-本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts
-&amp;lt;theme&amp;gt;的位置填写主题的名称
-创建博客 hugo new post/blog.md
-博客的markdown文件一开始都是放在\content\post目录下
-创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
-Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务
-部署到远端仓库  生成\public目录  hugo --theme=hugo-theme-stack --baseUrl=&amp;quot;https://ccqstark.github.io/&amp;quot; --buildDrafts
-根据具体仓库修改，也可以是&amp;quot;https://ccqstark.gitee.io/&amp;quot; 然后cd进public目录 在这个目录下创建git仓库，部署也是部署这个目录中的内容
- 三部曲  git add . git commit -m &amp;#39;...&amp;#39; git push github master 更新博客 要新增一篇博客就继续按下面这个步骤走
-hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://ccqstark.github.io/&amp;#34; --buildDrafts cd public git add ."><meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content='https://ccqstark.github.io/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.png' />
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='MacOS' /><meta property='article:published_time' content='2021-01-10T16:35:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-10T16:35:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="Alfred &#43; iTerm2 快速ssh连接服务器">
+<meta name="twitter:description" content="为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入ssh [主机名] 就可以快速连上了，效果如下图：
+使用ssh config 在~/.ssh/config文件里添加服务器信息，没有的话就新建一个
+vim ~/.ssh/config然后在文件中输入主机的信息，有多个主机就追加在后面就行
+Host [主机名] HostName [ip] User root Port [端口]使用密钥登陆 如果本地的~/.ssh 目录下没有id_rsa 私钥文件，可以是使用下面这个目录生成，一路回车即可，如果已经有了就可以跳过这步
+ssh-keygen然后将私钥复制到远程服务器
+ssh-copy-id -i -p[端口号] root@ip按提示输入一次密码，就会自动将刚才生成的公钥id_rsa.pub追加到远程主机的~/.ssh/authorized_keys后面了，这样以后的 ssh 连接都不用输入密码了
+安装alfred-ssh插件 https://github.com/deanishe/alfred-ssh
+到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow
+添加后打开alfred的偏好设置可以看到效果如下：
+测试用alfred输入ssh&#43;主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作
+安装alfred集成iTerm2配置 如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh
+进入下面github链接，按说明操作
+https://github.com/vitorgalvao/custom-alfred-iterm-scripts
+按上面要求运行命令并粘贴到对应地方就完成了！
+参考文章： 开发效率神器之alfred集成ssh&#43;iTerm2实现一步登录服务器">
     <link rel="shortcut icon" href="/icon.ico" />
 
     </head>
@@ -235,20 +225,8 @@ hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://c
         </a>
     </div>
 
-    <article class="has-image main-article">
+    <article class="main-article">
     <header class="article-header">
-        <div class="article-image">
-            <a href="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">
-                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo_hu8b6407a07803ab5ecf8133363f04b00e_28892_800x0_resize_box_2.png"
-                        srcset="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo_hu8b6407a07803ab5ecf8133363f04b00e_28892_800x0_resize_box_2.png 800w, /p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo_hu8b6407a07803ab5ecf8133363f04b00e_28892_1600x0_resize_box_2.png 1600w"
-                        width="800" 
-                        height="223" 
-                        loading="lazy"
-                        alt="Featured image of post 使用Hugo&#43;github/gitee搭建个人博客" />
-                
-            </a>
-        </div>
-    
 
     <div class="article-details">
     
@@ -262,7 +240,7 @@ hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://c
     
 
     <h2 class="article-title">
-        <a href="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">使用Hugo&#43;github/gitee搭建个人博客</a>
+        <a href="/p/alfred_iterm/">Alfred &#43; iTerm2 快速ssh连接服务器</a>
     </h2>
 
     <footer class="article-time">
@@ -274,81 +252,45 @@ hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://c
 
 
 
-        <time class="article-time--published">Oct 04, 2020</time>
+        <time class="article-time--published">Jan 10, 2021</time>
     </footer></div>
 </header>
 
     <section class="article-content">
-    <h3 id="基本操作">基本操作</h3>
-<h4 id="下载hugo">下载hugo</h4>
-<p>首先要有Golang的环境</p>
-<p>然后在GitHub上选择对应平台下载</p>
-<p><a href="https://github.com/gohugoio/hugo/releases">https://github.com/gohugoio/hugo/releases</a></p>
-<p>Windows下载完要设置环境变量</p>
-<h4 id="创建新的站点">创建新的站点</h4>
-<p><code>hugo new site &lt;path&gt; </code></p>
-<p>在指定路径下创建博客站点目录，目录最后是博客站点名</p>
-<h4 id="找到心仪主题">找到心仪主题</h4>
-<p>在下面这个网站上找到喜欢的主题，按照各自的文档进行设置</p>
-<p><a href="https://themes.gohugo.io/">https://themes.gohugo.io/</a></p>
-<h4 id="本地预览">本地预览</h4>
-<p><code>hugo server -t &lt;theme&gt; --buildDrafts</code></p>
-<p>&lt;theme&gt;的位置填写主题的名称</p>
-<h4 id="创建博客">创建博客</h4>
-<p><code>hugo new post/blog.md</code></p>
-<p>博客的markdown文件一开始都是放在<code>\content\post</code>目录下</p>
-<h4 id="创建githubgitee仓库">创建GitHub/Gitee仓库</h4>
-<p>Github把仓库命名为<code>&lt;name&gt;.github.io</code>即可开启博客托管服务</p>
-<p>Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务</p>
-<h4 id="部署到远端仓库">部署到远端仓库</h4>
-<ul>
-<li>生成<code>\public</code>目录</li>
-</ul>
-<p><code>hugo --theme=hugo-theme-stack --baseUrl=&quot;https://ccqstark.github.io/&quot; --buildDrafts</code></p>
-<p>根据具体仓库修改，也可以是<code>&quot;https://ccqstark.gitee.io/&quot;</code>
-然后cd进<code>public</code>目录
-在这个目录下创建git仓库，部署也是部署这个目录中的内容</p>
-<ul>
-<li>三部曲</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">git add .
-git commit -m <span class="s1">&#39;...&#39;</span>
-git push github master
-</code></pre></div><h4 id="更新博客">更新博客</h4>
-<p>要新增一篇博客就继续按下面这个步骤走</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">hugo new post/name.md
-hugo --theme<span class="o">=</span>hugo-theme-stack --baseUrl<span class="o">=</span><span class="s2">&#34;https://ccqstark.github.io/&#34;</span> --buildDrafts
-<span class="nb">cd</span> public
-git add .
-git commit -m <span class="s1">&#39;...&#39;</span>
-git push github master
-</code></pre></div><p>如果只是更新就重新运行生成<code>\public</code>目录的命令，再重新部署即可</p>
-<h3 id="主题stack配置">主题Stack配置</h3>
-<p>此博客的主题用的是<code>Stack</code>，下面是主题地址，可以找到文档和Demo</p>
-<p><a href="https://themes.gohugo.io/hugo-theme-stack/">https://themes.gohugo.io/hugo-theme-stack/</a></p>
-<h4 id="icon设置">icon设置</h4>
-<p>使用<code>.ico</code>文件类型的图标，并将其放置在<code>\public</code>目录下</p>
-<p><code>\layouts\partials\head</code>下新建一个<code>custom.html</code>，写上</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">&lt;link <span class="nv">rel</span><span class="o">=</span><span class="s2">&#34;shortcut icon&#34;</span> <span class="nv">href</span><span class="o">=</span><span class="s2">&#34;https://ccqstark.github.io/icon.ico&#34;</span>/&gt;
-</code></pre></div><p>为了访问稳定也可以改为gitee</p>
-<h4 id="文章外部展示图">文章外部展示图</h4>
-<p>在<code>\content\post</code>目录下创建博客时，先创建博客标题命名的文件夹，再在其下创建md文件<code>index.md</code></p>
-<p>图片也是放在其下，在md文件开头的设置中添加<code>image: &quot;image.jpg&quot;</code>即可</p>
-<h4 id="tags和分类">Tags和分类</h4>
-<p>文章开头设置</p>
-<pre><code>tags:
-    - Spring
-categories:
-    - Tech
-</code></pre><p>一个是打标签，一个是分类</p>
-<h4 id="about和archives">About和Archives</h4>
-<p>在<code>\content\page</code>目录下创建<code>about.md</code>和<code>archives.md</code></p>
-<p><code>about.md</code>用于写个人信息页面，需要文章顶部的设置写法改为字段加冒号的形式，配置<code>slug</code>为<code>about</code></p>
-<p><code>archives.md</code>用于分类和归档页面，用exampleSite的就行，不用做任何修改</p>
-<h4 id="categories">Categories</h4>
-<p>在<code>\content\categories</code>目录下创建以各分类命名的文件夹</p>
-<p>各分类的文件夹下放置<code>_index.md</code>和分类的展示图</p>
-<p><code>_index.md</code>中的内容就是普通文章顶部的配置项，注意图片名配置对了就行</p>
+    <p>为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入<code>ssh [主机名]</code> 就可以快速连上了，效果如下图：</p>
+<p><img src="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png" alt="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png"  /></p>
+<h3 id="使用ssh-config">使用ssh config</h3>
+<p>在<code>~/.ssh/config</code>文件里添加服务器信息，没有的话就新建一个</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker">vim ~/.ssh/config<span class="err">
+</span></code></pre></div><p>然后在文件中输入主机的信息，有多个主机就追加在后面就行</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker">Host <span class="o">[</span>主机名<span class="o">]</span><span class="err">
+</span><span class="err"></span>  HostName <span class="o">[</span>ip<span class="o">]</span><span class="err">
+</span><span class="err"></span>  User root<span class="err">
+</span><span class="err"></span>  Port <span class="o">[</span>端口<span class="o">]</span><span class="err">
+</span></code></pre></div><h3 id="使用密钥登陆">使用密钥登陆</h3>
+<p>如果本地的<code>~/.ssh</code> 目录下没有<code>id_rsa</code> 私钥文件，可以是使用下面这个目录生成，一路回车即可，如果已经有了就可以跳过这步</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker">ssh-keygen<span class="err">
+</span></code></pre></div><p>然后将私钥复制到远程服务器</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker">ssh-copy-id -i -p<span class="o">[</span>端口号<span class="o">]</span> root@ip<span class="err">
+</span></code></pre></div><p>按提示输入一次密码，就会自动将刚才生成的公钥<code>id_rsa.pub</code>追加到远程主机的<code>~/.ssh/authorized_keys</code>后面了，这样以后的 ssh 连接都不用输入密码了</p>
+<h3 id="安装alfred-ssh插件">安装alfred-ssh插件</h3>
+<p><a class="link" href="https://github.com/deanishe/alfred-ssh"  target="_blank" rel="noopener"
+    >https://github.com/deanishe/alfred-ssh</a></p>
+<p>到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow</p>
+<p>添加后打开alfred的偏好设置可以看到效果如下：</p>
+<p><img src="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%201.png" alt="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%201.png"  /></p>
+<p>测试用alfred输入ssh+主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作</p>
+<h3 id="安装alfred集成iterm2配置">安装alfred集成iTerm2配置</h3>
+<p>如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh</p>
+<p><img src="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%202.png" alt="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%202.png"  /></p>
+<p>进入下面github链接，按说明操作</p>
+<p><a class="link" href="https://github.com/vitorgalvao/custom-alfred-iterm-scripts"  target="_blank" rel="noopener"
+    >https://github.com/vitorgalvao/custom-alfred-iterm-scripts</a></p>
+<p><img src="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%203.png" alt="Alfred%20&#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%203.png"  /></p>
+<p>按上面要求运行命令并粘贴到对应地方就完成了！</p>
+<p>参考文章：
+<a class="link" href="https://yaoyuanyy.github.io/2019/05/13/%E5%BC%80%E5%8F%91%E6%95%88%E7%8E%87%E7%A5%9E%E6%8F%90%E5%8D%87%E4%B9%8Balfred%E9%9B%86%E6%88%90ssh&#43;iterm/"  target="_blank" rel="noopener"
+    >开发效率神器之alfred集成ssh+iTerm2实现一步登录服务器</a></p>
 
 </section>
 
@@ -357,7 +299,7 @@ categories:
     
     <section class="article-tags">
         
-            <a href="/tags/hugo/">Hugo</a>
+            <a href="/tags/macos/">MacOS</a>
         
     </section>
 
@@ -387,18 +329,6 @@ categories:
             <div class="flex article-list--tile">
                 
                     
-<article class="">
-    <a href="/p/alfred_iterm/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">Alfred &#43; iTerm2 快速ssh连接服务器</h2>
-        </div>
-    </a>
-</article>
-                
-                    
 <article class="has-image">
     <a href="/p/mac_terminal/">
         
@@ -416,6 +346,28 @@ categories:
 
         <div class="article-details">
             <h2 class="article-title">MacOS终端美化指北</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">
+        
+        
+            <div class="article-image">
+                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.c21ba899c77312de9895762f5d2f27b8_hu8b6407a07803ab5ecf8133363f04b00e_28892_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="" 
+                        data-hash="md5-whuomcdzEt6YlXYvXS8nuA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Hugo&#43;github/gitee搭建个人博客</h2>
         </div>
     </a>
 </article>

@@ -6,7 +6,49 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 09 Jan 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 10 Jan 2021 16:35:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Alfred &#43; iTerm2 快速ssh连接服务器</title>
+        <link>https://ccqstark.github.io/p/alfred_iterm/</link>
+        <pubDate>Sun, 10 Jan 2021 16:35:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/alfred_iterm/</guid>
+        <description>&lt;p&gt;为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入&lt;code&gt;ssh [主机名]&lt;/code&gt; 就可以快速连上了，效果如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;h3 id=&#34;使用ssh-config&#34;&gt;使用ssh config&lt;/h3&gt;
+&lt;p&gt;在&lt;code&gt;~/.ssh/config&lt;/code&gt;文件里添加服务器信息，没有的话就新建一个&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;vim ~/.ssh/config&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后在文件中输入主机的信息，有多个主机就追加在后面就行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;Host &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;主机名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;  HostName &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;ip&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;  User root&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&lt;/span&gt;  Port &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;端口&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;使用密钥登陆&#34;&gt;使用密钥登陆&lt;/h3&gt;
+&lt;p&gt;如果本地的&lt;code&gt;~/.ssh&lt;/code&gt; 目录下没有&lt;code&gt;id_rsa&lt;/code&gt; 私钥文件，可以是使用下面这个目录生成，一路回车即可，如果已经有了就可以跳过这步&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;ssh-keygen&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后将私钥复制到远程服务器&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;ssh-copy-id -i -p&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;端口号&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; root@ip&lt;span class=&#34;err&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;按提示输入一次密码，就会自动将刚才生成的公钥&lt;code&gt;id_rsa.pub&lt;/code&gt;追加到远程主机的&lt;code&gt;~/.ssh/authorized_keys&lt;/code&gt;后面了，这样以后的 ssh 连接都不用输入密码了&lt;/p&gt;
+&lt;h3 id=&#34;安装alfred-ssh插件&#34;&gt;安装alfred-ssh插件&lt;/h3&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/deanishe/alfred-ssh&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/deanishe/alfred-ssh&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow&lt;/p&gt;
+&lt;p&gt;添加后打开alfred的偏好设置可以看到效果如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%201.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;测试用alfred输入ssh+主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作&lt;/p&gt;
+&lt;h3 id=&#34;安装alfred集成iterm2配置&#34;&gt;安装alfred集成iTerm2配置&lt;/h3&gt;
+&lt;p&gt;如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%202.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;进入下面github链接，按说明操作&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/vitorgalvao/custom-alfred-iterm-scripts&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/vitorgalvao/custom-alfred-iterm-scripts&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%203.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;按上面要求运行命令并粘贴到对应地方就完成了！&lt;/p&gt;
+&lt;p&gt;参考文章：
+&lt;a class=&#34;link&#34; href=&#34;https://yaoyuanyy.github.io/2019/05/13/%E5%BC%80%E5%8F%91%E6%95%88%E7%8E%87%E7%A5%9E%E6%8F%90%E5%8D%87%E4%B9%8Balfred%E9%9B%86%E6%88%90ssh&amp;#43;iterm/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;开发效率神器之alfred集成ssh+iTerm2实现一步登录服务器&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>Jenkins &#43; docker &#43; springboot 完美配合全流程教程</title>
         <link>https://ccqstark.github.io/p/jenkins_docker_springboot/</link>
         <pubDate>Sat, 09 Jan 2021 23:01:00 +0800</pubDate>
