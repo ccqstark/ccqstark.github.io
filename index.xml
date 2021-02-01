@@ -650,7 +650,7 @@ bin/elasticsearch-plugin install https://github.91chifun.workers.dev//https://gi
         <pubDate>Sat, 09 Jan 2021 23:01:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/jenkins_docker_springboot/</guid>
-        <description>&lt;img src="https://ccqstark.github.io/p/jenkins_docker_springboot/jenkins-docker-springboot.png" alt="Featured image of post Jenkins &#43; docker &#43; springboot 完美配合全流程教程" /&gt;&lt;p&gt;DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而&lt;code&gt;Jenkins&lt;/code&gt;就是自动化部署主要的工具之一。&lt;/p&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/jenkins_docker_springboot/jenkins-cicd.png" alt="Featured image of post Jenkins &#43; docker &#43; springboot 完美配合全流程教程" /&gt;&lt;p&gt;DevOps现在非常流行，CI/CD持续集成、持续部署也大火，而&lt;code&gt;Jenkins&lt;/code&gt;就是自动化部署主要的工具之一。&lt;/p&gt;
 &lt;p&gt;这篇博客就来详细介绍用jenkins来实现自动化部署springboot项目的docker容器，堪称保姆级教学了。&lt;/p&gt;
 &lt;h2 id=&#34;用docker拉取jenkins镜像启动jenkins容器&#34;&gt;用docker拉取jenkins镜像，启动Jenkins容器&lt;/h2&gt;
 &lt;p&gt;这里采用的jenkins本身也是用docker容器部署的，不得不说docker确实好用，当然也可以直接运行在主机上&lt;/p&gt;
