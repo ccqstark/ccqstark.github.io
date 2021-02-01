@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vim on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/vim/</link>
+    <description>Recent content in Vim on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 31 Jan 2021 21:26:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/vim/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>我的vim入门配置折腾</title>
+      <link>https://ccqstark.github.io/p/vim/</link>
+      <pubDate>Sun, 31 Jan 2021 21:26:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/vim/</guid>
+      <description>由于这几天开始看《CS:APP》，我就开始寻求一款Mac上的轻量的C语言编辑器。找来找去，无非是VSCode、CLion和大名鼎鼎的Vim。
+为了减少磁盘占用同时让自己更接近于底层，我还是硬着头皮折腾起了Vim，这个上古神器之前就一直让我望而却步，我对它的掌握程度也差不多是会退出的程度，这一次就打算好好来折腾下。
+安装NeoVim Vim其实到目前为止，不同的分支版本还是很多的，比较流行的现代版本就要属NeoVim了，所以我在终端安装了它，用iTerm2运行着。
+brew install neovim 安装完成后用nvim命令就可以打开
+nvim 配置文件路径
+传统的vim的配置配置文件为~/.vimrc
+而nvim的配置文件为/.config/nvim/init.vim ，之后修改nvim配置文件就用这个，以下简称为init.vim
+安装SpaceVim 作为小白，快速搭建一个好看实用的Vim开发环境那最好的选择就是SpaceVim 了，下面是官方的介绍：
+ SpaceVim 是一个社区驱动的模块化的 Vim IDE，以模块的方式组织管理插件以及相关配置， 为不同的语言开发量身定制了相关的开发模块，该模块提供代码自动补全， 语法检查、格式化、调试、REPL 等特性。用户仅需载入相关语言的模块即可得到一个开箱即用的 Vim IDE。
+ 官网地址：
+主页 | SpaceVim
+官网的文档还是很全的，按官方文档就可以快速搭建出来了。以MacOS为例：
+安装spacevim
+curl -sLf https://spacevim.org/cn/install.sh | bash 完成后重新打开nvim就会自动下载相关插件。
+然后就是主界面：
+主题的修改可以参考官方文档
+SpaceVim colorscheme 模块 | SpaceVim
+快捷键符号说明
+SPC 代表空格
+&amp;lt;Leader&amp;gt; 默认为\
+以下一些功能需要对mac进行一定的设置才能正常使用。
+打开系统偏好设置 → 键盘
+勾选将F1、F2等键用作标准功能键
+这同时也解决了Chrome的F12 不能打开控制台的问题
+文件目录树
+按F3 可以打开或关闭
+语法函数树
+按F2可以打开或关闭
+mac下可能会出现错误，解决方案：
+brew install ctags-exuberant 然后init.vim里添加下面这行即可
+let g:Tlist_Ctags_Cmd=&amp;#39;/usr/local/Cellar/ctags/5.8_1/bin/ctags&amp;#39; shell终端</description>
+    </item>
+    
+  </channel>
+</rss>

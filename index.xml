@@ -6,13 +6,609 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 10 Jan 2021 16:35:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 31 Jan 2021 21:26:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>我的vim入门配置折腾</title>
+        <link>https://ccqstark.github.io/p/vim/</link>
+        <pubDate>Sun, 31 Jan 2021 21:26:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/vim/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/vim/vim.png" alt="Featured image of post 我的vim入门配置折腾" /&gt;&lt;p&gt;由于这几天开始看《CS:APP》，我就开始寻求一款Mac上的轻量的C语言编辑器。找来找去，无非是&lt;code&gt;VSCode&lt;/code&gt;、&lt;code&gt;CLion&lt;/code&gt;和大名鼎鼎的&lt;code&gt;Vim&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;为了减少磁盘占用同时让自己更接近于底层，我还是硬着头皮折腾起了Vim，这个上古神器之前就一直让我望而却步，我对它的掌握程度也差不多是会退出的程度，这一次就打算好好来折腾下。&lt;/p&gt;
+&lt;h3 id=&#34;安装neovim&#34;&gt;安装NeoVim&lt;/h3&gt;
+&lt;p&gt;Vim其实到目前为止，不同的分支版本还是很多的，比较流行的现代版本就要属NeoVim了，所以我在终端安装了它，用&lt;code&gt;iTerm2&lt;/code&gt;运行着。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;brew install neovim
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;安装完成后用nvim命令就可以打开&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;nvim
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;配置文件路径&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;传统的vim的配置配置文件为&lt;code&gt;~/.vimrc&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;而nvim的配置文件为&lt;code&gt;/.config/nvim/init.vim&lt;/code&gt; ，之后修改nvim配置文件就用这个，以下简称为&lt;code&gt;init.vim&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;安装spacevim&#34;&gt;安装SpaceVim&lt;/h3&gt;
+&lt;p&gt;作为小白，快速搭建一个好看实用的Vim开发环境那最好的选择就是&lt;code&gt;SpaceVim&lt;/code&gt; 了，下面是官方的介绍：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;SpaceVim 是一个社区驱动的模块化的 Vim IDE，以模块的方式组织管理插件以及相关配置， 为不同的语言开发量身定制了相关的开发模块，该模块提供代码自动补全， 语法检查、格式化、调试、REPL 等特性。用户仅需载入相关语言的模块即可得到一个开箱即用的 Vim IDE。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;官网地址：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://spacevim.org/cn/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;主页 | SpaceVim&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;官网的文档还是很全的，按官方文档就可以快速搭建出来了。以MacOS为例：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;安装spacevim&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;curl -sLf https://spacevim.org/cn/install.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; bash
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;完成后重新打开nvim就会自动下载相关插件。&lt;/p&gt;
+&lt;p&gt;然后就是主界面：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;主题&lt;/strong&gt;的修改可以参考官方文档&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://spacevim.org/cn/layers/colorscheme/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;SpaceVim colorscheme 模块 | SpaceVim&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;快捷键符号说明&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;SPC&lt;/code&gt; 代表空格&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;Leader&amp;gt;&lt;/code&gt; 默认为&lt;code&gt;\&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;以下一些功能需要对mac进行一定的设置才能正常使用。&lt;/p&gt;
+&lt;p&gt;打开&lt;code&gt;系统偏好设置&lt;/code&gt; → &lt;code&gt;键盘&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;勾选&lt;code&gt;将F1、F2等键用作标准功能键&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;这同时也解决了Chrome的&lt;code&gt;F12&lt;/code&gt; 不能打开控制台的问题&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%201.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;文件目录树&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;按&lt;code&gt;F3&lt;/code&gt; 可以打开或关闭&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;语法函数树&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;按&lt;code&gt;F2&lt;/code&gt;可以打开或关闭&lt;/p&gt;
+&lt;p&gt;mac下可能会出现错误，解决方案：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;brew install ctags-exuberant
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后&lt;code&gt;init.vim&lt;/code&gt;里添加下面这行即可&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;nb&#34;&gt;let&lt;/span&gt; g:Tlist_Ctags_Cmd&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/usr/local/Cellar/ctags/5.8_1/bin/ctags&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;shell&lt;strong&gt;终端&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;SPC &#39;&lt;/code&gt; 即可打开系统shell，如果用了oh-my-zsh主题什么的也会保留的&lt;/p&gt;
+&lt;h3 id=&#34;配置cc环境&#34;&gt;配置C/C++环境&lt;/h3&gt;
+&lt;p&gt;spacevim对大部分语言都有相关支持，文档也齐全，比如我需要的C语言环境：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://spacevim.org/cn/use-vim-as-a-c-cpp-ide/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;使用 Vim 搭建 C/C++ 开发环境 | SpaceVim&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;按照官方文档修改spacevim的配置文件&lt;code&gt;~/.SpaceVim.d/init.toml&lt;/code&gt; 即可，以下简称&lt;code&gt;init.toml&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;对于自带的模块基本只需要添加&lt;code&gt;[[layers]]&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 语法高亮&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt;layers&lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;lang#c&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;nv&#34;&gt;enable_clang_syntax_highlight&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# 代码格式化&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt;layers&lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+  &lt;span class=&#34;nv&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;format&amp;#34;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# 语法检查&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt;layers&lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+  &lt;span class=&#34;nv&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;checkers&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;spacevim内置的模块还是很多的，但是很多功能相对简陋，为了实现更好的效果，我们还需要安装其他的插件。&lt;/p&gt;
+&lt;h3 id=&#34;安装插件管理器vim-plug&#34;&gt;安装插件管理器vim-plug&lt;/h3&gt;
+&lt;p&gt;虽然SpaceVim已经自带插件管理工具，在&lt;code&gt;init.toml&lt;/code&gt; 里添加&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt;custom_plugins&lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+	&lt;span class=&#34;nv&#34;&gt;repo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;插件的github地址&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;重启后即可自动下载&lt;/p&gt;
+&lt;p&gt;用spacevim管理的这些从github上下载的插件存储在&lt;code&gt;~/.cache/vimfiles/repos/github.com/&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;这个自带的插件管理器大部分情况下还可以，但是有时不太好使，所以我选择多下载一个vim的主流插件管理器&lt;code&gt;vim-plug&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;使用curl安装，下面一条命令就够&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;curl -fLo ~/.vim/autoload/plug.vim --create-dirs &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果遇到了&lt;code&gt;Connection refused&lt;/code&gt;的错误，使用&lt;code&gt;SwitchHosts!&lt;/code&gt; ，添加以下的host：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;199.232.68.133 raw.githubusercontent.com
+199.232.68.133 user-images.githubusercontent.com
+199.232.68.133 avatars2.githubusercontent.com
+199.232.68.133 avatars1.githubusercontent.com
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;使用插件管理器安装新的插件的方法是，在&lt;code&gt;init.vim&lt;/code&gt; 配置文件里添加：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;call plug#begin&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
+
+call plug#end&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后把要安装的插件添加到这两行代码中间，以&lt;code&gt;Plug &#39;xxx/xxx&#39;&lt;/code&gt; 的格式，如：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;call plug#begin&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
+Plug &lt;span class=&#34;s1&#34;&gt;&amp;#39;junegunn/vim-easy-align&amp;#39;&lt;/span&gt;
+call plug#end&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后重启nvim，使用命令&lt;code&gt;:PlugInstall&lt;/code&gt; 就可以安装了。&lt;/p&gt;
+&lt;p&gt;若要卸载插件，就从配置文件中去除相应的那一行，然后使用命令&lt;code&gt;:PlugClean&lt;/code&gt; 就可以卸载了。&lt;/p&gt;
+&lt;h3 id=&#34;安装cocnvim&#34;&gt;安装Coc.nvim&lt;/h3&gt;
+&lt;p&gt;SpaceVim自带的补全还行，但是为了达到效果更好的补全和语法检查，我选择安装插件&lt;code&gt;coc.nvim&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/neoclide/coc.nvim&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;neoclide/coc.nvim&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这可以说是神器了，除了基本的补全之外，还提供了众多扩展来支持不同的语言和不同的特性。&lt;/p&gt;
+&lt;p&gt;用之前下的&lt;code&gt;vim-plug&lt;/code&gt; 来安装&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Plug &lt;span class=&#34;s1&#34;&gt;&amp;#39;neoclide/coc.nvim&amp;#39;&lt;/span&gt;, &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;branch&amp;#39;&lt;/span&gt;: &lt;span class=&#34;s1&#34;&gt;&amp;#39;release&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;安装完后可以先直接把官方的示例配置文件粘贴进&lt;code&gt;init.vim&lt;/code&gt;，示例配置文件在github的readme里有。&lt;/p&gt;
+&lt;p&gt;为了C语言更好的补全支持，我下载相关的coc扩展——&lt;code&gt;coc-clangd&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;neoclide/coc.nvim&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;首先保证有&lt;code&gt;node&lt;/code&gt;环境，然后运行以下命令安装coc-clangd&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;:CocInstall coc-clangd
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;完成后打开一个c语言文件，若提示找不到clangd，则自己手动下载。&lt;/p&gt;
+&lt;p&gt;进入github release页面下载&lt;code&gt;clangd-mac-11.0.0.zip&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/clangd/clangd/releases/tag/11.0.0&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Release 11.0.0 · clangd/clangd&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;解压后目录下有一个&lt;code&gt;bin&lt;/code&gt;文件夹和一个&lt;code&gt;lib&lt;/code&gt;文件夹&lt;/p&gt;
+&lt;p&gt;将bin下的clangd文件移动至&lt;code&gt;/usr/local/bin/&lt;/code&gt;目录下&lt;/p&gt;
+&lt;p&gt;将lib目录下的clang文件夹移动至&lt;code&gt;~/Library/&lt;/code&gt;目录下&lt;/p&gt;
+&lt;p&gt;再次打开即可正常使用，注意把spacevim自带的补全给禁用&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt;layers&lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
+	&lt;span class=&#34;nv&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;autocomplete&amp;#39;&lt;/span&gt;
+	&lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;效果如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%202.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;可以看到代码提示效果是非常好的&lt;/p&gt;
+&lt;p&gt;当然，里面还有很多很实用的扩展也可以根据需要下&lt;/p&gt;
+&lt;h3 id=&#34;括号引号自动补全&#34;&gt;括号引号自动补全&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;coc.nvim&lt;/code&gt;插件对于括号和引号还是没有自动补成一对的功能，可以在&lt;code&gt;init.vim&lt;/code&gt;里添加&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;inoremap &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;&amp;lt;Esc&amp;gt;i
+inoremap &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt;&amp;lt;Esc&amp;gt;i
+inoremap &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;&amp;lt;CR&amp;gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;&amp;lt;Esc&amp;gt;O
+autocmd Syntax html,vim inoremap &amp;lt; &amp;lt;lt&amp;gt;&amp;gt;&amp;lt;Esc&amp;gt;i&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; inoremap &amp;gt; &amp;lt;c-r&amp;gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;ClosePair&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;CR&amp;gt;
+inoremap &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &amp;lt;c-r&amp;gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;ClosePair&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;)&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;CR&amp;gt;
+inoremap &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &amp;lt;c-r&amp;gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;ClosePair&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;]&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;CR&amp;gt;
+inoremap &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &amp;lt;c-r&amp;gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;CloseBracket&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;&amp;lt;CR&amp;gt;
+inoremap &lt;span class=&#34;s2&#34;&gt;&amp;#34; &amp;lt;c-r&amp;gt;=QuoteDelim(&amp;#39;&amp;#34;&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;)&amp;lt;CR&amp;gt;
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;inoremap &amp;#39;&lt;/span&gt; &amp;lt;c-r&amp;gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;QuoteDelim&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&amp;lt;CR&amp;gt;
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; ClosePair&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;char&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; getline&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)[&lt;/span&gt;col&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; - 1&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; a:char
+ &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;lt;Right&amp;gt;&amp;#34;&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; a:char
+ endif
+endf
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; CloseBracket&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; match&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;getline&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;line&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; + 1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;\s*}&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &amp;lt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;lt;CR&amp;gt;}&amp;#34;&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;lt;Esc&amp;gt;j0f}a&amp;#34;&lt;/span&gt;
+ endif
+endf
+
+&lt;span class=&#34;k&#34;&gt;function&lt;/span&gt; QuoteDelim&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;char&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;nb&#34;&gt;let&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;line&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; getline&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;nb&#34;&gt;let&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;col&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; col&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; line&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;col - 2&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;\\&amp;#34;&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; a:char
+ elseif line&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;col - 1&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; a:char
+ &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;lt;Right&amp;gt;&amp;#34;&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+ &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; a:char.a:char.&lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;lt;Esc&amp;gt;i&amp;#34;&lt;/span&gt;
+ endif
+endf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;彩虹括号&#34;&gt;彩虹括号&lt;/h3&gt;
+&lt;p&gt;vim里也有类似vscode或IDEA那样的彩虹括号插件&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Plug &lt;span class=&#34;s1&#34;&gt;&amp;#39;luochen1990/rainbow&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#或&lt;/span&gt;
+&lt;span class=&#34;nv&#34;&gt;repo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;luochen1990/rainbow&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;init.vim&lt;/code&gt; 添加&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;nb&#34;&gt;let&lt;/span&gt; g:rainbow_active &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;let&lt;/span&gt; g:rainbow_conf &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;  &lt;span class=&#34;s1&#34;&gt;&amp;#39;guifgs&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;darkorange3&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;seagreen3&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;royalblue3&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;firebrick&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;  &lt;span class=&#34;s1&#34;&gt;&amp;#39;ctermfgs&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;lightyellow&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;lightcyan&amp;#39;&lt;/span&gt;,&lt;span class=&#34;s1&#34;&gt;&amp;#39;lightblue&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;lightmagenta&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;  &lt;span class=&#34;s1&#34;&gt;&amp;#39;operators&amp;#39;&lt;/span&gt;: &lt;span class=&#34;s1&#34;&gt;&amp;#39;_,_&amp;#39;&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;  &lt;span class=&#34;s1&#34;&gt;&amp;#39;parentheses&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/(/ end=/)/ fold&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/\[/ end=/\]/ fold&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/{/ end=/}/ fold&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;  &lt;span class=&#34;s1&#34;&gt;&amp;#39;separately&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;s1&#34;&gt;&amp;#39;*&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;{}&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;s1&#34;&gt;&amp;#39;tex&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;          &lt;span class=&#34;s1&#34;&gt;&amp;#39;parentheses&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/(/ end=/)/&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/\[/ end=/\]/&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;s1&#34;&gt;&amp;#39;lisp&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;          &lt;span class=&#34;s1&#34;&gt;&amp;#39;guifgs&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;darkorange3&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;seagreen3&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;royalblue3&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;firebrick&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;s1&#34;&gt;&amp;#39;vim&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;          &lt;span class=&#34;s1&#34;&gt;&amp;#39;parentheses&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/(/ end=/)/&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/\[/ end=/\]/&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/{/ end=/}/ fold&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/(/ end=/)/ containedin=vimFuncBody&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/\[/ end=/\]/ containedin=vimFuncBody&amp;#39;&lt;/span&gt;, &lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/{/ end=/}/ fold containedin=vimFuncBody&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;s1&#34;&gt;&amp;#39;html&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;          &lt;span class=&#34;s1&#34;&gt;&amp;#39;parentheses&amp;#39;&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;start=/\v\&amp;lt;((area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)[ &amp;gt;])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=(&amp;#34;[^&amp;#34;]*&amp;#34;|&amp;#39;&lt;/span&gt;.&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;.&lt;span class=&#34;s1&#34;&gt;&amp;#39;[^&amp;#39;&lt;/span&gt;.&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;.&lt;span class=&#34;s1&#34;&gt;&amp;#39;]*&amp;#39;&lt;/span&gt;.&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;.&lt;span class=&#34;s1&#34;&gt;&amp;#39;|[^ &amp;#39;&lt;/span&gt;.&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;.&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#34;&amp;gt;&amp;lt;=`]*))?)*\&amp;gt;/ end=#&amp;lt;/\z1&amp;gt;# fold&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;      &lt;span class=&#34;s1&#34;&gt;&amp;#39;css&amp;#39;&lt;/span&gt;: 0,
+&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;  &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;se&#34;&gt;\}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;安装ctrlp&#34;&gt;安装CtrlP&lt;/h3&gt;
+&lt;p&gt;CtrlP是vim下一款很好的文件模糊搜索跳转插件&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/kien/ctrlp.vim&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;kien/ctrlp.vim&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;安装&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;nv&#34;&gt;repo&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;kien/ctrlp.vim&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;使用&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;:CtrlP &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;要搜索的目录&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果目录下的文件过多，比如系统根目录，就会花比较多的时间去索引。所以建议尽量缩小范围。&lt;/p&gt;
+&lt;p&gt;之后便可以输入关键字进行搜索了&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%203.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;其他插件&#34;&gt;其他插件&lt;/h2&gt;
+&lt;p&gt;比如更好的代码格式化&lt;code&gt;vim-clang-format&lt;/code&gt;和代码时间记录&lt;code&gt;wakatime&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/rhysd/vim-clang-format&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;rhysd/vim-clang-format&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/wakatime/vim-wakatime&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;wakatime/vim-wakatime&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;基本上想要的插件都可以在github上找到，根据官方文档使用即可&lt;/p&gt;
+&lt;h3 id=&#34;常用快捷键&#34;&gt;常用快捷键&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;SPC 1/2/3&lt;/code&gt; 切换不同窗口，数字为窗口编号&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;SPC l r&lt;/code&gt; 运行代码&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;SPC b f&lt;/code&gt; 代码格式化&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;g d&lt;/code&gt; 函数跳转&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;c-o&amp;gt;&lt;/code&gt; 回调到上次的位置（这个写法表示&lt;code&gt;ctrl+o&lt;/code&gt;）&lt;/p&gt;
+&lt;p&gt;更多功能可以&lt;code&gt;SPC&lt;/code&gt;空格键唤出菜单查看&lt;/p&gt;
+&lt;h3 id=&#34;尾声&#34;&gt;尾声&lt;/h3&gt;
+&lt;p&gt;到此一个基本的vim编程环境已经搭好了，用来写点小东西还是够用的。&lt;/p&gt;
+&lt;p&gt;这一套折腾下来最大的感受是曾经觉得vim好难学好难用，但是通过这几天捣鼓之后发现只要熟练了其实效率还是很高的。难怪至今还有很多vim的使用者和爱好者。同时自己安装各种插件，修改配置文件，通过自定义来获得一款完全属于自己的编辑器的过程也是充满乐趣的，我很享受这个过程。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>[Elastic]ElasticSearch 安全</title>
+        <link>https://ccqstark.github.io/p/x_pack/</link>
+        <pubDate>Fri, 29 Jan 2021 21:26:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/x_pack/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/x_pack/x-pack.png" alt="Featured image of post [Elastic]ElasticSearch 安全" /&gt;&lt;p&gt;ElacticSearch索引中有大量的数据，如果没有一些安全措施的话会让系统处于一个十分危险的处境，引发的相关安全事件可以看看这篇文章。&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://juejin.cn/post/6844903780895424526#heading-14&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;你的Elasticsearch在&amp;quot;裸奔&amp;quot;吗？&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;而ElaticSearch官方的高级安全服务是收费的，主要给企业提供。但是从6.8和7.1版本开始，基础安全功能就免费了，而且已经集成在里面不用额外安装。&lt;/p&gt;
+&lt;p&gt;除此之外诸如&lt;code&gt;Search Guard&lt;/code&gt;、&lt;code&gt;ReadonlyREST&lt;/code&gt;、&lt;code&gt;Nginx&lt;/code&gt; 等开源免费等方法来达到安全的目的，这里介绍的是使用官方的&lt;code&gt;x-pack&lt;/code&gt;的基础安全功能，对于小项目来说够用了。&lt;/p&gt;
+&lt;p&gt;本文版本为&lt;code&gt;7.10.1&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;修改配置文件&#34;&gt;修改配置文件&lt;/h3&gt;
+&lt;p&gt;在&lt;code&gt;elasticsearch.yml&lt;/code&gt;里新增&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;xpack.security.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;xpack.security.transport.ssl.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后&lt;code&gt;重启&lt;/code&gt; es&lt;/p&gt;
+&lt;h3 id=&#34;在es目录下执行&#34;&gt;在es目录下执行&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;elasticsearch-setup-passwords interactive
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后输入多个用户的密码&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Initiating the setup of passwords &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user.
+You will be prompted to enter passwords as the process progresses.
+Please confirm that you would like to &lt;span class=&#34;k&#34;&gt;continue&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;y/N&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;y
+
+Enter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;elastic&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Reenter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;elastic&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Passwords &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; not match.
+Try again.
+Enter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;elastic&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Reenter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;elastic&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Enter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;apm_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Reenter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;apm_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Enter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;kibana&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Reenter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;kibana&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Enter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;logstash_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Reenter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;logstash_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Enter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;beats_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Reenter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;beats_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Enter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;remote_monitoring_user&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Reenter password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;remote_monitoring_user&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:
+Changed password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;apm_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+Changed password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;kibana&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+Changed password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;logstash_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+Changed password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;beats_system&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+Changed password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;remote_monitoring_user&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+Changed password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;elastic&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;其中&lt;code&gt;elastic&lt;/code&gt;用户相当与es的root用户，之后使用es和kibana需要这个用户的密码&lt;/p&gt;
+&lt;p&gt;设置完重启一下es&lt;/p&gt;
+&lt;h3 id=&#34;测试&#34;&gt;测试&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;curl -GET -u elastic http://&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;ip&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:9200/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;发现提示输入elastic用户的密码&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Enter host password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span class=&#34;s1&#34;&gt;&amp;#39;elastic&amp;#39;&lt;/span&gt;:
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;基本的安全就实现了，之后进一步防止暴力破解密码可以再使用&lt;code&gt;iptables&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;kibana设置&#34;&gt;Kibana设置&lt;/h3&gt;
+&lt;p&gt;修改&lt;code&gt;kibana.yml&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;elasticsearch.username&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;elastic&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;elasticsearch.password&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;[密码]&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;xpack&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;apm.ui.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;graph.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;ml.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;monitoring.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;reporting.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;security.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;   &lt;/span&gt;&lt;span class=&#34;c&#34;&gt;# 这里要打开&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;grokdebugger.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;searchprofiler.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后进入kibana进入登陆界面&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;ElasticSearch%20%E5%AE%89%E5%85%A8%20d5ed4d3e7edc4879bf7a5a55b5c400dc/Untitled.png&#34; alt=&#34;ElasticSearch%20%E5%AE%89%E5%85%A8%20d5ed4d3e7edc4879bf7a5a55b5c400dc/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;用elastic用户和密码登陆即可&lt;/p&gt;
+&lt;h3 id=&#34;代码中配置&#34;&gt;代码中配置&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;Java High Level REST Client&lt;/code&gt;中配置账户和密码&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;final&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CredentialsProvider&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;credentialsProvider&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;BasicCredentialsProvider&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;credentialsProvider&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setCredentials&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;AuthScope&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;ANY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;UsernamePasswordCredentials&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;elastic&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;123456&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;));&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;//es账号密码（默认用户名为elastic）
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;RestHighLevelClient&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;RestHighLevelClient&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;RestClient&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;builder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;
+                    &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpHost&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;localhost&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;9200&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;http&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt;
+                    &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setHttpClientConfigCallback&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;RestClientBuilder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;HttpClientConfigCallback&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                        &lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpAsyncClientBuilder&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;customizeHttpClient&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HttpAsyncClientBuilder&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;httpClientBuilder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                            &lt;span class=&#34;n&#34;&gt;httpClientBuilder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;disableAuthCaching&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                            &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;httpClientBuilder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setDefaultCredentialsProvider&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;credentialsProvider&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+                        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+                    &lt;span class=&#34;o&#34;&gt;}));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;SpringBoot&lt;/code&gt;的配置文件&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;l&#34;&gt;spring.elasticsearch.rest.username=elastic&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;l&#34;&gt;spring.elasticsearch.rest.password=123456&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;修改密码&#34;&gt;修改密码&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;curl -H &lt;span class=&#34;s2&#34;&gt;&amp;#34;Content-Type:application/json&amp;#34;&lt;/span&gt; -XPOST -u elastic &lt;span class=&#34;s1&#34;&gt;&amp;#39;http://127.0.0.1:9200/_xpack/security/user/elastic/_password&amp;#39;&lt;/span&gt; -d &lt;span class=&#34;s1&#34;&gt;&amp;#39;{ &amp;#34;password&amp;#34; : &amp;#34;123456&amp;#34; }&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;结尾&#34;&gt;结尾&lt;/h3&gt;
+&lt;p&gt;这里只是单节点示例，集群以及证书相关可以参看官方文档&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.elastic.co/cn/blog/getting-started-with-elasticsearch-security&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;通过 TLS 加密和基于角色的访问控制确保 Elasticsearch 的安全&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>[Elastic]使用logstash同步MySQL数据</title>
+        <link>https://ccqstark.github.io/p/logstash_mysql/</link>
+        <pubDate>Thu, 28 Jan 2021 21:26:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/logstash_mysql/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/logstash_mysql/logstash-mysql.jpg" alt="Featured image of post [Elastic]使用logstash同步MySQL数据" /&gt;&lt;h2 id=&#34;安装logstash&#34;&gt;安装logstash&lt;/h2&gt;
+&lt;p&gt;在实际项目中使用es进行搜索，我们就要把mysql数据库中的数据同步到es索引库中。进行这项过程的工具很多，比如go-mysql-elasticsearch，canal等等，当然也可以使用ELK组合中的&lt;code&gt;logsatsh&lt;/code&gt; 来完成。这里同样用docker来部署logstash容器。&lt;/p&gt;
+&lt;h3 id=&#34;拉取镜像&#34;&gt;拉取镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull logstash:7.10.1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;启动容器&#34;&gt;启动容器&lt;/h3&gt;
+&lt;p&gt;启动后进入容器内，修改jvm启动的内存设置，地址为&lt;code&gt;/usr/share/logstash/config/jvm.options&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 修改jvm内存分配&lt;/span&gt;
+vi jvm.options
+
+&lt;span class=&#34;c1&#34;&gt;# 修改下面的参数，单位可以为g和m&lt;/span&gt;
+-Xms256m
+-Xmx256m
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;修改后重启容器即可&lt;/p&gt;
+&lt;h3 id=&#34;下载插件与依赖包&#34;&gt;下载插件与依赖包&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; -it logstash bash
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;安装&lt;code&gt;logstash-input-jdbc&lt;/code&gt;插件&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;bin/logstash-plugin install logstash-input-jdbc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果出现以下ERROR，说明logstash里本身已经包含有这个插件了，就无需安装。7.10.1的版本是已经自带了。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;ERROR: Installation aborted, plugin &lt;span class=&#34;s1&#34;&gt;&amp;#39;logstash-input-jdbc&amp;#39;&lt;/span&gt; is already provided by &lt;span class=&#34;s1&#34;&gt;&amp;#39;logstash-integration-jdbc&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;下载mysql-connector-java，也就是jdbc驱动&lt;/p&gt;
+&lt;p&gt;MySQL官方下载地址：&lt;a class=&#34;link&#34; href=&#34;https://downloads.mysql.com/archives/c-j/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://downloads.mysql.com/archives/c-j/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;下载对应版本后本地解压，上传到服务器，然后用&lt;code&gt;docker cp&lt;/code&gt;命令复制到logstash容器中&lt;/p&gt;
+&lt;p&gt;只需要其中的jar包即可&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 把文件复制到容器内&lt;/span&gt;
+docker cp &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;jar包路径&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; logstash:&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器内路径&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在&lt;code&gt;/usr/share/logstash&lt;/code&gt;目录下新建&lt;code&gt;mysql/&lt;/code&gt;目录，把jar包复制到这里&lt;/p&gt;
+&lt;h3 id=&#34;同步配置文件&#34;&gt;同步配置文件&lt;/h3&gt;
+&lt;p&gt;在刚刚的mysql目录下新建&lt;code&gt;jdbc.conf&lt;/code&gt; 文件，来配置同步操作&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;单表同步&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;input &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    jdbc &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# jar包的绝对路径&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;jdbc_driver_library&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;/usr/share/logstash/mysql/mysql-connector-java-5.1.48.jar&amp;#34;&lt;/span&gt;
+    	&lt;span class=&#34;nv&#34;&gt;jdbc_driver_class&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;com.mysql.jdbc.Driver&amp;#34;&lt;/span&gt;
+   	  &lt;span class=&#34;c1&#34;&gt;# 数据库连接信息&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;jdbc_connection_string&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;jdbc:mysql://[ip]:3306/[库名]?characterEncoding=UTF-8&amp;amp;autoReconnect=true&amp;#34;&lt;/span&gt;
+    	&lt;span class=&#34;nv&#34;&gt;jdbc_user&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[mysql用户]&amp;#34;&lt;/span&gt;
+    	&lt;span class=&#34;nv&#34;&gt;jdbc_password&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[密码]&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# cron的定时执行语法一样，默认每分钟同步一次&lt;/span&gt;
+    	&lt;span class=&#34;nv&#34;&gt;schedule&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;* * * * *&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# 执行的sql语句语法，这里是通过将主键大于最后一次同步所记录的值来实现增量同步的&lt;/span&gt;
+    	&lt;span class=&#34;nv&#34;&gt;statement&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;SELECT * FROM activity WHERE activity_id &amp;gt; :sql_last_value order by activity_id asc&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;use_column_value&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# 用来作为增量同步的判断字段，最好为表的主键&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;tracking_column&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;activity_id&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# 是否记录上次执行结果，true表示会将上次执行结果的tracking_column字段的值保存到last_run_metadata_path指定的文件中；&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;record_last_run&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# record_last_run上次数据存放位置&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;last_run_metadata_path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;/usr/share/logstash/mysql/last_id.txt&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# 是否清除last_run_metadata_path的记录，需要增量同步时此字段必须为false&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;clean_run&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+output&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+	elasticsearch&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;hosts&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;[ip]:9200&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;index&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[索引名]&amp;#34;&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;# 数据唯一索引（建议使用数据库KeyID）&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;document_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;%{activity_id}&amp;#34;&lt;/span&gt;
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+  stdout &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt; 
+		&lt;span class=&#34;nv&#34;&gt;codec&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; rubydebug 
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;多表同步&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;多表配置和单表配置的区别在于input模块的jdbc模块有几个type，output模块就需对应有几个type&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;input &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+	stdin &lt;span class=&#34;o&#34;&gt;{}&lt;/span&gt;
+	jdbc &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# 多表同步时，表类型区分，建议命名为“库名_表名”，每个jdbc模块需对应一个type；&lt;/span&gt;
+		&lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;TestDB_DetailTab&amp;#34;&lt;/span&gt;
+		
+		 &lt;span class=&#34;c1&#34;&gt;# 其他配置此处省略，参考单表配置&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# ...&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# ...&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# record_last_run上次数据存放位置；&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;last_run_metadata_path&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;mysql\last_id.txt&amp;#34;&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# 是否清除last_run_metadata_path的记录，需要增量同步时此字段必须为false；&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;clean_run&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;#&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# 同步频率(分 时 天 月 年)，默认每分钟同步一次；&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;schedule&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;* * * * *&amp;#34;&lt;/span&gt;
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+	jdbc &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# 多表同步时，表类型区分，建议命名为“库名_表名”，每个jdbc模块需对应一个type；&lt;/span&gt;
+		&lt;span class=&#34;nb&#34;&gt;type&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;TestDB_Tab2&amp;#34;&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;# 多表同步时，last_run_metadata_path配置的路径应不一致，避免有影响；&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# 其他配置此处省略&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# ...&lt;/span&gt;
+		 &lt;span class=&#34;c1&#34;&gt;# ...&lt;/span&gt;
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+filter &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+	json &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;message&amp;#34;&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;remove_field&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;message&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+output &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;# output模块的type需和jdbc模块的type一致&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;type&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;TestDB_DetailTab&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		elasticsearch &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+			 &lt;span class=&#34;c1&#34;&gt;# host =&amp;gt; &amp;#34;192.168.1.1&amp;#34;&lt;/span&gt;
+			 &lt;span class=&#34;c1&#34;&gt;# port =&amp;gt; &amp;#34;9200&amp;#34;&lt;/span&gt;
+			 &lt;span class=&#34;c1&#34;&gt;# 配置ES集群地址&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;hosts&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.1:9200&amp;#34;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.2:9200&amp;#34;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.3:9200&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+			 &lt;span class=&#34;c1&#34;&gt;# 索引名字，必须小写&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;index&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;detailtab1&amp;#34;&lt;/span&gt;
+			 &lt;span class=&#34;c1&#34;&gt;# 数据唯一索引（建议使用数据库KeyID）&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;document_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;%{KeyId}&amp;#34;&lt;/span&gt;
+		&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;type&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;TestDB_Tab2&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		elasticsearch &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# host =&amp;gt; &amp;#34;192.168.1.1&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# port =&amp;gt; &amp;#34;9200&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# 配置ES集群地址&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;hosts&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.1:9200&amp;#34;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.2:9200&amp;#34;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;#34;192.168.1.3:9200&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# 索引名字，必须小写&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;index&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;detailtab2&amp;#34;&lt;/span&gt;
+			&lt;span class=&#34;c1&#34;&gt;# 数据唯一索引（建议使用数据库KeyID）&lt;/span&gt;
+			&lt;span class=&#34;nv&#34;&gt;document_id&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;%{KeyId}&amp;#34;&lt;/span&gt;
+		&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+	stdout &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nv&#34;&gt;codec&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;gt; json_lines
+	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;为了统一，把数据也放这个目录下，在mysql目录下再新建目录&lt;code&gt;data&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;mkdir data
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;启动logstash同步&#34;&gt;启动logstash同步&lt;/h3&gt;
+&lt;p&gt;cd回到&lt;code&gt;/usr/share/logstash&lt;/code&gt;目录，启动同步&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;./bin/logstash -f mysql/jdbc.conf --path.data&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/share/logstash/mysql/data/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;注意，要保证给elasticsearch的分配的内存足够大才行，测试用的256m是不够的，会导致es容器退出，至少给个1g&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;—-path.data&lt;/code&gt;参数用来设置同步数据存放的位置&lt;/p&gt;
+&lt;p&gt;启动之后控制台会打印出大概以下信息&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Using bundled JDK: /usr/share/logstash/jdk
+OpenJDK 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.jruby.ext.openssl.SecurityHelper &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;file:/tmp/jruby-423/jruby7667758569951782495jopenssl.jar&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; to field java.security.MessageDigest.provider
+WARNING: Please consider reporting this to the maintainers of org.jruby.ext.openssl.SecurityHelper
+WARNING: Use --illegal-access&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;warn to &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;开始同步会打印出从数据库读取的，插入到elasticsearch的信息&lt;/p&gt;
+&lt;p&gt;实际使用中用&lt;code&gt;nohup&lt;/code&gt; 来保持后台运行&lt;/p&gt;
+&lt;h3 id=&#34;缺点&#34;&gt;缺点&lt;/h3&gt;
+&lt;p&gt;logstash的缺点很明显，就是只能同步mysql中新增的数据，对于更改的、删除的就无能为力了。这其实也很好理解，ELK其实本来就是用来收集与分析日志的，而同步增加的数据已经足够了。&lt;/p&gt;
+&lt;p&gt;我觉得es与mysql最好的同步工具其实是阿里的开源的&lt;code&gt;canal&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/alibaba/canal&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;alibaba/canal&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>[Elastic]使用docker安装ElasticSearch &#43; Kibana</title>
+        <link>https://ccqstark.github.io/p/es_docker/</link>
+        <pubDate>Wed, 27 Jan 2021 21:26:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/es_docker/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/es_docker/elastic-docker.png" alt="Featured image of post [Elastic]使用docker安装ElasticSearch &#43; Kibana" /&gt;&lt;h2 id=&#34;安装elasticsearch&#34;&gt;安装ElasticSearch&lt;/h2&gt;
+&lt;h3 id=&#34;拉取镜像&#34;&gt;拉取镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull elasticsearch:7.10.1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;启动容器&#34;&gt;启动容器&lt;/h3&gt;
+&lt;p&gt;同时挂载目录（包括配置文件和data）（挂载出来的位置自己定义）&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e &lt;span class=&#34;nv&#34;&gt;ES_JAVA_OPTS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;-Xms256m -Xmx256m&amp;#34;&lt;/span&gt; -d &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /home/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /home/es/data:/usr/share/elasticsearch/data elasticsearch:7.10.1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;注意这里还设置了&lt;code&gt;JVM的内存&lt;/code&gt;大小，默认为2G，有点大，很可能会因为内存不够而无法正常启动。可以像我这里改为256m或者其他值。&lt;/p&gt;
+&lt;h3 id=&#34;可能出现的错误&#34;&gt;可能出现的错误&lt;/h3&gt;
+&lt;p&gt;查看容器日志&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker logs elasticsearch
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果出现以下错误&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;max virtual memory areas vm.max_map_count &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;65530&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; is too low, increase to at least &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;262144&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;则要修改服务器配置&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;vim /etc/sysctl.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;添加这行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;vm.max_map_count&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;262144&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;立即生效, 执行：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;/sbin/sysctl -p
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;对挂载的宿主机data目录可能出现权限不足问题&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;chmod &lt;span class=&#34;m&#34;&gt;777&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;宿主机data目录&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;配置跨域&#34;&gt;配置跨域&lt;/h3&gt;
+&lt;p&gt;到挂载出来到位置编辑配置文件&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;vim elasticsearch.yml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;添加以下几行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;network.host&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;m&#34;&gt;0.0.0.0&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;discovery.type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;single-node&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;http.cors.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;http.cors.allow-origin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;*&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;同时安全组和防火墙记得打开对应端口&lt;/p&gt;
+&lt;h3 id=&#34;记得每次修改完配置都要重启&#34;&gt;记得每次修改完配置都要重启&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker restart elasticsearch
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;浏览器访问测试&#34;&gt;浏览器访问测试&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;http://&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;IP&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:9200
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;看到类似以下的json就成功了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;8c819d377714&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;cluster_name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;elasticsearch&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;cluster_uuid&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;-AkgwTlbS1SsjvzNtG45nw&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;version&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;number&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;7.10.1&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;build_flavor&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;default&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;build_type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;docker&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;build_hash&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;1c34507e66d7db1211f66f3513706fdf548736aa&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;build_date&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;2020-12-05T01:00:33.671820Z&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;build_snapshot&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;lucene_version&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;8.7.0&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;minimum_wire_compatibility_version&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;6.8.0&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;minimum_index_compatibility_version&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;6.0.0-beta1&amp;#34;&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+	&lt;span class=&#34;nt&#34;&gt;&amp;#34;tagline&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;You Know, for Search&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;安装elasticsearch-head&#34;&gt;安装elasticsearch-head&lt;/h2&gt;
+&lt;h3 id=&#34;拉取镜像-1&#34;&gt;拉取镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull mobz/elasticsearch-head:5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;启动容器-1&#34;&gt;启动容器&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run -it -d --name head -p 9100:9100 mobz/elasticsearch-head:5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;浏览器打开&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;http://&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;ip&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:9100/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在上面集群连接处的输入框输入elasticsearch的地址&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;http://&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;IP&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:9200
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后点击连接，右边的&lt;code&gt;集群健康值&lt;/code&gt;字样出现绿色背景代表成功连接&lt;/p&gt;
+&lt;h2 id=&#34;安装kibana&#34;&gt;安装Kibana&lt;/h2&gt;
+&lt;h3 id=&#34;拉取镜像-2&#34;&gt;拉取镜像&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker pull kibana:7.10.1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;注意版本和ES的要对应&lt;/p&gt;
+&lt;h3 id=&#34;配置文件kibanayml&#34;&gt;配置文件kibana.yml&lt;/h3&gt;
+&lt;p&gt;为了挂载配置文件，我们先在本机创建一个配置文件，这里以&lt;code&gt;/home/kibana/config/kibana.yml&lt;/code&gt; 为例&lt;/p&gt;
+&lt;p&gt;配置文件中写入&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;server.host&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;elasticsearch.hosts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;http://[ip地址]:9200/&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;xpack&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;apm.ui.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;graph.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;ml.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;monitoring.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;reporting.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;security.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;grokdebugger.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;searchprofiler.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;启动容器-2&#34;&gt;启动容器&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run -d -it &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;--name kibana -p 5601:5601 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;-v /home/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml kibana:7.10.1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;浏览器打开&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;http://&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;ip&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:5601/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;安装ik分词器&#34;&gt;安装ik分词器&lt;/h3&gt;
+&lt;p&gt;首先进入es的容器内&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; -it elasticsearch /bin/bash
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;使用bin目录下的elasticsearch-plugin install安装ik分词器插件（注意版本要对应）&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# github官方&lt;/span&gt;
+bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.1/elasticsearch-analysis-ik-7.10.1.zip
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里可能会很慢，可以用镜像加速&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 镜像加速&lt;/span&gt;
+bin/elasticsearch-plugin install https://github.91chifun.workers.dev//https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.1/elasticsearch-analysis-ik-7.10.1.zip
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;也可以选择本地下载解压完再上传到服务器，再把它移动到容器内的plugins文件夹里&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;然后重启容器&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker restart elasticsearch
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;在kibana中测试&#34;&gt;在kibana中测试&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;GET _analyze
+&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+  &lt;span class=&#34;s2&#34;&gt;&amp;#34;analyzer&amp;#34;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;#34;ik_max_word&amp;#34;&lt;/span&gt;,
+  &lt;span class=&#34;s2&#34;&gt;&amp;#34;text&amp;#34;&lt;/span&gt;: &lt;span class=&#34;s2&#34;&gt;&amp;#34;各地校车将享最高路权&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;有&lt;code&gt;ik_smart&lt;/code&gt; 和 &lt;code&gt;ik_max_word&lt;/code&gt; 两种模式，分别是&lt;code&gt;最粗粒度的拆分&lt;/code&gt;和&lt;code&gt;最细粒度的拆分&lt;/code&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>Alfred &#43; iTerm2 快速ssh连接服务器</title>
         <link>https://ccqstark.github.io/p/alfred_iterm/</link>
         <pubDate>Sun, 10 Jan 2021 16:35:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/alfred_iterm/</guid>
-        <description>&lt;p&gt;为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入&lt;code&gt;ssh [主机名]&lt;/code&gt; 就可以快速连上了，效果如下图：&lt;/p&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/alfred_iterm/ssh.png" alt="Featured image of post Alfred &#43; iTerm2 快速ssh连接服务器" /&gt;&lt;p&gt;为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入&lt;code&gt;ssh [主机名]&lt;/code&gt; 就可以快速连上了，效果如下图：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png&#34;  /&gt;&lt;/p&gt;
 &lt;h3 id=&#34;使用ssh-config&#34;&gt;使用ssh config&lt;/h3&gt;
 &lt;p&gt;在&lt;code&gt;~/.ssh/config&lt;/code&gt;文件里添加服务器信息，没有的话就新建一个&lt;/p&gt;

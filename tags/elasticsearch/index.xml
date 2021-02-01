@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ElasticSearch on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/elasticsearch/</link>
+    <description>Recent content in ElasticSearch on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 29 Jan 2021 21:26:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/elasticsearch/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[Elastic]ElasticSearch 安全</title>
+      <link>https://ccqstark.github.io/p/x_pack/</link>
+      <pubDate>Fri, 29 Jan 2021 21:26:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/x_pack/</guid>
+      <description>ElacticSearch索引中有大量的数据，如果没有一些安全措施的话会让系统处于一个十分危险的处境，引发的相关安全事件可以看看这篇文章。
+你的Elasticsearch在&amp;quot;裸奔&amp;quot;吗？
+而ElaticSearch官方的高级安全服务是收费的，主要给企业提供。但是从6.8和7.1版本开始，基础安全功能就免费了，而且已经集成在里面不用额外安装。
+除此之外诸如Search Guard、ReadonlyREST、Nginx 等开源免费等方法来达到安全的目的，这里介绍的是使用官方的x-pack的基础安全功能，对于小项目来说够用了。
+本文版本为7.10.1
+修改配置文件 在elasticsearch.yml里新增
+xpack.security.enabled:truexpack.security.transport.ssl.enabled:true之后重启 es
+在es目录下执行 elasticsearch-setup-passwords interactive 然后输入多个用户的密码
+Initiating the setup of passwords for reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user. You will be prompted to enter passwords as the process progresses. Please confirm that you would like to continue [y/N]y Enter password for [elastic]: Reenter password for [elastic]: Passwords do not match. Try again. Enter password for [elastic]: Reenter password for [elastic]: Enter password for [apm_system]: Reenter password for [apm_system]: Enter password for [kibana]: Reenter password for [kibana]: Enter password for [logstash_system]: Reenter password for [logstash_system]: Enter password for [beats_system]: Reenter password for [beats_system]: Enter password for [remote_monitoring_user]: Reenter password for [remote_monitoring_user]: Changed password for user [apm_system] Changed password for user [kibana] Changed password for user [logstash_system] Changed password for user [beats_system] Changed password for user [remote_monitoring_user] Changed password for user [elastic] 其中elastic用户相当与es的root用户，之后使用es和kibana需要这个用户的密码</description>
+    </item>
+    
+    <item>
+      <title>[Elastic]使用logstash同步MySQL数据</title>
+      <link>https://ccqstark.github.io/p/logstash_mysql/</link>
+      <pubDate>Thu, 28 Jan 2021 21:26:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/logstash_mysql/</guid>
+      <description>安装logstash 在实际项目中使用es进行搜索，我们就要把mysql数据库中的数据同步到es索引库中。进行这项过程的工具很多，比如go-mysql-elasticsearch，canal等等，当然也可以使用ELK组合中的logsatsh 来完成。这里同样用docker来部署logstash容器。
+拉取镜像 docker pull logstash:7.10.1 启动容器 启动后进入容器内，修改jvm启动的内存设置，地址为/usr/share/logstash/config/jvm.options
+# 修改jvm内存分配 vi jvm.options # 修改下面的参数，单位可以为g和m -Xms256m -Xmx256m 修改后重启容器即可
+下载插件与依赖包 docker exec -it logstash bash 安装logstash-input-jdbc插件
+bin/logstash-plugin install logstash-input-jdbc 如果出现以下ERROR，说明logstash里本身已经包含有这个插件了，就无需安装。7.10.1的版本是已经自带了。
+ERROR: Installation aborted, plugin &amp;#39;logstash-input-jdbc&amp;#39; is already provided by &amp;#39;logstash-integration-jdbc&amp;#39; 下载mysql-connector-java，也就是jdbc驱动
+MySQL官方下载地址：https://downloads.mysql.com/archives/c-j/
+下载对应版本后本地解压，上传到服务器，然后用docker cp命令复制到logstash容器中
+只需要其中的jar包即可
+# 把文件复制到容器内 docker cp [jar包路径] logstash:[容器内路径] 在/usr/share/logstash目录下新建mysql/目录，把jar包复制到这里
+同步配置文件 在刚刚的mysql目录下新建jdbc.conf 文件，来配置同步操作
+ 单表同步  input { jdbc { # jar包的绝对路径 jdbc_driver_library =&amp;gt; &amp;#34;/usr/share/logstash/mysql/mysql-connector-java-5.1.48.jar&amp;#34; jdbc_driver_class =&amp;gt; &amp;#34;com.mysql.jdbc.Driver&amp;#34; # 数据库连接信息 jdbc_connection_string =&amp;gt; &amp;#34;jdbc:mysql://[ip]:3306/[库名]?</description>
+    </item>
+    
+    <item>
+      <title>[Elastic]使用docker安装ElasticSearch &#43; Kibana</title>
+      <link>https://ccqstark.github.io/p/es_docker/</link>
+      <pubDate>Wed, 27 Jan 2021 21:26:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/es_docker/</guid>
+      <description>安装ElasticSearch 拉取镜像 docker pull elasticsearch:7.10.1 启动容器 同时挂载目录（包括配置文件和data）（挂载出来的位置自己定义）
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e ES_JAVA_OPTS=&amp;#34;-Xms256m -Xmx256m&amp;#34; -d \ -v /home/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \ -v /home/es/data:/usr/share/elasticsearch/data elasticsearch:7.10.1 注意这里还设置了JVM的内存大小，默认为2G，有点大，很可能会因为内存不够而无法正常启动。可以像我这里改为256m或者其他值。
+可能出现的错误 查看容器日志
+docker logs elasticsearch 如果出现以下错误
+max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144] 则要修改服务器配置
+vim /etc/sysctl.conf 添加这行
+vm.max_map_count=262144 立即生效, 执行：
+/sbin/sysctl -p 对挂载的宿主机data目录可能出现权限不足问题
+chmod 777 [宿主机data目录] 配置跨域 到挂载出来到位置编辑配置文件
+vim elasticsearch.yml 添加以下几行
+network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.allow-origin:&amp;#34;*&amp;#34;同时安全组和防火墙记得打开对应端口
+记得每次修改完配置都要重启 docker restart elasticsearch 浏览器访问测试 http://[IP]:9200 看到类似以下的json就成功了</description>
+    </item>
+    
+  </channel>
+</rss>

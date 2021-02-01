@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='ElacticSearch索引中有大量的数据，如果没有一些安全措施的话会让系统处于一个十分危险的处境，引发的相关安全事件可以看看这篇文章。
+你的Elasticsearch在&amp;quot;裸奔&amp;quot;吗？
+而ElaticSearch官方的高级安全服务是收费的，主要给企业提供。但是从6.8和7.1版本开始，基础安全功能就免费了，而且已经集成在里面不用额外安装。
+除此之外诸如Search Guard、ReadonlyREST、Nginx 等开源免费等方法来达到安全的目的，这里介绍的是使用官方的x-pack的基础安全功能，对于小项目来说够用了。
+本文版本为7.10.1
+修改配置文件 在elasticsearch.yml里新增
+xpack.security.enabled:truexpack.security.transport.ssl.enabled:true之后重启 es
+在es目录下执行 elasticsearch-setup-passwords interactive 然后输入多个用户的密码
+Initiating the setup of passwords for reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user. You will be prompted to enter passwords as the process progresses. Please confirm that you would like to continue [y/N]y Enter password for [elastic]: Reenter password for [elastic]: Passwords do not match. Try again. Enter password for [elastic]: Reenter password for [elastic]: Enter password for [apm_system]: Reenter password for [apm_system]: Enter password for [kibana]: Reenter password for [kibana]: Enter password for [logstash_system]: Reenter password for [logstash_system]: Enter password for [beats_system]: Reenter password for [beats_system]: Enter password for [remote_monitoring_user]: Reenter password for [remote_monitoring_user]: Changed password for user [apm_system] Changed password for user [kibana] Changed password for user [logstash_system] Changed password for user [beats_system] Changed password for user [remote_monitoring_user] Changed password for user [elastic] 其中elastic用户相当与es的root用户，之后使用es和kibana需要这个用户的密码'><title>[Elastic]ElasticSearch 安全</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/x_pack/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[Elastic]ElasticSearch 安全'>
+<meta property='og:description' content='ElacticSearch索引中有大量的数据，如果没有一些安全措施的话会让系统处于一个十分危险的处境，引发的相关安全事件可以看看这篇文章。
+你的Elasticsearch在&amp;quot;裸奔&amp;quot;吗？
+而ElaticSearch官方的高级安全服务是收费的，主要给企业提供。但是从6.8和7.1版本开始，基础安全功能就免费了，而且已经集成在里面不用额外安装。
+除此之外诸如Search Guard、ReadonlyREST、Nginx 等开源免费等方法来达到安全的目的，这里介绍的是使用官方的x-pack的基础安全功能，对于小项目来说够用了。
+本文版本为7.10.1
+修改配置文件 在elasticsearch.yml里新增
+xpack.security.enabled:truexpack.security.transport.ssl.enabled:true之后重启 es
+在es目录下执行 elasticsearch-setup-passwords interactive 然后输入多个用户的密码
+Initiating the setup of passwords for reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user. You will be prompted to enter passwords as the process progresses. Please confirm that you would like to continue [y/N]y Enter password for [elastic]: Reenter password for [elastic]: Passwords do not match. Try again. Enter password for [elastic]: Reenter password for [elastic]: Enter password for [apm_system]: Reenter password for [apm_system]: Enter password for [kibana]: Reenter password for [kibana]: Enter password for [logstash_system]: Reenter password for [logstash_system]: Enter password for [beats_system]: Reenter password for [beats_system]: Enter password for [remote_monitoring_user]: Reenter password for [remote_monitoring_user]: Changed password for user [apm_system] Changed password for user [kibana] Changed password for user [logstash_system] Changed password for user [beats_system] Changed password for user [remote_monitoring_user] Changed password for user [elastic] 其中elastic用户相当与es的root用户，之后使用es和kibana需要这个用户的密码'>
+<meta property='og:url' content='https://ccqstark.github.io/p/x_pack/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ElasticSearch' /><meta property='article:published_time' content='2021-01-29T21:26:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-29T21:26:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/x_pack/x-pack.png' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[Elastic]ElasticSearch 安全">
+<meta name="twitter:description" content="ElacticSearch索引中有大量的数据，如果没有一些安全措施的话会让系统处于一个十分危险的处境，引发的相关安全事件可以看看这篇文章。
+你的Elasticsearch在&amp;quot;裸奔&amp;quot;吗？
+而ElaticSearch官方的高级安全服务是收费的，主要给企业提供。但是从6.8和7.1版本开始，基础安全功能就免费了，而且已经集成在里面不用额外安装。
+除此之外诸如Search Guard、ReadonlyREST、Nginx 等开源免费等方法来达到安全的目的，这里介绍的是使用官方的x-pack的基础安全功能，对于小项目来说够用了。
+本文版本为7.10.1
+修改配置文件 在elasticsearch.yml里新增
+xpack.security.enabled:truexpack.security.transport.ssl.enabled:true之后重启 es
+在es目录下执行 elasticsearch-setup-passwords interactive 然后输入多个用户的密码
+Initiating the setup of passwords for reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user. You will be prompted to enter passwords as the process progresses. Please confirm that you would like to continue [y/N]y Enter password for [elastic]: Reenter password for [elastic]: Passwords do not match. Try again. Enter password for [elastic]: Reenter password for [elastic]: Enter password for [apm_system]: Reenter password for [apm_system]: Enter password for [kibana]: Reenter password for [kibana]: Enter password for [logstash_system]: Reenter password for [logstash_system]: Enter password for [beats_system]: Reenter password for [beats_system]: Enter password for [remote_monitoring_user]: Reenter password for [remote_monitoring_user]: Changed password for user [apm_system] Changed password for user [kibana] Changed password for user [logstash_system] Changed password for user [beats_system] Changed password for user [remote_monitoring_user] Changed password for user [elastic] 其中elastic用户相当与es的root用户，之后使用es和kibana需要这个用户的密码"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/x_pack/x-pack.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/x_pack/">
+                <img src="/p/x_pack/x-pack_huc4207ebc9b333ece948f0ec8e981e0d7_15854_800x0_resize_box_2.png"
+                        srcset="/p/x_pack/x-pack_huc4207ebc9b333ece948f0ec8e981e0d7_15854_800x0_resize_box_2.png 800w, /p/x_pack/x-pack_huc4207ebc9b333ece948f0ec8e981e0d7_15854_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="248" 
+                        loading="lazy"
+                        alt="Featured image of post [Elastic]ElasticSearch 安全" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" >
+                环境搭建
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/x_pack/">[Elastic]ElasticSearch 安全</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 29, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <p>ElacticSearch索引中有大量的数据，如果没有一些安全措施的话会让系统处于一个十分危险的处境，引发的相关安全事件可以看看这篇文章。</p>
+<p><a class="link" href="https://juejin.cn/post/6844903780895424526#heading-14"  target="_blank" rel="noopener"
+    >你的Elasticsearch在&quot;裸奔&quot;吗？</a></p>
+<p>而ElaticSearch官方的高级安全服务是收费的，主要给企业提供。但是从6.8和7.1版本开始，基础安全功能就免费了，而且已经集成在里面不用额外安装。</p>
+<p>除此之外诸如<code>Search Guard</code>、<code>ReadonlyREST</code>、<code>Nginx</code> 等开源免费等方法来达到安全的目的，这里介绍的是使用官方的<code>x-pack</code>的基础安全功能，对于小项目来说够用了。</p>
+<p>本文版本为<code>7.10.1</code></p>
+<h3 id="修改配置文件">修改配置文件</h3>
+<p>在<code>elasticsearch.yml</code>里新增</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">xpack.security.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w"></span><span class="nt">xpack.security.transport.ssl.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></code></pre></div><p>之后<code>重启</code> es</p>
+<h3 id="在es目录下执行">在es目录下执行</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">elasticsearch-setup-passwords interactive
+</code></pre></div><p>然后输入多个用户的密码</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Initiating the setup of passwords <span class="k">for</span> reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user.
+You will be prompted to enter passwords as the process progresses.
+Please confirm that you would like to <span class="k">continue</span> <span class="o">[</span>y/N<span class="o">]</span>y
+
+Enter password <span class="k">for</span> <span class="o">[</span>elastic<span class="o">]</span>:
+Reenter password <span class="k">for</span> <span class="o">[</span>elastic<span class="o">]</span>:
+Passwords <span class="k">do</span> not match.
+Try again.
+Enter password <span class="k">for</span> <span class="o">[</span>elastic<span class="o">]</span>:
+Reenter password <span class="k">for</span> <span class="o">[</span>elastic<span class="o">]</span>:
+Enter password <span class="k">for</span> <span class="o">[</span>apm_system<span class="o">]</span>:
+Reenter password <span class="k">for</span> <span class="o">[</span>apm_system<span class="o">]</span>:
+Enter password <span class="k">for</span> <span class="o">[</span>kibana<span class="o">]</span>:
+Reenter password <span class="k">for</span> <span class="o">[</span>kibana<span class="o">]</span>:
+Enter password <span class="k">for</span> <span class="o">[</span>logstash_system<span class="o">]</span>:
+Reenter password <span class="k">for</span> <span class="o">[</span>logstash_system<span class="o">]</span>:
+Enter password <span class="k">for</span> <span class="o">[</span>beats_system<span class="o">]</span>:
+Reenter password <span class="k">for</span> <span class="o">[</span>beats_system<span class="o">]</span>:
+Enter password <span class="k">for</span> <span class="o">[</span>remote_monitoring_user<span class="o">]</span>:
+Reenter password <span class="k">for</span> <span class="o">[</span>remote_monitoring_user<span class="o">]</span>:
+Changed password <span class="k">for</span> user <span class="o">[</span>apm_system<span class="o">]</span>
+Changed password <span class="k">for</span> user <span class="o">[</span>kibana<span class="o">]</span>
+Changed password <span class="k">for</span> user <span class="o">[</span>logstash_system<span class="o">]</span>
+Changed password <span class="k">for</span> user <span class="o">[</span>beats_system<span class="o">]</span>
+Changed password <span class="k">for</span> user <span class="o">[</span>remote_monitoring_user<span class="o">]</span>
+Changed password <span class="k">for</span> user <span class="o">[</span>elastic<span class="o">]</span>
+</code></pre></div><p>其中<code>elastic</code>用户相当与es的root用户，之后使用es和kibana需要这个用户的密码</p>
+<p>设置完重启一下es</p>
+<h3 id="测试">测试</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">curl -GET -u elastic http://<span class="o">[</span>ip<span class="o">]</span>:9200/
+</code></pre></div><p>发现提示输入elastic用户的密码</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Enter host password <span class="k">for</span> user <span class="s1">&#39;elastic&#39;</span>:
+</code></pre></div><p>基本的安全就实现了，之后进一步防止暴力破解密码可以再使用<code>iptables</code></p>
+<h3 id="kibana设置">Kibana设置</h3>
+<p>修改<code>kibana.yml</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">elasticsearch.username</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;elastic&#34;</span><span class="w">
+</span><span class="w"></span><span class="nt">elasticsearch.password</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;[密码]&#34;</span><span class="w">
+</span><span class="w"></span><span class="nt">xpack</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">apm.ui.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">graph.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">ml.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">monitoring.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">reporting.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">security.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">   </span><span class="c"># 这里要打开</span><span class="w">
+</span><span class="w">  </span><span class="nt">grokdebugger.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">searchprofiler.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></code></pre></div><p>之后进入kibana进入登陆界面</p>
+<p><img src="ElasticSearch%20%E5%AE%89%E5%85%A8%20d5ed4d3e7edc4879bf7a5a55b5c400dc/Untitled.png" alt="ElasticSearch%20%E5%AE%89%E5%85%A8%20d5ed4d3e7edc4879bf7a5a55b5c400dc/Untitled.png"  /></p>
+<p>用elastic用户和密码登陆即可</p>
+<h3 id="代码中配置">代码中配置</h3>
+<p><code>Java High Level REST Client</code>中配置账户和密码</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">final</span> <span class="n">CredentialsProvider</span> <span class="n">credentialsProvider</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicCredentialsProvider</span><span class="o">();</span>
+    <span class="n">credentialsProvider</span><span class="o">.</span><span class="na">setCredentials</span><span class="o">(</span><span class="n">AuthScope</span><span class="o">.</span><span class="na">ANY</span><span class="o">,</span>
+            <span class="k">new</span> <span class="n">UsernamePasswordCredentials</span><span class="o">(</span><span class="s">&#34;elastic&#34;</span><span class="o">,</span> <span class="s">&#34;123456&#34;</span><span class="o">));</span>  <span class="c1">//es账号密码（默认用户名为elastic）
+</span><span class="c1"></span>    <span class="n">RestHighLevelClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RestHighLevelClient</span><span class="o">(</span>
+            <span class="n">RestClient</span><span class="o">.</span><span class="na">builder</span><span class="o">(</span>
+                    <span class="k">new</span> <span class="n">HttpHost</span><span class="o">(</span><span class="s">&#34;localhost&#34;</span><span class="o">,</span> <span class="n">9200</span><span class="o">,</span> <span class="s">&#34;http&#34;</span><span class="o">))</span>
+                    <span class="o">.</span><span class="na">setHttpClientConfigCallback</span><span class="o">(</span><span class="k">new</span> <span class="n">RestClientBuilder</span><span class="o">.</span><span class="na">HttpClientConfigCallback</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="kd">public</span> <span class="n">HttpAsyncClientBuilder</span> <span class="nf">customizeHttpClient</span><span class="o">(</span><span class="n">HttpAsyncClientBuilder</span> <span class="n">httpClientBuilder</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="n">httpClientBuilder</span><span class="o">.</span><span class="na">disableAuthCaching</span><span class="o">();</span>
+                            <span class="k">return</span> <span class="n">httpClientBuilder</span><span class="o">.</span><span class="na">setDefaultCredentialsProvider</span><span class="o">(</span><span class="n">credentialsProvider</span><span class="o">);</span>
+                        <span class="o">}</span>
+                    <span class="o">}));</span>
+</code></pre></div><p><code>SpringBoot</code>的配置文件</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">spring.elasticsearch.rest.username=elastic</span><span class="w">
+</span><span class="w"></span><span class="l">spring.elasticsearch.rest.password=123456</span><span class="w">
+</span></code></pre></div><h3 id="修改密码">修改密码</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">curl -H <span class="s2">&#34;Content-Type:application/json&#34;</span> -XPOST -u elastic <span class="s1">&#39;http://127.0.0.1:9200/_xpack/security/user/elastic/_password&#39;</span> -d <span class="s1">&#39;{ &#34;password&#34; : &#34;123456&#34; }&#39;</span>
+</code></pre></div><h3 id="结尾">结尾</h3>
+<p>这里只是单节点示例，集群以及证书相关可以参看官方文档</p>
+<p><a class="link" href="https://www.elastic.co/cn/blog/getting-started-with-elasticsearch-security"  target="_blank" rel="noopener"
+    >通过 TLS 加密和基于角色的访问控制确保 Elasticsearch 的安全</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/elasticsearch/">ElasticSearch</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/logstash_mysql/">
+        
+        
+            <div class="article-image">
+                <img src="/p/logstash_mysql/logstash-mysql.4f6b8497a2d0608059a79ee135e80e84_hubd922da79b2e986df34a25cd755e9ffb_77309_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="logstash_mysql" 
+                        data-hash="md5-T2uEl6LQYIBZp57hNegOhA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Elastic]使用logstash同步MySQL数据</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_docker/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_docker/elastic-docker.4df36a868a6a3cf5be844cd3edd50e34_hu1fc05f09d19ffda9f7576c23f66afe5c_19136_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_docker" 
+                        data-hash="md5-TfNqhopqPPW&#43;hEzT7dUONA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Elastic]使用docker安装ElasticSearch &#43; Kibana</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/jenkins_docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/jenkins_docker_springboot/_huac9b8bcc40d9704ef8edb1ad38827231_44206_1f1ecbdac38a70a8bd0879fdc08cabc9.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="jenkins_docker_springboot" 
+                        data-hash="md5-M1AcdQJqERUBr2POFbEQbw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Jenkins &#43; docker &#43; springboot 完美配合全流程教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_nginx/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_nginx/nginx-docker.23dd1d5d655b0db04797a64df73e9106_hu2ff739cd1ceaefb705a9e30c4218e66c_86441_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_nginx" 
+                        data-hash="md5-I90dXWVbDbBHl6ZN9z6RBg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署nginx</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_springboot/docker-springboot.180380aae35bb65f058f26374c2966a0_hu705e70abdc72815dabd2267940e19d94_40186_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_springboot" 
+                        data-hash="md5-GAOAquNbtl8FjyY3TClmoA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署SpringBoot项目</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

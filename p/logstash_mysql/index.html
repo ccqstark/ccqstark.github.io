@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='安装logstash 在实际项目中使用es进行搜索，我们就要把mysql数据库中的数据同步到es索引库中。进行这项过程的工具很多，比如go-mysql-elasticsearch，canal等等，当然也可以使用ELK组合中的logsatsh 来完成。这里同样用docker来部署logstash容器。
+拉取镜像 docker pull logstash:7.10.1 启动容器 启动后进入容器内，修改jvm启动的内存设置，地址为/usr/share/logstash/config/jvm.options
+# 修改jvm内存分配 vi jvm.options # 修改下面的参数，单位可以为g和m -Xms256m -Xmx256m 修改后重启容器即可
+下载插件与依赖包 docker exec -it logstash bash 安装logstash-input-jdbc插件
+bin/logstash-plugin install logstash-input-jdbc 如果出现以下ERROR，说明logstash里本身已经包含有这个插件了，就无需安装。7.10.1的版本是已经自带了。
+ERROR: Installation aborted, plugin &amp;#39;logstash-input-jdbc&amp;#39; is already provided by &amp;#39;logstash-integration-jdbc&amp;#39; 下载mysql-connector-java，也就是jdbc驱动
+MySQL官方下载地址：https://downloads.mysql.com/archives/c-j/
+下载对应版本后本地解压，上传到服务器，然后用docker cp命令复制到logstash容器中
+只需要其中的jar包即可
+# 把文件复制到容器内 docker cp [jar包路径] logstash:[容器内路径] 在/usr/share/logstash目录下新建mysql/目录，把jar包复制到这里
+同步配置文件 在刚刚的mysql目录下新建jdbc.conf 文件，来配置同步操作
+ 单表同步  input { jdbc { # jar包的绝对路径 jdbc_driver_library =&amp;gt; &amp;#34;/usr/share/logstash/mysql/mysql-connector-java-5.1.48.jar&amp;#34; jdbc_driver_class =&amp;gt; &amp;#34;com.mysql.jdbc.Driver&amp;#34; # 数据库连接信息 jdbc_connection_string =&amp;gt; &amp;#34;jdbc:mysql://[ip]:3306/[库名]?'><title>[Elastic]使用logstash同步MySQL数据</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/logstash_mysql/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[Elastic]使用logstash同步MySQL数据'>
+<meta property='og:description' content='安装logstash 在实际项目中使用es进行搜索，我们就要把mysql数据库中的数据同步到es索引库中。进行这项过程的工具很多，比如go-mysql-elasticsearch，canal等等，当然也可以使用ELK组合中的logsatsh 来完成。这里同样用docker来部署logstash容器。
+拉取镜像 docker pull logstash:7.10.1 启动容器 启动后进入容器内，修改jvm启动的内存设置，地址为/usr/share/logstash/config/jvm.options
+# 修改jvm内存分配 vi jvm.options # 修改下面的参数，单位可以为g和m -Xms256m -Xmx256m 修改后重启容器即可
+下载插件与依赖包 docker exec -it logstash bash 安装logstash-input-jdbc插件
+bin/logstash-plugin install logstash-input-jdbc 如果出现以下ERROR，说明logstash里本身已经包含有这个插件了，就无需安装。7.10.1的版本是已经自带了。
+ERROR: Installation aborted, plugin &amp;#39;logstash-input-jdbc&amp;#39; is already provided by &amp;#39;logstash-integration-jdbc&amp;#39; 下载mysql-connector-java，也就是jdbc驱动
+MySQL官方下载地址：https://downloads.mysql.com/archives/c-j/
+下载对应版本后本地解压，上传到服务器，然后用docker cp命令复制到logstash容器中
+只需要其中的jar包即可
+# 把文件复制到容器内 docker cp [jar包路径] logstash:[容器内路径] 在/usr/share/logstash目录下新建mysql/目录，把jar包复制到这里
+同步配置文件 在刚刚的mysql目录下新建jdbc.conf 文件，来配置同步操作
+ 单表同步  input { jdbc { # jar包的绝对路径 jdbc_driver_library =&amp;gt; &amp;#34;/usr/share/logstash/mysql/mysql-connector-java-5.1.48.jar&amp;#34; jdbc_driver_class =&amp;gt; &amp;#34;com.mysql.jdbc.Driver&amp;#34; # 数据库连接信息 jdbc_connection_string =&amp;gt; &amp;#34;jdbc:mysql://[ip]:3306/[库名]?'>
+<meta property='og:url' content='https://ccqstark.github.io/p/logstash_mysql/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ElasticSearch' /><meta property='article:published_time' content='2021-01-28T21:26:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-28T21:26:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/logstash_mysql/logstash-mysql.jpg' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[Elastic]使用logstash同步MySQL数据">
+<meta name="twitter:description" content="安装logstash 在实际项目中使用es进行搜索，我们就要把mysql数据库中的数据同步到es索引库中。进行这项过程的工具很多，比如go-mysql-elasticsearch，canal等等，当然也可以使用ELK组合中的logsatsh 来完成。这里同样用docker来部署logstash容器。
+拉取镜像 docker pull logstash:7.10.1 启动容器 启动后进入容器内，修改jvm启动的内存设置，地址为/usr/share/logstash/config/jvm.options
+# 修改jvm内存分配 vi jvm.options # 修改下面的参数，单位可以为g和m -Xms256m -Xmx256m 修改后重启容器即可
+下载插件与依赖包 docker exec -it logstash bash 安装logstash-input-jdbc插件
+bin/logstash-plugin install logstash-input-jdbc 如果出现以下ERROR，说明logstash里本身已经包含有这个插件了，就无需安装。7.10.1的版本是已经自带了。
+ERROR: Installation aborted, plugin &amp;#39;logstash-input-jdbc&amp;#39; is already provided by &amp;#39;logstash-integration-jdbc&amp;#39; 下载mysql-connector-java，也就是jdbc驱动
+MySQL官方下载地址：https://downloads.mysql.com/archives/c-j/
+下载对应版本后本地解压，上传到服务器，然后用docker cp命令复制到logstash容器中
+只需要其中的jar包即可
+# 把文件复制到容器内 docker cp [jar包路径] logstash:[容器内路径] 在/usr/share/logstash目录下新建mysql/目录，把jar包复制到这里
+同步配置文件 在刚刚的mysql目录下新建jdbc.conf 文件，来配置同步操作
+ 单表同步  input { jdbc { # jar包的绝对路径 jdbc_driver_library =&amp;gt; &amp;#34;/usr/share/logstash/mysql/mysql-connector-java-5.1.48.jar&amp;#34; jdbc_driver_class =&amp;gt; &amp;#34;com.mysql.jdbc.Driver&amp;#34; # 数据库连接信息 jdbc_connection_string =&amp;gt; &amp;#34;jdbc:mysql://[ip]:3306/[库名]?"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/logstash_mysql/logstash-mysql.jpg' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/logstash_mysql/">
+                <img src="/p/logstash_mysql/logstash-mysql_hubd922da79b2e986df34a25cd755e9ffb_77309_800x0_resize_q75_box.jpg"
+                        srcset="/p/logstash_mysql/logstash-mysql_hubd922da79b2e986df34a25cd755e9ffb_77309_800x0_resize_q75_box.jpg 800w, /p/logstash_mysql/logstash-mysql_hubd922da79b2e986df34a25cd755e9ffb_77309_1600x0_resize_q75_box.jpg 1600w"
+                        width="800" 
+                        height="378" 
+                        loading="lazy"
+                        alt="Featured image of post [Elastic]使用logstash同步MySQL数据" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" >
+                环境搭建
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/logstash_mysql/">[Elastic]使用logstash同步MySQL数据</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 28, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="安装logstash">安装logstash</h2>
+<p>在实际项目中使用es进行搜索，我们就要把mysql数据库中的数据同步到es索引库中。进行这项过程的工具很多，比如go-mysql-elasticsearch，canal等等，当然也可以使用ELK组合中的<code>logsatsh</code> 来完成。这里同样用docker来部署logstash容器。</p>
+<h3 id="拉取镜像">拉取镜像</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker pull logstash:7.10.1
+</code></pre></div><h3 id="启动容器">启动容器</h3>
+<p>启动后进入容器内，修改jvm启动的内存设置，地址为<code>/usr/share/logstash/config/jvm.options</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 修改jvm内存分配</span>
+vi jvm.options
+
+<span class="c1"># 修改下面的参数，单位可以为g和m</span>
+-Xms256m
+-Xmx256m
+</code></pre></div><p>修改后重启容器即可</p>
+<h3 id="下载插件与依赖包">下载插件与依赖包</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker <span class="nb">exec</span> -it logstash bash
+</code></pre></div><p>安装<code>logstash-input-jdbc</code>插件</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">bin/logstash-plugin install logstash-input-jdbc
+</code></pre></div><p>如果出现以下ERROR，说明logstash里本身已经包含有这个插件了，就无需安装。7.10.1的版本是已经自带了。</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ERROR: Installation aborted, plugin <span class="s1">&#39;logstash-input-jdbc&#39;</span> is already provided by <span class="s1">&#39;logstash-integration-jdbc&#39;</span>
+</code></pre></div><p>下载mysql-connector-java，也就是jdbc驱动</p>
+<p>MySQL官方下载地址：<a class="link" href="https://downloads.mysql.com/archives/c-j/"  target="_blank" rel="noopener"
+    >https://downloads.mysql.com/archives/c-j/</a></p>
+<p>下载对应版本后本地解压，上传到服务器，然后用<code>docker cp</code>命令复制到logstash容器中</p>
+<p>只需要其中的jar包即可</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 把文件复制到容器内</span>
+docker cp <span class="o">[</span>jar包路径<span class="o">]</span> logstash:<span class="o">[</span>容器内路径<span class="o">]</span>
+</code></pre></div><p>在<code>/usr/share/logstash</code>目录下新建<code>mysql/</code>目录，把jar包复制到这里</p>
+<h3 id="同步配置文件">同步配置文件</h3>
+<p>在刚刚的mysql目录下新建<code>jdbc.conf</code> 文件，来配置同步操作</p>
+<ul>
+<li><strong>单表同步</strong></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">input <span class="o">{</span>
+    jdbc <span class="o">{</span>
+			<span class="c1"># jar包的绝对路径</span>
+			<span class="nv">jdbc_driver_library</span> <span class="o">=</span>&gt; <span class="s2">&#34;/usr/share/logstash/mysql/mysql-connector-java-5.1.48.jar&#34;</span>
+    	<span class="nv">jdbc_driver_class</span> <span class="o">=</span>&gt; <span class="s2">&#34;com.mysql.jdbc.Driver&#34;</span>
+   	  <span class="c1"># 数据库连接信息</span>
+			<span class="nv">jdbc_connection_string</span> <span class="o">=</span>&gt; <span class="s2">&#34;jdbc:mysql://[ip]:3306/[库名]?characterEncoding=UTF-8&amp;autoReconnect=true&#34;</span>
+    	<span class="nv">jdbc_user</span> <span class="o">=</span>&gt; <span class="s2">&#34;[mysql用户]&#34;</span>
+    	<span class="nv">jdbc_password</span> <span class="o">=</span>&gt; <span class="s2">&#34;[密码]&#34;</span>
+			<span class="c1"># cron的定时执行语法一样，默认每分钟同步一次</span>
+    	<span class="nv">schedule</span> <span class="o">=</span>&gt; <span class="s2">&#34;* * * * *&#34;</span>
+			<span class="c1"># 执行的sql语句语法，这里是通过将主键大于最后一次同步所记录的值来实现增量同步的</span>
+    	<span class="nv">statement</span> <span class="o">=</span>&gt; <span class="s2">&#34;SELECT * FROM activity WHERE activity_id &gt; :sql_last_value order by activity_id asc&#34;</span>
+			<span class="nv">use_column_value</span> <span class="o">=</span>&gt; <span class="nb">true</span>
+			<span class="c1"># 用来作为增量同步的判断字段，最好为表的主键</span>
+			<span class="nv">tracking_column</span> <span class="o">=</span>&gt; <span class="s2">&#34;activity_id&#34;</span>
+			<span class="c1"># 是否记录上次执行结果，true表示会将上次执行结果的tracking_column字段的值保存到last_run_metadata_path指定的文件中；</span>
+			<span class="nv">record_last_run</span> <span class="o">=</span>&gt; <span class="nb">true</span>
+			<span class="c1"># record_last_run上次数据存放位置</span>
+			<span class="nv">last_run_metadata_path</span> <span class="o">=</span>&gt; <span class="s2">&#34;/usr/share/logstash/mysql/last_id.txt&#34;</span>
+			<span class="c1"># 是否清除last_run_metadata_path的记录，需要增量同步时此字段必须为false</span>
+			<span class="nv">clean_run</span> <span class="o">=</span>&gt; <span class="nb">false</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+output<span class="o">{</span>
+	elasticsearch<span class="o">{</span>
+		<span class="nv">hosts</span> <span class="o">=</span>&gt; <span class="o">[</span><span class="s2">&#34;[ip]:9200&#34;</span><span class="o">]</span>
+		<span class="nv">index</span> <span class="o">=</span>&gt; <span class="s2">&#34;[索引名]&#34;</span>
+		<span class="c1"># 数据唯一索引（建议使用数据库KeyID）</span>
+		<span class="nv">document_id</span> <span class="o">=</span>&gt; <span class="s2">&#34;%{activity_id}&#34;</span>
+	<span class="o">}</span>
+  stdout <span class="o">{</span> 
+		<span class="nv">codec</span> <span class="o">=</span>&gt; rubydebug 
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><ul>
+<li><strong>多表同步</strong></li>
+</ul>
+<p>多表配置和单表配置的区别在于input模块的jdbc模块有几个type，output模块就需对应有几个type</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">input <span class="o">{</span>
+	stdin <span class="o">{}</span>
+	jdbc <span class="o">{</span>
+		 <span class="c1"># 多表同步时，表类型区分，建议命名为“库名_表名”，每个jdbc模块需对应一个type；</span>
+		<span class="nb">type</span> <span class="o">=</span>&gt; <span class="s2">&#34;TestDB_DetailTab&#34;</span>
+		
+		 <span class="c1"># 其他配置此处省略，参考单表配置</span>
+		 <span class="c1"># ...</span>
+		 <span class="c1"># ...</span>
+		 <span class="c1"># record_last_run上次数据存放位置；</span>
+		<span class="nv">last_run_metadata_path</span> <span class="o">=</span>&gt; <span class="s2">&#34;mysql\last_id.txt&#34;</span>
+		 <span class="c1"># 是否清除last_run_metadata_path的记录，需要增量同步时此字段必须为false；</span>
+		<span class="nv">clean_run</span> <span class="o">=</span>&gt; <span class="nb">false</span>
+		 <span class="c1">#</span>
+		 <span class="c1"># 同步频率(分 时 天 月 年)，默认每分钟同步一次；</span>
+		<span class="nv">schedule</span> <span class="o">=</span>&gt; <span class="s2">&#34;* * * * *&#34;</span>
+	<span class="o">}</span>
+	jdbc <span class="o">{</span>
+		 <span class="c1"># 多表同步时，表类型区分，建议命名为“库名_表名”，每个jdbc模块需对应一个type；</span>
+		<span class="nb">type</span> <span class="o">=</span>&gt; <span class="s2">&#34;TestDB_Tab2&#34;</span>
+		<span class="c1"># 多表同步时，last_run_metadata_path配置的路径应不一致，避免有影响；</span>
+		 <span class="c1"># 其他配置此处省略</span>
+		 <span class="c1"># ...</span>
+		 <span class="c1"># ...</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+
+filter <span class="o">{</span>
+	json <span class="o">{</span>
+		<span class="nb">source</span> <span class="o">=</span>&gt; <span class="s2">&#34;message&#34;</span>
+		<span class="nv">remove_field</span> <span class="o">=</span>&gt; <span class="o">[</span><span class="s2">&#34;message&#34;</span><span class="o">]</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+
+output <span class="o">{</span>
+	<span class="c1"># output模块的type需和jdbc模块的type一致</span>
+	<span class="k">if</span> <span class="o">[</span>type<span class="o">]</span> <span class="o">==</span> <span class="s2">&#34;TestDB_DetailTab&#34;</span> <span class="o">{</span>
+		elasticsearch <span class="o">{</span>
+			 <span class="c1"># host =&gt; &#34;192.168.1.1&#34;</span>
+			 <span class="c1"># port =&gt; &#34;9200&#34;</span>
+			 <span class="c1"># 配置ES集群地址</span>
+			<span class="nv">hosts</span> <span class="o">=</span>&gt; <span class="o">[</span><span class="s2">&#34;192.168.1.1:9200&#34;</span>, <span class="s2">&#34;192.168.1.2:9200&#34;</span>, <span class="s2">&#34;192.168.1.3:9200&#34;</span><span class="o">]</span>
+			 <span class="c1"># 索引名字，必须小写</span>
+			<span class="nv">index</span> <span class="o">=</span>&gt; <span class="s2">&#34;detailtab1&#34;</span>
+			 <span class="c1"># 数据唯一索引（建议使用数据库KeyID）</span>
+			<span class="nv">document_id</span> <span class="o">=</span>&gt; <span class="s2">&#34;%{KeyId}&#34;</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+	<span class="k">if</span> <span class="o">[</span>type<span class="o">]</span> <span class="o">==</span> <span class="s2">&#34;TestDB_Tab2&#34;</span> <span class="o">{</span>
+		elasticsearch <span class="o">{</span>
+			<span class="c1"># host =&gt; &#34;192.168.1.1&#34;</span>
+			<span class="c1"># port =&gt; &#34;9200&#34;</span>
+			<span class="c1"># 配置ES集群地址</span>
+			<span class="nv">hosts</span> <span class="o">=</span>&gt; <span class="o">[</span><span class="s2">&#34;192.168.1.1:9200&#34;</span>, <span class="s2">&#34;192.168.1.2:9200&#34;</span>, <span class="s2">&#34;192.168.1.3:9200&#34;</span><span class="o">]</span>
+			<span class="c1"># 索引名字，必须小写</span>
+			<span class="nv">index</span> <span class="o">=</span>&gt; <span class="s2">&#34;detailtab2&#34;</span>
+			<span class="c1"># 数据唯一索引（建议使用数据库KeyID）</span>
+			<span class="nv">document_id</span> <span class="o">=</span>&gt; <span class="s2">&#34;%{KeyId}&#34;</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+	stdout <span class="o">{</span>
+		<span class="nv">codec</span> <span class="o">=</span>&gt; json_lines
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>为了统一，把数据也放这个目录下，在mysql目录下再新建目录<code>data</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir data
+</code></pre></div><h3 id="启动logstash同步">启动logstash同步</h3>
+<p>cd回到<code>/usr/share/logstash</code>目录，启动同步</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">./bin/logstash -f mysql/jdbc.conf --path.data<span class="o">=</span>/usr/share/logstash/mysql/data/
+</code></pre></div><p>注意，要保证给elasticsearch的分配的内存足够大才行，测试用的256m是不够的，会导致es容器退出，至少给个1g</p>
+<p><code>—-path.data</code>参数用来设置同步数据存放的位置</p>
+<p>启动之后控制台会打印出大概以下信息</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Using bundled JDK: /usr/share/logstash/jdk
+OpenJDK 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.jruby.ext.openssl.SecurityHelper <span class="o">(</span>file:/tmp/jruby-423/jruby7667758569951782495jopenssl.jar<span class="o">)</span> to field java.security.MessageDigest.provider
+WARNING: Please consider reporting this to the maintainers of org.jruby.ext.openssl.SecurityHelper
+WARNING: Use --illegal-access<span class="o">=</span>warn to <span class="nb">enable</span> warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+</code></pre></div><p>开始同步会打印出从数据库读取的，插入到elasticsearch的信息</p>
+<p>实际使用中用<code>nohup</code> 来保持后台运行</p>
+<h3 id="缺点">缺点</h3>
+<p>logstash的缺点很明显，就是只能同步mysql中新增的数据，对于更改的、删除的就无能为力了。这其实也很好理解，ELK其实本来就是用来收集与分析日志的，而同步增加的数据已经足够了。</p>
+<p>我觉得es与mysql最好的同步工具其实是阿里的开源的<code>canal</code></p>
+<p><a class="link" href="https://github.com/alibaba/canal"  target="_blank" rel="noopener"
+    >alibaba/canal</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/elasticsearch/">ElasticSearch</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/x_pack/">
+        
+        
+            <div class="article-image">
+                <img src="/p/x_pack/x-pack.03b6883bf32ad168964ccfa7a68ecbff_huc4207ebc9b333ece948f0ec8e981e0d7_15854_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="x_pack" 
+                        data-hash="md5-A7aIO/Mq0WiWTM&#43;npo7L/w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Elastic]ElasticSearch 安全</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_docker/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_docker/elastic-docker.4df36a868a6a3cf5be844cd3edd50e34_hu1fc05f09d19ffda9f7576c23f66afe5c_19136_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_docker" 
+                        data-hash="md5-TfNqhopqPPW&#43;hEzT7dUONA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Elastic]使用docker安装ElasticSearch &#43; Kibana</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/jenkins_docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/jenkins_docker_springboot/_huac9b8bcc40d9704ef8edb1ad38827231_44206_1f1ecbdac38a70a8bd0879fdc08cabc9.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="jenkins_docker_springboot" 
+                        data-hash="md5-M1AcdQJqERUBr2POFbEQbw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Jenkins &#43; docker &#43; springboot 完美配合全流程教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_nginx/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_nginx/nginx-docker.23dd1d5d655b0db04797a64df73e9106_hu2ff739cd1ceaefb705a9e30c4218e66c_86441_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_nginx" 
+                        data-hash="md5-I90dXWVbDbBHl6ZN9z6RBg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署nginx</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_springboot/docker-springboot.180380aae35bb65f058f26374c2966a0_hu705e70abdc72815dabd2267940e19d94_40186_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_springboot" 
+                        data-hash="md5-GAOAquNbtl8FjyY3TClmoA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署SpringBoot项目</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

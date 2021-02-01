@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='安装ElasticSearch 拉取镜像 docker pull elasticsearch:7.10.1 启动容器 同时挂载目录（包括配置文件和data）（挂载出来的位置自己定义）
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e ES_JAVA_OPTS=&amp;#34;-Xms256m -Xmx256m&amp;#34; -d \ -v /home/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \ -v /home/es/data:/usr/share/elasticsearch/data elasticsearch:7.10.1 注意这里还设置了JVM的内存大小，默认为2G，有点大，很可能会因为内存不够而无法正常启动。可以像我这里改为256m或者其他值。
+可能出现的错误 查看容器日志
+docker logs elasticsearch 如果出现以下错误
+max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144] 则要修改服务器配置
+vim /etc/sysctl.conf 添加这行
+vm.max_map_count=262144 立即生效, 执行：
+/sbin/sysctl -p 对挂载的宿主机data目录可能出现权限不足问题
+chmod 777 [宿主机data目录] 配置跨域 到挂载出来到位置编辑配置文件
+vim elasticsearch.yml 添加以下几行
+network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.allow-origin:&amp;#34;*&amp;#34;同时安全组和防火墙记得打开对应端口
+记得每次修改完配置都要重启 docker restart elasticsearch 浏览器访问测试 http://[IP]:9200 看到类似以下的json就成功了'><title>[Elastic]使用docker安装ElasticSearch &#43; Kibana</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/es_docker/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[Elastic]使用docker安装ElasticSearch &#43; Kibana'>
+<meta property='og:description' content='安装ElasticSearch 拉取镜像 docker pull elasticsearch:7.10.1 启动容器 同时挂载目录（包括配置文件和data）（挂载出来的位置自己定义）
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e ES_JAVA_OPTS=&amp;#34;-Xms256m -Xmx256m&amp;#34; -d \ -v /home/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \ -v /home/es/data:/usr/share/elasticsearch/data elasticsearch:7.10.1 注意这里还设置了JVM的内存大小，默认为2G，有点大，很可能会因为内存不够而无法正常启动。可以像我这里改为256m或者其他值。
+可能出现的错误 查看容器日志
+docker logs elasticsearch 如果出现以下错误
+max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144] 则要修改服务器配置
+vim /etc/sysctl.conf 添加这行
+vm.max_map_count=262144 立即生效, 执行：
+/sbin/sysctl -p 对挂载的宿主机data目录可能出现权限不足问题
+chmod 777 [宿主机data目录] 配置跨域 到挂载出来到位置编辑配置文件
+vim elasticsearch.yml 添加以下几行
+network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.allow-origin:&amp;#34;*&amp;#34;同时安全组和防火墙记得打开对应端口
+记得每次修改完配置都要重启 docker restart elasticsearch 浏览器访问测试 http://[IP]:9200 看到类似以下的json就成功了'>
+<meta property='og:url' content='https://ccqstark.github.io/p/es_docker/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ElasticSearch' /><meta property='article:published_time' content='2021-01-27T21:26:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-27T21:26:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/es_docker/elastic-docker.png' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[Elastic]使用docker安装ElasticSearch &#43; Kibana">
+<meta name="twitter:description" content="安装ElasticSearch 拉取镜像 docker pull elasticsearch:7.10.1 启动容器 同时挂载目录（包括配置文件和data）（挂载出来的位置自己定义）
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e ES_JAVA_OPTS=&amp;#34;-Xms256m -Xmx256m&amp;#34; -d \ -v /home/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \ -v /home/es/data:/usr/share/elasticsearch/data elasticsearch:7.10.1 注意这里还设置了JVM的内存大小，默认为2G，有点大，很可能会因为内存不够而无法正常启动。可以像我这里改为256m或者其他值。
+可能出现的错误 查看容器日志
+docker logs elasticsearch 如果出现以下错误
+max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144] 则要修改服务器配置
+vim /etc/sysctl.conf 添加这行
+vm.max_map_count=262144 立即生效, 执行：
+/sbin/sysctl -p 对挂载的宿主机data目录可能出现权限不足问题
+chmod 777 [宿主机data目录] 配置跨域 到挂载出来到位置编辑配置文件
+vim elasticsearch.yml 添加以下几行
+network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.allow-origin:&amp;#34;*&amp;#34;同时安全组和防火墙记得打开对应端口
+记得每次修改完配置都要重启 docker restart elasticsearch 浏览器访问测试 http://[IP]:9200 看到类似以下的json就成功了"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/es_docker/elastic-docker.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/es_docker/">
+                <img src="/p/es_docker/elastic-docker_hu1fc05f09d19ffda9f7576c23f66afe5c_19136_800x0_resize_box_2.png"
+                        srcset="/p/es_docker/elastic-docker_hu1fc05f09d19ffda9f7576c23f66afe5c_19136_800x0_resize_box_2.png 800w, /p/es_docker/elastic-docker_hu1fc05f09d19ffda9f7576c23f66afe5c_19136_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="375" 
+                        loading="lazy"
+                        alt="Featured image of post [Elastic]使用docker安装ElasticSearch &#43; Kibana" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" >
+                环境搭建
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/es_docker/">[Elastic]使用docker安装ElasticSearch &#43; Kibana</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 27, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="安装elasticsearch">安装ElasticSearch</h2>
+<h3 id="拉取镜像">拉取镜像</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker pull elasticsearch:7.10.1
+</code></pre></div><h3 id="启动容器">启动容器</h3>
+<p>同时挂载目录（包括配置文件和data）（挂载出来的位置自己定义）</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run --name elasticsearch -p 9200:9200 -p 9300:9300 -e <span class="nv">ES_JAVA_OPTS</span><span class="o">=</span><span class="s2">&#34;-Xms256m -Xmx256m&#34;</span> -d <span class="se">\
+</span><span class="se"></span>-v /home/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml <span class="se">\
+</span><span class="se"></span>-v /home/es/data:/usr/share/elasticsearch/data elasticsearch:7.10.1
+</code></pre></div><p>注意这里还设置了<code>JVM的内存</code>大小，默认为2G，有点大，很可能会因为内存不够而无法正常启动。可以像我这里改为256m或者其他值。</p>
+<h3 id="可能出现的错误">可能出现的错误</h3>
+<p>查看容器日志</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker logs elasticsearch
+</code></pre></div><p>如果出现以下错误</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">max virtual memory areas vm.max_map_count <span class="o">[</span>65530<span class="o">]</span> is too low, increase to at least <span class="o">[</span>262144<span class="o">]</span>
+</code></pre></div><p>则要修改服务器配置</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">vim /etc/sysctl.conf
+</code></pre></div><p>添加这行</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">vm.max_map_count<span class="o">=</span><span class="m">262144</span>
+</code></pre></div><p>立即生效, 执行：</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">/sbin/sysctl -p
+</code></pre></div><p>对挂载的宿主机data目录可能出现权限不足问题</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">chmod <span class="m">777</span> <span class="o">[</span>宿主机data目录<span class="o">]</span>
+</code></pre></div><h3 id="配置跨域">配置跨域</h3>
+<p>到挂载出来到位置编辑配置文件</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">vim elasticsearch.yml
+</code></pre></div><p>添加以下几行</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">network.host</span><span class="p">:</span><span class="w"> </span><span class="m">0.0.0.0</span><span class="w">
+</span><span class="w"></span><span class="nt">discovery.type</span><span class="p">:</span><span class="w"> </span><span class="l">single-node</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">http.cors.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w"></span><span class="nt">http.cors.allow-origin</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;*&#34;</span><span class="w">
+</span></code></pre></div><p>同时安全组和防火墙记得打开对应端口</p>
+<h3 id="记得每次修改完配置都要重启">记得每次修改完配置都要重启</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker restart elasticsearch
+</code></pre></div><h3 id="浏览器访问测试">浏览器访问测试</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">http://<span class="o">[</span>IP<span class="o">]</span>:9200
+</code></pre></div><p>看到类似以下的json就成功了</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+	<span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;8c819d377714&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;cluster_name&#34;</span><span class="p">:</span> <span class="s2">&#34;elasticsearch&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;cluster_uuid&#34;</span><span class="p">:</span> <span class="s2">&#34;-AkgwTlbS1SsjvzNtG45nw&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="p">{</span>
+	<span class="nt">&#34;number&#34;</span><span class="p">:</span> <span class="s2">&#34;7.10.1&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;build_flavor&#34;</span><span class="p">:</span> <span class="s2">&#34;default&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;build_type&#34;</span><span class="p">:</span> <span class="s2">&#34;docker&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;build_hash&#34;</span><span class="p">:</span> <span class="s2">&#34;1c34507e66d7db1211f66f3513706fdf548736aa&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;build_date&#34;</span><span class="p">:</span> <span class="s2">&#34;2020-12-05T01:00:33.671820Z&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;build_snapshot&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+	<span class="nt">&#34;lucene_version&#34;</span><span class="p">:</span> <span class="s2">&#34;8.7.0&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;minimum_wire_compatibility_version&#34;</span><span class="p">:</span> <span class="s2">&#34;6.8.0&#34;</span><span class="p">,</span>
+	<span class="nt">&#34;minimum_index_compatibility_version&#34;</span><span class="p">:</span> <span class="s2">&#34;6.0.0-beta1&#34;</span>
+	<span class="p">},</span>
+	<span class="nt">&#34;tagline&#34;</span><span class="p">:</span> <span class="s2">&#34;You Know, for Search&#34;</span>
+<span class="p">}</span>
+</code></pre></div><h2 id="安装elasticsearch-head">安装elasticsearch-head</h2>
+<h3 id="拉取镜像-1">拉取镜像</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker pull mobz/elasticsearch-head:5
+</code></pre></div><h3 id="启动容器-1">启动容器</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -it -d --name head -p 9100:9100 mobz/elasticsearch-head:5
+</code></pre></div><p>浏览器打开</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">http://<span class="o">[</span>ip<span class="o">]</span>:9100/
+</code></pre></div><p>在上面集群连接处的输入框输入elasticsearch的地址</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">http://<span class="o">[</span>IP<span class="o">]</span>:9200
+</code></pre></div><p>之后点击连接，右边的<code>集群健康值</code>字样出现绿色背景代表成功连接</p>
+<h2 id="安装kibana">安装Kibana</h2>
+<h3 id="拉取镜像-2">拉取镜像</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker pull kibana:7.10.1
+</code></pre></div><p>注意版本和ES的要对应</p>
+<h3 id="配置文件kibanayml">配置文件kibana.yml</h3>
+<p>为了挂载配置文件，我们先在本机创建一个配置文件，这里以<code>/home/kibana/config/kibana.yml</code> 为例</p>
+<p>配置文件中写入</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">server.host</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;0.0.0.0&#39;</span><span class="w">
+</span><span class="w"></span><span class="nt">elasticsearch.hosts</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;http://[ip地址]:9200/&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w"></span><span class="nt">xpack</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">apm.ui.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">graph.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">ml.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">monitoring.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">reporting.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">security.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">grokdebugger.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">  </span><span class="nt">searchprofiler.enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></code></pre></div><h3 id="启动容器-2">启动容器</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -it <span class="se">\
+</span><span class="se"></span>--name kibana -p 5601:5601 <span class="se">\
+</span><span class="se"></span>-v /home/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml kibana:7.10.1
+</code></pre></div><p>浏览器打开</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">http://<span class="o">[</span>ip<span class="o">]</span>:5601/
+</code></pre></div><h3 id="安装ik分词器">安装ik分词器</h3>
+<p>首先进入es的容器内</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker <span class="nb">exec</span> -it elasticsearch /bin/bash
+</code></pre></div><p>使用bin目录下的elasticsearch-plugin install安装ik分词器插件（注意版本要对应）</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># github官方</span>
+bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.1/elasticsearch-analysis-ik-7.10.1.zip
+</code></pre></div><p>这里可能会很慢，可以用镜像加速</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 镜像加速</span>
+bin/elasticsearch-plugin install https://github.91chifun.workers.dev//https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.1/elasticsearch-analysis-ik-7.10.1.zip
+</code></pre></div><p>也可以选择本地下载解压完再上传到服务器，再把它移动到容器内的plugins文件夹里</p>
+<p><strong>然后重启容器</strong></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker restart elasticsearch
+</code></pre></div><h3 id="在kibana中测试">在kibana中测试</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">GET _analyze
+<span class="o">{</span>
+  <span class="s2">&#34;analyzer&#34;</span>: <span class="s2">&#34;ik_max_word&#34;</span>,
+  <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;各地校车将享最高路权&#34;</span>
+<span class="o">}</span>
+</code></pre></div><p>有<code>ik_smart</code> 和 <code>ik_max_word</code> 两种模式，分别是<code>最粗粒度的拆分</code>和<code>最细粒度的拆分</code></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/elasticsearch/">ElasticSearch</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/x_pack/">
+        
+        
+            <div class="article-image">
+                <img src="/p/x_pack/x-pack.03b6883bf32ad168964ccfa7a68ecbff_huc4207ebc9b333ece948f0ec8e981e0d7_15854_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="x_pack" 
+                        data-hash="md5-A7aIO/Mq0WiWTM&#43;npo7L/w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Elastic]ElasticSearch 安全</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/logstash_mysql/">
+        
+        
+            <div class="article-image">
+                <img src="/p/logstash_mysql/logstash-mysql.4f6b8497a2d0608059a79ee135e80e84_hubd922da79b2e986df34a25cd755e9ffb_77309_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="logstash_mysql" 
+                        data-hash="md5-T2uEl6LQYIBZp57hNegOhA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Elastic]使用logstash同步MySQL数据</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/jenkins_docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/jenkins_docker_springboot/_huac9b8bcc40d9704ef8edb1ad38827231_44206_1f1ecbdac38a70a8bd0879fdc08cabc9.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="jenkins_docker_springboot" 
+                        data-hash="md5-M1AcdQJqERUBr2POFbEQbw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Jenkins &#43; docker &#43; springboot 完美配合全流程教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_nginx/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_nginx/nginx-docker.23dd1d5d655b0db04797a64df73e9106_hu2ff739cd1ceaefb705a9e30c4218e66c_86441_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_nginx" 
+                        data-hash="md5-I90dXWVbDbBHl6ZN9z6RBg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署nginx</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/docker_springboot/">
+        
+        
+            <div class="article-image">
+                <img src="/p/docker_springboot/docker-springboot.180380aae35bb65f058f26374c2966a0_hu705e70abdc72815dabd2267940e19d94_40186_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="docker_springboot" 
+                        data-hash="md5-GAOAquNbtl8FjyY3TClmoA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[docker]用docker部署SpringBoot项目</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
