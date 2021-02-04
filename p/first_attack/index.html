@@ -74,6 +74,7 @@ vim /usr/local/secure_ssh.sh 然后编写脚本
 #! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.">
     <link rel="shortcut icon" href="/icon.ico" />
 
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     </head>
     <body class="">
     <script>
@@ -453,6 +454,14 @@ service sshd restart
         Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
+<span id="busuanzi_container_site_pv">
+    本站访问量：<span id="busuanzi_value_site_pv"></span>次
+</span>
+&nbsp;
+<span id="busuanzi_container_site_uv">
+    您是本站第 <span id="busuanzi_value_site_uv"></span> 位访问者
+</span>
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
     

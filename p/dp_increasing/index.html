@@ -47,6 +47,7 @@ dp[i] = max{ dp[j]&#43;1, dp[i] }
 代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?">
     <link rel="shortcut icon" href="/icon.ico" />
 
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     </head>
     <body class="">
     <script>
@@ -461,6 +462,14 @@ dp[i] = max{ dp[j]&#43;1, dp[i] }
         Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
+<span id="busuanzi_container_site_pv">
+    本站访问量：<span id="busuanzi_value_site_pv"></span>次
+</span>
+&nbsp;
+<span id="busuanzi_container_site_uv">
+    您是本站第 <span id="busuanzi_value_site_uv"></span> 位访问者
+</span>
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
     

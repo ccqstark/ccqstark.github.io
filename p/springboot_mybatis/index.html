@@ -23,6 +23,7 @@ package com.ccqstark.springbootquick.pojo; import lombok.AllArgsConstructor; imp
 package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**">
     <link rel="shortcut icon" href="/icon.ico" />
 
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     </head>
     <body class="">
     <script>
@@ -511,6 +512,14 @@ package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick
         Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
+<span id="busuanzi_container_site_pv">
+    本站访问量：<span id="busuanzi_value_site_pv"></span>次
+</span>
+&nbsp;
+<span id="busuanzi_container_site_uv">
+    您是本站第 <span id="busuanzi_value_site_uv"></span> 位访问者
+</span>
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 
     
