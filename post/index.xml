@@ -6,7 +6,20 @@
     <description>Recent content in Posts on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 31 Jan 2021 21:26:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[ElasticSearch]REST风格操作</title>
+      <link>https://ccqstark.github.io/p/es_rest/</link>
+      <pubDate>Wed, 03 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/es_rest/</guid>
+      <description>基本的rest命令    method url 功能     PUT localhost:9200/索引名称/类型名称/文档id 创建文档（指定文档id)   POST localhost:9200/索引名称/类型名称 创建文档（随机文档id）   POST localhost:9200/索引名称/类型名称/文档id/_update 修改文档   DELETE localhost:9200/索引名称/类型名称/文档id 删除文档   GET localhost:9200/索引名称/类型名称/文档id 查询文档，通过文档id   POST localhost:9200/索引名称/类型名称/_search 查询所有数据   ⚠️自定义类型将在以后的版本中弃用，规范起见一律使用_doc 类型      文档字段的数据类型   字符串类型
+text keyword
+  数值类型
+long integer short byte double float half float scaled float
+  日期类型</description>
+    </item>
+    
     <item>
       <title>我的vim入门配置折腾</title>
       <link>https://ccqstark.github.io/p/vim/</link>

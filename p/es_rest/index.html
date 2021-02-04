@@ -1,26 +1,30 @@
 <!DOCTYPE html>
 <html lang="en-us">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='导入依赖 &amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 然后要在IDEA下载插件Maven Helper中把logback相关的包给Exclude，否则会出现冲突
-配置 log4j.properties中配置
-# rootLogger参数分别为：根Logger级别，输出器stdout，输出器loglog4j.rootLogger = info,stdout,log# 输出信息到控制台log4j.appender.stdout = org.apache.log4j.ConsoleAppenderlog4j.appender.stdout.layout = org.apache.log4j.PatternLayoutlog4j.appender.stdout.layout.ConversionPattern = %d [%-5p] %l %rms: %m%n# 输出DEBUG级别以上的日志到D://log/debug.log，这个是日志文件存放的路径，根据时间情况进行设置log4j.appender.log = org.apache.log4j.DailyRollingFileAppenderlog4j.appender.log.DatePattern = &#39;.&#39;yyyy-MM-ddlog4j.appender.log.File = D://log/debug.loglog4j.appender.log.Encoding = UTF-8#log4j.appender.log.Threshold = INFOlog4j.appender.log.layout = org.apache.log4j.PatternLayoutlog4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n测试 编写测试类，使用@Slf4j注解之前确保使用了lombok
-package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import org.junit.Test; @Slf4j public class LoggerTest { // private static final Logger log = LoggerFactory.'><title>[SpringBoot]整合SLF4J-log4j</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='基本的rest命令    method url 功能     PUT localhost:9200/索引名称/类型名称/文档id 创建文档（指定文档id)   POST localhost:9200/索引名称/类型名称 创建文档（随机文档id）   POST localhost:9200/索引名称/类型名称/文档id/_update 修改文档   DELETE localhost:9200/索引名称/类型名称/文档id 删除文档   GET localhost:9200/索引名称/类型名称/文档id 查询文档，通过文档id   POST localhost:9200/索引名称/类型名称/_search 查询所有数据   ⚠️自定义类型将在以后的版本中弃用，规范起见一律使用_doc 类型      文档字段的数据类型   字符串类型
+text keyword
+  数值类型
+long integer short byte double float half float scaled float
+  日期类型'><title>[ElasticSearch]REST风格操作</title>
 
-<link rel='canonical' href='https://ccqstark.github.io/p/springboot_slf4j-log4j/'>
+<link rel='canonical' href='https://ccqstark.github.io/p/es_rest/'>
 
-<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[SpringBoot]整合SLF4J-log4j'>
-<meta property='og:description' content='导入依赖 &amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 然后要在IDEA下载插件Maven Helper中把logback相关的包给Exclude，否则会出现冲突
-配置 log4j.properties中配置
-# rootLogger参数分别为：根Logger级别，输出器stdout，输出器loglog4j.rootLogger = info,stdout,log# 输出信息到控制台log4j.appender.stdout = org.apache.log4j.ConsoleAppenderlog4j.appender.stdout.layout = org.apache.log4j.PatternLayoutlog4j.appender.stdout.layout.ConversionPattern = %d [%-5p] %l %rms: %m%n# 输出DEBUG级别以上的日志到D://log/debug.log，这个是日志文件存放的路径，根据时间情况进行设置log4j.appender.log = org.apache.log4j.DailyRollingFileAppenderlog4j.appender.log.DatePattern = &#39;.&#39;yyyy-MM-ddlog4j.appender.log.File = D://log/debug.loglog4j.appender.log.Encoding = UTF-8#log4j.appender.log.Threshold = INFOlog4j.appender.log.layout = org.apache.log4j.PatternLayoutlog4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n测试 编写测试类，使用@Slf4j注解之前确保使用了lombok
-package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import org.junit.Test; @Slf4j public class LoggerTest { // private static final Logger log = LoggerFactory.'>
-<meta property='og:url' content='https://ccqstark.github.io/p/springboot_slf4j-log4j/'>
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[ElasticSearch]REST风格操作'>
+<meta property='og:description' content='基本的rest命令    method url 功能     PUT localhost:9200/索引名称/类型名称/文档id 创建文档（指定文档id)   POST localhost:9200/索引名称/类型名称 创建文档（随机文档id）   POST localhost:9200/索引名称/类型名称/文档id/_update 修改文档   DELETE localhost:9200/索引名称/类型名称/文档id 删除文档   GET localhost:9200/索引名称/类型名称/文档id 查询文档，通过文档id   POST localhost:9200/索引名称/类型名称/_search 查询所有数据   ⚠️自定义类型将在以后的版本中弃用，规范起见一律使用_doc 类型      文档字段的数据类型   字符串类型
+text keyword
+  数值类型
+long integer short byte double float half float scaled float
+  日期类型'>
+<meta property='og:url' content='https://ccqstark.github.io/p/es_rest/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2020-10-17T10:54:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-17T10:54:00&#43;08:00'/>
-<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[SpringBoot]整合SLF4J-log4j">
-<meta name="twitter:description" content="导入依赖 &amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 然后要在IDEA下载插件Maven Helper中把logback相关的包给Exclude，否则会出现冲突
-配置 log4j.properties中配置
-# rootLogger参数分别为：根Logger级别，输出器stdout，输出器loglog4j.rootLogger = info,stdout,log# 输出信息到控制台log4j.appender.stdout = org.apache.log4j.ConsoleAppenderlog4j.appender.stdout.layout = org.apache.log4j.PatternLayoutlog4j.appender.stdout.layout.ConversionPattern = %d [%-5p] %l %rms: %m%n# 输出DEBUG级别以上的日志到D://log/debug.log，这个是日志文件存放的路径，根据时间情况进行设置log4j.appender.log = org.apache.log4j.DailyRollingFileAppenderlog4j.appender.log.DatePattern = &#39;.&#39;yyyy-MM-ddlog4j.appender.log.File = D://log/debug.loglog4j.appender.log.Encoding = UTF-8#log4j.appender.log.Threshold = INFOlog4j.appender.log.layout = org.apache.log4j.PatternLayoutlog4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n测试 编写测试类，使用@Slf4j注解之前确保使用了lombok
-package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import org.junit.Test; @Slf4j public class LoggerTest { // private static final Logger log = LoggerFactory.">
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ElasticSearch' /><meta property='article:published_time' content='2021-02-03T23:01:00&#43;08:00'/><meta property='article:modified_time' content='2021-02-03T23:01:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/es_rest/restful.png' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[ElasticSearch]REST风格操作">
+<meta name="twitter:description" content="基本的rest命令    method url 功能     PUT localhost:9200/索引名称/类型名称/文档id 创建文档（指定文档id)   POST localhost:9200/索引名称/类型名称 创建文档（随机文档id）   POST localhost:9200/索引名称/类型名称/文档id/_update 修改文档   DELETE localhost:9200/索引名称/类型名称/文档id 删除文档   GET localhost:9200/索引名称/类型名称/文档id 查询文档，通过文档id   POST localhost:9200/索引名称/类型名称/_search 查询所有数据   ⚠️自定义类型将在以后的版本中弃用，规范起见一律使用_doc 类型      文档字段的数据类型   字符串类型
+text keyword
+  数值类型
+long integer short byte double float half float scaled float
+  日期类型"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/es_rest/restful.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
@@ -193,8 +197,20 @@ package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import o
         </a>
     </div>
 
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/es_rest/">
+                <img src="/p/es_rest/restful_hud0b30a641456616a14ef2ef618957a76_22844_800x0_resize_box_2.png"
+                        srcset="/p/es_rest/restful_hud0b30a641456616a14ef2ef618957a76_22844_800x0_resize_box_2.png 800w, /p/es_rest/restful_hud0b30a641456616a14ef2ef618957a76_22844_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="382" 
+                        loading="lazy"
+                        alt="Featured image of post [ElasticSearch]REST风格操作" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     
@@ -208,7 +224,7 @@ package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import o
     
 
     <h2 class="article-title">
-        <a href="/p/springboot_slf4j-log4j/">[SpringBoot]整合SLF4J-log4j</a>
+        <a href="/p/es_rest/">[ElasticSearch]REST风格操作</a>
     </h2>
 
     <footer class="article-time">
@@ -220,11 +236,11 @@ package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import o
 
 
 
-        <time class="article-time--published">Oct 17, 2020</time>
+        <time class="article-time--published">Feb 03, 2021</time>
     </footer><footer class="article-time">
         <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1612441223747" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3546" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M512 608a96 96 0 1 1 0-192 96 96 0 0 1 0 192m0-256c-88.224 0-160 71.776-160 160s71.776 160 160 160 160-71.776 160-160-71.776-160-160-160" p-id="3547" fill="#8a8a8a"></path><path d="M512 800c-212.064 0-384-256-384-288s171.936-288 384-288 384 256 384 288-171.936 288-384 288m0-640C265.248 160 64 443.008 64 512s201.248 352 448 352 448-283.008 448-352S758.752 160 512 160" p-id="3548" fill="#8a8a8a"></path></svg>
         <time class="article-time--published">
-            200 Words | Read in about 1 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
+            500 Words | Read in about 2 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
         </time>
     </footer>
 	
@@ -233,66 +249,385 @@ package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import o
 </header>
 
     <section class="article-content">
-    <h3 id="导入依赖">导入依赖</h3>
-<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="c">&lt;!-- SLF4j - log4j --&gt;</span>
-<span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>org.slf4j<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>slf4j-log4j12<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.8.0-alpha2<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div><p>然后要在IDEA下载插件Maven Helper中把logback相关的包给Exclude，否则会出现冲突</p>
-<h3 id="配置">配置</h3>
-<p>log4j.properties中配置</p>
-<pre><code class="language-properties" data-lang="properties"># rootLogger参数分别为：根Logger级别，输出器stdout，输出器log
-log4j.rootLogger = info,stdout,log
-
-# 输出信息到控制台
-log4j.appender.stdout = org.apache.log4j.ConsoleAppender
-log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
-log4j.appender.stdout.layout.ConversionPattern = %d [%-5p] %l %rms: %m%n
-
-# 输出DEBUG级别以上的日志到D://log/debug.log，这个是日志文件存放的路径，根据时间情况进行设置
-log4j.appender.log = org.apache.log4j.DailyRollingFileAppender
-log4j.appender.log.DatePattern = '.'yyyy-MM-dd
-log4j.appender.log.File = D://log/debug.log
-log4j.appender.log.Encoding = UTF-8
-#log4j.appender.log.Threshold = INFO
-log4j.appender.log.layout = org.apache.log4j.PatternLayout
-log4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n
-</code></pre><h3 id="测试">测试</h3>
-<p>编写测试类，使用<code>@Slf4j</code>注解之前确保使用了lombok</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">lombok.extern.slf4j.Slf4j</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.junit.Test</span><span class="o">;</span>
-
-<span class="nd">@Slf4j</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LoggerTest</span> <span class="o">{</span>
-
-<span class="c1">//    private static final Logger log = LoggerFactory.getLogger(LoggerTest.class);
-</span><span class="c1"></span>
-    <span class="nd">@Test</span>
-    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">TestSLF4j</span><span class="o">(){</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;Current Time: {}&#34;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;Current Time: &#34;</span> <span class="o">+</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;Current Time: {}&#34;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">trace</span><span class="o">(</span><span class="s">&#34;trace log&#34;</span><span class="o">);</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&#34;warn log&#34;</span><span class="o">);</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;debug log&#34;</span><span class="o">);</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;info log&#34;</span><span class="o">);</span>
-        <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;error log&#34;</span><span class="o">);</span>
-    <span class="o">}</span>
+    <h3 id="基本的rest命令">基本的rest命令</h3>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>url</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PUT</td>
+<td>localhost:9200/索引名称/类型名称/文档id</td>
+<td>创建文档（指定文档id)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>localhost:9200/索引名称/类型名称</td>
+<td>创建文档（随机文档id）</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>localhost:9200/索引名称/类型名称/文档id/_update</td>
+<td>修改文档</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>localhost:9200/索引名称/类型名称/文档id</td>
+<td>删除文档</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>localhost:9200/索引名称/类型名称/文档id</td>
+<td>查询文档，通过文档id</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>localhost:9200/索引名称/类型名称/_search</td>
+<td>查询所有数据</td>
+</tr>
+<tr>
+<td>⚠️自定义类型将在以后的版本中弃用，规范起见一律使用<code>_doc</code>  类型</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="文档字段的数据类型">文档字段的数据类型</h3>
+<ul>
+<li>
+<p>字符串类型</p>
+<p><code>text</code> <code>keyword</code></p>
+</li>
+<li>
+<p>数值类型</p>
+<p><code>long</code>  <code>integer</code>  <code>short</code>  <code>byte</code>  <code>double</code>  <code>float</code>  <code>half float</code>  <code>scaled float</code></p>
+</li>
+<li>
+<p>日期类型</p>
+<p><code>date</code></p>
+</li>
+<li>
+<p>布尔类型</p>
+<p><code>boolean</code></p>
+</li>
+<li>
+<p>二进制类型</p>
+<p><code>binary</code></p>
+<p>等等&hellip;..</p>
+</li>
+</ul>
+<h3 id="基本操作">基本操作</h3>
+<ul>
+<li>创建一个文档，如果索引不存在也会一起创建</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">PUT</span> <span class="err">/test/_doc/</span><span class="mi">1</span>
+<span class="p">{</span>
+  <span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;ccqstark&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;age&#34;</span><span class="p">:</span><span class="mi">3</span>
+<span class="p">}</span>
+</code></pre></div><p>没有指定字段的数据类型，es会默认配置</p>
+<ul>
+<li>指定字段数据类型创建索引</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">PUT</span> <span class="err">/test</span><span class="mi">2</span>
+<span class="p">{</span>
+  <span class="nt">&#34;mappings&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;properties&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:{</span>
+        <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;text&#34;</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;age&#34;</span><span class="p">:{</span>
+        <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;long&#34;</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;birthday&#34;</span><span class="p">:{</span>
+        <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li>基本查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 查询索引库信息</span>
+GET /<span class="o">{</span>index<span class="o">}</span>
+<span class="c1"># 查询具体某一文档</span>
+GET /<span class="o">{</span>index<span class="o">}</span>/_doc/<span class="o">{</span>id<span class="o">}</span>
+</code></pre></div><ul>
+<li>查询es参数</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">GET _cat/<span class="o">[</span>参数项<span class="o">]</span>
+</code></pre></div><ul>
+<li>PUT更新</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">PUT /<span class="o">{</span>index<span class="o">}</span>/_doc/<span class="o">{</span>id<span class="o">}</span>
+<span class="o">{</span>
+  <span class="s2">&#34;name&#34;</span>:<span class="s2">&#34;ccqstark666&#34;</span>,
+  <span class="s2">&#34;age&#34;</span>:3
 <span class="o">}</span>
-</code></pre></div><p>运行后输出以下说明成功</p>
-<pre><code>2020-10-15 16:36:45,459 [INFO ] com.ccqstark.springbootquick.LoggerTest.TestSLF4j(LoggerTest.java:13) 0ms: Current Time: 1602751005450
-2020-10-15 16:36:45,464 [INFO ] com.ccqstark.springbootquick.LoggerTest.TestSLF4j(LoggerTest.java:14) 5ms: Current Time: 1602751005464
-2020-10-15 16:36:45,465 [INFO ] com.ccqstark.springbootquick.LoggerTest.TestSLF4j(LoggerTest.java:15) 6ms: Current Time: 1602751005465
-2020-10-15 16:36:45,466 [WARN ] com.ccqstark.springbootquick.LoggerTest.TestSLF4j(LoggerTest.java:17) 7ms: warn log
-2020-10-15 16:36:45,466 [INFO ] com.ccqstark.springbootquick.LoggerTest.TestSLF4j(LoggerTest.java:19) 7ms: info log
-2020-10-15 16:36:45,468 [ERROR] com.ccqstark.springbootquick.LoggerTest.TestSLF4j(LoggerTest.java:20) 9ms: error log
-</code></pre><h3 id="用法">用法</h3>
-<p>添加注解<code>@Slf4j</code>（确保使用了lombok）</p>
-<p>然后如测试类中<code>log.info</code>或其他类型的日志便可以使用了</p>
+</code></pre></div><p>直接在对应字段写上更新后的信息，会覆盖旧的值</p>
+<p>如果漏了原来有的字段，那么这些字段会被删除，所以不推荐使用</p>
+<ul>
+<li>POST更新**（推荐）**</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">POST</span> <span class="err">**/</span><span class="p">{</span><span class="err">index</span><span class="p">}</span><span class="err">/_update/</span><span class="p">{</span><span class="err">id</span><span class="p">}</span><span class="err">**</span>
+<span class="p">{</span>
+  <span class="nt">&#34;doc&#34;</span><span class="p">:{</span>
+    <span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;ccqstark555&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>被修改的文档的<code>&quot;_version&quot;</code>会递增1</p>
+<ul>
+<li>删除</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 删除索引库</span>
+DELETE /<span class="o">{</span>index<span class="o">}</span>
+<span class="c1"># 删除文档</span>
+DELETE /<span class="o">{</span>index<span class="o">}</span>/_doc/<span class="o">{</span>id<span class="o">}</span>
+</code></pre></div><ul>
+<li>简单条件查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search?q=name:ccqstark</span>
+</code></pre></div><p>⚠️如果字段类型是<code>keyword</code> ，说明不可分割，查询的时候分词器不会分割这个词来搜索，而是当成一个整体，而<code>text</code> 类型可以被分词器解析</p>
+<p>😮查询出来的<code>&quot;hits&quot;</code>里有<code>&quot;_score&quot;</code>是说明匹配度的分数值，匹配度越高，分数越高</p>
+<h3 id="复杂花式搜索">复杂(花式)搜索</h3>
+<ul>
+<li><code>match</code> 查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:{</span>
+    <span class="nt">&#34;match&#34;</span><span class="p">:{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;ccqstark&#34;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>match不是精确搜索，会使用<strong>分词器</strong>解析再搜索（默认自带分词器把英文按空格分词，中文是每一个字都分开）</p>
+<p>使用<code>json</code>构建查询参数体</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="s2">&#34;hits&#34;</span> <span class="err">:</span> <span class="p">{</span>
+    <span class="nt">&#34;total&#34;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;value&#34;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="nt">&#34;relation&#34;</span> <span class="p">:</span> <span class="s2">&#34;eq&#34;</span>
+    <span class="p">}</span>
+</code></pre></div><p>查询结果中的 <code>hits</code>里有个<code>total</code>的<code>value</code>，为查询结果的总数量</p>
+<ul>
+<li>过滤查询结果的字段</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:{</span>
+    <span class="nt">&#34;match&#34;</span><span class="p">:{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;ccqstark&#34;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;_source&#34;</span><span class="p">:[</span><span class="s2">&#34;name&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div><p><code>&quot;_source&quot;</code> 可以用来指定查询结果中的字段，相当于<code>select xxx,xxx</code></p>
+<ul>
+<li>结果排序</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:{</span>
+    <span class="nt">&#34;match&#34;</span><span class="p">:{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;ccqstark&#34;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;sort&#34;</span><span class="p">:{</span>
+    <span class="nt">&#34;age&#34;</span><span class="p">:{</span>
+      <span class="nt">&#34;order&#34;</span><span class="p">:</span><span class="s2">&#34;desc&#34;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>这里 <code>&quot;sort&quot;</code> 指定<code>age</code>为用来排序的字段，<code>&quot;order&quot;</code> 为排序方式</p>
+<p>升序：<code>asc</code></p>
+<p>降序：<code>desc</code></p>
+<ul>
+<li>分页查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:{</span>
+    <span class="nt">&#34;match&#34;</span><span class="p">:{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;ccqstark&#34;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;from&#34;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&#34;size&#34;</span><span class="p">:</span><span class="mi">2</span>
+<span class="p">}</span>
+</code></pre></div><p><code>“from”</code>是从第几页开始，第一页为0</p>
+<p><code>“size”</code>是每页多少条数据</p>
+<ul>
+<li><code>bool</code>查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;bool&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;must&#34;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;ccqstark&#34;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;age&#34;</span><span class="p">:</span> <span class="mi">100</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>用<code>bool</code>可以实现多条件查询</p>
+<p>这里的<code>must</code>相当于<code>and</code>，也就是所有条件都要符合</p>
+<p>也可以用<code>should</code> ，相当于<code>or</code></p>
+<p>还有<code>must_not</code> ，相当于<code>not</code></p>
+<ul>
+<li><code>filter</code> 查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;bool&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;must_not&#34;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;陈楚权&#34;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&#34;filter&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;range&#34;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&#34;age&#34;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;gte&#34;</span><span class="p">:</span> <span class="mi">66</span><span class="p">,</span>
+            <span class="nt">&#34;lte&#34;</span><span class="p">:</span> <span class="mi">100</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p><code>range</code> 表示范围查询，<code>age</code> 指定了字段</p>
+<p>⚠️<code>范围查询表达式</code></p>
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>表示</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gt</td>
+<td>&gt;</td>
+</tr>
+<tr>
+<td>gte</td>
+<td>&gt;=</td>
+</tr>
+<tr>
+<td>lt</td>
+<td>&lt;</td>
+</tr>
+<tr>
+<td>lte</td>
+<td>&lt;=</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>多关键词查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;bool&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;must&#34;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;ccq java&#34;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>用空格隔开关键词就行</p>
+<ul>
+<li><code>term</code>精确查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test</span><span class="mi">3</span><span class="err">/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;bool&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;should&#34;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&#34;term&#34;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;ccq说java&#34;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>⚠️使用<code>term</code>查询要求字段为<code>keyword</code>类型才能匹配出来</p>
+<p><code>term</code>是精确查询，于match会用分词器解析不同，term是直接通过倒排索引指定的词条进行精确查找</p>
+<p><img src="REST%E9%A3%8E%E6%A0%BC%E6%93%8D%E4%BD%9C%20c1ca3a07d5da4a59911b43bfbc5eab1e/Untitled.png" alt="REST%E9%A3%8E%E6%A0%BC%E6%93%8D%E4%BD%9C%20c1ca3a07d5da4a59911b43bfbc5eab1e/Untitled.png"  /></p>
+<ul>
+<li>高亮查询</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;java&#34;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;highlight&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;fields&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>返回值中的<code>highlight</code>字段里会有带高亮标签的搜索结果，默认标签为<code>&lt;em&gt;</code>，效果如下</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+    <span class="nt">&#34;_index&#34;</span> <span class="p">:</span> <span class="s2">&#34;test&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;_type&#34;</span> <span class="p">:</span> <span class="s2">&#34;_doc&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;_id&#34;</span> <span class="p">:</span> <span class="s2">&#34;6&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;_score&#34;</span> <span class="p">:</span> <span class="mf">1.1631508</span><span class="p">,</span>
+    <span class="nt">&#34;_source&#34;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;name&#34;</span> <span class="p">:</span> <span class="s2">&#34;ccq说java&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;age&#34;</span> <span class="p">:</span> <span class="mi">100</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;highlight&#34;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;name&#34;</span> <span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&#34;ccq说&lt;em&gt;java&lt;/em&gt;&#34;</span>
+       <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>高亮标签可以自定义，用前标签<code>pre_tags</code>和后标签<code>post_tags</code> 来指定</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
+<span class="p">{</span>
+  <span class="nt">&#34;query&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;java&#34;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;highlight&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;pre_tags&#34;</span><span class="p">:</span> <span class="s2">&#34;&lt;p class=&#39;key&#39; style=&#39;color:red&#39;&gt;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;post_tags&#34;</span><span class="p">:</span> <span class="s2">&#34;&lt;/p&gt;&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;fields&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>参考自<code>狂神</code>的ElasticSearch教程：
+<a class="link" href="https://www.bilibili.com/video/BV17a4y1x7zq?p=10"  target="_blank" rel="noopener"
+    >【狂神说Java】ElasticSearch7.6.x最新完整教程通俗易懂</a></p>
 
 </section>
 
@@ -301,7 +636,7 @@ log4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n
     
     <section class="article-tags">
         
-            <a href="/tags/springboot/">SpringBoot</a>
+            <a href="/tags/elasticsearch/">ElasticSearch</a>
         
     </section>
 
@@ -399,23 +734,13 @@ log4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n
 </article>
                 
                     
-<article class="has-image">
-    <a href="/p/es_rest/">
+<article class="">
+    <a href="/p/springboot_slf4j-log4j/">
         
-        
-            <div class="article-image">
-                <img src="/p/es_rest/restful.fd9d194403593239aeab75914828e254_hud0b30a641456616a14ef2ef618957a76_22844_250x150_fill_box_smart1_2.png" 
-                        width="250" 
-                        height="150" 
-                        loading="lazy" 
-                        data-key="es_rest" 
-                        data-hash="md5-/Z0ZRANZMjmuq3WRSCjiVA==">
-                
-            </div>
         
 
         <div class="article-details">
-            <h2 class="article-title">[ElasticSearch]REST风格操作</h2>
+            <h2 class="article-title">[SpringBoot]整合SLF4J-log4j</h2>
         </div>
     </a>
 </article>

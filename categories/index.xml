@@ -6,7 +6,16 @@
     <description>Recent content in Categories on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 31 Jan 2021 21:26:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JavaEE</title>
+      <link>https://ccqstark.github.io/categories/javaee/</link>
+      <pubDate>Wed, 03 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/categories/javaee/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>其它技术</title>
       <link>https://ccqstark.github.io/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/</link>
@@ -49,15 +58,6 @@
       <pubDate>Sat, 31 Oct 2020 17:03:00 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/categories/%E7%AE%97%E6%B3%95/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>JavaEE</title>
-      <link>https://ccqstark.github.io/categories/javaee/</link>
-      <pubDate>Sat, 17 Oct 2020 16:52:00 +0800</pubDate>
-      
-      <guid>https://ccqstark.github.io/categories/javaee/</guid>
       <description></description>
     </item>
     
