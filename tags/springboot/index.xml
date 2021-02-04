@@ -6,7 +6,22 @@
     <description>Recent content in SpringBoot on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 17 Oct 2020 16:52:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/springboot/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 04 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/springboot/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[SpringBoot]整合ElasticSearch</title>
+      <link>https://ccqstark.github.io/p/springboot_es/</link>
+      <pubDate>Thu, 04 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_es/</guid>
+      <description>导入依赖 我们使用springboot操作es要用到对应的data相关starter
+&amp;lt;!-- elasticsearch的starter依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-data-elasticsearch&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- 将对象转为json传入source时要用 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.75&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;  ⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。
+ 版本对应表如下：
+我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
+配置类 config目录下新建es的配置类ElasticSearchClientConfig.java
+@Configuration public class ElasticSearchClientConfig { @Bean public RestHighLevelClient restHighLevelClient() { final CredentialsProvider credentialsProvider = new BasicCredentialsProvider(); credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(&amp;#34;elastic&amp;#34;, &amp;#34;[密码]&amp;#34;)); RestHighLevelClient client = new RestHighLevelClient( RestClient.builder( new HttpHost(&amp;#34;[ip]&amp;#34;, 9200, &amp;#34;http&amp;#34;)) .setHttpClientConfigCallback(httpClientBuilder -&amp;gt; { httpClientBuilder.disableAuthCaching(); return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider); })); return client; } } 这里有用到x-pack基础安全功能，所以配置了用户和密码。如果没有用户和密码，参照官方文档连接代码如下：
+RestHighLevelClient client = new RestHighLevelClient( RestClient.</description>
+    </item>
+    
     <item>
       <title>[SpringBoot]整合shiro&#43;JWT做鉴权</title>
       <link>https://ccqstark.github.io/p/springboot_shiro_jwt/</link>

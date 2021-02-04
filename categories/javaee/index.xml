@@ -6,18 +6,35 @@
     <description>Recent content in JavaEE on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 03 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/javaee/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 04 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/javaee/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[SpringBoot]整合ElasticSearch</title>
+      <link>https://ccqstark.github.io/p/springboot_es/</link>
+      <pubDate>Thu, 04 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_es/</guid>
+      <description>导入依赖 我们使用springboot操作es要用到对应的data相关starter
+&amp;lt;!-- elasticsearch的starter依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-data-elasticsearch&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- 将对象转为json传入source时要用 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.75&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;  ⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。
+ 版本对应表如下：
+我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
+配置类 config目录下新建es的配置类ElasticSearchClientConfig.java
+@Configuration public class ElasticSearchClientConfig { @Bean public RestHighLevelClient restHighLevelClient() { final CredentialsProvider credentialsProvider = new BasicCredentialsProvider(); credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(&amp;#34;elastic&amp;#34;, &amp;#34;[密码]&amp;#34;)); RestHighLevelClient client = new RestHighLevelClient( RestClient.builder( new HttpHost(&amp;#34;[ip]&amp;#34;, 9200, &amp;#34;http&amp;#34;)) .setHttpClientConfigCallback(httpClientBuilder -&amp;gt; { httpClientBuilder.disableAuthCaching(); return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider); })); return client; } } 这里有用到x-pack基础安全功能，所以配置了用户和密码。如果没有用户和密码，参照官方文档连接代码如下：
+RestHighLevelClient client = new RestHighLevelClient( RestClient.</description>
+    </item>
+    
     <item>
       <title>[ElasticSearch]REST风格操作</title>
       <link>https://ccqstark.github.io/p/es_rest/</link>
       <pubDate>Wed, 03 Feb 2021 23:01:00 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/p/es_rest/</guid>
-      <description>基本的rest命令    method url 功能     PUT localhost:9200/索引名称/类型名称/文档id 创建文档（指定文档id)   POST localhost:9200/索引名称/类型名称 创建文档（随机文档id）   POST localhost:9200/索引名称/类型名称/文档id/_update 修改文档   DELETE localhost:9200/索引名称/类型名称/文档id 删除文档   GET localhost:9200/索引名称/类型名称/文档id 查询文档，通过文档id   POST localhost:9200/索引名称/类型名称/_search 查询所有数据   ⚠️自定义类型将在以后的版本中弃用，规范起见一律使用_doc 类型      文档字段的数据类型   字符串类型
+      <description>基本的rest命令    method url 功能     PUT localhost:9200/索引名称/类型名称/文档id 创建文档（指定文档id)   POST localhost:9200/索引名称/类型名称 创建文档（随机文档id）   POST localhost:9200/索引名称/类型名称/文档id/_update 修改文档   DELETE localhost:9200/索引名称/类型名称/文档id 删除文档   GET localhost:9200/索引名称/类型名称/文档id 查询文档，通过文档id   POST localhost:9200/索引名称/类型名称/_search 查询所有数据     ⚠️ 自定义类型将在以后的版本中弃用，规范起见一律使用_doc 类型
+ 文档字段的数据类型   字符串类型
 text keyword
   数值类型
 long integer short byte double float half float scaled float
-  日期类型</description>
+  日期类型
+date</description>
     </item>
     
     <item>
