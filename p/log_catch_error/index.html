@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='项目中用到了之前说的日志门面slf4j&#43;log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。
+slf4j与log4j 之前有一篇文章介绍了slf4j怎么整合进Springboot，slf4j是一个日志门面，和我们所用的logback、log4j这些日志框架不同，它是为这些日志框架统一调用的API，通过api来调用具体的日志实现，简化了日志的配置与使用。slf4j要与具体的日志框架搭配，我用的是log4j。
+&amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 使用时只要用注解@Slf4j ，然后直接用log.info() 方法就可以记录日志了。
+日志等级 日志分为以下几个等级：
+OFF：最高等级的，用于关闭所有日志记录。
+FATAL：会导致应用程序推出的严重错误。
+ERROR：虽然发生错误事件，但仍然不影响系统的继续运行，一般也是程序的各种Exception，但要注意的是并不是所有异常都会导致Error，这就是下面的要说的异常捕获。打印错误和异常信息，如果不想输出太多的日志，可以使用这个级别。
+WARN：警告，表明会出现潜在错误的情形，有些信息不是错误信息，只是一些提示。
+INFO：消息在粗粒度级别上突出强调应用程序的运行过程。打印一些你感兴趣的或者重要的信息，这个可以用于生产环境中输出程序运行的一些重要信息，但是不能滥用，避免打印过多的日志。
+DEBUG：主要用于开发过程中打印一些运行信息。但是打印但信息量过多，项目上线后不要用。
+TRACE：跟踪日志，日志消息的粒度太细，很低的日志级别，一般不会使用。
+ALL：最低等级的，用于打开所有日志记录。
+通过修改日志配置文件log4j.properties来改变日志等级：
+log4j.rootLogger = ERROR,stdout,log //第一个参数是日志等级 错误捕获 在SpringBoot我们希望有统一的操作来捕获系统运行过程中参数的所有错误，对未预测到对错误设置友好的返回值给用户，避免返回500状态码。甚至可以将系统产生的报错通过邮件发送给开发者，让生产环境中的错误能得到快速直接的监测和解决。
+我们用到@RestControllerAdvice和@ExceptionHandler 这两个注解
+@Slf4j @RestControllerAdvice // 用于拦截异常的注解 public class ExceptionProcesser extends ResponseEntityExceptionHandler { @Autowired private MailService mailService; /** * 全局异常捕获入日志 */ // 此注解用来标示处理哪个类的异常 	@ExceptionHandler(value = Exception.class) // 表示所有的异常都会处理 	public CommonResult&amp;lt;String&amp;gt; defaultErrorHandler(Exception e) { // slf4j下的日志用法，简洁易用 	log.'><title>[SpringBoot]日志与异常捕获</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/log_catch_error/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[SpringBoot]日志与异常捕获'>
+<meta property='og:description' content='项目中用到了之前说的日志门面slf4j&#43;log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。
+slf4j与log4j 之前有一篇文章介绍了slf4j怎么整合进Springboot，slf4j是一个日志门面，和我们所用的logback、log4j这些日志框架不同，它是为这些日志框架统一调用的API，通过api来调用具体的日志实现，简化了日志的配置与使用。slf4j要与具体的日志框架搭配，我用的是log4j。
+&amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 使用时只要用注解@Slf4j ，然后直接用log.info() 方法就可以记录日志了。
+日志等级 日志分为以下几个等级：
+OFF：最高等级的，用于关闭所有日志记录。
+FATAL：会导致应用程序推出的严重错误。
+ERROR：虽然发生错误事件，但仍然不影响系统的继续运行，一般也是程序的各种Exception，但要注意的是并不是所有异常都会导致Error，这就是下面的要说的异常捕获。打印错误和异常信息，如果不想输出太多的日志，可以使用这个级别。
+WARN：警告，表明会出现潜在错误的情形，有些信息不是错误信息，只是一些提示。
+INFO：消息在粗粒度级别上突出强调应用程序的运行过程。打印一些你感兴趣的或者重要的信息，这个可以用于生产环境中输出程序运行的一些重要信息，但是不能滥用，避免打印过多的日志。
+DEBUG：主要用于开发过程中打印一些运行信息。但是打印但信息量过多，项目上线后不要用。
+TRACE：跟踪日志，日志消息的粒度太细，很低的日志级别，一般不会使用。
+ALL：最低等级的，用于打开所有日志记录。
+通过修改日志配置文件log4j.properties来改变日志等级：
+log4j.rootLogger = ERROR,stdout,log //第一个参数是日志等级 错误捕获 在SpringBoot我们希望有统一的操作来捕获系统运行过程中参数的所有错误，对未预测到对错误设置友好的返回值给用户，避免返回500状态码。甚至可以将系统产生的报错通过邮件发送给开发者，让生产环境中的错误能得到快速直接的监测和解决。
+我们用到@RestControllerAdvice和@ExceptionHandler 这两个注解
+@Slf4j @RestControllerAdvice // 用于拦截异常的注解 public class ExceptionProcesser extends ResponseEntityExceptionHandler { @Autowired private MailService mailService; /** * 全局异常捕获入日志 */ // 此注解用来标示处理哪个类的异常 	@ExceptionHandler(value = Exception.class) // 表示所有的异常都会处理 	public CommonResult&amp;lt;String&amp;gt; defaultErrorHandler(Exception e) { // slf4j下的日志用法，简洁易用 	log.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/log_catch_error/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2021-03-18T23:01:00&#43;08:00'/><meta property='article:modified_time' content='2021-03-18T23:01:00&#43;08:00'/>
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[SpringBoot]日志与异常捕获">
+<meta name="twitter:description" content="项目中用到了之前说的日志门面slf4j&#43;log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。
+slf4j与log4j 之前有一篇文章介绍了slf4j怎么整合进Springboot，slf4j是一个日志门面，和我们所用的logback、log4j这些日志框架不同，它是为这些日志框架统一调用的API，通过api来调用具体的日志实现，简化了日志的配置与使用。slf4j要与具体的日志框架搭配，我用的是log4j。
+&amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 使用时只要用注解@Slf4j ，然后直接用log.info() 方法就可以记录日志了。
+日志等级 日志分为以下几个等级：
+OFF：最高等级的，用于关闭所有日志记录。
+FATAL：会导致应用程序推出的严重错误。
+ERROR：虽然发生错误事件，但仍然不影响系统的继续运行，一般也是程序的各种Exception，但要注意的是并不是所有异常都会导致Error，这就是下面的要说的异常捕获。打印错误和异常信息，如果不想输出太多的日志，可以使用这个级别。
+WARN：警告，表明会出现潜在错误的情形，有些信息不是错误信息，只是一些提示。
+INFO：消息在粗粒度级别上突出强调应用程序的运行过程。打印一些你感兴趣的或者重要的信息，这个可以用于生产环境中输出程序运行的一些重要信息，但是不能滥用，避免打印过多的日志。
+DEBUG：主要用于开发过程中打印一些运行信息。但是打印但信息量过多，项目上线后不要用。
+TRACE：跟踪日志，日志消息的粒度太细，很低的日志级别，一般不会使用。
+ALL：最低等级的，用于打开所有日志记录。
+通过修改日志配置文件log4j.properties来改变日志等级：
+log4j.rootLogger = ERROR,stdout,log //第一个参数是日志等级 错误捕获 在SpringBoot我们希望有统一的操作来捕获系统运行过程中参数的所有错误，对未预测到对错误设置友好的返回值给用户，避免返回500状态码。甚至可以将系统产生的报错通过邮件发送给开发者，让生产环境中的错误能得到快速直接的监测和解决。
+我们用到@RestControllerAdvice和@ExceptionHandler 这两个注解
+@Slf4j @RestControllerAdvice // 用于拦截异常的注解 public class ExceptionProcesser extends ResponseEntityExceptionHandler { @Autowired private MailService mailService; /** * 全局异常捕获入日志 */ // 此注解用来标示处理哪个类的异常 	@ExceptionHandler(value = Exception.class) // 表示所有的异常都会处理 	public CommonResult&amp;lt;String&amp;gt; defaultErrorHandler(Exception e) { // slf4j下的日志用法，简洁易用 	log.">
+    <link rel="shortcut icon" href="/icon.ico" />
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/log_catch_error/">[SpringBoot]日志与异常捕获</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Mar 18, 2021</time>
+    </footer><footer class="article-time">
+        <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1612441223747" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3546" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M512 608a96 96 0 1 1 0-192 96 96 0 0 1 0 192m0-256c-88.224 0-160 71.776-160 160s71.776 160 160 160 160-71.776 160-160-71.776-160-160-160" p-id="3547" fill="#8a8a8a"></path><path d="M512 800c-212.064 0-384-256-384-288s171.936-288 384-288 384 256 384 288-171.936 288-384 288m0-640C265.248 160 64 443.008 64 512s201.248 352 448 352 448-283.008 448-352S758.752 160 512 160" p-id="3548" fill="#8a8a8a"></path></svg>
+        <time class="article-time--published">
+            200 Words | Read in about 1 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
+        </time>
+    </footer></div>
+
+</header>
+
+    <section class="article-content">
+    <p>项目中用到了之前说的日志门面slf4j+log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。</p>
+<h3 id="slf4j与log4j">slf4j与log4j</h3>
+<p>之前有一篇文章介绍了slf4j怎么整合进Springboot，slf4j是一个日志门面，和我们所用的logback、log4j这些日志框架不同，它是为这些日志框架统一调用的API，通过api来调用具体的日志实现，简化了日志的配置与使用。slf4j要与具体的日志框架搭配，我用的是log4j。</p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="c">&lt;!-- SLF4j - log4j --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.slf4j<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>slf4j-log4j12<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.8.0-alpha2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div><p>使用时只要用注解<code>@Slf4j</code> ，然后直接用<code>log.info()</code> 方法就可以记录日志了。</p>
+<h3 id="日志等级">日志等级</h3>
+<p>日志分为以下几个等级：</p>
+<p><code>OFF</code>：最高等级的，用于关闭所有日志记录。</p>
+<p><code>FATAL</code>：会导致应用程序推出的严重错误。</p>
+<p><code>ERROR</code>：虽然发生错误事件，但仍然不影响系统的继续运行，一般也是程序的各种<strong>Exception</strong>，但要注意的是并不是所有异常都会导致Error，这就是下面的要说的异常捕获。打印错误和异常信息，如果不想输出太多的日志，可以使用这个级别。</p>
+<p><code>WARN</code>：<strong>警告</strong>，表明会出现潜在错误的情形，有些信息不是错误信息，只是一些提示。</p>
+<p><code>INFO</code>：消息在粗粒度级别上突出强调应用程序的运行过程。打印一些你感兴趣的或者重要的信息，这个可以用于生产环境中输出程序运行的一些重要信息，但是不能滥用，避免打印过多的日志。</p>
+<p><code>DEBUG</code>：主要用于开发过程中打印一些运行信息。但是打印但信息量过多，项目上线后不要用。</p>
+<p><code>TRACE</code>：跟踪日志，日志消息的粒度太细，很低的日志级别，一般不会使用。</p>
+<p><code>ALL</code>：最低等级的，用于打开所有日志记录。</p>
+<p>通过修改日志配置文件<code>log4j.properties</code>来改变日志等级：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">log4j</span><span class="o">.</span><span class="na">rootLogger</span> <span class="o">=</span> <span class="n">ERROR</span><span class="o">,</span><span class="n">stdout</span><span class="o">,</span><span class="n">log</span> <span class="c1">//第一个参数是日志等级
+</span></code></pre></div><h3 id="错误捕获">错误捕获</h3>
+<p>在SpringBoot我们希望有统一的操作来捕获系统运行过程中参数的所有错误，对未预测到对错误设置友好的返回值给用户，避免返回<code>500</code>状态码。甚至可以将系统产生的报错通过邮件发送给开发者，让生产环境中的错误能得到快速直接的监测和解决。</p>
+<p>我们用到<code>@RestControllerAdvice</code>和<code>@ExceptionHandler</code> 这两个注解</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Slf4j</span>
+<span class="nd">@RestControllerAdvice</span> <span class="c1">// 用于拦截异常的注解
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExceptionProcesser</span> <span class="kd">extends</span> <span class="n">ResponseEntityExceptionHandler</span> <span class="o">{</span>
+
+	<span class="nd">@Autowired</span>
+  <span class="kd">private</span> <span class="n">MailService</span> <span class="n">mailService</span><span class="o">;</span>
+
+	<span class="cm">/**
+</span><span class="cm">	 * 全局异常捕获入日志
+</span><span class="cm">	 */</span>
+	<span class="c1">// 此注解用来标示处理哪个类的异常
+</span><span class="c1"></span>	<span class="nd">@ExceptionHandler</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">Exception</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="c1">// 表示所有的异常都会处理
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">defaultErrorHandler</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+	
+			<span class="c1">// slf4j下的日志用法，简洁易用
+</span><span class="c1"></span>	    <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;defaultErrorHandler:&#34;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+			
+			<span class="c1">// 将报错栈的信息转为字符串
+</span><span class="c1"></span>	    <span class="n">StringWriter</span> <span class="n">errors</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringWriter</span><span class="o">();</span>
+	    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">(</span><span class="k">new</span> <span class="n">PrintWriter</span><span class="o">(</span><span class="n">errors</span><span class="o">));</span>
+			<span class="c1">// 发送邮件给开发者
+</span><span class="c1"></span>	    <span class="n">mailService</span><span class="o">.</span><span class="na">sendSimpleMail</span><span class="o">(</span><span class="s">&#34;xxxxx@qq.com&#34;</span><span class="o">,</span> <span class="s">&#34;项目报错&#34;</span><span class="o">,</span> <span class="n">errors</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+	
+	    <span class="k">return</span> <span class="n">CommonResult</span><span class="o">.</span><span class="na">failed</span><span class="o">(</span><span class="s">&#34;这里可能有bug，报错信息发给ccq了，找他改bug去&#34;</span><span class="o">);</span>
+	<span class="o">}</span>
+
+	<span class="cm">/**
+</span><span class="cm">   * 对一些无法try/catch的具体错误还可以专门处理
+</span><span class="cm">   */</span>
+  <span class="nd">@ExceptionHandler</span><span class="o">(</span><span class="n">MultipartException</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="c1">// 表示只处理MultipartException这个类相关的异常
+</span><span class="c1"></span>  <span class="kd">public</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">handleUploadFileTooLargeError</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">CommonResult</span><span class="o">.</span><span class="na">failed</span><span class="o">(</span><span class="n">ResultCode</span><span class="o">.</span><span class="na">FILE_TOO_BIG</span><span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><h3 id="日志时差">日志时差</h3>
+<p>应用部署到线上的时候可能会遇到日志的记录时间和我们的东八区时间有时差，那就是经典时区问题了，可以通过启动jar包时设置参数来解决</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="o">-</span><span class="n">Duser</span><span class="o">.</span><span class="na">timezone</span><span class="o">=</span><span class="n">GMT</span><span class="o">+</span><span class="n">08</span> <span class="n">xxx</span><span class="o">.</span><span class="na">jar</span>
+</code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/springboot/">SpringBoot</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+        <time class="article-time--published">
+			<span id="busuanzi_container_site_pv">
+			    本站访问量：<span id="busuanzi_value_site_pv"></span>次
+			</span>
+			&nbsp;
+			<span id="busuanzi_container_site_uv">
+			    您是本站第 <span id="busuanzi_value_site_uv"></span> 位访问者
+			</span>
+        </time>
+    </footer>
+	
+</footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/springboot_es/">
+        
+        
+            <div class="article-image">
+                <img src="/p/springboot_es/springboot-es.68bd173d94a8eaf642b2ac727cbde179_hu5dbd9828aef42d61c56fd952a73b2be9_64126_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_es" 
+                        data-hash="md5-aL0XPZSo6vZCsqxyfL3heQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合ElasticSearch</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_shiro_jwt/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合shiro&#43;JWT做鉴权</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_oss/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]使用阿里云OSS上传文件</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_druid/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合Druid数据源</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_mybatis/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合Mybatis</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

@@ -246,7 +246,7 @@ date"><meta name="twitter:card" content="summary_large_image">
     </footer><footer class="article-time">
         <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1612441223747" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3546" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M512 608a96 96 0 1 1 0-192 96 96 0 0 1 0 192m0-256c-88.224 0-160 71.776-160 160s71.776 160 160 160 160-71.776 160-160-71.776-160-160-160" p-id="3547" fill="#8a8a8a"></path><path d="M512 800c-212.064 0-384-256-384-288s171.936-288 384-288 384 256 384 288-171.936 288-384 288m0-640C265.248 160 64 443.008 64 512s201.248 352 448 352 448-283.008 448-352S758.752 160 512 160" p-id="3548" fill="#8a8a8a"></path></svg>
         <time class="article-time--published">
-            500 Words | Read in about 2 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
+            500 Words | Read in about 3 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
         </time>
     </footer></div>
 
@@ -493,6 +493,30 @@ DELETE /<span class="o">{</span>index<span class="o">}</span>/_doc/<span class="
 <p>也可以用<code>should</code> ，相当于<code>or</code></p>
 <p>还有<code>must_not</code> ，相当于<code>not</code></p>
 <ul>
+<li><code>bool嵌套</code></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/my_store/products/_search</span>
+<span class="p">{</span>
+   <span class="nt">&#34;query&#34;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;filtered&#34;</span> <span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&#34;filter&#34;</span> <span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;bool&#34;</span> <span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&#34;should&#34;</span> <span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span> <span class="nt">&#34;term&#34;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&#34;productID&#34;</span> <span class="p">:</span> <span class="s2">&#34;KDKE-B-9947-#kL5&#34;</span><span class="p">}},</span> 
+                <span class="p">{</span> <span class="nt">&#34;bool&#34;</span> <span class="p">:</span> <span class="p">{</span> 
+                  <span class="nt">&#34;must&#34;</span> <span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span> <span class="nt">&#34;term&#34;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&#34;productID&#34;</span> <span class="p">:</span> <span class="s2">&#34;JODL-X-1937-#pV7&#34;</span><span class="p">}},</span> 
+                    <span class="p">{</span> <span class="nt">&#34;term&#34;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&#34;price&#34;</span> <span class="p">:</span> <span class="mi">30</span><span class="p">}}</span> 
+                  <span class="p">]</span>
+                <span class="p">}}</span>
+              <span class="p">]</span>
+           <span class="p">}</span>
+         <span class="p">}</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>bool查询里再套一个bool，就相当于加了个括号：( A or ( B and C ))</p>
+<ul>
 <li><code>filter</code> 查询</li>
 </ul>
 <div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="err">GET</span> <span class="err">/test/_doc/_search</span>
@@ -695,6 +719,28 @@ DELETE /<span class="o">{</span>index<span class="o">}</span>/_doc/<span class="
                 
                     
 <article class="has-image">
+    <a href="/p/es_principle/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_principle/es.94df52b03b9215a4dc212e1f3acd4cfb_hu709c9dbb1dd93df65cfe69a9e6744979_88514_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_principle" 
+                        data-hash="md5-lN9SsDuSFaTcIS4fOs1M&#43;w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]ElasticSearch入门与原理浅析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
     <a href="/p/springboot_es/">
         
         
@@ -711,6 +757,18 @@ DELETE /<span class="o">{</span>index<span class="o">}</span>/_doc/<span class="
 
         <div class="article-details">
             <h2 class="article-title">[SpringBoot]整合ElasticSearch</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/log_catch_error/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]日志与异常捕获</h2>
         </div>
     </a>
 </article>
@@ -735,30 +793,6 @@ DELETE /<span class="o">{</span>index<span class="o">}</span>/_doc/<span class="
 
         <div class="article-details">
             <h2 class="article-title">[SpringBoot]使用阿里云OSS上传文件</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/springboot_druid/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">[SpringBoot]整合Druid数据源</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/springboot_mybatis/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">[SpringBoot]整合Mybatis</h2>
         </div>
     </a>
 </article>

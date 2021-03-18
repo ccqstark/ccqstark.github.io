@@ -6,7 +6,94 @@
     <description>Recent content in Posts on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 04 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 18 Mar 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[SpringBoot]日志与异常捕获</title>
+      <link>https://ccqstark.github.io/p/log_catch_error/</link>
+      <pubDate>Thu, 18 Mar 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/log_catch_error/</guid>
+      <description>项目中用到了之前说的日志门面slf4j+log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。
+slf4j与log4j 之前有一篇文章介绍了slf4j怎么整合进Springboot，slf4j是一个日志门面，和我们所用的logback、log4j这些日志框架不同，它是为这些日志框架统一调用的API，通过api来调用具体的日志实现，简化了日志的配置与使用。slf4j要与具体的日志框架搭配，我用的是log4j。
+&amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 使用时只要用注解@Slf4j ，然后直接用log.info() 方法就可以记录日志了。
+日志等级 日志分为以下几个等级：
+OFF：最高等级的，用于关闭所有日志记录。
+FATAL：会导致应用程序推出的严重错误。
+ERROR：虽然发生错误事件，但仍然不影响系统的继续运行，一般也是程序的各种Exception，但要注意的是并不是所有异常都会导致Error，这就是下面的要说的异常捕获。打印错误和异常信息，如果不想输出太多的日志，可以使用这个级别。
+WARN：警告，表明会出现潜在错误的情形，有些信息不是错误信息，只是一些提示。
+INFO：消息在粗粒度级别上突出强调应用程序的运行过程。打印一些你感兴趣的或者重要的信息，这个可以用于生产环境中输出程序运行的一些重要信息，但是不能滥用，避免打印过多的日志。
+DEBUG：主要用于开发过程中打印一些运行信息。但是打印但信息量过多，项目上线后不要用。
+TRACE：跟踪日志，日志消息的粒度太细，很低的日志级别，一般不会使用。
+ALL：最低等级的，用于打开所有日志记录。
+通过修改日志配置文件log4j.properties来改变日志等级：
+log4j.rootLogger = ERROR,stdout,log //第一个参数是日志等级 错误捕获 在SpringBoot我们希望有统一的操作来捕获系统运行过程中参数的所有错误，对未预测到对错误设置友好的返回值给用户，避免返回500状态码。甚至可以将系统产生的报错通过邮件发送给开发者，让生产环境中的错误能得到快速直接的监测和解决。
+我们用到@RestControllerAdvice和@ExceptionHandler 这两个注解
+@Slf4j @RestControllerAdvice // 用于拦截异常的注解 public class ExceptionProcesser extends ResponseEntityExceptionHandler { @Autowired private MailService mailService; /** * 全局异常捕获入日志 */ // 此注解用来标示处理哪个类的异常 	@ExceptionHandler(value = Exception.class) // 表示所有的异常都会处理 	public CommonResult&amp;lt;String&amp;gt; defaultErrorHandler(Exception e) { // slf4j下的日志用法，简洁易用 	log.</description>
+    </item>
+    
+    <item>
+      <title>[ElasticSearch]ElasticSearch入门与原理浅析</title>
+      <link>https://ccqstark.github.io/p/es_principle/</link>
+      <pubDate>Sat, 13 Mar 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/es_principle/</guid>
+      <description>简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
+基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
+官网地址：https://www.elastic.co/cn/elasticsearch/
+应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch + logstash + Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
+一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
+es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
+   Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。</description>
+    </item>
+    
+    <item>
+      <title>Dubbo &#43; ZooKeeper 基础入门</title>
+      <link>https://ccqstark.github.io/p/dubbo_zookeeper/</link>
+      <pubDate>Wed, 24 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dubbo_zookeeper/</guid>
+      <description>简介 Dubbo原本是阿里的开源框架，有很多著名厂商都在用。但在14年停更，之后Spring Cloud大红大紫，Dubbo终于在17年再度更新，并在18年合并当当网的基于它开发出的DubboX推出了2.6版本。之后在18年除夕夜，阿里正式将Dubbo捐献给了著名开源组织Apache，成为Apache众多开源项目之一。
+Apache Dubbo
+ZooKeeper 也是 Apache 软件基金会的一个软件项目，它为大型分布式计算提供开源的分布式配置服务、同步服务和命名注册。
+ZooKeeper 的架构通过冗余服务实现高可用性。
+Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。
+一个典型的分布式数据一致性的解决方案，分布式应用程序可以基于它实现诸如数据发布/订阅、负载均衡、命名服务、分布式协调/通知、集群管理、Master 选举、分布式锁和分布式队列等功能。
+Apache ZooKeeper
+安装 使用Dubbo引入相关依赖即可，下面具体实践会涉及。
+ZooKeeper可以去官网下载安装，这里我还是用docker在Linux服务器上安装。
+# 拉取镜像 docker pull zookeeper # 启动 docker run -d \ -p 2181:2181 \ -v /home/zookeeper/data/:/data/ \ --name=zookeeper \ --privileged zookeeper # 如果想运行自带的客户端可以： docker exec -it zookeeper bash cd bin ./zkCli.sh # 之后就可以使用相关命令了 安装ZooInspector来可视化查看zookeeper
+
+# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar 使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
+到github上下载
+apache/dubbo-admin
+解压后在application.properties中修改zookeeper地址
+dubbo.registry.address=zookeeper://[ip]:2181 之后用mvn命令打包再运行jar包即可，也可以直接在idea里打包
+运行后浏览器 打开localhost:7001 ，输入账号密码默认都为root，来到主页</description>
+    </item>
+    
+    <item>
+      <title>浅谈分布式系统与RPC</title>
+      <link>https://ccqstark.github.io/p/distributed_rpc/</link>
+      <pubDate>Wed, 24 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/distributed_rpc/</guid>
+      <description>随着互联网的发展，Web应用与服务的规模不断扩大，才能满足不断增加的用户和需求。而原来只用一台服务器来部署的单机应用的方式已经满足不了如此大的需求。为了提高性能，单机发展为分布式架构，简单来说就是通过增加服务器的数量来弥补性能上的不足，当然同时也带来了一些问题。
+分布式系统 分布式系统（distributed system）是由一组网络进行通信，为了完成共同的任务而协调工作的计算机节点组成的系统。分布式系统是为了用单体性能普通的机器完成单个计算机无法完成的计算、存储任务，通过合理调度各台计算机共同合作来提高性能，完成数量更多、体量更大的任务。
+比如百度或淘宝这样体量规模都十分大的应用，为了满足如此大的用户数量和请求压力，背后肯定不止一台计算机在提供服务，而是部署了计算机集群，通过提升计算机的数量来提高处理数据的能力。在流量高峰时，大量的请求可以被均匀地分配给各台服务器去处理，从而避免其中一台服务器由于压力过大而宕机，这就是负载均衡，也就是nginx可以做的事情。
+同时应用的各个模块也可以分别部署在不同的服务器上，比如淘宝这样的电商项目可以把服务拆分成商品、支付、订单、物流等不同的模块，不同模块可以部署在不同的服务器上。当一个模块部署到多台服务器上时，其中一台崩了，还有其他的服务器可以提供服务，提高了服务的稳定性与高可用。
+而对于用户来说，他们都是访问一个域名来获取服务的，所以对于用户来说服务还是一个整体，而不需要知道是哪台服务器为他们提供了服务。
+RPC 下图是Dubbo官方文档中的一张图，说明了网站应用的架构演变
+原来应用是单体应用，程序如果要调用一个函数或方法就直接调用就行了，因为都是在本地。
+现在应用采用分布式架构，服务被分散到不同的服务器上，一台服务器上的程序就会遇到需要调用另一台服务器上的某个方法的情况，这个时候就叫RPC(远程过程调用)(Remote Procedure call)
+RPC的调用过程如下图：
+通过网络发送调用消息就需要先序列化，到目标服务器后成功调用对应的服务后返回，反序列化得到结果。
+Dubbo就是一个流行的RPC框架，提供面向接口代理的高性能RPC调用、智能负载均衡、服务自动注册与发现、高度可扩展能力、运行期流量调度（灰度发布）、可视化工具等功能。
+流动计算架构 当服务增多时，服务的管理与资源的分配成为亟待解决的问题，此时，需要增加一个调度中心基于访问压力实时管理集群容量，提高集群的利用率。用于提高机器利用率的资源调度和治理中心(SOA)(Service Oriented Architecture)就十分重要。
+服务通过在注册中心进行注册，被统一的管理起来并可被发现，并对用户开放。当用户需要用到某一服务时，就去注册中心拿，注册中心就会将对应的服务提供给他。
+注册中心用的比较多的是Zookeeper</description>
+    </item>
+    
     <item>
       <title>[SpringBoot]整合ElasticSearch</title>
       <link>https://ccqstark.github.io/p/springboot_es/</link>
@@ -131,6 +218,29 @@ chmod 777 [宿主机data目录] 配置跨域 到挂载出来到位置编辑配�
 vim elasticsearch.yml 添加以下几行
 network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.allow-origin:&amp;#34;*&amp;#34;同时安全组和防火墙记得打开对应端口
 记得每次修改完配置都要重启 docker restart elasticsearch 浏览器访问测试 http://[IP]:9200 看到类似以下的json就成功了</description>
+    </item>
+    
+    <item>
+      <title>什么是CAP理论？</title>
+      <link>https://ccqstark.github.io/p/cap/</link>
+      <pubDate>Thu, 21 Jan 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/cap/</guid>
+      <description>随着移动互联网发展，用户和数据量越来越多，对应用系统提出了更高的要求，系统必须支持高并发访问和海量数据处理。
+分布式系统技术就是用来解决集中式架构的性能瓶颈问题。一般来说，分布式系统是建立在网络之上的硬件或者软件系统，彼此之间通过消息等方式进行通信和协调。
+分布式系统的核心是可扩展性，通过对服务、存储的扩展，来提高系统的处理能力，通过对多台服务器协同工作，来完成单台服务器无法处理的任务，尤其是高并发或者大数据量的任务。
+单点故障（Single Point Failure）是指在系统中某个组件一旦失效，这会让整个系统无法工作。而分布式系统的设计就是为了避免出现单点故障问题，为了实现一个节点的失效不影响整个系统的运行。
+无状态，是因为无状态的服务才能满足部分机器宕机不影响全部，可以随时进行扩展的需求。
+由于分布式系统的特点，在分布式环境中更容易出现问题，比如节点之间通信失败、网络分区故障、多个副本的数据不一致等，为了更好地在分布式系统下进行开发，学者们提出了一系列的理论，其中具有代表性的就是 CAP 理论。
+一致性是指“所有节点同时看到相同的数据”，即更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一致，等同于所有节点拥有数据的最新版本。
+可用性是指“任何时候，读写都是成功的”，即服务一直可用，而且是正常响应时间。平时会看到一些 IT 公司说系统稳定性已经做到 3 个 9、4 个 9，即 99.9%、99.99%，这里的 n 个 9 就是对可用性的一个描述，叫做 SLA，即服务水平协议。比如我们说月度 99.95% 的 SLA，则意味着每个月服务出现故障的时间只能占总时间的 0.05%，如果这个月是 30 天，那么就是 21.6 分钟。
+分区容忍性具体是指“当部分节点出现消息丢失或者分区故障的时候，分布式系统仍然能够继续运行”，即系统容忍网络出现分区，并且在遇到某节点或网络分区之间网络不可达的情况下，仍然能够对外提供满足一致性和可用性的服务。
+在分布式系统中，由于系统的各层拆分，P 是确定的，CAP 的应用模型就是 CP 架构和 AP 架构。分布式系统所关注的，就是在 Partition Tolerance 的前提下，如何实现更好的 A 和更稳定的 C。
+CAP 理论说明在架构设计中，不要把精力浪费在如何设计能满足三者的完美分布式系统上，而要合理进行取舍，因为三者无法完全兼得。
+不同业务对于一致性的要求是不同的。例如，在微博上发表评论和点赞，用户对不一致是不敏感的，可以容忍相对较长时间的不一致，只要做好本地的交互，并不会影响用户体验；而我们在电商购物时，产品价格数据则是要求强一致性的，如果商家更改价格不能实时生效，则会对交易成功率有非常大的影响。
+需要注意的是，CAP 理论中是忽略网络延迟的，也就是当事务提交时，节点间的数据复制一定是需要花费时间的。即使是同一个机房，从节点 A 复制到节点 B，由于现实中网络请求总是需要一定时间的，所以总会有一段时间不一致。
+ CP 架构：对于 CP 来说，放弃可用性，追求一致性和分区容错性。
+🔧 ZooKeeper就是采用了 CP 一致性，ZooKeeper 是一个分布式的服务框架，主要用来解决分布式集群中应用系统的协调和一致性问题。其核心算法是 Zab，所有设计都是为了一致性。在 CAP 模型中，ZooKeeper 是 CP，这意味着面对网络分区时，为了保持一致性，它是不可用的。</description>
     </item>
     
     <item>
@@ -555,14 +665,11 @@ Windows下载完要设置环境变量
 在指定路径下创建博客站点目录，目录最后是博客站点名
 找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行设置
 https://themes.gohugo.io/
-本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts
-&amp;lt;theme&amp;gt;的位置填写主题的名称
-创建博客 hugo new post/blog.md
-博客的markdown文件一开始都是放在\content\post目录下
+本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts &amp;lt;theme&amp;gt;的位置填写主题的名称
+创建博客 hugo new post/blog.md 博客的markdown文件一开始都是放在\content\post目录下
 创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
 Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务
-部署到远端仓库  生成\public目录  hugo --theme=hugo-theme-stack --baseUrl=&amp;quot;https://ccqstark.github.io/&amp;quot; --buildDrafts
-根据具体仓库修改，也可以是&amp;quot;https://ccqstark.gitee.io/&amp;quot; 然后cd进public目录 在这个目录下创建git仓库，部署也是部署这个目录中的内容
+部署到远端仓库  生成\public目录  hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://ccqstark.github.io/&amp;#34; --buildDrafts 根据具体仓库修改，也可以是&amp;quot;https://ccqstark.gitee.io/&amp;quot; 然后cd进public目录 在这个目录下创建git仓库，部署也是部署这个目录中的内容
  三部曲  git add . git commit -m &amp;#39;...&amp;#39; git push github master 更新博客 要新增一篇博客就继续按下面这个步骤走
 hugo new post/name.md hugo --theme=hugo-theme-stack --baseUrl=&amp;#34;https://ccqstark.github.io/&amp;#34; --buildDrafts cd public git add .</description>
     </item>

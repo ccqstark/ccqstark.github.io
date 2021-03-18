@@ -6,13 +6,22 @@
     <description>Recent content in Categories on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 04 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 18 Mar 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>JavaEE</title>
       <link>https://ccqstark.github.io/categories/javaee/</link>
-      <pubDate>Thu, 04 Feb 2021 23:01:00 +0800</pubDate>
+      <pubDate>Thu, 18 Mar 2021 23:01:00 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/categories/javaee/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>分布式</title>
+      <link>https://ccqstark.github.io/categories/%E5%88%86%E5%B8%83%E5%BC%8F/</link>
+      <pubDate>Wed, 24 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/categories/%E5%88%86%E5%B8%83%E5%BC%8F/</guid>
       <description></description>
     </item>
     

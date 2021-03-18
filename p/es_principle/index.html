@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
+基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
+官网地址：https://www.elastic.co/cn/elasticsearch/
+应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch &#43; logstash &#43; Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
+一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
+es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
+   Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。'><title>[ElasticSearch]ElasticSearch入门与原理浅析</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/es_principle/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[ElasticSearch]ElasticSearch入门与原理浅析'>
+<meta property='og:description' content='简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
+基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
+官网地址：https://www.elastic.co/cn/elasticsearch/
+应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch &#43; logstash &#43; Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
+一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
+es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
+   Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。'>
+<meta property='og:url' content='https://ccqstark.github.io/p/es_principle/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ElasticSearch' /><meta property='article:published_time' content='2021-03-13T23:01:00&#43;08:00'/><meta property='article:modified_time' content='2021-03-13T23:01:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/es_principle/es.png' />
+<meta name="twitter:site" content="ccqstark"><meta name="twitter:title" content="[ElasticSearch]ElasticSearch入门与原理浅析">
+<meta name="twitter:description" content="简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
+基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
+官网地址：https://www.elastic.co/cn/elasticsearch/
+应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch &#43; logstash &#43; Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
+一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
+es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
+   Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/es_principle/es.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/gopher_huca329ad796a265753d53f902edb6874c_16262_300x0_resize_box_2.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+                    <span class="emoji">🤡</span>
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://ccqstark.github.io/">ccq&#39;s blog</a></h1>
+        <h2 class="site-description">勿在浮沙筑高台</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>Dark Mode</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://ccqstark.github.io/" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/es_principle/">
+                <img src="/p/es_principle/es_hu709c9dbb1dd93df65cfe69a9e6744979_88514_800x0_resize_box_2.png"
+                        srcset="/p/es_principle/es_hu709c9dbb1dd93df65cfe69a9e6744979_88514_800x0_resize_box_2.png 800w, /p/es_principle/es_hu709c9dbb1dd93df65cfe69a9e6744979_88514_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="530" 
+                        loading="lazy"
+                        alt="Featured image of post [ElasticSearch]ElasticSearch入门与原理浅析" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/es_principle/">[ElasticSearch]ElasticSearch入门与原理浅析</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Mar 13, 2021</time>
+    </footer><footer class="article-time">
+        <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1612441223747" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3546" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M512 608a96 96 0 1 1 0-192 96 96 0 0 1 0 192m0-256c-88.224 0-160 71.776-160 160s71.776 160 160 160 160-71.776 160-160-71.776-160-160-160" p-id="3547" fill="#8a8a8a"></path><path d="M512 800c-212.064 0-384-256-384-288s171.936-288 384-288 384 256 384 288-171.936 288-384 288m0-640C265.248 160 64 443.008 64 512s201.248 352 448 352 448-283.008 448-352S758.752 160 512 160" p-id="3548" fill="#8a8a8a"></path></svg>
+        <time class="article-time--published">
+            600 Words | Read in about 3 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
+        </time>
+    </footer></div>
+
+</header>
+
+    <section class="article-content">
+    <h2 id="简介">简介</h2>
+<h3 id="引入">引入</h3>
+<p>对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的<code>LIKE</code>关键字加上<code>%</code>来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——<code>ElasticSearch</code> 。</p>
+<h3 id="基本介绍">基本介绍</h3>
+<p>Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的<code>Lucene</code>库进行开发，并以简单的<code>RESTful</code>风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。</p>
+<p>官网地址：<a class="link" href="https://www.elastic.co/cn/elasticsearch/"  target="_blank" rel="noopener"
+    >https://www.elastic.co/cn/elasticsearch/</a></p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png"  /></p>
+<h3 id="应用场景">应用场景</h3>
+<ul>
+<li>应用程序搜索</li>
+<li>网站搜索</li>
+<li>企业搜索</li>
+<li>日志处理和分析</li>
+<li>基础设施指标和容器监测</li>
+<li>应用程序性能监测</li>
+<li>地理空间数据分析和可视化</li>
+<li>安全分析</li>
+<li>业务分析</li>
+</ul>
+<h3 id="elk">ELK</h3>
+<p><code>ELK</code>，即ElasticSearch + logstash + Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。</p>
+<p>一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled.png"  /></p>
+<h2 id="概念介绍">概念介绍</h2>
+<h3 id="基本概念">基本概念</h3>
+<p>ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。</p>
+<p>es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看</p>
+<table>
+<thead>
+<tr>
+<th>Index 索引</th>
+<th>Database 数据库</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type 文档类型</td>
+<td>Table 表</td>
+</tr>
+<tr>
+<td>Document 文档</td>
+<td>Row 记录</td>
+</tr>
+<tr>
+<td>Field 字段</td>
+<td>Column 属性</td>
+</tr>
+<tr>
+<td>Mapping 映射</td>
+<td>Schema 模型</td>
+</tr>
+<tr>
+<td>Query DSL</td>
+<td>SQL</td>
+</tr>
+</tbody>
+</table>
+<p>es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。</p>
+<p>⚠️ 注意：从6.x开始es慢慢放弃type，并统一默认type为_doc，预计在8.x正式将其移除。</p>
+<h3 id="其它概念">其它概念</h3>
+<ul>
+<li>
+<p><code>Node</code> 节点</p>
+<p>实际项目中我们往往不会只用一台服务器来部署elasticsearch，那样的话能够承载的用户数就非常少。因为es是一个分布式的搜索引擎，那我们完全可以部署一个es集群，而其中的一个服务器实例就叫做node(节点)。</p>
+</li>
+<li>
+<p><code>Cluster</code>  集群</p>
+<p>一个cluster是有多个node组成的，es集群可以扩大单个节点的数据存储量以及承载的搜索请求。在其中一个节点挂掉的情况下不影响其他节点的正常工作。es集群也可以设置或选举master node来负责创建索引、删除索引、分配分片、追踪集群中的节点状态等，当然也可能存在脑裂问题。其它普通节点称为data node，用来接受用户的搜索请求返回搜索结果。</p>
+</li>
+<li>
+<p><code>Shard</code> 分片</p>
+<p>上面说到集群可以扩大单机存储空间过小的问题，而其中实现的原理就是通过分片。es通过对数据进行水平拆分成多个部分，然后分发到多台物理机上，这个过程叫做索引分片(Sharding)，每个部分就是一个分片(Shard)。创建索引时可以指定分片数量，一旦指定就不可更改。sharding的过程是es自动完成的，数据被写入时会被指定写入的分片。es的分片是Lucene实现的。</p>
+</li>
+<li>
+<p><code>Replica</code> 索引副本</p>
+<p>索引副本就是对分片进行的拷贝。在某一分片请求负载导致阻塞时，replica同样可以处理用户的请求。而且不仅可以提高流量承载能力，同时数据也有了一份备份，即使主分片数据丢掉也可以用副本恢复。</p>
+</li>
+</ul>
+<h2 id="安装与基本使用">安装与基本使用</h2>
+<h3 id="容器部署">容器部署</h3>
+<p>云原生时代推荐使用容器，这里以docker单机部署为例简单讲下。</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 拉取镜像，这里是7.10.1，注意es版本间兼容性较差</span>
+docker pull elasticsearch:7.10.1
+
+<span class="c1"># 启动容器，配置文件和数据挂载出来</span>
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 <span class="se">\
+</span><span class="se"></span>-e <span class="nv">ES_JAVA_OPTS</span><span class="o">=</span><span class="s2">&#34;-Xms256m -Xmx256m&#34;</span> -d <span class="se">\
+</span><span class="se"></span>-v <span class="o">[</span>主机挂载目录<span class="o">]</span>/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml <span class="se">\
+</span><span class="se"></span>-v <span class="o">[</span>主机挂载目录<span class="o">]</span>/data:/usr/share/elasticsearch/data elasticsearch:7.10.1
+</code></pre></div><p>es容器是比较占内存的，毕竟一开就是一个JVM，单节点内存较小可以通过设置<code>ES_JAVA_OPTS</code> 来调小JVM的内存占用，例如上面例子中都参数就是设置为256M。</p>
+<p>其他可能出现的问题以及更多相关组件安装如Kibana或ik分词器可以参看我的另一篇博客，这里不再赘述。</p>
+<p><a class="link" href="https://ccqstark.github.io/p/es_docker/"  target="_blank" rel="noopener"
+    >[Elastic]使用docker安装ElasticSearch + Kibana</a></p>
+<h3 id="restful风格操作">RESTful风格操作</h3>
+<p>es使用RESTful风格的API进行CRUD，存储与传输使用的数据形式也是使用常见的JSON，常用的method和对应的功能如下：</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%201.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%201.png"  /></p>
+<p>其中查询支持多种类型的复杂查询，如match解析查询、排序查询、分页查询、bool查询、fileter查询、多关键字查询、term精确查询、高亮查询等等。详细可以查看我博客的另一篇文章。</p>
+<p><a class="link" href="https://ccqstark.github.io/p/es_rest/"  target="_blank" rel="noopener"
+    >[ElasticSearch]REST风格操作</a></p>
+<h3 id="客户端">客户端</h3>
+<p>es提供了多种语言的client，各种API文档都在官网可以找到。对于Java推荐使用<code>Java High Level REST Client</code>，与SpringBoot的整合可以看我另一篇博客。</p>
+<p><a class="link" href="https://ccqstark.github.io/p/springboot_es/"  target="_blank" rel="noopener"
+    >[SpringBoot]整合ElasticSearch</a></p>
+<p>官方文档地址：<a class="link" href="https://www.elastic.co/guide/en/elasticsearch/client/index.html"  target="_blank" rel="noopener"
+    >https://www.elastic.co/guide/en/elasticsearch/client/index.html</a></p>
+<h2 id="mysql的like探究">MySQL的LIKE探究</h2>
+<h3 id="索引使用">索引使用</h3>
+<p>我们习惯用<code>LIKE</code>进行模糊查询，但是当数据量很大时耗时就会比较久，也许你会想到用索引来实现优化，但是模糊查询使用索引是要满足一定条件的。</p>
+<ul>
+<li><code>单%</code>模糊，且查询字段加了索引</li>
+<li>使用<code>双%</code>进行全模糊查询，且把主键作为结果集，因为覆盖索引所以查询会走索引</li>
+<li>使用全文索引</li>
+</ul>
+<p>为了探究在大量数据情况下LIKE+%方案的效果，下面用个例子来实践一下。</p>
+<h3 id="数据准备">数据准备</h3>
+<p>建一张简单的表供查询，引擎是InnoDB</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">test_like</span><span class="o">`</span>  <span class="p">(</span>
+  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="n">UNSIGNED</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">student_number</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div><p>准备多点数据，这里我准备了10万条。</p>
+<p>注意这里一次性插入太多数据可能会出现<code>PacketTooBigException</code>，可以分批插入或者设置<code>max_allowed_packet</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;insert</span> <span class="na">id=</span><span class="s">&#34;insertLikeTestData&#34;</span><span class="nt">&gt;</span>
+	  insert into test_like
+	  (`name`,`student_number`) VALUES
+	  <span class="nt">&lt;foreach</span> <span class="na">collection=</span><span class="s">&#34;list&#34;</span> <span class="na">item=</span><span class="s">&#34;item&#34;</span> <span class="na">index=</span><span class="s">&#34;index&#34;</span> <span class="na">separator=</span><span class="s">&#34;,&#34;</span><span class="nt">&gt;</span>
+	      (&#39;ccq&#39;,&#39;50377880000&#39;+#{item})
+	  <span class="nt">&lt;/foreach&gt;</span>
+<span class="nt">&lt;/insert&gt;</span>
+</code></pre></div><p>然后给我们用来查询的student_number加个索引</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">test_like</span><span class="o">`</span> 
+<span class="k">ADD</span> <span class="k">INDEX</span> <span class="o">`</span><span class="n">idx_student_number</span><span class="o">`</span><span class="p">(</span><span class="o">`</span><span class="n">student_number</span><span class="o">`</span><span class="p">)</span> <span class="k">USING</span> <span class="n">BTREE</span><span class="p">;</span>
+</code></pre></div><h3 id="查看执行计划">查看执行计划</h3>
+<p>首先我们执行<code>select *</code> 的全模糊查询</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">test_like</span> <span class="k">where</span> <span class="n">student_number</span> <span class="k">like</span> <span class="s1">&#39;%503%&#39;</span><span class="err">\</span><span class="k">G</span>
+</code></pre></div><p>发现并没有使用索引并进行了全表扫描</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql">           <span class="n">id</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="n">select_type</span><span class="p">:</span> <span class="k">SIMPLE</span>
+        <span class="k">table</span><span class="p">:</span> <span class="n">test_like</span>
+   <span class="n">partitions</span><span class="p">:</span> <span class="k">NULL</span>
+         <span class="k">type</span><span class="p">:</span> <span class="k">ALL</span>
+<span class="n">possible_keys</span><span class="p">:</span> <span class="k">NULL</span>
+          <span class="k">key</span><span class="p">:</span> <span class="k">NULL</span>
+      <span class="n">key_len</span><span class="p">:</span> <span class="k">NULL</span>
+          <span class="k">ref</span><span class="p">:</span> <span class="k">NULL</span>
+         <span class="k">rows</span><span class="p">:</span> <span class="mi">100076</span>
+     <span class="n">filtered</span><span class="p">:</span> <span class="mi">11</span><span class="p">.</span><span class="mi">11</span>
+        <span class="n">Extra</span><span class="p">:</span> <span class="k">Using</span> <span class="k">where</span>
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span><span class="p">,</span> <span class="mi">1</span> <span class="n">warning</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></div><p>然后我们执行<code>select id</code> 的<code>单%</code>查询，也就是将主键作为结果集</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="n">id</span> <span class="k">from</span> <span class="n">test_like</span> <span class="k">where</span> <span class="n">student_number</span> <span class="k">like</span> <span class="s1">&#39;503%&#39;</span><span class="err">\</span><span class="k">G</span>
+</code></pre></div><p>发现的确使用了索引进行了优化，扫描行数只有一半</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql">           <span class="n">id</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="n">select_type</span><span class="p">:</span> <span class="k">SIMPLE</span>
+        <span class="k">table</span><span class="p">:</span> <span class="n">test_like</span>
+   <span class="n">partitions</span><span class="p">:</span> <span class="k">NULL</span>
+         <span class="k">type</span><span class="p">:</span> <span class="n">range</span>
+<span class="n">possible_keys</span><span class="p">:</span> <span class="n">idx_student_number</span>
+          <span class="k">key</span><span class="p">:</span> <span class="n">idx_student_number</span>
+      <span class="n">key_len</span><span class="p">:</span> <span class="mi">46</span>
+          <span class="k">ref</span><span class="p">:</span> <span class="k">NULL</span>
+         <span class="k">rows</span><span class="p">:</span> <span class="mi">50038</span>
+     <span class="n">filtered</span><span class="p">:</span> <span class="mi">100</span><span class="p">.</span><span class="mi">00</span>
+        <span class="n">Extra</span><span class="p">:</span> <span class="k">Using</span> <span class="k">where</span><span class="p">;</span> <span class="k">Using</span> <span class="k">index</span>
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span><span class="p">,</span> <span class="mi">1</span> <span class="n">warning</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></div><p>最后我们<code>select id</code>  的<code>双%</code>查询</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">explain</span> <span class="k">select</span> <span class="n">id</span> <span class="k">from</span> <span class="n">test_like</span> <span class="k">where</span> <span class="n">student_number</span> <span class="k">like</span> <span class="s1">&#39;%503%&#39;</span><span class="err">\</span><span class="k">G</span>
+</code></pre></div><p>这个时候我们发现确实使用我们创建的<code>idx_student_number</code> ，但是possible_keys居然是NULL</p>
+<p>而且还发现，使用索引与不使用索引，扫描行数都是一样的，而且都是全表扫描</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql">           <span class="n">id</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="n">select_type</span><span class="p">:</span> <span class="k">SIMPLE</span>
+        <span class="k">table</span><span class="p">:</span> <span class="n">test_like</span>
+   <span class="n">partitions</span><span class="p">:</span> <span class="k">NULL</span>
+         <span class="k">type</span><span class="p">:</span> <span class="k">index</span>
+<span class="n">possible_keys</span><span class="p">:</span> <span class="k">NULL</span>
+          <span class="k">key</span><span class="p">:</span> <span class="n">idx_student_number</span>
+      <span class="n">key_len</span><span class="p">:</span> <span class="mi">46</span>
+          <span class="k">ref</span><span class="p">:</span> <span class="k">NULL</span>
+         <span class="k">rows</span><span class="p">:</span> <span class="mi">100076</span>
+     <span class="n">filtered</span><span class="p">:</span> <span class="mi">11</span><span class="p">.</span><span class="mi">11</span>
+        <span class="n">Extra</span><span class="p">:</span> <span class="k">Using</span> <span class="k">where</span><span class="p">;</span> <span class="k">Using</span> <span class="k">index</span>
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span><span class="p">,</span> <span class="mi">1</span> <span class="n">warning</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</code></pre></div><h3 id="使用trace查看优化器">使用Trace查看优化器</h3>
+<p>我们跟踪一下MySQL的优化器是怎么做选择的</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- 开启优化器跟踪
+</span><span class="c1"></span><span class="k">set</span> <span class="k">session</span> <span class="n">optimizer_trace</span><span class="o">=</span><span class="s1">&#39;enabled=on&#39;</span><span class="p">;</span>
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">test_like</span> <span class="k">where</span> <span class="n">student_number</span> <span class="k">like</span> <span class="s1">&#39;%503%&#39;</span><span class="p">;</span>
+<span class="c1">-- 查看优化器追踪内容
+</span><span class="c1"></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">optimizer_trace</span><span class="p">;</span>
+</code></pre></div><p>找到查询路径的选择</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="s2">&#34;best_access_path&#34;</span><span class="err">:</span> <span class="p">{</span>
+  <span class="nt">&#34;considered_access_paths&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;rows_to_scan&#34;</span><span class="p">:</span> <span class="mi">100076</span><span class="p">,</span>
+      <span class="nt">&#34;access_type&#34;</span><span class="p">:</span> <span class="s2">&#34;scan&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;resulting_rows&#34;</span><span class="p">:</span> <span class="mi">100076</span><span class="p">,</span>
+      <span class="nt">&#34;cost&#34;</span><span class="p">:</span> <span class="mi">20304</span><span class="p">,</span>
+      <span class="nt">&#34;chosen&#34;</span><span class="p">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div><p>然后对选择主键的双%查询也进行同样的跟踪，发现两者同样都是用了顺序扫描，而没有用上B+Tree来优化。</p>
+<h3 id="结论">结论</h3>
+<p>从上面我们也可以看到，没有做其它的优化而只用索引来使用MySQL的LIKE进行全模糊查询，在数据量大的时候，性能还是不尽人意的，这也说明了使用ES的必要性。</p>
+<h2 id="索引原理">索引原理</h2>
+<p>这一部分我们来说说ES的一些原理，看看为什么ES在查询上能更胜MySQL一筹。</p>
+<h3 id="倒排索引">倒排索引</h3>
+<p>es是通过Lucene的倒排索引<code>Inverted Index</code>技术来实现比普通关系型数据库更快的查询的，特别对多条件的复杂查询，这一点能更好地体现。</p>
+<p>那什么是倒排索引呢？引用维基上的定义：</p>
+<p>倒排索引是一种索引方法，被用来存储在全文搜索下某个单词在一个文档或者一组文档中的存储位置的映射。它是文档检索系统中最常用的数据结构。</p>
+<p>有两种不同的反向索引形式：</p>
+<ul>
+<li>一条记录的水平反向索引（或者反向档案索引）包含每个引用单词的文档的列表。</li>
+<li>一个单词的水平反向索引（或者完全反向索引）又包含每个单词在一个文档中的位置。</li>
+</ul>
+<p>其实很好理解，就是把我们以前设计表的那种把文章对应里面有哪些单词的结构，倒过来，变成一个单词与被包含在哪些文章中的对应关系，当我们搜索一个单词的时候就能快速得到包含这个单词的文章列表来。</p>
+<p><strong>举个例子：</strong></p>
+<p>比方说下面这张表</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%202.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%202.png"  /></p>
+<p>对direct字段利用倒排索引，变成：</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%203.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%203.png"  /></p>
+<p>那只要我们想查frontend对应有哪些人，就可以直接获得他们的id列表[21,16,54]，如果想查boss有哪些人，就可以得到[67,98]。这样就可以很快检索到我们想要到结果，而不用进行全表的搜索。</p>
+<p>对于上面的倒排表，我们把其中每一项称为<code>Term</code>，被索引的那一列也就是实例的direct字段为<code>Term Dictionary</code> ，对应被检索出来的id_list字段为<code>Posting List</code>。</p>
+<p>被检索的direct如果按顺序排列的话就可以用二分搜索快速找出，或者也可以在其上再加一层BTree来索引，提高关键词本身的搜索速度。</p>
+<h3 id="term-index">Term Index</h3>
+<p>当数据量很大的时候，Term Dictionary也会变得很大，无法完全放入内存（es本身运行已经占用非常大的内存了），这个时候我们再加一层索引叫<code>Term Index</code>。</p>
+<p>es使用 <code>Burst-Trie</code> 结构来实现，它是字典树（前缀树）<code>Trie</code> 的一种变种，它主要是将后缀进行了压缩，降低了Trie的高度，从而获取更好查询性能。</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%204.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%204.png"  /></p>
+<p>可以看到这棵树的根节点为空，接下来每一层是单词的从头到位的顺序的字母，某一节点的子节点连接所有单词中可能出现的下一个字母，根据下一个字母的可能的情况来分叉，同时多余的后缀也被省略。查询时可以先将Term Index缓存到内存中，据此找到我们要的Term Dictionary再去读磁盘，可以减少磁盘I/O次数。</p>
+<h2 id="联合查询合并">联合查询合并</h2>
+<p>当我们用es进行联合查询时，比如查找方向为backend且年份等于2019的人，我们只需要对direct和year字段分别用倒排索引查找出结果集，最后对结果集进行合并就行了。</p>
+<p>在关系型数据库中我们一般会用join来合并两表，这里再次鞭尸一下MySQL，它的join实现性能也很差。比如下面这样的SQL：</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t2</span> <span class="n">straight_join</span> <span class="n">t1</span> <span class="k">on</span> <span class="p">(</span><span class="n">t2</span><span class="p">.</span><span class="n">a</span><span class="o">=</span><span class="n">t1</span><span class="p">.</span><span class="n">a</span><span class="p">);</span>
+</code></pre></div><p><code>straight_join</code> 保证优化器不改变驱动表，用<code>Index Nested-Loop Join</code> 算法执行流程如下：</p>
+<ol>
+<li>从 t2 表中读取一行数据 L2</li>
+<li>使用L2的 a 字段，去 t1 表中作为条件进行查询</li>
+<li>取出 t1 中满足条件的行， 跟 L2组成相应的行，成为结果集的一部分</li>
+<li>重复执行，直到扫描完 t2 表</li>
+</ol>
+<p>所以阿里开发者规范禁止三张表以上的 join 操作，是有原因滴。</p>
+<p>而Elasticsearch使用跳表<code>Skip List</code>和位图<code>Bitset</code>来合并结果集，下面介绍一下这两种方法。</p>
+<h3 id="skip-list合并策略">Skip List合并策略</h3>
+<p>说到跳表，我们首先讲一下普通的链表，如下图：</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%205.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%205.png"  /></p>
+<p>图中的链表除了首位节点之外，其它节点都有一个指针指向下一个节点，但是由于不是顺序存储，我们无法从其中任意一个节点推算出其它任意一个节点的位置（除非是它指向的下一节点）。因此用这个数据结构来寻找某一节点效率偏低。</p>
+<p>然后说跳表<code>Skip List</code>，实际上是在链表的基础上多加了几层索引，使得查询效率加快，如图：</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%206.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%206.png"  /></p>
+<p>我们在原来的链表上多加了三层，而上面的每一层各节点之间的距离都在逐级递增，也就是说每次跨到本层的下一个节点，中间跳跃的相对与底层的节点数越来越多，所以叫跳表。利用这种数据结构的特性，我们在遍历原链表的时候就可以利用上面的索引来每次多跳几个节点，从而加快速度。</p>
+<p>ES利用Skip List进行合并结果集的时候就是从上往下，找到节点值大于等于目标值的最小节点，如果还是大于目标值，那就往下一层，相当于增加查找精度。例如我现在要找的目标值为2，从最上一层开始找，这层是0—&gt;6，6明显大于2了，到下一层；这一层是0—&gt;4—&gt;6，找到4还是大于2，那继续下一层；这时是0—&gt;2—&gt;4—&gt;6，我们就可以找到目标值2了。</p>
+<p>利用跳表，ES在找两个结果集的交集的时候就会快很多。</p>
+<h3 id="roaring-bitset合并策略">Roaring Bitset合并策略</h3>
+<p>除了用Skip List来加快合并之外，ES还会把不同条件查询的结果集Posting List放到内存中缓存。如果直接用普通的数据结构，比如数组这样的，就其实很消耗空间；如果用Bitset，可能会有过于稀疏而导致的空间浪费。所以ES采用压缩效率更高的<code>Roaring Bitmap</code>来存储。</p>
+<blockquote>
+<p>这里插播一道面试题：给定含有40亿个不重复的位于[0, 2^32 - 1]区间内的整数的集合，如何快速判定某个数是否在该集合内？</p>
+</blockquote>
+<blockquote>
+<p>如果我们要使用 unsigned long 数组来存储它的话，也就需要消耗 40亿 * 32 位 =160亿Byte，大约是 16000 MB。
+如果使用位图 Bitset 来存储的话，即某个数如果存在的话，就将它对应的位图内的比特置为1，否则保持为0。这样多少个树就只需要消耗多少bit来存，这里是 2 ^ 32 位 = 512 MB，这可只有原来的 3.2 % 左右。</p>
+</blockquote>
+<p>Roaring Bitmap又是如何来解决稀疏的问题的呢？直接上图：</p>
+<p><img src="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%207.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%207.png"  /></p>
+<p>如图中所示，我们把待存数除以65535，并根据所得商和余数分组。然后把相同商的组分到同一个存储单元，这个存储单元称为<code>container</code>，最后只需要存各container中的余数即可。</p>
+<p>所以RoaringBitmap其实就是很多container的集合，如果是一个32位unsigned long的话，那最多就有2^32 / 65535 = 65535个container。</p>
+<p>对于其中的余数的存储（低16位），则是以下的存储规则：</p>
+<ul>
+<li>余数小于 2 ^ 12 次方（4096）时，使用unsigned short类型的有序数组来存储，最大消耗空间为 8 KB。</li>
+<li>余数大于 4096 时，则使用大小为 2 ^ 16 次方的普通 bitset 来存储，固定消耗 8 KB。有些时候也会对 bitset 进行run-length encoding压缩，进一步缩小占用内存。</li>
+</ul>
+<p>ES利用Roaring Bitset缓存不同条件查出来的Posting List，最后通过与操作合并出最终结果集。</p>
+<h2 id="小结">小结</h2>
+<ul>
+<li>ElasticSearch是一个分布式开源搜索引擎，支持多种语言客户端，拥有丰富的应用场景，受到许多企业的青睐。</li>
+<li>ElasticSearch方便部署集群，使用RESTful风格等API进行调用。</li>
+<li>MySQL的LIKE字句只在特定情况下才使用索引，且性能不高，无法应对大数据亮搜索任务。</li>
+<li>ElasticSearch使用倒排索引与Term Index来提高搜索效率，减少磁盘I/O。</li>
+<li>ElasticSearch使用Skip List和Roaring Bitset来合并复杂条件查询的结果集。</li>
+</ul>
+<h3 id="参考文章">参考文章</h3>
+<ul>
+<li><a class="link" href="https://mp.weixin.qq.com/s/LU77ToU4b7O8WqjRRf1AqA"  target="_blank" rel="noopener"
+    >https://mp.weixin.qq.com/s/LU77ToU4b7O8WqjRRf1AqA</a></li>
+<li><a class="link" href="https://www.cnblogs.com/Howinfun/p/12449975.html?spm=a2c6h.12873639.0.0.7b354fc6zDKM52"  target="_blank" rel="noopener"
+    >https://www.cnblogs.com/Howinfun/p/12449975.html?spm=a2c6h.12873639.0.0.7b354fc6zDKM52</a></li>
+<li><a class="link" href="https://ccqstark.github.io/p/es_docker/"  target="_blank" rel="noopener"
+    >https://ccqstark.github.io/p/es_docker/</a></li>
+<li><a class="link" href="https://arxiv.org/pdf/1402.6407.pdf"  target="_blank" rel="noopener"
+    >https://arxiv.org/pdf/1402.6407.pdf</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/elasticsearch/">ElasticSearch</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+        <time class="article-time--published">
+			<span id="busuanzi_container_site_pv">
+			    本站访问量：<span id="busuanzi_value_site_pv"></span>次
+			</span>
+			&nbsp;
+			<span id="busuanzi_container_site_uv">
+			    您是本站第 <span id="busuanzi_value_site_uv"></span> 位访问者
+			</span>
+        </time>
+    </footer>
+	
+</footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/springboot_es/">
+        
+        
+            <div class="article-image">
+                <img src="/p/springboot_es/springboot-es.68bd173d94a8eaf642b2ac727cbde179_hu5dbd9828aef42d61c56fd952a73b2be9_64126_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_es" 
+                        data-hash="md5-aL0XPZSo6vZCsqxyfL3heQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合ElasticSearch</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_rest/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_rest/restful.fd9d194403593239aeab75914828e254_hud0b30a641456616a14ef2ef618957a76_22844_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_rest" 
+                        data-hash="md5-/Z0ZRANZMjmuq3WRSCjiVA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]REST风格操作</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/log_catch_error/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]日志与异常捕获</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_shiro_jwt/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合shiro&#43;JWT做鉴权</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_oss/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]使用阿里云OSS上传文件</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.0.1">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+            </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"
+    integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin="anonymous"></script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
