@@ -6,7 +6,81 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 04 Apr 2021 21:07:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 06 Apr 2021 21:07:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>一次理解String的不可变性</title>
+        <link>https://ccqstark.github.io/p/string/</link>
+        <pubDate>Tue, 06 Apr 2021 21:07:00 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/string/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/string/java.png" alt="Featured image of post 一次理解String的不可变性" /&gt;&lt;p&gt;今天在看有关StringBuilder和StringBuffer的文章的时候看到里面提及了有关String中的final字段和不可变的性质，发现这个知识点不是很熟悉，去查了很多文章之后整理出这篇。&lt;/p&gt;
+&lt;h2 id=&#34;新建字符串与缓冲池&#34;&gt;新建字符串与缓冲池&lt;/h2&gt;
+&lt;p&gt;新建一个String我们一般有下面2种方式：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;ok&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;ok&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这两种写法都可以创建一个String对象。&lt;/p&gt;
+&lt;p&gt;第一种用赋值运算符进行字符串初始化时，JVM自动为每个字符串生成一个String类的实例。&lt;/p&gt;
+&lt;p&gt;第二种就是创建String类的对象，因为String本来就是一个类，而不是像int和double那样的基本数据类型。&lt;/p&gt;
+&lt;p&gt;Java的字符串采用了缓冲池的技术，我们新建一个字符串的时候会去缓冲池寻找是否有已经存在的相同的字符串，如果有的话直接指向它即可；没有的话再创建，缓冲池是在&lt;code&gt;堆&lt;/code&gt;里面的。&lt;/p&gt;
+&lt;p&gt;如下图，是下面代码的结果：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// one和two内容相同，指向同一String对象
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;one&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;someString&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;two&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;someString&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://pic1.zhimg.com/80/71d827920f870b82c93d06f8a9c0b247_720w.jpg?source=1940ef5c&#34; alt=&#34;https://pic1.zhimg.com/80/71d827920f870b82c93d06f8a9c0b247_720w.jpg?source=1940ef5c&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;关于更深入的创建对象和之间的比较可以看下面这篇：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/tiantiandjava/article/details/46309163&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;java 字符串缓冲池 String缓冲池_天天的专栏-CSDN博客&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;哪里不可变&#34;&gt;哪里不可变？&lt;/h2&gt;
+&lt;p&gt;那为什么说String不可变呢？我们明明可以通过给字符串变量赋一个新值来改变它的内容。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;str&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;aaaaaaa&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;str&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;bbbbbbbbb&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;str&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;// 输出
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//aaaaaaa
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//bbbbbbbbb
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;实际上，当我们给字符串重新赋值的时候，它并不是去改变这个String对象中的字符数组&lt;code&gt;char[] value&lt;/code&gt;的值（下面会讲到），而是去缓冲池里寻找有没有已经存在这个值的&lt;code&gt;String对象&lt;/code&gt;，有的话就直接指向它，没有的话创建一个对象再指向它。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;%E4%B8%80%E6%AC%A1%E7%90%86%E8%A7%A3String%E7%9A%84%E4%B8%8D%E5%8F%AF%E5%8F%98%E6%80%A7%207dd788fbcd57410b913c52ecf7b450c0/Untitled.png&#34; alt=&#34;%E4%B8%80%E6%AC%A1%E7%90%86%E8%A7%A3String%E7%9A%84%E4%B8%8D%E5%8F%AF%E5%8F%98%E6%80%A7%207dd788fbcd57410b913c52ecf7b450c0/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;str只是一个引用，指向的String对象是在堆中的。&lt;strong&gt;改变字符串的值其实只是改变整个对象的引用&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;而原来的String对象还是在那里没有被改变，之后要是有别的变量赋这个值可以继续指向它。&lt;/p&gt;
+&lt;h2 id=&#34;为什么不可变&#34;&gt;为什么不可变？&lt;/h2&gt;
+&lt;p&gt;我们看下String的部分源码：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;final&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;String&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;implements&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;java&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;Serializable&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Comparable&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CharSequence&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;cm&#34;&gt;/** The value is used for character storage. */&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;final&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[];&lt;/span&gt;
+ 
+    &lt;span class=&#34;cm&#34;&gt;/** Cache the hash code for the string */&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;hash&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// Default to 0
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;重点在这个字符数组&lt;code&gt;value&lt;/code&gt;就是存放字符串内容的地方，注意它是被&lt;code&gt;final&lt;/code&gt; 修饰的，也就是一旦初始化之后它的值就不能改变。&lt;/p&gt;
+&lt;p&gt;不过它value也只是个引用，引用不可变，但是如果真的想改是可以改变数组中元素但值的，但由于String中没有setValue方法，我们要改的话就要通过&lt;code&gt;反射&lt;/code&gt;了。&lt;/p&gt;
+&lt;h3 id=&#34;利用反射改变&#34;&gt;利用反射改变&lt;/h3&gt;
+&lt;p&gt;下面这段代码就利用了反射改变了value数组中的元素的值，但是数组的地址是没有改变的哦。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;123&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;Field&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;valueArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getDeclaredField&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;value&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;valueArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setAccessible&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[])&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;valueArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;array&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]=&lt;/span&gt;&lt;span class=&#34;sc&#34;&gt;&amp;#39;2&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//223
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;设计成不可变的原因&#34;&gt;设计成不可变的原因？&lt;/h2&gt;
+&lt;h3 id=&#34;代码安全&#34;&gt;代码安全&lt;/h3&gt;
+&lt;p&gt;String类本身也是&lt;code&gt;final&lt;/code&gt; 的，这样设计使得String不可被继承，不可扩展与重写方法，主要是为了安全。因为String作为一个比较底层的类使用得也比较频繁，而且很多实现是通过系统调用的，如果让开发者可以随意修改一些东西就很可能带来问题甚至注入病毒。&lt;/p&gt;
+&lt;h3 id=&#34;为了实现字符串缓冲池&#34;&gt;为了实现字符串缓冲池&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;只有当字符串是不可变的，字符串池才有可能实现&lt;/strong&gt;。字符串池的实现可以在运行时节约很多heap空间，因为不同的字符串变量都指向池中的同一个字符串。但如果字符串是可变的，那改变一个字符串的值就会导致其它指向这个String对象的字符串引用对应的值也会改变。&lt;/p&gt;
+&lt;h3 id=&#34;作为hashmap的键&#34;&gt;作为HashMap的键&lt;/h3&gt;
+&lt;p&gt;因为字符串是不可变的，所以在它创建的时候&lt;strong&gt;HashCode&lt;/strong&gt;就被缓存了，不需要重新计算。这就使得字符串很适合作为Map中的键，字符串的处理速度要快过其它的键对象。这就是HashMap中的键往往都使用字符串。&lt;/p&gt;
+&lt;h3 id=&#34;线程安全&#34;&gt;线程安全&lt;/h3&gt;
+&lt;p&gt;因为字符串是不可变的，所以是多线程安全的，同一个字符串实例可以被多个线程共享。这样便不用因为线程安全问题而使用同步。字符串自己便是线程安全的。&lt;/p&gt;
+&lt;h3 id=&#34;参考文章&#34;&gt;参考文章：&lt;/h3&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.jianshu.com/p/9c7f5daac283&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Java String类为什么是final的？&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.zhihu.com/question/20618891&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;如何理解 String 类型值的不可变？&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[leetcode]209.长度最小的子数组</title>
         <link>https://ccqstark.github.io/p/min_sub_array_len/</link>
         <pubDate>Sun, 04 Apr 2021 21:07:00 +0800</pubDate>
