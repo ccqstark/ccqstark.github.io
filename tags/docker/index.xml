@@ -88,7 +88,7 @@ Destination 表示容器内要映射的目录
 -p 端口映射
 -v 数据卷挂载
 —name 容器名字
-docker run \ -d \ -p 3310:3306 \  -v /home/mysql/conf:/etc/mysql/conf.d \  -v /home/mysql/data:/var/lib/mysql \ -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] \  --name [容器名] \ mysql:5.</description>
+docker run \ -d \ -p 3310:3306 \ -v /home/mysql/conf:/etc/mysql/conf.d \ -v /home/mysql/data:/var/lib/mysql \ -e MYSQL_ROOT_PASSWORD=[你配置的mysql密码] \ --name [容器名] \ mysql:5.</description>
     </item>
     
   </channel>

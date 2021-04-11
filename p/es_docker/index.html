@@ -261,7 +261,7 @@ network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.al
     </footer><footer class="article-time">
         <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1612441223747" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3546" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M512 608a96 96 0 1 1 0-192 96 96 0 0 1 0 192m0-256c-88.224 0-160 71.776-160 160s71.776 160 160 160 160-71.776 160-160-71.776-160-160-160" p-id="3547" fill="#8a8a8a"></path><path d="M512 800c-212.064 0-384-256-384-288s171.936-288 384-288 384 256 384 288-171.936 288-384 288m0-640C265.248 160 64 443.008 64 512s201.248 352 448 352 448-283.008 448-352S758.752 160 512 160" p-id="3548" fill="#8a8a8a"></path></svg>
         <time class="article-time--published">
-            200 Words | Read in about 1 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
+            300 Words | Read in about 2 Min | <span id="busuanzi_value_page_pv"></span> Views</h5>
         </time>
     </footer></div>
 
@@ -322,6 +322,25 @@ network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.al
 	<span class="p">},</span>
 	<span class="nt">&#34;tagline&#34;</span><span class="p">:</span> <span class="s2">&#34;You Know, for Search&#34;</span>
 <span class="p">}</span>
+</code></pre></div><blockquote>
+<p>如果无法访问到</p>
+</blockquote>
+<p>如果开了安全组和防火墙的话还是无法访问到的话，看看在容器启动时是否有如下警告：</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">WARNING: IPv4 forwarding is disabled. Networking will not work.
+</code></pre></div><p>按如下步骤操作再访问即可</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">vim /etc/sysctl.conf
+
+<span class="c1">#添加如下代码：</span>
+net.ipv4.ip_forward<span class="o">=</span><span class="m">1</span>
+
+<span class="c1">#重启network服务</span>
+systemctl restart network
+
+<span class="c1">#查看是否修改成功</span>
+sysctl net.ipv4.ip_forward
+
+<span class="c1">#如果返回为“net.ipv4.ip_forward = 1”则表示成功了</span>
+<span class="c1">#这时，重启容器即可。</span>
 </code></pre></div><h2 id="安装elasticsearch-head">安装elasticsearch-head</h2>
 <h3 id="拉取镜像-1">拉取镜像</h3>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker pull mobz/elasticsearch-head:5
