@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MySQL on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/mysql/</link>
+    <description>Recent content in MySQL on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 22 Jul 2021 01:00:48 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/mysql/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MySQL主从复制搭建与原理</title>
+      <link>https://ccqstark.github.io/p/mysql_master_slave_replic/</link>
+      <pubDate>Thu, 22 Jul 2021 01:00:48 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/mysql_master_slave_replic/</guid>
+      <description>主从复制搭建 拉取镜像 用docker，mysql5.7
+docker pull mysql:5.7 启动 主节点
+docker run -p 3306:3306 --name mysql_master -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7 从节点
+docker run -p 3306:3306 --name mysql——slave -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7 Master配置 通过docker exec -it [容器名] bash 进入容器内部
+安装vim
+apt-get update apt-get install vim 编辑配置文件my.cnf
+cd /etc/mysql vim my.cnf 添加以下内容
+[mysqld] ## 同一局域网内注意要唯一 server-id=100 ## 开启二进制日志功能，可以随便取（关键） log-bin=mysql-bin 完成后重启服务，重启服务后需要重启容器
+service mysql restart docker start mysql_master 再次进入容器，创建用于同步数据的用户
+mysql -hlocalhost -uroot -p CREATE USER &amp;#39;slave&amp;#39;@&amp;#39;%&amp;#39; IDENTIFIED BY &amp;#39;123456&amp;#39;; GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.</description>
+    </item>
+    
+  </channel>
+</rss>
