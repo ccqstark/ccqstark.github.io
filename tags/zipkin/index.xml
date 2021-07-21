@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zipkin on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/zipkin/</link>
+    <description>Recent content in Zipkin on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 22 Jul 2021 01:56:55 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/zipkin/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Sleuth&#43;Zipkin链路跟踪入门</title>
+      <link>https://ccqstark.github.io/p/zipkin_startup/</link>
+      <pubDate>Thu, 22 Jul 2021 01:56:55 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/zipkin_startup/</guid>
+      <description>依赖 &amp;lt;!-- sleuth --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-sleuth&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.2.6.RELEASE&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- zipkin --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-zipkin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.2.6.RELEASE&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 这里踩了大坑，不要用阿里的镜像，用Maven官方的，阿里的有问题！！
+配置文件 spring:sleuth:sampler:#采样器probability:1.0#采样率，采样率是采集Trace的比率，默认0.1rate:10000#每秒数据采集量，最多n条/秒Tracezipkin:#设置zipkin服务端地址base-url:http://49.234.82.226:9411然后去服务端部署zipkin的可视化监控程序，参照官网：
+https://zipkin.io/pages/quickstart.html
+推荐使用docker
+docker run -d -p 9411:9411 openzipkin/zipkin 使用 之后调用的链路就可以在下面链接看到了
+http://49.234.82.226:9411/zipkin
+需要刷新和筛选一下
+点进去可以看到具体信息</description>
+    </item>
+    
+  </channel>
+</rss>

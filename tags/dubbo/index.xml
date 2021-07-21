@@ -6,7 +6,31 @@
     <description>Recent content in Dubbo on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 24 Feb 2021 23:01:00 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/dubbo/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 22 Jul 2021 02:26:29 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/dubbo/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Dubbo&#43;Nacos实现RPC</title>
+      <link>https://ccqstark.github.io/p/dubbo_nacos_rpc/</link>
+      <pubDate>Thu, 22 Jul 2021 02:26:29 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/dubbo_nacos_rpc/</guid>
+      <description>RESTful 与 RPC 的区别 在微服务定义中提道，每个小服务运行在自己的进程中，并以轻量级的机制进行通信。这里并没有明确给出具体的通信方式，只是要求以轻量级的机制进行通信，虽然作者推荐使用 RESTful 作为首选方案，但微服务间通信本身还有另一个轻量级的选择：以 Dubbo 为代表的 RPC通信方式。
+RPC 是远程过程调用（Remote Procedure Call）的缩写形式，RPC 与 RESTful 最大的不同是，RPC 采用客户端（Client) - 服务端（Server） 的架构方式实现跨进程通信，实现的通信协议也没有统一的标准，具体实现依托于研发厂商的设计。
+目前开源市场上 RPC 框架有很多，例如 GoogleRPC、Alibaba Dubbo、Facebook Thrift，每一种产品都有自己的设计与实现方案。
+那 RESTful 与 RPC 有什么区别呢？通过一个表格进行说明：
+Apache Dubbo Dubbo 是阿里巴巴开源的高性能、轻量级的开源 Java 框架，目前被 Apache收录，官网是： http://dubbo.apache.org/
+Dubbo 是典型的 RPC 框架的代表，通过客户端/服务端结构实现跨进程应用的高效二进制通信。
+Apache Dubbo 提供了六大核心能力：
+面向接口代理的高性能 RPC 调用；
+智能容错和负载均衡；
+服务自动注册和发现；
+高度可扩展能力；
+运行期流量调度；
+可视化的服务治理与运维。
+下图引用 Dubbo 的官方架构图，讲解 ApacheDubbo 的组成。
+Dubbo 架构中，包含 5 种角色。
+ Provider：RPC服务提供者，Provider 是消息的最终处理者。 Container：容器，用于启动、停止 Provider 服务。这里的容器并非 Tomcat、Jetty 等 Web 容器，Dubbo 也并不强制要求 Provider 必须具备 Web 能力。Dubbo 的容器是指对象容器，例如 Dubbo 内置的 SpringContainer 容器就提供了利用 Spring IOC 容器管理 Provider 对象的职能。 Consumer：消费者，调用的发起者。Consumer 需要在客户端持有 Provider 的通信接口才能完成通信过程。 Registry：注册中心，Dubbo 架构中注册中心与微服务架构中的注册中心职责类似，提供了 Dubbo Provider 的注册与发现职能，Consumer通过 Registry 可以获取Provider 可用的节点实例的 IP、端口等，并产生直接通信。需要注意的是，前面我们讲解的 Alibaba Nacos 除了可以作为微服务架构中的注册中心外，同样对自家的 Dubbo 提供了 RPC 调用注册发现的职责，这是其他 Spring Cloud 注册中心所不具备的功能。 Monitor：监控器，监控器提供了Dubbo的监控职责。在 Dubbo 产生通信时，Monitor 进行收集、统计，并通过可视化 UI 界面帮助运维人员了解系统进程间的通信状况。Dubbo Monitor 主流产品有 Dubbo Admin、Dubbo Ops 等。  项目整合 服务提供者Provider  引入依赖  &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
+    </item>
+    
     <item>
       <title>Dubbo &#43; ZooKeeper 基础入门</title>
       <link>https://ccqstark.github.io/p/dubbo_zookeeper/</link>

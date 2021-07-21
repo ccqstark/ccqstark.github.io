@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='docker单点部署 clone项目 git clone https://github.com/nacos-group/nacos-docker.git cd nacos-docker 修改配置文件 如果单机主机内存较小，可以修改配置文件example/standalone-derby.yaml 修改JVM运行内存
+在nacos的environment 那里添加- JVM_XMS=256m和 - JVM_XMX=256m
+version: &amp;#34;2&amp;#34;services: nacos: image: nacos/nacos-server:latest container_name: nacos-standalone environment: - PREFER_HOST_MODE=hostname - MODE=standalone - JVM_XMS=256m - JVM_XMX=256m volumes: - ./standalone-logs/:/home/nacos/logs - ./init.d/custom.properties:/home/nacos/init.d/custom.properties ports: - &amp;#34;8848:8848&amp;#34; prometheus: container_name: prometheus image: prom/prometheus:latest volumes: - ./prometheus/prometheus-standalone.yaml:/etc/prometheus/prometheus.yml ports: - &amp;#34;9090:9090&amp;#34; depends_on: - nacos restart: on-failure grafana: container_name: grafana image: grafana/grafana:latest ports: - 3000:3000 restart: on-failuredocker-compose启动容器 最后加个-d后台运行
+docker-compose -f example/standalone-derby.yaml up -d 访问 地址：http://[ip地址]:8848/nacos/'><title>Nacos服务注册与发现入门</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/nacos_startup/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Nacos服务注册与发现入门'>
+<meta property='og:description' content='docker单点部署 clone项目 git clone https://github.com/nacos-group/nacos-docker.git cd nacos-docker 修改配置文件 如果单机主机内存较小，可以修改配置文件example/standalone-derby.yaml 修改JVM运行内存
+在nacos的environment 那里添加- JVM_XMS=256m和 - JVM_XMX=256m
+version: &amp;#34;2&amp;#34;services: nacos: image: nacos/nacos-server:latest container_name: nacos-standalone environment: - PREFER_HOST_MODE=hostname - MODE=standalone - JVM_XMS=256m - JVM_XMX=256m volumes: - ./standalone-logs/:/home/nacos/logs - ./init.d/custom.properties:/home/nacos/init.d/custom.properties ports: - &amp;#34;8848:8848&amp;#34; prometheus: container_name: prometheus image: prom/prometheus:latest volumes: - ./prometheus/prometheus-standalone.yaml:/etc/prometheus/prometheus.yml ports: - &amp;#34;9090:9090&amp;#34; depends_on: - nacos restart: on-failure grafana: container_name: grafana image: grafana/grafana:latest ports: - 3000:3000 restart: on-failuredocker-compose启动容器 最后加个-d后台运行
+docker-compose -f example/standalone-derby.yaml up -d 访问 地址：http://[ip地址]:8848/nacos/'>
+<meta property='og:url' content='https://ccqstark.github.io/p/nacos_startup/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringCloud' /><meta property='article:tag' content='Nacos' /><meta property='article:published_time' content='2021-07-22T01:30:53&#43;08:00'/><meta property='article:modified_time' content='2021-07-22T01:30:53&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/nacos_startup/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Nacos服务注册与发现入门">
+<meta name="twitter:description" content="docker单点部署 clone项目 git clone https://github.com/nacos-group/nacos-docker.git cd nacos-docker 修改配置文件 如果单机主机内存较小，可以修改配置文件example/standalone-derby.yaml 修改JVM运行内存
+在nacos的environment 那里添加- JVM_XMS=256m和 - JVM_XMX=256m
+version: &amp;#34;2&amp;#34;services: nacos: image: nacos/nacos-server:latest container_name: nacos-standalone environment: - PREFER_HOST_MODE=hostname - MODE=standalone - JVM_XMS=256m - JVM_XMX=256m volumes: - ./standalone-logs/:/home/nacos/logs - ./init.d/custom.properties:/home/nacos/init.d/custom.properties ports: - &amp;#34;8848:8848&amp;#34; prometheus: container_name: prometheus image: prom/prometheus:latest volumes: - ./prometheus/prometheus-standalone.yaml:/etc/prometheus/prometheus.yml ports: - &amp;#34;9090:9090&amp;#34; depends_on: - nacos restart: on-failure grafana: container_name: grafana image: grafana/grafana:latest ports: - 3000:3000 restart: on-failuredocker-compose启动容器 最后加个-d后台运行
+docker-compose -f example/standalone-derby.yaml up -d 访问 地址：http://[ip地址]:8848/nacos/"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/nacos_startup/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-PXLPFFZ3XD', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ccqstark.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/nacos_startup/">
+                <img src="/p/nacos_startup/cover_hu3dcfa387b55d54e5becd295f3f353ebe_40548_800x0_resize_box_2.png"
+                        srcset="/p/nacos_startup/cover_hu3dcfa387b55d54e5becd295f3f353ebe_40548_800x0_resize_box_2.png 800w, /p/nacos_startup/cover_hu3dcfa387b55d54e5becd295f3f353ebe_40548_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="277" 
+                        loading="lazy"
+                        alt="Featured image of post Nacos服务注册与发现入门" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" >
+                微服务
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/nacos_startup/">Nacos服务注册与发现入门</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jul 22, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="docker单点部署">docker单点部署</h2>
+<h3 id="clone项目">clone项目</h3>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">git clone https://github.com/nacos-group/nacos-docker.git
+<span class="nb">cd</span> nacos-docker
+</code></pre></div><h3 id="修改配置文件">修改配置文件</h3>
+<p>如果单机主机内存较小，可以修改配置文件<code>example/standalone-derby.yaml</code> 修改JVM运行内存</p>
+<p>在nacos的<code>environment</code> 那里添加<code>- JVM_XMS=256m</code>和 <code>- JVM_XMX=256m</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker">version: <span class="s2">&#34;2&#34;</span><span class="err">
+</span><span class="err"></span>services:<span class="err">
+</span><span class="err"></span>  nacos:<span class="err">
+</span><span class="err"></span>    image: nacos/nacos-server:latest<span class="err">
+</span><span class="err"></span>    container_name: nacos-standalone<span class="err">
+</span><span class="err"></span>    environment:<span class="err">
+</span><span class="err"></span>    - <span class="nv">PREFER_HOST_MODE</span><span class="o">=</span>hostname<span class="err">
+</span><span class="err"></span>    - <span class="nv">MODE</span><span class="o">=</span>standalone<span class="err">
+</span><span class="err"></span>    - <span class="nv">JVM_XMS</span><span class="o">=</span>256m<span class="err">
+</span><span class="err"></span>    - <span class="nv">JVM_XMX</span><span class="o">=</span>256m<span class="err">
+</span><span class="err"></span>    volumes:<span class="err">
+</span><span class="err"></span>    - ./standalone-logs/:/home/nacos/logs<span class="err">
+</span><span class="err"></span>    - ./init.d/custom.properties:/home/nacos/init.d/custom.properties<span class="err">
+</span><span class="err"></span>    ports:<span class="err">
+</span><span class="err"></span>    - <span class="s2">&#34;8848:8848&#34;</span><span class="err">
+</span><span class="err"></span>  prometheus:<span class="err">
+</span><span class="err"></span>    container_name: prometheus<span class="err">
+</span><span class="err"></span>    image: prom/prometheus:latest<span class="err">
+</span><span class="err"></span>    volumes:<span class="err">
+</span><span class="err"></span>      - ./prometheus/prometheus-standalone.yaml:/etc/prometheus/prometheus.yml<span class="err">
+</span><span class="err"></span>    ports:<span class="err">
+</span><span class="err"></span>      - <span class="s2">&#34;9090:9090&#34;</span><span class="err">
+</span><span class="err"></span>    depends_on:<span class="err">
+</span><span class="err"></span>      - nacos<span class="err">
+</span><span class="err"></span>    restart: on-failure<span class="err">
+</span><span class="err"></span>  grafana:<span class="err">
+</span><span class="err"></span>    container_name: grafana<span class="err">
+</span><span class="err"></span>    image: grafana/grafana:latest<span class="err">
+</span><span class="err"></span>    ports:<span class="err">
+</span><span class="err"></span>      - 3000:3000<span class="err">
+</span><span class="err"></span>    restart: on-failure<span class="err">
+</span></code></pre></div><h3 id="docker-compose启动容器">docker-compose启动容器</h3>
+<p>最后加个-d后台运行</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker-compose -f example/standalone-derby.yaml up -d
+</code></pre></div><h3 id="访问">访问</h3>
+<p>地址：<a class="link" href="http://49.234.82.226:8848/nacos/"  target="_blank" rel="noopener"
+    >http://[ip地址]:8848/nacos/</a></p>
+<p><code>8848</code>是nacos的默认端口号</p>
+<p>web界面如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722011908.png" alt=""  /></p>
+<h2 id="普通部署">普通部署</h2>
+<p>到github: <a class="link" href="https://github.com/alibaba/nacos/releases/"  target="_blank" rel="noopener"
+    >https://github.com/alibaba/nacos/releases/</a>  去获取Nacos的压缩包</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># 解压</span><span class="w">
+</span><span class="w"></span><span class="l">tar -xvf nacos-server-1.4.0.tar.gz</span><span class="w">
+</span></code></pre></div><p>解压后 Nacos 目录结构如下。</p>
+<ul>
+<li>bin：保存启用/关闭 Nacos Server 脚本；</li>
+<li>conf：Nacos Server 配置目录；</li>
+<li>data：Nacos 数据目录；</li>
+<li>logs：存放日志目录；</li>
+<li>target：Nacos Jar 包存放目录；</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># 进入bin目录</span><span class="w">
+</span><span class="w"></span><span class="l">cd bin</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="c"># 修改虚拟机内存</span><span class="w">
+</span><span class="w"></span><span class="l">vim startup.sh</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="c"># 单机启动</span><span class="w">
+</span><span class="w"></span><span class="l">sh startup.sh -m standalone</span><span class="w">
+</span></code></pre></div><h2 id="springboot工程准备">Springboot工程准备</h2>
+<h3 id="创建">创建</h3>
+<p>因为是微服务项目，一般是多个springboot项目的多模块项目，所以先建立一个大的空Maven项目，以备之后使用，再在下面建立Module（对父项目根目录右键<code>new</code>→<code>Module</code>）</p>
+<p>Spring Initializr选中 Custom，写入阿里云地址<code>http://start.aliyun.com</code></p>
+<p>建立一个springboot项目，名字为nacos-sample-service，依赖除了spring-web之后记得一定还要选一个<code>nacos-discovery</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722012008.png" alt=""  /></p>
+<h3 id="修改配置文件applicationproperties">修改配置文件application.properties</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="err">#</span> <span class="n">应用名称</span>
+<span class="n">spring</span><span class="o">.</span><span class="na">application</span><span class="o">.</span><span class="na">name</span><span class="o">=</span><span class="n">nacos</span><span class="o">-</span><span class="n">sample</span><span class="o">-</span><span class="n">service</span>
+<span class="err">#</span> <span class="n">应用服务</span> <span class="n">WEB</span> <span class="n">访问端口</span>
+<span class="n">server</span><span class="o">.</span><span class="na">port</span><span class="o">=</span><span class="n">9000</span>
+<span class="err">#</span> <span class="n">Nacos帮助文档</span><span class="o">:</span> <span class="n">https</span><span class="o">:</span><span class="c1">//nacos.io/zh-cn/docs/concepts.html
+</span><span class="c1"></span><span class="err">#</span> <span class="n">连接</span> <span class="n">Nacos</span> <span class="n">服务器使用的用户名</span><span class="err">、</span><span class="n">密码</span><span class="err">，</span><span class="n">默认为</span> <span class="n">nacos</span>
+<span class="n">spring</span><span class="o">.</span><span class="na">cloud</span><span class="o">.</span><span class="na">nacos</span><span class="o">.</span><span class="na">discovery</span><span class="o">.</span><span class="na">username</span><span class="o">=</span><span class="n">nacos</span>
+<span class="n">spring</span><span class="o">.</span><span class="na">cloud</span><span class="o">.</span><span class="na">nacos</span><span class="o">.</span><span class="na">discovery</span><span class="o">.</span><span class="na">password</span><span class="o">=</span><span class="n">nacos</span>
+<span class="err">#</span> <span class="n">Nacos</span> <span class="n">服务发现与注册配置</span><span class="err">，</span><span class="n">其中子属性</span> <span class="n">server</span><span class="o">-</span><span class="n">addr</span> <span class="n">指定</span> <span class="n">Nacos</span> <span class="n">服务器主机和端口</span>
+<span class="n">spring</span><span class="o">.</span><span class="na">cloud</span><span class="o">.</span><span class="na">nacos</span><span class="o">.</span><span class="na">discovery</span><span class="o">.</span><span class="na">server</span><span class="o">-</span><span class="n">addr</span><span class="o">=</span><span class="n">49</span><span class="o">.</span><span class="na">234</span><span class="o">.</span><span class="na">82</span><span class="o">.</span><span class="na">226</span><span class="o">:</span><span class="n">8848</span>
+<span class="err">#</span> <span class="n">注册到</span> <span class="n">nacos</span> <span class="n">的指定</span> <span class="n">namespace</span><span class="err">，</span><span class="n">默认为</span> <span class="kd">public</span>
+<span class="n">spring</span><span class="o">.</span><span class="na">cloud</span><span class="o">.</span><span class="na">nacos</span><span class="o">.</span><span class="na">discovery</span><span class="o">.</span><span class="na">namespace</span><span class="o">=</span><span class="kd">public</span>
+</code></pre></div><h3 id="启动项目">启动项目</h3>
+<p>启动后看到日志：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">13</span> <span class="n">23</span><span class="o">:</span><span class="n">42</span><span class="o">:</span><span class="n">46</span><span class="o">.</span><span class="na">933</span>  <span class="n">INFO</span> <span class="n">75033</span> <span class="o">---</span> <span class="o">[</span>           <span class="n">main</span><span class="o">]</span> <span class="n">o</span><span class="o">.</span><span class="na">s</span><span class="o">.</span><span class="na">b</span><span class="o">.</span><span class="na">w</span><span class="o">.</span><span class="na">embedded</span><span class="o">.</span><span class="na">tomcat</span><span class="o">.</span><span class="na">TomcatWebServer</span>  <span class="o">:</span> <span class="n">Tomcat</span> <span class="n">started</span> <span class="n">on</span> <span class="nf">port</span><span class="o">(</span><span class="n">s</span><span class="o">):</span> <span class="n">9000</span> <span class="o">(</span><span class="n">http</span><span class="o">)</span> <span class="n">with</span> <span class="n">context</span> <span class="n">path</span> <span class="err">&#39;&#39;</span>
+<span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">13</span> <span class="n">23</span><span class="o">:</span><span class="n">42</span><span class="o">:</span><span class="n">47</span><span class="o">.</span><span class="na">577</span>  <span class="n">INFO</span> <span class="n">75033</span> <span class="o">---</span> <span class="o">[</span>           <span class="n">main</span><span class="o">]</span> <span class="n">c</span><span class="o">.</span><span class="na">a</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">n</span><span class="o">.</span><span class="na">registry</span><span class="o">.</span><span class="na">NacosServiceRegistry</span>    <span class="o">:</span> <span class="n">nacos</span> <span class="n">registry</span><span class="o">,</span> <span class="n">DEFAULT_GROUP</span> <span class="n">nacos</span><span class="o">-</span><span class="n">sample</span><span class="o">-</span><span class="n">service</span> <span class="n">10</span><span class="o">.</span><span class="na">173</span><span class="o">.</span><span class="na">110</span><span class="o">.</span><span class="na">92</span><span class="o">:</span><span class="n">9000</span> <span class="n">register</span> <span class="n">finished</span>
+<span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">13</span> <span class="n">23</span><span class="o">:</span><span class="n">42</span><span class="o">:</span><span class="n">47</span><span class="o">.</span><span class="na">590</span>  <span class="n">INFO</span> <span class="n">75033</span> <span class="o">---</span> <span class="o">[</span>           <span class="n">main</span><span class="o">]</span> <span class="n">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">n</span><span class="o">.</span><span class="na">NacosSampleServiceApplication</span>      <span class="o">:</span> <span class="n">Started</span> <span class="n">NacosSampleServiceApplication</span> <span class="n">in</span> <span class="n">16</span><span class="o">.</span><span class="na">484</span> <span class="nf">seconds</span> <span class="o">(</span><span class="n">JVM</span> <span class="n">running</span> <span class="k">for</span> <span class="n">24</span><span class="o">.</span><span class="na">374</span><span class="o">)</span>
+</code></pre></div><p>且在web界面看到服务已经被注册就证明已经成功了</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722012041.png" alt=""  /></p>
+<h2 id="nacos-注册中心的心跳机制"><strong>Nacos 注册中心的心跳机制</strong></h2>
+<p>下图阐述了微服务与 Nacos 服务器之间的通信过程。在微服务启动后每过5秒，会由微服务内置的 Nacos 客户端主动向 Nacos 服务器发起心跳包（HeartBeat）。心跳包会包含当前服务实例的名称、IP、端口、集群名、权重等信息。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722012121.png" alt=""  /></p>
+<p><code>naming</code> 模块在接收到心跳包后，会按下图逻辑处理心跳包并返回响应：</p>
+<ol>
+<li>naming 模块收到心跳包，首先根据 IP 与端口判断 Nacos 是否存在该服务实例？如果实例信息不存在，在 Nacos 中注册登记该实例。而注册的本质是将新实例对象存储在“实例 Map”集合中；</li>
+<li>如果实例信息已存在，记录本次心跳包发送时间；</li>
+<li>设置实例状态为“健康”；</li>
+<li>推送“微服务状态变更”消息；</li>
+<li>naming 模块返回心跳包时间间隔。</li>
+</ol>
+<p>到这里一次完整的心跳包处理已完成。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722012152.png" alt=""  /></p>
+<p>Nacos Server 每过 20 秒对“实例 Map”中的所有“非健康”实例进行扫描，如发现“非健康”实例，随即从“实例 Map”中将该实例删除。</p>
+<h2 id="集群部署">集群部署</h2>
+<h3 id="配置数据库">配置数据库</h3>
+<p>用于同步各集群之间的数据，同步端口为7848，所以也记得要打开</p>
+<p>修改nacos/conf/application.properties</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="err">###</span> <span class="n">If</span> <span class="n">use</span> <span class="n">MySQL</span> <span class="n">as</span> <span class="n">datasource</span><span class="o">:</span>
+<span class="n">spring</span><span class="o">.</span><span class="na">datasource</span><span class="o">.</span><span class="na">platform</span><span class="o">=</span><span class="n">mysql</span>
+
+<span class="err">###</span> <span class="n">Count</span> <span class="n">of</span> <span class="n">DB</span><span class="o">:</span>
+<span class="n">db</span><span class="o">.</span><span class="na">num</span><span class="o">=</span><span class="n">1</span>
+
+<span class="err">###</span> <span class="n">Connect</span> <span class="n">URL</span> <span class="n">of</span> <span class="n">DB</span><span class="o">:</span>
+<span class="n">db</span><span class="o">.</span><span class="na">url</span><span class="o">.</span><span class="na">0</span><span class="o">=</span><span class="n">jdbc</span><span class="o">:</span><span class="n">mysql</span><span class="o">:</span><span class="c1">//xxxxxx:3306/nacos_config?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=true&amp;useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTC
+</span><span class="c1"></span><span class="n">db</span><span class="o">.</span><span class="na">user</span><span class="o">=</span><span class="n">root</span>
+<span class="n">db</span><span class="o">.</span><span class="na">password</span><span class="o">=</span><span class="n">xxxxxx</span>
+</code></pre></div><h3 id="配置集群ip列表">配置集群ip列表</h3>
+<p>复制一份样例的集群ip节点列表</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">cp cluster.conf.example cluster.conf
+
+vim cluster.conf
+</code></pre></div><p>添加所有集群的ip，一行一条</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">192.168.163.131:8848
+192.168.163.132:8848
+192.168.163.133:8848
+</code></pre></div><h3 id="启动集群">启动集群</h3>
+<p>不用<code>-m</code> ，默认就是集群方式启动</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 启动</span>
+sh startup.sh
+
+<span class="c1"># 查看启动日志</span>
+tail -f ../logs/start.out
+</code></pre></div><p>看到日志出现大概以下信息就说明启动成功</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">2021-04-17 17:20:44,801 INFO Nacos is starting...
+
+2021-04-17 17:20:44,957 INFO Nacos Log files: /home/nacos/nacos/logs
+
+2021-04-17 17:20:44,958 INFO Nacos Log files: /home/nacos/nacos/conf
+
+2021-04-17 17:20:44,958 INFO Nacos Log files: /home/nacos/nacos/data
+
+2021-04-17 17:20:44,958 INFO Nacos started successfully in cluster mode. use external storage
+</code></pre></div><p>内存不够记得改下jvm启动内存（修改startup.sh文件）</p>
+<p>最后打开Nacos管理界面的集群管理的节点列表：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722012235.png" alt=""  /></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/springcloud/">SpringCloud</a>
+        
+            <a href="/tags/nacos/">Nacos</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/nacos_config_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/nacos_config_startup/cover.66c8e25056186a53e8835feb8b9a4c3b_hu2f85b5acfdf02eef7b8f3b3a65f67b73_18437_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="nacos_config_startup" 
+                        data-hash="md5-ZsjiUFYYalPog1/ri5pMOw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Nacos配置中心入门</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/dubbo_nacos_rpc/">
+        
+        
+            <div class="article-image">
+                <img src="/p/dubbo_nacos_rpc/cover.25670f88ab01c2bbe51b05beb055ab11_hu148189a32dd9592e6629114cd574d267_71263_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dubbo_nacos_rpc" 
+                        data-hash="md5-JWcPiKsBwrvlGwW&#43;sFWrEQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Dubbo&#43;Nacos实现RPC</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/rocketmq_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/rocketmq_startup/cover.7de7e0772582c1e83b8e346e84bd815c_hu9145d0cb10e9c56d586699b94d669fc3_38014_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="rocketmq_startup" 
+                        data-hash="md5-fefgdyWCweg7jjRuhL2BXA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">RocketMQ入门</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/zipkin_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/zipkin_startup/cover.e56bc29475bf03658a9af731d1a94d51_hu6ef3ef375e80ecb9108b60353e3afbae_90400_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="zipkin_startup" 
+                        data-hash="md5-5WvClHW/A2WKmvcx0alNUQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Sleuth&#43;Zipkin链路跟踪入门</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/openfeign_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/openfeign_startup/cover.840d6ba9c10efde6c0ce01794614eac6_hu74c9fdd8cb819657fbdd849b196b87b5_65974_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="openfeign_startup" 
+                        data-hash="md5-hA1rqcEO/ebAzgF5RhTqxg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">OpenFeign服务调用入门</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+     
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#docker单点部署">docker单点部署</a>
+      <ol>
+        <li><a href="#clone项目">clone项目</a></li>
+        <li><a href="#修改配置文件">修改配置文件</a></li>
+        <li><a href="#docker-compose启动容器">docker-compose启动容器</a></li>
+        <li><a href="#访问">访问</a></li>
+      </ol>
+    </li>
+    <li><a href="#普通部署">普通部署</a></li>
+    <li><a href="#springboot工程准备">Springboot工程准备</a>
+      <ol>
+        <li><a href="#创建">创建</a></li>
+        <li><a href="#修改配置文件applicationproperties">修改配置文件application.properties</a></li>
+        <li><a href="#启动项目">启动项目</a></li>
+      </ol>
+    </li>
+    <li><a href="#nacos-注册中心的心跳机制"><strong>Nacos 注册中心的心跳机制</strong></a></li>
+    <li><a href="#集群部署">集群部署</a>
+      <ol>
+        <li><a href="#配置数据库">配置数据库</a></li>
+        <li><a href="#配置集群ip列表">配置集群ip列表</a></li>
+        <li><a href="#启动集群">启动集群</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

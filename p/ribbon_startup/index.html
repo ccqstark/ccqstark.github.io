@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='客户端负载均衡 负载均衡顾名思义，是指通过软件或者硬件措施。它将来自客户端的请求按照某种策略平均的分配到集群的每一个节点上，保证这些节点的 CPU、内存等设备负载情况大致在一条水平线，避免由于局部节点负载过高产生宕机，再将这些处理压力传递到其他节点上产生系统性崩溃。
+负载均衡按实现方式分类可区分为：服务端负载均衡与客户端负载均衡。
+服务端负载均衡顾名思义，在架构中会提供专用的负载均衡器，由负载均衡器持有后端节点的信息，服务消费者发来的请求经由专用的负载均衡器分发给服务提供者，进而实现负载均衡的作用。目前常用的负载均衡器软硬件有：F5、Nginx、HaProxy 等。
+客户端负载均衡是指，在架构中不再部署额外的负载均衡器，在每个服务消费者内部持有客户端负载均衡器，由内置的负载均衡策略决定向哪个服务提供者发起请求。通俗来讲，就是客户端在发送请求之前就通过某种策略选定了要请求的服务提供者，而不是让一个中间件来帮忙决定。
+Ribbon Netfilx Ribbon 是 Netflix 公司开源的一个负载均衡组件，是属于客户端负载均衡器。目前Ribbon 已被 Spring Cloud 官方技术生态整合，运行时以 SDK 形式内嵌到每一个微服务实例中，为微服务间通信提供负载均衡与高可用支持。
+过程如下：
+ 订单服务（order-service）与商品服务（goods-service）实例在启动时向 Nacos 注册； 订单服务向商品服务发起通信前，Ribbon 向 Nacos 查询商品服务的可用实例列表； Ribbon 根据设置的负载策略从商品服务可用实例列表中选择实例； 订单服务实例向商品服务实例发起请求，完成 RESTful 通信；  下面用一个实例来演示：
+创建服务生产者 创建springboot项目模块，引入web和nacos客户端依赖
+配置文件 spring:application:name:provider-service#应用/微服务名字cloud:nacos:discovery:server-addr:49.234.82.226:8848#nacos服务器地址username:nacos#用户名密码password:nacosserver:port:8081创建示例服务 @RestController public class ProviderController { @GetMapping(&amp;#34;/provider/msg&amp;#34;) public String sendMessage(){ return &amp;#34;This is the message from provider service one!&amp;#34;; } } 连续创建3个provider，注意配置文件中的应用/微服务名要一致，代表同一种服务，为了直接了当地识别服务来自不同的微服务示例，可以在返回的字符串中添加自己的标示。启动后可以在nacos中看到健康示例数为3:
+创建服务消费者 引入web和nacos客户端依赖之外，还要引入ribbon
+&amp;lt;!-- Ribbon --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-netflix-ribbon&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${spring-cloud-alibaba.version}&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件和服务提供者只有应用名和端口的区别。'><title>Ribbon负载均衡入门</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/ribbon_startup/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Ribbon负载均衡入门'>
+<meta property='og:description' content='客户端负载均衡 负载均衡顾名思义，是指通过软件或者硬件措施。它将来自客户端的请求按照某种策略平均的分配到集群的每一个节点上，保证这些节点的 CPU、内存等设备负载情况大致在一条水平线，避免由于局部节点负载过高产生宕机，再将这些处理压力传递到其他节点上产生系统性崩溃。
+负载均衡按实现方式分类可区分为：服务端负载均衡与客户端负载均衡。
+服务端负载均衡顾名思义，在架构中会提供专用的负载均衡器，由负载均衡器持有后端节点的信息，服务消费者发来的请求经由专用的负载均衡器分发给服务提供者，进而实现负载均衡的作用。目前常用的负载均衡器软硬件有：F5、Nginx、HaProxy 等。
+客户端负载均衡是指，在架构中不再部署额外的负载均衡器，在每个服务消费者内部持有客户端负载均衡器，由内置的负载均衡策略决定向哪个服务提供者发起请求。通俗来讲，就是客户端在发送请求之前就通过某种策略选定了要请求的服务提供者，而不是让一个中间件来帮忙决定。
+Ribbon Netfilx Ribbon 是 Netflix 公司开源的一个负载均衡组件，是属于客户端负载均衡器。目前Ribbon 已被 Spring Cloud 官方技术生态整合，运行时以 SDK 形式内嵌到每一个微服务实例中，为微服务间通信提供负载均衡与高可用支持。
+过程如下：
+ 订单服务（order-service）与商品服务（goods-service）实例在启动时向 Nacos 注册； 订单服务向商品服务发起通信前，Ribbon 向 Nacos 查询商品服务的可用实例列表； Ribbon 根据设置的负载策略从商品服务可用实例列表中选择实例； 订单服务实例向商品服务实例发起请求，完成 RESTful 通信；  下面用一个实例来演示：
+创建服务生产者 创建springboot项目模块，引入web和nacos客户端依赖
+配置文件 spring:application:name:provider-service#应用/微服务名字cloud:nacos:discovery:server-addr:49.234.82.226:8848#nacos服务器地址username:nacos#用户名密码password:nacosserver:port:8081创建示例服务 @RestController public class ProviderController { @GetMapping(&amp;#34;/provider/msg&amp;#34;) public String sendMessage(){ return &amp;#34;This is the message from provider service one!&amp;#34;; } } 连续创建3个provider，注意配置文件中的应用/微服务名要一致，代表同一种服务，为了直接了当地识别服务来自不同的微服务示例，可以在返回的字符串中添加自己的标示。启动后可以在nacos中看到健康示例数为3:
+创建服务消费者 引入web和nacos客户端依赖之外，还要引入ribbon
+&amp;lt;!-- Ribbon --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-netflix-ribbon&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${spring-cloud-alibaba.version}&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件和服务提供者只有应用名和端口的区别。'>
+<meta property='og:url' content='https://ccqstark.github.io/p/ribbon_startup/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringCloud' /><meta property='article:tag' content='Ribbon' /><meta property='article:published_time' content='2021-07-22T01:38:45&#43;08:00'/><meta property='article:modified_time' content='2021-07-22T01:38:45&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/ribbon_startup/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Ribbon负载均衡入门">
+<meta name="twitter:description" content="客户端负载均衡 负载均衡顾名思义，是指通过软件或者硬件措施。它将来自客户端的请求按照某种策略平均的分配到集群的每一个节点上，保证这些节点的 CPU、内存等设备负载情况大致在一条水平线，避免由于局部节点负载过高产生宕机，再将这些处理压力传递到其他节点上产生系统性崩溃。
+负载均衡按实现方式分类可区分为：服务端负载均衡与客户端负载均衡。
+服务端负载均衡顾名思义，在架构中会提供专用的负载均衡器，由负载均衡器持有后端节点的信息，服务消费者发来的请求经由专用的负载均衡器分发给服务提供者，进而实现负载均衡的作用。目前常用的负载均衡器软硬件有：F5、Nginx、HaProxy 等。
+客户端负载均衡是指，在架构中不再部署额外的负载均衡器，在每个服务消费者内部持有客户端负载均衡器，由内置的负载均衡策略决定向哪个服务提供者发起请求。通俗来讲，就是客户端在发送请求之前就通过某种策略选定了要请求的服务提供者，而不是让一个中间件来帮忙决定。
+Ribbon Netfilx Ribbon 是 Netflix 公司开源的一个负载均衡组件，是属于客户端负载均衡器。目前Ribbon 已被 Spring Cloud 官方技术生态整合，运行时以 SDK 形式内嵌到每一个微服务实例中，为微服务间通信提供负载均衡与高可用支持。
+过程如下：
+ 订单服务（order-service）与商品服务（goods-service）实例在启动时向 Nacos 注册； 订单服务向商品服务发起通信前，Ribbon 向 Nacos 查询商品服务的可用实例列表； Ribbon 根据设置的负载策略从商品服务可用实例列表中选择实例； 订单服务实例向商品服务实例发起请求，完成 RESTful 通信；  下面用一个实例来演示：
+创建服务生产者 创建springboot项目模块，引入web和nacos客户端依赖
+配置文件 spring:application:name:provider-service#应用/微服务名字cloud:nacos:discovery:server-addr:49.234.82.226:8848#nacos服务器地址username:nacos#用户名密码password:nacosserver:port:8081创建示例服务 @RestController public class ProviderController { @GetMapping(&amp;#34;/provider/msg&amp;#34;) public String sendMessage(){ return &amp;#34;This is the message from provider service one!&amp;#34;; } } 连续创建3个provider，注意配置文件中的应用/微服务名要一致，代表同一种服务，为了直接了当地识别服务来自不同的微服务示例，可以在返回的字符串中添加自己的标示。启动后可以在nacos中看到健康示例数为3:
+创建服务消费者 引入web和nacos客户端依赖之外，还要引入ribbon
+&amp;lt;!-- Ribbon --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-netflix-ribbon&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${spring-cloud-alibaba.version}&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件和服务提供者只有应用名和端口的区别。"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/ribbon_startup/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-PXLPFFZ3XD', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ccqstark.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/ribbon_startup/">
+                <img src="/p/ribbon_startup/cover_hu23ccbb911fabf1d5535c01685f315954_288884_800x0_resize_box_2.png"
+                        srcset="/p/ribbon_startup/cover_hu23ccbb911fabf1d5535c01685f315954_288884_800x0_resize_box_2.png 800w, /p/ribbon_startup/cover_hu23ccbb911fabf1d5535c01685f315954_288884_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="335" 
+                        loading="lazy"
+                        alt="Featured image of post Ribbon负载均衡入门" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" >
+                微服务
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/ribbon_startup/">Ribbon负载均衡入门</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jul 22, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="客户端负载均衡">客户端负载均衡</h2>
+<p>负载均衡顾名思义，是指通过软件或者硬件措施。它将来自客户端的请求按照某种策略平均的分配到集群的每一个节点上，保证这些节点的 CPU、内存等设备负载情况大致在一条水平线，避免由于局部节点负载过高产生宕机，再将这些处理压力传递到其他节点上产生系统性崩溃。</p>
+<p>负载均衡按实现方式分类可区分为：<strong>服务端负载均衡</strong>与<strong>客户端负载均衡</strong>。</p>
+<p>服务端负载均衡顾名思义，在架构中会提供专用的负载均衡器，由负载均衡器持有后端节点的信息，服务消费者发来的请求经由专用的负载均衡器分发给服务提供者，进而实现负载均衡的作用。目前常用的负载均衡器软硬件有：F5、Nginx、HaProxy 等。</p>
+<p>客户端负载均衡是指，在架构中不再部署额外的负载均衡器，在每个服务消费者内部持有客户端负载均衡器，由内置的负载均衡策略决定向哪个服务提供者发起请求。<strong>通俗来讲，就是客户端在发送请求之前就通过某种策略选定了要请求的服务提供者，而不是让一个中间件来帮忙决定。</strong></p>
+<h2 id="ribbon">Ribbon</h2>
+<p>Netfilx Ribbon 是 Netflix 公司开源的一个负载均衡组件，是属于客户端负载均衡器。目前Ribbon 已被 Spring Cloud 官方技术生态整合，运行时以 SDK 形式内嵌到每一个微服务实例中，为微服务间通信提供负载均衡与高可用支持。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722013235.png" alt=""  /></p>
+<p>过程如下：</p>
+<ol>
+<li>订单服务（order-service）与商品服务（goods-service）实例在启动时向 Nacos <strong>注册</strong>；</li>
+<li>订单服务向商品服务发起通信前，Ribbon 向 Nacos <strong>查询</strong>商品服务的<strong>可用实例列表</strong>；</li>
+<li>Ribbon 根据设置的<strong>负载策略</strong>从商品服务可用实例列表中<strong>选择实例</strong>；</li>
+<li>订单服务实例向商品服务实例<strong>发起请求</strong>，完成 RESTful 通信；</li>
+</ol>
+<p>下面用一个实例来演示：</p>
+<h2 id="创建服务生产者">创建服务生产者</h2>
+<p>创建springboot项目模块，引入web和nacos客户端依赖</p>
+<h3 id="配置文件">配置文件</h3>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">application</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">provider-service</span><span class="w"> </span><span class="c">#应用/微服务名字</span><span class="w">
+</span><span class="w">  </span><span class="nt">cloud</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">nacos</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">discovery</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">server-addr</span><span class="p">:</span><span class="w"> </span><span class="m">49.234.82.226</span><span class="p">:</span><span class="m">8848</span><span class="w"> </span><span class="c">#nacos服务器地址</span><span class="w">
+</span><span class="w">        </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">nacos</span><span class="w"> </span><span class="c">#用户名密码</span><span class="w">
+</span><span class="w">        </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l">nacos</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8081</span><span class="w">
+</span></code></pre></div><h3 id="创建示例服务">创建示例服务</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProviderController</span> <span class="o">{</span>
+
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">&#34;/provider/msg&#34;</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">sendMessage</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="s">&#34;This is the message from provider service one!&#34;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><p>连续创建3个provider，注意配置文件中的应用/微服务名要一致，代表同一种服务，为了直接了当地识别服务来自不同的微服务示例，可以在返回的字符串中添加自己的标示。启动后可以在nacos中看到健康示例数为3:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722013319.png" alt=""  /></p>
+<h2 id="创建服务消费者">创建服务消费者</h2>
+<p>引入web和nacos客户端依赖之外，还要引入<code>ribbon</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="c">&lt;!-- Ribbon --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter-netflix-ribbon<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${spring-cloud-alibaba.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div><p>配置文件和服务提供者只有应用名和端口的区别。</p>
+<h3 id="服务调用示例">服务调用示例</h3>
+<p>首先是要添加RestTemplate对象</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@SpringBootApplication</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ConsumerServiceApplication</span> <span class="o">{</span>
+    <span class="c1">//Java Config声明RestTemplate对象
+</span><span class="c1"></span>    <span class="c1">//在应用启动时自动执行restTemplate()方法创建RestTemplate对象，其BeanId为restTemplate。
+</span><span class="c1"></span>    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="n">RestTemplate</span> <span class="nf">restTemplate</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">RestTemplate</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">ConsumerServiceApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><p>然后添加controller</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ConsumerController</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="n">ConsumerController</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">//注入 Ribbon 负载均衡器对象
+</span><span class="c1"></span>    <span class="c1">//在引入 starter-netflix-ribbon 后在 SpringBoot 启动时会自动实例化 LoadBalancerClient 对象。
+</span><span class="c1"></span>    <span class="c1">//在 Controller 使用 @Resource 注解进行注入即可。
+</span><span class="c1"></span>    <span class="nd">@Resource</span>
+    <span class="kd">private</span> <span class="n">LoadBalancerClient</span> <span class="n">loadBalancerClient</span><span class="o">;</span>
+    <span class="nd">@Resource</span>
+    <span class="c1">//将应用启动时创建的 RestTemplate 对象注入 ConsumerController
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">RestTemplate</span> <span class="n">restTemplate</span><span class="o">;</span>
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">&#34;/consumer/msg1&#34;</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getProviderMessage1</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">//loadBalancerClient.choose()方法会从 Nacos 获取 provider-service 所有可用实例，
+</span><span class="c1"></span>        <span class="c1">//并按负载均衡策略从中选择一个可用实例，封装为 ServiceInstance（服务实例）对象
+</span><span class="c1"></span>        <span class="c1">//结合现有环境既是从三个实例中选择一个包装为ServiceInstance
+</span><span class="c1"></span>        <span class="n">ServiceInstance</span> <span class="n">serviceInstance</span> <span class="o">=</span> <span class="n">loadBalancerClient</span><span class="o">.</span><span class="na">choose</span><span class="o">(</span><span class="s">&#34;provider-service&#34;</span><span class="o">);</span>
+        <span class="c1">//获取服务实例的 IP 地址
+</span><span class="c1"></span>        <span class="n">String</span> <span class="n">host</span> <span class="o">=</span> <span class="n">serviceInstance</span><span class="o">.</span><span class="na">getHost</span><span class="o">();</span>
+        <span class="c1">//获取服务实例的端口
+</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">port</span> <span class="o">=</span> <span class="n">serviceInstance</span><span class="o">.</span><span class="na">getPort</span><span class="o">();</span>
+        <span class="c1">//在日志中打印服务实例信息
+</span><span class="c1"></span>        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;本次调用由provider-service的&#34;</span> <span class="o">+</span> <span class="n">host</span> <span class="o">+</span> <span class="s">&#34;:&#34;</span> <span class="o">+</span> <span class="n">port</span> <span class="o">+</span> <span class="s">&#34; 实例节点负责处理&#34;</span> <span class="o">);</span>
+        <span class="c1">//通过 RestTemplate 对象的 getForObject() 方法向指定 URL 发送请求，并接收响应。
+</span><span class="c1"></span>        <span class="c1">//getForObject()方法有两个参数：
+</span><span class="c1"></span>        <span class="c1">//1. 具体发送的 URL，结合当前环境发送地址为：http://[ip]:[port]/provider/msg
+</span><span class="c1"></span>        <span class="c1">//2. String.class说明 URL 返回的是纯字符串，如果第二参数是实体类， RestTemplate 会自动进行反序列化，为实体属性赋值
+</span><span class="c1"></span>        <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="n">restTemplate</span><span class="o">.</span><span class="na">getForObject</span><span class="o">(</span><span class="s">&#34;http://&#34;</span> <span class="o">+</span> <span class="n">host</span> <span class="o">+</span> <span class="s">&#34;:&#34;</span> <span class="o">+</span> <span class="n">port</span> <span class="o">+</span> <span class="s">&#34;/provider/msg&#34;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="c1">//输出响应内容
+</span><span class="c1"></span>        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;provider-service 响应数据:&#34;</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+        <span class="c1">//向浏览器返回响应
+</span><span class="c1"></span>        <span class="k">return</span> <span class="s">&#34;consumer-service 响应数据:&#34;</span> <span class="o">+</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="调用服务测试">调用服务测试</h2>
+<p>发现每次刷新都是不一样的服务示例来服务的，这里默认采用了<code>轮询机制</code>来负载均衡</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722013400.png" alt=""  /></p>
+<h2 id="loadbalanced">@LoadBalanced</h2>
+<p>采用注解模式用<code>@LoadBalanced</code> 注解就可以很大程度上简化代码</p>
+<p>注解加在RestTemplate对象上</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@SpringBootApplication</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ConsumerServiceApplication</span> <span class="o">{</span>
+
+    <span class="c1">//Java Config声明RestTemplate对象
+</span><span class="c1"></span>    <span class="c1">//在应用启动时自动执行restTemplate()方法创建RestTemplate对象，其BeanId为restTemplate。
+</span><span class="c1"></span>    <span class="nd">@Bean</span>
+    <span class="nd">@LoadBalanced</span> <span class="c1">//使RestTemplate对象自动支持Ribbon负载均衡
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="n">RestTemplate</span> <span class="nf">restTemplate</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">RestTemplate</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">ConsumerServiceApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><p>添加服务</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@GetMapping</span><span class="o">(</span><span class="s">&#34;/consumer/msg2&#34;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">getProviderMessage2</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">//关键点：将原有IP:端口替换为服务名，RestTemplate便会在通信前自动利用Ribbon查询可用provider-service实例列表
+</span><span class="c1"></span>    <span class="c1">//再根据负载均衡策略选择节点实例
+</span><span class="c1"></span>    <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="n">restTemplate</span><span class="o">.</span><span class="na">getForObject</span><span class="o">(</span><span class="s">&#34;http://provider-service/provider/msg&#34;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;consumer-service获得数据:&#34;</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+    <span class="k">return</span>   <span class="s">&#34;consumer-service获得数据:&#34;</span> <span class="o">+</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>可以发现比第一种方式减少了很多的代码</p>
+<h3 id="如何配置-ribbon-负载均衡策略"><strong>如何配置 Ribbon 负载均衡策略</strong></h3>
+<p>Ribbon 内置多种负载均衡策略，常用的分为以下几种。</p>
+<ul>
+<li><strong>RoundRobinRule：</strong></li>
+</ul>
+<p>轮询策略，Ribbon 默认策略。默认超过 10 次获取到的 server 都不可用，会返回⼀个空的 server。</p>
+<ul>
+<li><strong>RandomRule：</strong></li>
+</ul>
+<p>随机策略，如果随机到的 server 为 null 或者不可用的话。会不停地循环选取。</p>
+<ul>
+<li><strong>RetryRule</strong>：</li>
+</ul>
+<p>重试策略，⼀定时限内循环重试。默认继承 RoundRobinRule，也⽀持自定义注⼊，RetryRule 会在每次选取之后，对选举的 server 进⾏判断，是否为 null，是否 alive，并且在 500ms 内会不停地选取判断。而 RoundRobinRule 失效的策略是超过 10 次，RandomRule 没有失效时间的概念，只要 serverList 没都挂。</p>
+<ul>
+<li><strong>BestAvailableRule</strong>：</li>
+</ul>
+<p>最小连接数策略，遍历 serverList，选取出可⽤的且连接数最小的⼀个 server。那么会调用 RoundRobinRule 重新选取。</p>
+<ul>
+<li><strong>AvailabilityFilteringRule</strong>：</li>
+</ul>
+<p>可用过滤策略。扩展了轮询策略，会先通过默认的轮询选取⼀个 server，再去判断该 server 是否超时可用、当前连接数是否超限，都成功再返回。</p>
+<ul>
+<li><strong>ZoneAvoidanceRule</strong>：</li>
+</ul>
+<p>区域权衡策略。扩展了轮询策略，除了过滤超时和链接数过多的 server，还会过滤掉不符合要求的 zone 区域⾥⾯的所有节点，始终保证在⼀个区域/机房内的服务实例进行轮询。</p>
+<p>这里所有负载均衡策略名本质都是 com.netflix.loadbalancer 包下的类：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722013450.png" alt=""  /></p>
+<h3 id="修改微服务的负载均衡规则">修改微服务的负载均衡规则</h3>
+<p>直接修改配置文件application.yml添加</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">provider-service</span><span class="p">:</span><span class="w"> </span><span class="c">#服务提供者的微服务id</span><span class="w">
+</span><span class="w">  </span><span class="nt">ribbon</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">NFLoadBalancerRuleClassName</span><span class="p">:</span><span class="w"> </span><span class="l">com.netflix.loadbalancer.RandomRule</span><span class="w"> </span><span class="c">#设置对应的负载均衡类</span><span class="w">
+</span></code></pre></div><p>这里采用随机算法，用上面的示例测试一下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">14</span> <span class="n">01</span><span class="o">:</span><span class="n">20</span><span class="o">:</span><span class="n">04</span><span class="o">.</span><span class="na">122</span>  <span class="n">INFO</span> <span class="n">82083</span> <span class="o">---</span> <span class="o">[</span><span class="n">nio</span><span class="o">-</span><span class="n">8090</span><span class="o">-</span><span class="n">exec</span><span class="o">-</span><span class="n">1</span><span class="o">]</span> <span class="n">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">controller</span><span class="o">.</span><span class="na">ConsumerController</span>      <span class="o">:</span> <span class="n">consumer</span><span class="o">-</span><span class="n">service获得数据</span><span class="o">:</span><span class="n">This</span> <span class="n">is</span> <span class="n">the</span> <span class="n">message</span> <span class="n">from</span> <span class="n">provider</span> <span class="n">service</span> <span class="n">two</span><span class="o">!</span>
+<span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">14</span> <span class="n">01</span><span class="o">:</span><span class="n">20</span><span class="o">:</span><span class="n">06</span><span class="o">.</span><span class="na">694</span>  <span class="n">INFO</span> <span class="n">82083</span> <span class="o">---</span> <span class="o">[</span><span class="n">nio</span><span class="o">-</span><span class="n">8090</span><span class="o">-</span><span class="n">exec</span><span class="o">-</span><span class="n">2</span><span class="o">]</span> <span class="n">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">controller</span><span class="o">.</span><span class="na">ConsumerController</span>      <span class="o">:</span> <span class="n">consumer</span><span class="o">-</span><span class="n">service获得数据</span><span class="o">:</span><span class="n">This</span> <span class="n">is</span> <span class="n">the</span> <span class="n">message</span> <span class="n">from</span> <span class="n">provider</span> <span class="n">service</span> <span class="n">one</span><span class="o">!</span>
+<span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">14</span> <span class="n">01</span><span class="o">:</span><span class="n">20</span><span class="o">:</span><span class="n">09</span><span class="o">.</span><span class="na">022</span>  <span class="n">INFO</span> <span class="n">82083</span> <span class="o">---</span> <span class="o">[</span><span class="n">nio</span><span class="o">-</span><span class="n">8090</span><span class="o">-</span><span class="n">exec</span><span class="o">-</span><span class="n">3</span><span class="o">]</span> <span class="n">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">controller</span><span class="o">.</span><span class="na">ConsumerController</span>      <span class="o">:</span> <span class="n">consumer</span><span class="o">-</span><span class="n">service获得数据</span><span class="o">:</span><span class="n">This</span> <span class="n">is</span> <span class="n">the</span> <span class="n">message</span> <span class="n">from</span> <span class="n">provider</span> <span class="n">service</span> <span class="n">one</span><span class="o">!</span>
+<span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">14</span> <span class="n">01</span><span class="o">:</span><span class="n">20</span><span class="o">:</span><span class="n">09</span><span class="o">.</span><span class="na">989</span>  <span class="n">INFO</span> <span class="n">82083</span> <span class="o">---</span> <span class="o">[</span><span class="n">nio</span><span class="o">-</span><span class="n">8090</span><span class="o">-</span><span class="n">exec</span><span class="o">-</span><span class="n">4</span><span class="o">]</span> <span class="n">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">controller</span><span class="o">.</span><span class="na">ConsumerController</span>      <span class="o">:</span> <span class="n">consumer</span><span class="o">-</span><span class="n">service获得数据</span><span class="o">:</span><span class="n">This</span> <span class="n">is</span> <span class="n">the</span> <span class="n">message</span> <span class="n">from</span> <span class="n">provider</span> <span class="n">service</span> <span class="n">three</span><span class="o">!</span>
+<span class="n">2021</span><span class="o">-</span><span class="n">04</span><span class="o">-</span><span class="n">14</span> <span class="n">01</span><span class="o">:</span><span class="n">20</span><span class="o">:</span><span class="n">20</span><span class="o">.</span><span class="na">379</span>  <span class="n">INFO</span> <span class="n">82083</span> <span class="o">---</span> <span class="o">[</span><span class="n">nio</span><span class="o">-</span><span class="n">8090</span><span class="o">-</span><span class="n">exec</span><span class="o">-</span><span class="n">5</span><span class="o">]</span> <span class="n">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">c</span><span class="o">.</span><span class="na">controller</span><span class="o">.</span><span class="na">ConsumerController</span>      <span class="o">:</span> <span class="n">consumer</span><span class="o">-</span><span class="n">service获得数据</span><span class="o">:</span><span class="n">This</span> <span class="n">is</span> <span class="n">the</span> <span class="n">message</span> <span class="n">from</span> <span class="n">provider</span> <span class="n">service</span> <span class="n">two</span><span class="o">!</span>
+</code></pre></div><p>果然是随机的！</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/springcloud/">SpringCloud</a>
+        
+            <a href="/tags/ribbon/">Ribbon</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/rocketmq_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/rocketmq_startup/cover.7de7e0772582c1e83b8e346e84bd815c_hu9145d0cb10e9c56d586699b94d669fc3_38014_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="rocketmq_startup" 
+                        data-hash="md5-fefgdyWCweg7jjRuhL2BXA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">RocketMQ入门</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/zipkin_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/zipkin_startup/cover.e56bc29475bf03658a9af731d1a94d51_hu6ef3ef375e80ecb9108b60353e3afbae_90400_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="zipkin_startup" 
+                        data-hash="md5-5WvClHW/A2WKmvcx0alNUQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Sleuth&#43;Zipkin链路跟踪入门</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/nacos_config_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/nacos_config_startup/cover.66c8e25056186a53e8835feb8b9a4c3b_hu2f85b5acfdf02eef7b8f3b3a65f67b73_18437_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="nacos_config_startup" 
+                        data-hash="md5-ZsjiUFYYalPog1/ri5pMOw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Nacos配置中心入门</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/openfeign_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/openfeign_startup/cover.840d6ba9c10efde6c0ce01794614eac6_hu74c9fdd8cb819657fbdd849b196b87b5_65974_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="openfeign_startup" 
+                        data-hash="md5-hA1rqcEO/ebAzgF5RhTqxg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">OpenFeign服务调用入门</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/nacos_startup/">
+        
+        
+            <div class="article-image">
+                <img src="/p/nacos_startup/cover.77d602d0991bd6a55855a7239a736f41_hu3dcfa387b55d54e5becd295f3f353ebe_40548_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="nacos_startup" 
+                        data-hash="md5-d9YC0Jkb1qVYVacjmnNvQQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Nacos服务注册与发现入门</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+     
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#客户端负载均衡">客户端负载均衡</a></li>
+    <li><a href="#ribbon">Ribbon</a></li>
+    <li><a href="#创建服务生产者">创建服务生产者</a>
+      <ol>
+        <li><a href="#配置文件">配置文件</a></li>
+        <li><a href="#创建示例服务">创建示例服务</a></li>
+      </ol>
+    </li>
+    <li><a href="#创建服务消费者">创建服务消费者</a>
+      <ol>
+        <li><a href="#服务调用示例">服务调用示例</a></li>
+      </ol>
+    </li>
+    <li><a href="#调用服务测试">调用服务测试</a></li>
+    <li><a href="#loadbalanced">@LoadBalanced</a>
+      <ol>
+        <li><a href="#如何配置-ribbon-负载均衡策略"><strong>如何配置 Ribbon 负载均衡策略</strong></a></li>
+        <li><a href="#修改微服务的负载均衡规则">修改微服务的负载均衡规则</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

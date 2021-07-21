@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>OpenFeign on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/openfeign/</link>
+    <description>Recent content in OpenFeign on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 22 Jul 2021 01:43:44 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/openfeign/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>OpenFeign服务调用入门</title>
+      <link>https://ccqstark.github.io/p/openfeign_startup/</link>
+      <pubDate>Thu, 22 Jul 2021 01:43:44 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/openfeign_startup/</guid>
+      <description>Feign 与 OpenFeign Spring Cloud OpenFeign 并不是独立的技术。它底层基于 Netflix Feign，Netflix Feign 是 Netflix 设计的开源的声明式 WebService 客户端，用于简化服务间通信。Netflix Feign 采用“接口+注解”的方式开发，通过模仿 RPC 的客户端与服务器模式（CS），采用接口方式开发来屏蔽网络通信的细节。OpenFeign 则是在 Netflix Feign 的基础上进行封装，结合原有 Spring MVC 的注解，对 Spring Cloud 微服务通信提供了良好的支持。使用 OpenFeign 开发的方式与开发 Spring MVC Controller 颇为相似。
+下面讲OpenFeign的使用方法。
+服务提供方 依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-alibaba-nacos-discovery&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 配置 spring:application:name:warehouse-service#应用/微服务名字cloud:nacos:discovery:server-addr:192.168.31.102:8848#nacos服务器地址username:nacos#用户名密码password:nacosserver:port:80可被调用的服务 @RestController public class WarehouseController { @GetMapping(&amp;#34;/stock&amp;#34;) public Stock getStock(Long skuId){ /* code */ return stock; } } 服务调用方 依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.</description>
+    </item>
+    
+  </channel>
+</rss>
