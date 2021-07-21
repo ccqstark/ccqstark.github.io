@@ -14,7 +14,16 @@
         <guid>https://ccqstark.github.io/p/remove_elements/</guid>
         <description>&lt;img src="https://ccqstark.github.io/p/remove_elements/leetcode.png" alt="Featured image of post [leetcode]203.移除链表元素" /&gt;&lt;h2 id=&#34;题目&#34;&gt;题目&lt;/h2&gt;
 &lt;p&gt;给你一个链表的头节点 head 和一个整数 val ，请你删除链表中所有满足 Node.val == val 的节点，并返回 新的头节点 。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled.png&#34; alt=&#34;203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 304; flex-basis: 731px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/remove_elements/Untitled.png&#34; data-size=&#34;576x189&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/remove_elements/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/remove_elements/Untitled_hu918c5f38aa502590d74995b167211c18_35290_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/remove_elements/Untitled_hu918c5f38aa502590d74995b167211c18_35290_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;576&#34;
+				height=&#34;189&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;示例&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
 &lt;span class=&#34;nl&#34;&gt;输入:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;head&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;],&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;6&lt;/span&gt;
 &lt;span class=&#34;nl&#34;&gt;输出:&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
@@ -34,8 +43,17 @@
 &lt;/ol&gt;
 &lt;p&gt;第二种方法主要是为了统一所有的删除节点操作，而不用在遇到要删除头节点情况时要单独写一段代码来处理。&lt;/p&gt;
 &lt;p&gt;而对于普通节点，删除这个节点的操作一般是把自己的前驱节点的next指针指向自己的后驱节点，如图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled%201.png&#34; alt=&#34;203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;由于是单链表，我们不能获得一个被删节点的前驱节点，所以一般是判断一个节点的next的值是否为被删值。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 250; flex-basis: 601px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/remove_elements/Untitled1.png&#34; data-size=&#34;1191x475&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/remove_elements/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/remove_elements/Untitled1_hu90c7c138ff9f32d222480cb8da92f36b_35148_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/remove_elements/Untitled1_hu90c7c138ff9f32d222480cb8da92f36b_35148_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1191&#34;
+				height=&#34;475&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+由于是单链表，我们不能获得一个被删节点的前驱节点，所以一般是判断一个节点的next的值是否为被删值。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;对于C/C++，不能自动释放内存我们就要手动释放被删除的节点的内存，但Java会帮我们做好这一切。&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -74,7 +92,16 @@
     &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;head&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这种方式对于要删除的点是头节点的情况就是把head节点往后移一位：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled%202.png&#34; alt=&#34;203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 318; flex-basis: 764px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/remove_elements/Untitled2.png&#34; data-size=&#34;1153x362&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/remove_elements/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/remove_elements/Untitled2_huf292d0f5c45ba54f662e2967f9e32614_28700_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/remove_elements/Untitled2_huf292d0f5c45ba54f662e2967f9e32614_28700_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1153&#34;
+				height=&#34;362&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;方法二虚拟头节点&#34;&gt;方法二：虚拟头节点&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ListNode&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;removeElements2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ListNode&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;head&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
     &lt;span class=&#34;c1&#34;&gt;// 设置虚拟头节点
@@ -91,7 +118,16 @@
     &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;virtualHead&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;next&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;下面是有了虚拟头节点之后删除头节点的操作，发现和其它的非头节点操作是可以统一的：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled%203.png&#34; alt=&#34;203%20%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0%203f587fa8f0f140a29b1404d3e15a151b/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 298; flex-basis: 715px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/remove_elements/Untitled3.png&#34; data-size=&#34;1327x445&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/remove_elements/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/remove_elements/Untitled3_hud13ea0c1adc884a4a286f9152e243a06_37915_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/remove_elements/Untitled3_hud13ea0c1adc884a4a286f9152e243a06_37915_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1327&#34;
+				height=&#34;445&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;复杂度分析&#34;&gt;&lt;strong&gt;复杂度分析&lt;/strong&gt;&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;时间复杂度：O(&lt;em&gt;N&lt;/em&gt;)，只遍历了一次。&lt;/li&gt;
@@ -107,7 +143,7 @@
         <guid>https://ccqstark.github.io/p/generate_matrix/</guid>
         <description>&lt;img src="https://ccqstark.github.io/p/generate_matrix/leetcode.png" alt="Featured image of post [leetcode]59.螺旋矩阵II" /&gt;&lt;h2 id=&#34;题目&#34;&gt;题目&lt;/h2&gt;
 &lt;p&gt;给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg&#34; alt=&#34;https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/6461626841649_.pic.jpg&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nl&#34;&gt;示例1:&lt;/span&gt;
 &lt;span class=&#34;nl&#34;&gt;输入:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;n&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;3&lt;/span&gt;
 &lt;span class=&#34;nl&#34;&gt;输出:&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;],[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;8&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;9&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;],[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;7&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]]&lt;/span&gt;
@@ -121,8 +157,26 @@
 &lt;p&gt;当然每次循环还需要注意，每行/列都遵循的是&lt;code&gt;左闭右开&lt;/code&gt;的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。&lt;/p&gt;
 &lt;p&gt;还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。&lt;/p&gt;
 &lt;p&gt;下面就是n=5和n=4的例子：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled.png&#34; alt=&#34;59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled%201.png&#34; alt=&#34;59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 102; flex-basis: 246px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/generate_matrix/Untitled.png&#34; data-size=&#34;636x620&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/generate_matrix/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;636&#34;
+				height=&#34;620&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+&lt;figure style=&#34;flex-grow: 94; flex-basis: 226px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/generate_matrix/Untitled1.png&#34; data-size=&#34;512x543&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/generate_matrix/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;512&#34;
+				height=&#34;543&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h2 id=&#34;代码&#34;&gt;代码&lt;/h2&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Solution&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
     &lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[][]&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;generateMatrix&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
@@ -207,8 +261,8 @@
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// one和two内容相同，指向同一String对象
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;one&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;someString&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;two&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;someString&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://pic1.zhimg.com/80/71d827920f870b82c93d06f8a9c0b247_720w.jpg?source=1940ef5c&#34; alt=&#34;https://pic1.zhimg.com/80/71d827920f870b82c93d06f8a9c0b247_720w.jpg?source=1940ef5c&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;关于更深入的创建对象和之间的比较可以看下面这篇：&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/71d827920f870b82c93d06f8a9c0b247_720w.jpg?source=1940ef5c&#34; alt=&#34;&#34;  /&gt;
+关于更深入的创建对象和之间的比较可以看下面这篇：&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/tiantiandjava/article/details/46309163&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;java 字符串缓冲池 String缓冲池_天天的专栏-CSDN博客&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&#34;哪里不可变&#34;&gt;哪里不可变？&lt;/h2&gt;
@@ -222,8 +276,17 @@
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//aaaaaaa
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//bbbbbbbbb
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;实际上，当我们给字符串重新赋值的时候，它并不是去改变这个String对象中的字符数组&lt;code&gt;char[] value&lt;/code&gt;的值（下面会讲到），而是去缓冲池里寻找有没有已经存在这个值的&lt;code&gt;String对象&lt;/code&gt;，有的话就直接指向它，没有的话创建一个对象再指向它。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E4%B8%80%E6%AC%A1%E7%90%86%E8%A7%A3String%E7%9A%84%E4%B8%8D%E5%8F%AF%E5%8F%98%E6%80%A7%207dd788fbcd57410b913c52ecf7b450c0/Untitled.png&#34; alt=&#34;%E4%B8%80%E6%AC%A1%E7%90%86%E8%A7%A3String%E7%9A%84%E4%B8%8D%E5%8F%AF%E5%8F%98%E6%80%A7%207dd788fbcd57410b913c52ecf7b450c0/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;str只是一个引用，指向的String对象是在堆中的。&lt;strong&gt;改变字符串的值其实只是改变整个对象的引用&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 214; flex-basis: 515px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/string/Untitled.png&#34; data-size=&#34;1118x521&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/string/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/string/Untitled_hu8a4e164ee6ff022b62fb27deb89cf723_55485_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/string/Untitled_hu8a4e164ee6ff022b62fb27deb89cf723_55485_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1118&#34;
+				height=&#34;521&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+str只是一个引用，指向的String对象是在堆中的。&lt;strong&gt;改变字符串的值其实只是改变整个对象的引用&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;而原来的String对象还是在那里没有被改变，之后要是有别的变量赋这个值可以继续指向它。&lt;/p&gt;
 &lt;h2 id=&#34;为什么不可变&#34;&gt;为什么不可变？&lt;/h2&gt;
 &lt;p&gt;我们看下String的部分源码：&lt;/p&gt;
@@ -356,8 +419,17 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这个方法我们先计算出nums中不同长度的前i个数之和的数组sums，也就是sums[i]表示nums[0]到nums[i-1]中的所有数之和。&lt;/p&gt;
 &lt;p&gt;然后我们用二分查找在sums数组中找到下标bound，使得&lt;code&gt;sums[bound]-sums[i]&amp;gt;=target&lt;/code&gt;，且这个bound是所能找到的最小的。（由于nums都是正整数，sums一定是递增的，所以可以用二分搜索）&lt;/p&gt;
 &lt;p&gt;最终&lt;code&gt;bound-i&lt;/code&gt;就是我们要找的最小的窗口长度。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/209%20%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%208df7c8e57fe741178240bf389952300f/Untitled.png&#34; alt=&#34;209%20%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%208df7c8e57fe741178240bf389952300f/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;这里的二分搜索如果找不到的话要返回插入的位置，Java有个Arrays.binarySearch()工具类可以使用，返回值为：&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 225; flex-basis: 541px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/min_sub_array_len/Untitled.png&#34; data-size=&#34;1018x451&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/min_sub_array_len/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/min_sub_array_len/Untitled_huda241c8e825d8179cb97936e0d37c238_34442_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/min_sub_array_len/Untitled_huda241c8e825d8179cb97936e0d37c238_34442_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1018&#34;
+				height=&#34;451&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+这里的二分搜索如果找不到的话要返回插入的位置，Java有个Arrays.binarySearch()工具类可以使用，返回值为：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;如果找到关键字，则返回值为关键字在数组中的位置索引，且索引&lt;code&gt;从0开始&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;如果没有找到关键字，&lt;code&gt;返回值为负&lt;/code&gt;的插入点值，所谓插入点值就是第一个比关键字大的元素在数组中的位置索引，而且这个位置索引&lt;code&gt;从1开始&lt;/code&gt;。&lt;/li&gt;
@@ -432,8 +504,17 @@
         &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;left&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;];&lt;/span&gt;
     &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/27%20%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0%205a59d90099fd47aa96428284ab561018/Untitled.png&#34; alt=&#34;27%20%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0%205a59d90099fd47aa96428284ab561018/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;figure style=&#34;flex-grow: 272; flex-basis: 654px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/remove_element/Untitled.png&#34; data-size=&#34;911x334&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/remove_element/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/remove_element/Untitled_hu9040d830423d56d5eadd3168ece7bed3_20202_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/remove_element/Untitled_hu9040d830423d56d5eadd3168ece7bed3_20202_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;911&#34;
+				height=&#34;334&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。&lt;/p&gt;
 &lt;p&gt;这种方法在被删除元素都是在连续位置时可以很好提高速度。但是会有一些边界条件需要考虑，在上面代码中用注释强调了。&lt;/p&gt;
 &lt;h3 id=&#34;双指针法&#34;&gt;双指针法&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;removeElement&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
@@ -517,12 +598,39 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;二分搜索在目标值大于或小于&lt;code&gt;mid&lt;/code&gt;位置的值时要如何改变&lt;code&gt;left&lt;/code&gt;和&lt;code&gt;right&lt;/code&gt; 就不说了，关键是为什么最后我们把&lt;code&gt;left&lt;/code&gt; 作为插入位置呢？&lt;/p&gt;
 &lt;p&gt;我们可以拿奇数个或偶数个元素的数组试一下，发现如果目标值不在数组中，那么它们最后都会面临这样一种情况：left和right相邻，而目标值就介于两者之间。&lt;/p&gt;
 &lt;p&gt;举个例子，数组[0,2,4,5,6]，目标值3，如下图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled.png&#34; alt=&#34;35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;而下一个状态也是肯定的，因为此时mid和left相等，target&amp;gt;nums[mid]，则&lt;code&gt;left = mid + 1&lt;/code&gt; ，呈现下面的状态：left和right重叠，且在目标值的大一位&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%201.png&#34; alt=&#34;35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;再下一个状态同样是一定的，mid此时就是left和right的位置，则target&amp;lt;nums[mid]，即&lt;code&gt;right = mid - 1&lt;/code&gt; ，right左移一位，达到while循环结束条件left&amp;gt;right&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%202.png&#34; alt=&#34;35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;那很明显的，目标插入的位置就一定是最后这里left的位置。不管数组元素是奇数个还是偶数个，最终就会是这个情形，所以最后我们选择&lt;code&gt;left&lt;/code&gt; 作为插入不存在目标值的位置。当然也可以提前一步，当&lt;code&gt;left == right&lt;/code&gt; 时那个位置也是一样的，leetcode官方就是这么选择的。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 196; flex-basis: 471px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/search_insert/Untitled.png&#34; data-size=&#34;974x496&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/search_insert/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/search_insert/Untitled_hu53e337c3de8fcb7ac811d31e42c85f96_32118_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/search_insert/Untitled_hu53e337c3de8fcb7ac811d31e42c85f96_32118_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;974&#34;
+				height=&#34;496&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+而下一个状态也是肯定的，因为此时mid和left相等，target&amp;gt;nums[mid]，则&lt;code&gt;left = mid + 1&lt;/code&gt; ，呈现下面的状态：left和right重叠，且在目标值的大一位&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 174; flex-basis: 419px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/search_insert/Untitled1.png&#34; data-size=&#34;964x551&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/search_insert/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/search_insert/Untitled1_hu23ba98e4e88a10fafee3e6e53fa8977a_31912_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/search_insert/Untitled1_hu23ba98e4e88a10fafee3e6e53fa8977a_31912_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;964&#34;
+				height=&#34;551&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+再下一个状态同样是一定的，mid此时就是left和right的位置，则target&amp;lt;nums[mid]，即&lt;code&gt;right = mid - 1&lt;/code&gt; ，right左移一位，达到while循环结束条件left&amp;gt;right&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 181; flex-basis: 435px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/search_insert/Untitled2.png&#34; data-size=&#34;981x541&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/search_insert/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/search_insert/Untitled2_hu6643aa8aa9a4acd4ae8f56e54e5b0e42_32362_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/search_insert/Untitled2_hu6643aa8aa9a4acd4ae8f56e54e5b0e42_32362_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;981&#34;
+				height=&#34;541&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+那很明显的，目标插入的位置就一定是最后这里left的位置。不管数组元素是奇数个还是偶数个，最终就会是这个情形，所以最后我们选择&lt;code&gt;left&lt;/code&gt; 作为插入不存在目标值的位置。当然也可以提前一步，当&lt;code&gt;left == right&lt;/code&gt; 时那个位置也是一样的，leetcode官方就是这么选择的。&lt;/p&gt;
 &lt;h3 id=&#34;复杂度分析&#34;&gt;复杂度分析&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;时间复杂度：O(log n)，其中 n 为数组的长度。二分查找所需的时间复杂度为 O(log n)。&lt;/li&gt;
@@ -686,7 +794,16 @@
 &lt;p&gt;Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的&lt;code&gt;Lucene&lt;/code&gt;库进行开发，并以简单的&lt;code&gt;RESTful&lt;/code&gt;风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。&lt;/p&gt;
 &lt;p&gt;官网地址：&lt;a class=&#34;link&#34; href=&#34;https://www.elastic.co/cn/elasticsearch/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://www.elastic.co/cn/elasticsearch/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 217; flex-basis: 521px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png&#34; data-size=&#34;1024x471&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w_huf021a1dfebbe47cdc6d389106a82318c_7114_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w_huf021a1dfebbe47cdc6d389106a82318c_7114_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1024&#34;
+				height=&#34;471&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;应用场景&#34;&gt;应用场景&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;应用程序搜索&lt;/li&gt;
@@ -702,7 +819,16 @@
 &lt;h3 id=&#34;elk&#34;&gt;ELK&lt;/h3&gt;
 &lt;p&gt;&lt;code&gt;ELK&lt;/code&gt;，即ElasticSearch + logstash + Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。&lt;/p&gt;
 &lt;p&gt;一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 227; flex-basis: 545px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled.png&#34; data-size=&#34;1831x805&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled_hu7dafef719c0da23a4ffc30c2466c80d1_362848_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled_hu7dafef719c0da23a4ffc30c2466c80d1_362848_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1831&#34;
+				height=&#34;805&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h2 id=&#34;概念介绍&#34;&gt;概念介绍&lt;/h2&gt;
 &lt;h3 id=&#34;基本概念&#34;&gt;基本概念&lt;/h3&gt;
 &lt;p&gt;ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。&lt;/p&gt;
@@ -775,8 +901,17 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 &lt;span class=&#34;se
     &gt;[Elastic]使用docker安装ElasticSearch + Kibana&lt;/a&gt;&lt;/p&gt;
 &lt;h3 id=&#34;restful风格操作&#34;&gt;RESTful风格操作&lt;/h3&gt;
 &lt;p&gt;es使用RESTful风格的API进行CRUD，存储与传输使用的数据形式也是使用常见的JSON，常用的method和对应的功能如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%201.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;其中查询支持多种类型的复杂查询，如match解析查询、排序查询、分页查询、bool查询、fileter查询、多关键字查询、term精确查询、高亮查询等等。详细可以查看我博客的另一篇文章。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 265; flex-basis: 636px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled1.png&#34; data-size=&#34;750x283&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled1_hu84fd3aa02f569b683507f114748edc09_59329_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled1_hu84fd3aa02f569b683507f114748edc09_59329_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;750&#34;
+				height=&#34;283&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+其中查询支持多种类型的复杂查询，如match解析查询、排序查询、分页查询、bool查询、fileter查询、多关键字查询、term精确查询、高亮查询等等。详细可以查看我博客的另一篇文章。&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://ccqstark.github.io/p/es_rest/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;[ElasticSearch]REST风格操作&lt;/a&gt;&lt;/p&gt;
 &lt;h3 id=&#34;客户端&#34;&gt;客户端&lt;/h3&gt;
@@ -900,17 +1035,44 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 &lt;span class=&#34;se
 &lt;p&gt;其实很好理解，就是把我们以前设计表的那种把文章对应里面有哪些单词的结构，倒过来，变成一个单词与被包含在哪些文章中的对应关系，当我们搜索一个单词的时候就能快速得到包含这个单词的文章列表来。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;举个例子：&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;比方说下面这张表&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%202.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;对direct字段利用倒排索引，变成：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%203.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;那只要我们想查frontend对应有哪些人，就可以直接获得他们的id列表[21,16,54]，如果想查boss有哪些人，就可以得到[67,98]。这样就可以很快检索到我们想要到结果，而不用进行全表的搜索。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 92; flex-basis: 220px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled2.png&#34; data-size=&#34;323x351&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled2_hua72aa8e6b64f1adb079c95b16fc1620c_31464_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled2_hua72aa8e6b64f1adb079c95b16fc1620c_31464_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;323&#34;
+				height=&#34;351&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+对direct字段利用倒排索引，变成：&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 107; flex-basis: 258px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled3.png&#34; data-size=&#34;495x459&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled3_hu1a0087a5c8443441516afb4eced10602_41097_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled3_hu1a0087a5c8443441516afb4eced10602_41097_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;495&#34;
+				height=&#34;459&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+那只要我们想查frontend对应有哪些人，就可以直接获得他们的id列表[21,16,54]，如果想查boss有哪些人，就可以得到[67,98]。这样就可以很快检索到我们想要到结果，而不用进行全表的搜索。&lt;/p&gt;
 &lt;p&gt;对于上面的倒排表，我们把其中每一项称为&lt;code&gt;Term&lt;/code&gt;，被索引的那一列也就是实例的direct字段为&lt;code&gt;Term Dictionary&lt;/code&gt; ，对应被检索出来的id_list字段为&lt;code&gt;Posting List&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;被检索的direct如果按顺序排列的话就可以用二分搜索快速找出，或者也可以在其上再加一层BTree来索引，提高关键词本身的搜索速度。&lt;/p&gt;
 &lt;h3 id=&#34;term-index&#34;&gt;Term Index&lt;/h3&gt;
 &lt;p&gt;当数据量很大的时候，Term Dictionary也会变得很大，无法完全放入内存（es本身运行已经占用非常大的内存了），这个时候我们再加一层索引叫&lt;code&gt;Term Index&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;es使用 &lt;code&gt;Burst-Trie&lt;/code&gt; 结构来实现，它是字典树（前缀树）&lt;code&gt;Trie&lt;/code&gt; 的一种变种，它主要是将后缀进行了压缩，降低了Trie的高度，从而获取更好查询性能。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%204.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%204.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;可以看到这棵树的根节点为空，接下来每一层是单词的从头到位的顺序的字母，某一节点的子节点连接所有单词中可能出现的下一个字母，根据下一个字母的可能的情况来分叉，同时多余的后缀也被省略。查询时可以先将Term Index缓存到内存中，据此找到我们要的Term Dictionary再去读磁盘，可以减少磁盘I/O次数。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 138; flex-basis: 333px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled4.png&#34; data-size=&#34;656x472&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled4.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled4_hu4f32e137e35b5784fba3361a4454f69b_51474_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled4_hu4f32e137e35b5784fba3361a4454f69b_51474_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;656&#34;
+				height=&#34;472&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+可以看到这棵树的根节点为空，接下来每一层是单词的从头到位的顺序的字母，某一节点的子节点连接所有单词中可能出现的下一个字母，根据下一个字母的可能的情况来分叉，同时多余的后缀也被省略。查询时可以先将Term Index缓存到内存中，据此找到我们要的Term Dictionary再去读磁盘，可以减少磁盘I/O次数。&lt;/p&gt;
 &lt;h2 id=&#34;联合查询合并&#34;&gt;联合查询合并&lt;/h2&gt;
 &lt;p&gt;当我们用es进行联合查询时，比如查找方向为backend且年份等于2019的人，我们只需要对direct和year字段分别用倒排索引查找出结果集，最后对结果集进行合并就行了。&lt;/p&gt;
 &lt;p&gt;在关系型数据库中我们一般会用join来合并两表，这里再次鞭尸一下MySQL，它的join实现性能也很差。比如下面这样的SQL：&lt;/p&gt;
@@ -926,11 +1088,29 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 &lt;span class=&#34;se
 &lt;p&gt;而Elasticsearch使用跳表&lt;code&gt;Skip List&lt;/code&gt;和位图&lt;code&gt;Bitset&lt;/code&gt;来合并结果集，下面介绍一下这两种方法。&lt;/p&gt;
 &lt;h3 id=&#34;skip-list合并策略&#34;&gt;Skip List合并策略&lt;/h3&gt;
 &lt;p&gt;说到跳表，我们首先讲一下普通的链表，如下图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%205.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%205.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;图中的链表除了首位节点之外，其它节点都有一个指针指向下一个节点，但是由于不是顺序存储，我们无法从其中任意一个节点推算出其它任意一个节点的位置（除非是它指向的下一节点）。因此用这个数据结构来寻找某一节点效率偏低。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 556; flex-basis: 1335px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled5.png&#34; data-size=&#34;1024x184&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled5.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled5_hu4f00d3328f98b6b5ea1266a13c82514a_12332_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled5_hu4f00d3328f98b6b5ea1266a13c82514a_12332_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1024&#34;
+				height=&#34;184&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+图中的链表除了首位节点之外，其它节点都有一个指针指向下一个节点，但是由于不是顺序存储，我们无法从其中任意一个节点推算出其它任意一个节点的位置（除非是它指向的下一节点）。因此用这个数据结构来寻找某一节点效率偏低。&lt;/p&gt;
 &lt;p&gt;然后说跳表&lt;code&gt;Skip List&lt;/code&gt;，实际上是在链表的基础上多加了几层索引，使得查询效率加快，如图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%206.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%206.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;我们在原来的链表上多加了三层，而上面的每一层各节点之间的距离都在逐级递增，也就是说每次跨到本层的下一个节点，中间跳跃的相对与底层的节点数越来越多，所以叫跳表。利用这种数据结构的特性，我们在遍历原链表的时候就可以利用上面的索引来每次多跳几个节点，从而加快速度。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 232; flex-basis: 558px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled6.png&#34; data-size=&#34;1030x443&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled6.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled6_hu961a20333dfd2ebcf6c70d2469c654fc_24717_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled6_hu961a20333dfd2ebcf6c70d2469c654fc_24717_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1030&#34;
+				height=&#34;443&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+我们在原来的链表上多加了三层，而上面的每一层各节点之间的距离都在逐级递增，也就是说每次跨到本层的下一个节点，中间跳跃的相对与底层的节点数越来越多，所以叫跳表。利用这种数据结构的特性，我们在遍历原链表的时候就可以利用上面的索引来每次多跳几个节点，从而加快速度。&lt;/p&gt;
 &lt;p&gt;ES利用Skip List进行合并结果集的时候就是从上往下，找到节点值大于等于目标值的最小节点，如果还是大于目标值，那就往下一层，相当于增加查找精度。例如我现在要找的目标值为2，从最上一层开始找，这层是0—&amp;gt;6，6明显大于2了，到下一层；这一层是0—&amp;gt;4—&amp;gt;6，找到4还是大于2，那继续下一层；这时是0—&amp;gt;2—&amp;gt;4—&amp;gt;6，我们就可以找到目标值2了。&lt;/p&gt;
 &lt;p&gt;利用跳表，ES在找两个结果集的交集的时候就会快很多。&lt;/p&gt;
 &lt;h3 id=&#34;roaring-bitset合并策略&#34;&gt;Roaring Bitset合并策略&lt;/h3&gt;
@@ -943,8 +1123,17 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 &lt;span class=&#34;se
 如果使用位图 Bitset 来存储的话，即某个数如果存在的话，就将它对应的位图内的比特置为1，否则保持为0。这样多少个树就只需要消耗多少bit来存，这里是 2 ^ 32 位 = 512 MB，这可只有原来的 3.2 % 左右。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;Roaring Bitmap又是如何来解决稀疏的问题的呢？直接上图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%207.png&#34; alt=&#34;ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%207.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;如图中所示，我们把待存数除以65535，并根据所得商和余数分组。然后把相同商的组分到同一个存储单元，这个存储单元称为&lt;code&gt;container&lt;/code&gt;，最后只需要存各container中的余数即可。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 127; flex-basis: 305px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_principle/Untitled7.png&#34; data-size=&#34;962x756&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_principle/Untitled7.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_principle/Untitled7_hufcb748e7c079b190c8a55a1ee7b111d9_56629_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_principle/Untitled7_hufcb748e7c079b190c8a55a1ee7b111d9_56629_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;962&#34;
+				height=&#34;756&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+如图中所示，我们把待存数除以65535，并根据所得商和余数分组。然后把相同商的组分到同一个存储单元，这个存储单元称为&lt;code&gt;container&lt;/code&gt;，最后只需要存各container中的余数即可。&lt;/p&gt;
 &lt;p&gt;所以RoaringBitmap其实就是很多container的集合，如果是一个32位unsigned long的话，那最多就有2^32 / 65535 = 65535个container。&lt;/p&gt;
 &lt;p&gt;对于其中的余数的存储（低16位），则是以下的存储规则：&lt;/p&gt;
 &lt;ul&gt;
@@ -1012,7 +1201,16 @@ docker &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; -it zookeeper bash
     &gt;&lt;/a&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接&lt;/span&gt;
 java -jar zookeeper-dev-ZooInspector.jar
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled.png&#34; alt=&#34;Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;figure style=&#34;flex-grow: 137; flex-basis: 330px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled.png&#34; data-size=&#34;1056x768&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled_hu4c9a62aa768df2fd487a8326f02f26eb_96669_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/dubbo_zookeeper/Untitled_hu4c9a62aa768df2fd487a8326f02f26eb_96669_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1056&#34;
+				height=&#34;768&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h2 id=&#34;使用dubbo-admin可视化监控服务&#34;&gt;使用dubbo-admin可视化监控服务&lt;/h2&gt;
 &lt;p&gt;&lt;code&gt;dubbo-admin&lt;/code&gt;是一个Springboot项目，可以监控我们注册到注册中心到服务。&lt;/p&gt;
 &lt;p&gt;到github上下载&lt;/p&gt;
@@ -1022,8 +1220,17 @@ java -jar zookeeper-dev-ZooInspector.jar
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;n&#34;&gt;dubbo&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;registry&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;address&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;zookeeper&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//[ip]:2181
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后用mvn命令打包再运行jar包即可，也可以直接在idea里打包&lt;/p&gt;
 &lt;p&gt;运行后浏览器 打开&lt;code&gt;localhost:7001&lt;/code&gt; ，输入账号密码默认都为root，来到主页&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%201.png&#34; alt=&#34;Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;中间的搜索框可以搜索服务、应用、ip，菜单栏上也有各种监控服务的方式。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 204; flex-basis: 490px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled1.png&#34; data-size=&#34;1955x956&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled1_hu8428c982ec4589bf24a1692d32c3f022_93969_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/dubbo_zookeeper/Untitled1_hu8428c982ec4589bf24a1692d32c3f022_93969_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1955&#34;
+				height=&#34;956&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+中间的搜索框可以搜索服务、应用、ip，菜单栏上也有各种监控服务的方式。&lt;/p&gt;
 &lt;h2 id=&#34;springboot-demo&#34;&gt;SpringBoot Demo&lt;/h2&gt;
 &lt;p&gt;用idea建立一个空项目，然后添加两个Modules，都为Springboot项目。&lt;/p&gt;
 &lt;p&gt;一个作为服务提供者provider，一个作为服务消费者consumer&lt;/p&gt;
@@ -1116,7 +1323,16 @@ java -jar zookeeper-dev-ZooInspector.jar
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;#&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;被注册的服务&lt;/span&gt;
 &lt;span class=&#34;n&#34;&gt;dubbo&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;scan&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;base&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;packages&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;com&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;ccqstark&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;service&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后启动项目，就可以在之前安装的dubbo中发现该服务了&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%202.png&#34; alt=&#34;Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 177; flex-basis: 425px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled2.png&#34; data-size=&#34;628x354&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled2_hu2ef583d0d6cb487fedab8b1c4af81a21_30689_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/dubbo_zookeeper/Untitled2_hu2ef583d0d6cb487fedab8b1c4af81a21_30689_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;628&#34;
+				height=&#34;354&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;在consumer项目中调用服务&#34;&gt;在consumer项目中调用服务&lt;/h3&gt;
 &lt;p&gt;配置文件中增加配置&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;err&#34;&gt;#&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;消费者暴露的服务应用名称&lt;/span&gt;
@@ -1155,8 +1371,17 @@ java -jar zookeeper-dev-ZooInspector.jar
 
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;运行之后就可以发现consumer项目调用provider的服务成功！&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%203.png&#34; alt=&#34;Dubbo%20&amp;#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;最基本的服务注册发现与rpc调用大概是demo这样。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 325; flex-basis: 781px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled3.png&#34; data-size=&#34;798x245&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/dubbo_zookeeper/Untitled3_huf1aa39a1f5831f563e82bbaed8909fd5_29247_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/dubbo_zookeeper/Untitled3_huf1aa39a1f5831f563e82bbaed8909fd5_29247_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;798&#34;
+				height=&#34;245&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+最基本的服务注册发现与rpc调用大概是demo这样。&lt;/p&gt;
 &lt;p&gt;参考自：
 &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1PE411i7CV?p=60&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;bilibili&lt;/a&gt;&lt;/p&gt;
@@ -1171,26 +1396,80 @@ java -jar zookeeper-dev-ZooInspector.jar
         <description>&lt;img src="https://ccqstark.github.io/p/distributed_rpc/dis-rpc.png" alt="Featured image of post 浅谈分布式系统与RPC" /&gt;&lt;p&gt;随着互联网的发展，Web应用与服务的规模不断扩大，才能满足不断增加的用户和需求。而原来只用一台服务器来部署的单机应用的方式已经满足不了如此大的需求。为了提高性能，单机发展为分布式架构，简单来说就是通过增加服务器的数量来弥补性能上的不足，当然同时也带来了一些问题。&lt;/p&gt;
 &lt;h3 id=&#34;分布式系统&#34;&gt;分布式系统&lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;分布式系统（distributed system）&lt;/code&gt;&lt;strong&gt;是由一组网络进行通信，为了完成共同的任务而协调工作的计算机节点组成的系统。分布式系统是为了用单体性能普通的机器完成单个计算机无法完成的计算、存储任务，通过&lt;/strong&gt;合理调度&lt;/strong&gt;各台计算机&lt;strong&gt;共同合作&lt;/strong&gt;来提高性能，完成数量更多、体量更大的任务。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled.png&#34; alt=&#34;%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;比如百度或淘宝这样体量规模都十分大的应用，为了满足如此大的用户数量和请求压力，背后肯定不止一台计算机在提供服务，而是部署了&lt;strong&gt;计算机集群&lt;/strong&gt;，通过提升计算机的数量来提高处理数据的能力。在流量高峰时，大量的请求可以被均匀地分配给各台服务器去处理，从而避免其中一台服务器由于压力过大而宕机，这就是&lt;code&gt;负载均衡&lt;/code&gt;，也就是&lt;code&gt;nginx&lt;/code&gt;可以做的事情。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%201.png&#34; alt=&#34;%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;同时应用的各个模块也可以分别部署在不同的服务器上，比如淘宝这样的电商项目可以把&lt;strong&gt;服务拆分&lt;/strong&gt;成商品、支付、订单、物流等不同的模块，不同模块可以部署在不同的服务器上。当一个模块部署到多台服务器上时，其中一台崩了，还有其他的服务器可以提供服务，提高了服务的稳定性与高可用。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%202.png&#34; alt=&#34;%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;而对于用户来说，他们都是访问一个域名来获取服务的，所以对于用户来说服务还是一个整体，而不需要知道是哪台服务器为他们提供了服务。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 202; flex-basis: 487px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled.png&#34; data-size=&#34;972x479&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled_hudf8b577edd8b7aaecaa9375bf2468e77_118247_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/distributed_rpc/Untitled_hudf8b577edd8b7aaecaa9375bf2468e77_118247_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;972&#34;
+				height=&#34;479&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+比如百度或淘宝这样体量规模都十分大的应用，为了满足如此大的用户数量和请求压力，背后肯定不止一台计算机在提供服务，而是部署了&lt;strong&gt;计算机集群&lt;/strong&gt;，通过提升计算机的数量来提高处理数据的能力。在流量高峰时，大量的请求可以被均匀地分配给各台服务器去处理，从而避免其中一台服务器由于压力过大而宕机，这就是&lt;code&gt;负载均衡&lt;/code&gt;，也就是&lt;code&gt;nginx&lt;/code&gt;可以做的事情。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 134; flex-basis: 323px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled1.png&#34; data-size=&#34;1039x772&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled1_hue9a0c118e4e13f2f14b0c228c4f91c11_75625_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/distributed_rpc/Untitled1_hue9a0c118e4e13f2f14b0c228c4f91c11_75625_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1039&#34;
+				height=&#34;772&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+同时应用的各个模块也可以分别部署在不同的服务器上，比如淘宝这样的电商项目可以把&lt;strong&gt;服务拆分&lt;/strong&gt;成商品、支付、订单、物流等不同的模块，不同模块可以部署在不同的服务器上。当一个模块部署到多台服务器上时，其中一台崩了，还有其他的服务器可以提供服务，提高了服务的稳定性与高可用。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 152; flex-basis: 366px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled2.png&#34; data-size=&#34;626x410&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled2_hu3d6d9fafeb3f87ea29bdd7f69efb9f6b_133895_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/distributed_rpc/Untitled2_hu3d6d9fafeb3f87ea29bdd7f69efb9f6b_133895_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;626&#34;
+				height=&#34;410&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+而对于用户来说，他们都是访问一个域名来获取服务的，所以对于用户来说服务还是一个整体，而不需要知道是哪台服务器为他们提供了服务。&lt;/p&gt;
 &lt;h3 id=&#34;rpc&#34;&gt;RPC&lt;/h3&gt;
 &lt;p&gt;下图是&lt;strong&gt;Dubbo&lt;/strong&gt;官方文档中的一张图，说明了网站应用的架构演变&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%203.png&#34; alt=&#34;%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;原来应用是单体应用，程序如果要调用一个函数或方法就直接调用就行了，因为都是在本地。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 333; flex-basis: 800px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled3.png&#34; data-size=&#34;700x210&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled3_hub697a16f3a4ef69f3098b83daeb94972_119713_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/distributed_rpc/Untitled3_hub697a16f3a4ef69f3098b83daeb94972_119713_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;700&#34;
+				height=&#34;210&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+原来应用是单体应用，程序如果要调用一个函数或方法就直接调用就行了，因为都是在本地。&lt;/p&gt;
 &lt;p&gt;现在应用采用分布式架构，服务被分散到不同的服务器上，一台服务器上的程序就会遇到需要调用另一台服务器上的某个方法的情况，这个时候就叫&lt;code&gt;RPC(远程过程调用)(Remote Procedure call)&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;RPC的调用过程如下图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%204.png&#34; alt=&#34;%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%204.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;通过网络发送调用消息就需要先序列化，到目标服务器后成功调用对应的服务后返回，反序列化得到结果。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 134; flex-basis: 322px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled4.png&#34; data-size=&#34;1076x800&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled4.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled4_hu9ab7d29254d9c084687e4d2e7ac1fcfa_75049_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/distributed_rpc/Untitled4_hu9ab7d29254d9c084687e4d2e7ac1fcfa_75049_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1076&#34;
+				height=&#34;800&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+通过网络发送调用消息就需要先序列化，到目标服务器后成功调用对应的服务后返回，反序列化得到结果。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Dubbo&lt;/code&gt;就是一个流行的RPC框架，提供面向接口代理的高性能RPC调用、智能负载均衡、服务自动注册与发现、高度可扩展能力、运行期流量调度（灰度发布）、可视化工具等功能。&lt;/p&gt;
 &lt;h3 id=&#34;流动计算架构&#34;&gt;流动计算架构&lt;/h3&gt;
 &lt;p&gt;当服务增多时，服务的管理与资源的分配成为亟待解决的问题，此时，需要增加一个调度中心基于访问压力实时管理集群容量，提高集群的利用率。用于提高机器利用率的资源调度和治理中心(SOA)(Service Oriented Architecture)就十分重要。&lt;/p&gt;
 &lt;p&gt;服务通过在注册中心进行注册，被统一的管理起来并可被发现，并对用户开放。当用户需要用到某一服务时，就去注册中心拿，注册中心就会将对应的服务提供给他。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%205.png&#34; alt=&#34;%E6%B5%85%E8%B0%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%8ERPC%20c2afcf99bd164cd7bf6ce7ec6e5de10a/Untitled%205.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;注册中心用的比较多的是&lt;code&gt;Zookeeper&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 139; flex-basis: 335px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled5.png&#34; data-size=&#34;701x501&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled5.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/distributed_rpc/Untitled5_hue3a0176ed0783574675e61ae8c680dd7_172880_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/distributed_rpc/Untitled5_hue3a0176ed0783574675e61ae8c680dd7_172880_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;701&#34;
+				height=&#34;501&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+注册中心用的比较多的是&lt;code&gt;Zookeeper&lt;/code&gt;&lt;/p&gt;
 </description>
         </item>
         <item>
@@ -1216,8 +1495,17 @@ java -jar zookeeper-dev-ZooInspector.jar
 &lt;p&gt;⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;版本对应表如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E4%BD%BF%E7%94%A8SpringBoot%E6%93%8D%E4%BD%9CElasticSearch%201f30cd75c9374f088578e4c58ba60976/20201221111458835.png&#34; alt=&#34;%E4%BD%BF%E7%94%A8SpringBoot%E6%93%8D%E4%BD%9CElasticSearch%201f30cd75c9374f088578e4c58ba60976/20201221111458835.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;我使用的这里用Springboot&lt;code&gt;2.4.1&lt;/code&gt;，所以对应的elasticsearch是&lt;code&gt;7.9.3&lt;/code&gt;版本&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 268; flex-basis: 645px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/springboot_es/20201221111458835.png&#34; data-size=&#34;928x345&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/springboot_es/20201221111458835.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/springboot_es/20201221111458835_hu3434231879f07d017eb4f374d08f0e6c_37598_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/springboot_es/20201221111458835_hu3434231879f07d017eb4f374d08f0e6c_37598_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;928&#34;
+				height=&#34;345&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+我使用的这里用Springboot&lt;code&gt;2.4.1&lt;/code&gt;，所以对应的elasticsearch是&lt;code&gt;7.9.3&lt;/code&gt;版本&lt;/p&gt;
 &lt;h2 id=&#34;配置类&#34;&gt;配置类&lt;/h2&gt;
 &lt;p&gt;config目录下新建es的配置类&lt;code&gt;ElasticSearchClientConfig.java&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Configuration&lt;/span&gt;
@@ -1794,7 +2082,16 @@ DELETE /&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;index&lt;span class=&#34;o&#
 &lt;p&gt;⚠️ 使用&lt;code&gt;term&lt;/code&gt;查询要求字段为&lt;code&gt;keyword&lt;/code&gt;类型才能匹配出来&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;term&lt;/code&gt;是精确查询，于match会用分词器解析不同，term是直接通过倒排索引指定的词条进行精确查找&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/REST%E9%A3%8E%E6%A0%BC%E6%93%8D%E4%BD%9C%20c1ca3a07d5da4a59911b43bfbc5eab1e/Untitled.png&#34; alt=&#34;REST%E9%A3%8E%E6%A0%BC%E6%93%8D%E4%BD%9C%20c1ca3a07d5da4a59911b43bfbc5eab1e/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 311; flex-basis: 747px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/es_rest/Untitled.png&#34; data-size=&#34;782x251&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/es_rest/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/es_rest/Untitled_hud5df7308c05c7c774ffefdeaa1075da7_143909_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/es_rest/Untitled_hud5df7308c05c7c774ffefdeaa1075da7_143909_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;782&#34;
+				height=&#34;251&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;高亮查询&lt;/li&gt;
 &lt;/ul&gt;
@@ -1877,8 +2174,17 @@ DELETE /&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;index&lt;span class=&#34;o&#
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;curl -sLf https://spacevim.org/cn/install.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; bash
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;完成后重新打开nvim就会自动下载相关插件。&lt;/p&gt;
 &lt;p&gt;然后就是主界面：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;主题&lt;/strong&gt;的修改可以参考官方文档&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 178; flex-basis: 427px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/vim/Untitled.png&#34; data-size=&#34;1042x585&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/vim/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/vim/Untitled_hua3043802da1b2443e590d828f6c6ef5a_91873_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/vim/Untitled_hua3043802da1b2443e590d828f6c6ef5a_91873_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1042&#34;
+				height=&#34;585&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+&lt;strong&gt;主题&lt;/strong&gt;的修改可以参考官方文档&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://spacevim.org/cn/layers/colorscheme/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;SpaceVim colorscheme 模块 | SpaceVim&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;快捷键符号说明&lt;/strong&gt;&lt;/p&gt;
@@ -1888,8 +2194,17 @@ DELETE /&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;index&lt;span class=&#34;o&#
 &lt;p&gt;打开&lt;code&gt;系统偏好设置&lt;/code&gt; → &lt;code&gt;键盘&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;勾选&lt;code&gt;将F1、F2等键用作标准功能键&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;这同时也解决了Chrome的&lt;code&gt;F12&lt;/code&gt; 不能打开控制台的问题&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%201.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;文件目录树&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 188; flex-basis: 451px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/vim/Untitled1.png&#34; data-size=&#34;461x245&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/vim/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/vim/Untitled1_hu261421ce15b23020c919c569b90937fb_31843_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/vim/Untitled1_hu261421ce15b23020c919c569b90937fb_31843_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;461&#34;
+				height=&#34;245&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+&lt;strong&gt;文件目录树&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;按&lt;code&gt;F3&lt;/code&gt; 可以打开或关闭&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;语法函数树&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;按&lt;code&gt;F2&lt;/code&gt;可以打开或关闭&lt;/p&gt;
@@ -1968,8 +2283,17 @@ call plug#end&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
 	&lt;span class=&#34;nv&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;autocomplete&amp;#39;&lt;/span&gt;
 	&lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;效果如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%202.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;可以看到代码提示效果是非常好的&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 131; flex-basis: 315px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/vim/Untitled2.png&#34; data-size=&#34;419x319&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/vim/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/vim/Untitled2_huf5b3e93ed8311015737b26dbced4d6f4_29041_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/vim/Untitled2_huf5b3e93ed8311015737b26dbced4d6f4_29041_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;419&#34;
+				height=&#34;319&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+可以看到代码提示效果是非常好的&lt;/p&gt;
 &lt;p&gt;当然，里面还有很多很实用的扩展也可以根据需要下&lt;/p&gt;
 &lt;h3 id=&#34;括号引号自动补全&#34;&gt;括号引号自动补全&lt;/h3&gt;
 &lt;p&gt;&lt;code&gt;coc.nvim&lt;/code&gt;插件对于括号和引号还是没有自动补成一对的功能，可以在&lt;code&gt;init.vim&lt;/code&gt;里添加&lt;/p&gt;
@@ -2049,7 +2373,16 @@ endf
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;:CtrlP &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;要搜索的目录&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果目录下的文件过多，比如系统根目录，就会花比较多的时间去索引。所以建议尽量缩小范围。&lt;/p&gt;
 &lt;p&gt;之后便可以输入关键字进行搜索了&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%203.png&#34; alt=&#34;%E6%88%91%E7%9A%84vim%E5%85%A5%E9%97%A8%E9%85%8D%E7%BD%AE%E6%8A%98%E8%85%BE%20a647efa0f247430983e0241115e52dca/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 232; flex-basis: 557px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/vim/Untitled3.png&#34; data-size=&#34;581x250&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/vim/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/vim/Untitled3_hu9131cf11c6bd1e6efcf3f68e73a175b0_36062_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/vim/Untitled3_hu9131cf11c6bd1e6efcf3f68e73a175b0_36062_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;581&#34;
+				height=&#34;250&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h2 id=&#34;其他插件&#34;&gt;其他插件&lt;/h2&gt;
 &lt;p&gt;比如更好的代码格式化&lt;code&gt;vim-clang-format&lt;/code&gt;和代码时间记录&lt;code&gt;wakatime&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/rhysd/vim-clang-format&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -2136,8 +2469,17 @@ Changed password &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; user &lt;span cl
 &lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;grokdebugger.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;searchprofiler.enabled&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之后进入kibana进入登陆界面&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/ElasticSearch%20%E5%AE%89%E5%85%A8%20d5ed4d3e7edc4879bf7a5a55b5c400dc/Untitled.png&#34; alt=&#34;ElasticSearch%20%E5%AE%89%E5%85%A8%20d5ed4d3e7edc4879bf7a5a55b5c400dc/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;用elastic用户和密码登陆即可&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 120; flex-basis: 289px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/x_pack/Untitled.png&#34; data-size=&#34;688x570&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/x_pack/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/x_pack/Untitled_hu77984bd7e55bcd3cc76f22055bacd24f_28635_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/x_pack/Untitled_hu77984bd7e55bcd3cc76f22055bacd24f_28635_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;688&#34;
+				height=&#34;570&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+用elastic用户和密码登陆即可&lt;/p&gt;
 &lt;h3 id=&#34;代码中配置&#34;&gt;代码中配置&lt;/h3&gt;
 &lt;p&gt;&lt;code&gt;Java High Level REST Client&lt;/code&gt;中配置账户和密码&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;final&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CredentialsProvider&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;credentialsProvider&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;BasicCredentialsProvider&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
@@ -2475,8 +2817,17 @@ bin/elasticsearch-plugin install https://github.91chifun.workers.dev//https://gi
 &lt;p&gt;&lt;code&gt;单点故障&lt;/code&gt;（Single Point Failure）是指在系统中某个组件一旦失效，这会让整个系统无法工作。而分布式系统的设计就是为了避免出现单点故障问题，为了实现一个节点的失效不影响整个系统的运行。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;无状态&lt;/code&gt;，是因为无状态的服务才能满足部分机器宕机不影响全部，可以随时进行扩展的需求。&lt;/p&gt;
 &lt;p&gt;由于分布式系统的特点，在分布式环境中更容易出现问题，比如节点之间通信失败、网络分区故障、多个副本的数据不一致等，为了更好地在分布式系统下进行开发，学者们提出了一系列的理论，其中具有代表性的就是 CAP 理论。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/CAP%E7%90%86%E8%AE%BA%20cf737355f8dd435abc1fb31519190c3b/Untitled.png&#34; alt=&#34;CAP%E7%90%86%E8%AE%BA%20cf737355f8dd435abc1fb31519190c3b/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;一致性&lt;/code&gt;是指“所有节点同时看到相同的数据”，即更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一致，等同于&lt;strong&gt;所有节点拥有数据的最新版本&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 116; flex-basis: 280px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/cap/Untitled.png&#34; data-size=&#34;693x594&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/cap/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/cap/Untitled_hud18a587d618315cba6c9a61b5b776adf_115710_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/cap/Untitled_hud18a587d618315cba6c9a61b5b776adf_115710_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;693&#34;
+				height=&#34;594&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+&lt;code&gt;一致性&lt;/code&gt;是指“所有节点同时看到相同的数据”，即更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一致，等同于&lt;strong&gt;所有节点拥有数据的最新版本&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;可用性&lt;/code&gt;是指“任何时候，读写都是成功的”，即服务一直可用，而且是正常响应时间。平时会看到一些 IT 公司说系统稳定性已经做到 3 个 9、4 个 9，即 99.9%、99.99%，这里的 n 个 9 就是对可用性的一个描述，叫做 SLA，即服务水平协议。比如我们说月度 99.95% 的 SLA，则意味着每个月服务出现故障的时间只能占总时间的 0.05%，如果这个月是 30 天，那么就是 21.6 分钟。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;分区容忍性&lt;/code&gt;具体是指“当部分节点出现消息丢失或者分区故障的时候，分布式系统仍然能够继续运行”，即系统容忍网络出现分区，并且在遇到某节点或网络分区之间网络不可达的情况下，仍然能够对外提供满足一致性和可用性的服务。&lt;/p&gt;
 &lt;p&gt;在分布式系统中，由于系统的各层拆分，P 是确定的，CAP 的应用模型就是 CP 架构和 AP 架构。分布式系统所关注的，就是在 Partition Tolerance 的前提下，如何实现更好的 A 和更稳定的 C。&lt;/p&gt;
@@ -2498,7 +2849,16 @@ bin/elasticsearch-plugin install https://github.91chifun.workers.dev//https://gi
         
         <guid>https://ccqstark.github.io/p/alfred_iterm/</guid>
         <description>&lt;img src="https://ccqstark.github.io/p/alfred_iterm/ssh.png" alt="Featured image of post Alfred &#43; iTerm2 快速ssh连接服务器" /&gt;&lt;p&gt;为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入&lt;code&gt;ssh [主机名]&lt;/code&gt; 就可以快速连上了，效果如下图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 348; flex-basis: 837px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled.png&#34; data-size=&#34;764x219&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled_hu98a04cc8813781f501efe8d3799998d4_63040_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/alfred_iterm/Untitled_hu98a04cc8813781f501efe8d3799998d4_63040_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;764&#34;
+				height=&#34;219&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;使用ssh-config&#34;&gt;使用ssh config&lt;/h3&gt;
 &lt;p&gt;在&lt;code&gt;~/.ssh/config&lt;/code&gt;文件里添加服务器信息，没有的话就新建一个&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-docker&#34; data-lang=&#34;docker&#34;&gt;vim ~/.ssh/config&lt;span class=&#34;err&#34;&gt;
@@ -2518,16 +2878,43 @@ bin/elasticsearch-plugin install https://github.91chifun.workers.dev//https://gi
     &gt;https://github.com/deanishe/alfred-ssh&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow&lt;/p&gt;
 &lt;p&gt;添加后打开alfred的偏好设置可以看到效果如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%201.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;测试用alfred输入ssh+主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 201; flex-basis: 484px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled1.png&#34; data-size=&#34;581x288&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled1_hu7b10a4a85fa346c253a20218a56677d9_75331_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/alfred_iterm/Untitled1_hu7b10a4a85fa346c253a20218a56677d9_75331_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;581&#34;
+				height=&#34;288&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+测试用alfred输入ssh+主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作&lt;/p&gt;
 &lt;h3 id=&#34;安装alfred集成iterm2配置&#34;&gt;安装alfred集成iTerm2配置&lt;/h3&gt;
 &lt;p&gt;如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%202.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;进入下面github链接，按说明操作&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 128; flex-basis: 308px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled2.png&#34; data-size=&#34;726x564&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled2_hueff84ab2c9c90c2fd68c229b0e8be02f_196568_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/alfred_iterm/Untitled2_hueff84ab2c9c90c2fd68c229b0e8be02f_196568_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;726&#34;
+				height=&#34;564&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+进入下面github链接，按说明操作&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/vitorgalvao/custom-alfred-iterm-scripts&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://github.com/vitorgalvao/custom-alfred-iterm-scripts&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%203.png&#34; alt=&#34;Alfred%20&amp;#43;%20iTerm2%20%E5%BF%AB%E9%80%9Fssh%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8%20f43ec088887841b79f3c5019d51d1016/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;按上面要求运行命令并粘贴到对应地方就完成了！&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 164; flex-basis: 394px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled3.png&#34; data-size=&#34;900x548&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/alfred_iterm/Untitled3_hu98f8ef0f01c74a051ac2d4aac612cb6d_57120_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/alfred_iterm/Untitled3_hu98f8ef0f01c74a051ac2d4aac612cb6d_57120_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;900&#34;
+				height=&#34;548&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+按上面要求运行命令并粘贴到对应地方就完成了！&lt;/p&gt;
 &lt;p&gt;参考文章：
 &lt;a class=&#34;link&#34; href=&#34;https://yaoyuanyy.github.io/2019/05/13/%E5%BC%80%E5%8F%91%E6%95%88%E7%8E%87%E7%A5%9E%E6%8F%90%E5%8D%87%E4%B9%8Balfred%E9%9B%86%E6%88%90ssh&amp;#43;iterm/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;开发效率神器之alfred集成ssh+iTerm2实现一步登录服务器&lt;/a&gt;&lt;/p&gt;
@@ -2570,17 +2957,35 @@ docker info
 &lt;p&gt;用&lt;code&gt;http://主机IP:6001&lt;/code&gt; 就可以访问Jenkins的网页端了&lt;/p&gt;
 &lt;h2 id=&#34;jenkins初始化&#34;&gt;Jenkins初始化&lt;/h2&gt;
 &lt;p&gt;访问页面后需要输入初始密码，用&lt;code&gt;cat&lt;/code&gt; 命令查看一下页面上给出的路径就可以获得初始密码，复制进去后就可以成功进入&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;到插件这里就选择安装推荐插件即可，等待安装完毕，速度稍慢。如果很多插件一直安装失败可以等下一步配置国内源之后再安装&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;然后按提示创建一个自己的管理员账户&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 227; flex-basis: 545px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled.png&#34; data-size=&#34;962x423&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled_hu0a92d7f71f50d7ed9feb659374ca0abb_50178_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled_hu0a92d7f71f50d7ed9feb659374ca0abb_50178_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;962&#34;
+				height=&#34;423&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+到插件这里就选择安装推荐插件即可，等待安装完毕，速度稍慢。如果很多插件一直安装失败可以等下一步配置国内源之后再安装&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 172; flex-basis: 414px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled1.png&#34; data-size=&#34;864x500&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled1_huafac443a02e8f9a6833002595c731a17_77678_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled1_huafac443a02e8f9a6833002595c731a17_77678_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;864&#34;
+				height=&#34;500&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+然后按提示创建一个自己的管理员账户&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;如果想重启Jenkins：&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;在jenkins主页网址后加上&lt;code&gt;/restart&lt;/code&gt; 后回车，点击确定即可&lt;/p&gt;
 &lt;h2 id=&#34;安装插件和必要配置&#34;&gt;安装插件和必要配置&lt;/h2&gt;
 &lt;h3 id=&#34;修改插件国内源并安装其它插件&#34;&gt;修改插件国内源并安装其它插件&lt;/h3&gt;
 &lt;p&gt;点击侧边栏&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;插件管理&lt;/code&gt;→&lt;code&gt;高级&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg&#34; alt=&#34;https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;将图中所示URL的输入中的链接改为阿里的：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/06e2f322cdd84009b2c0359631f7b899.jpg&#34; alt=&#34;&#34;  /&gt;
+将图中所示URL的输入中的链接改为阿里的：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;安装一些插件&#34;&gt;安装一些插件&lt;/h3&gt;
 &lt;p&gt;在&lt;code&gt;插件管理&lt;/code&gt;中选择&lt;code&gt;可选插件&lt;/code&gt;&lt;/p&gt;
@@ -2588,17 +2993,53 @@ docker info
 &lt;h3 id=&#34;全局工具配置&#34;&gt;全局工具配置&lt;/h3&gt;
 &lt;p&gt;点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;全局工具配置&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;JDK&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;用&lt;code&gt;docker inspect jenkins&lt;/code&gt; 查看&lt;code&gt;JAVA_HOME&lt;/code&gt; 路径后填入即可，这是个openjdk1.8，刚好用于项目，因为jenkins就是Java开发的&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 258; flex-basis: 620px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled2.png&#34; data-size=&#34;995x385&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled2_hu32a5b247825abd5ba4124dd776a451c2_20626_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled2_hu32a5b247825abd5ba4124dd776a451c2_20626_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;995&#34;
+				height=&#34;385&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+用&lt;code&gt;docker inspect jenkins&lt;/code&gt; 查看&lt;code&gt;JAVA_HOME&lt;/code&gt; 路径后填入即可，这是个openjdk1.8，刚好用于项目，因为jenkins就是Java开发的&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Git&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;用默认即可&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 408; flex-basis: 980px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled3.png&#34; data-size=&#34;1564x383&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled3_hua015524d53fcca9f0644ce18467d8e1a_24927_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled3_hua015524d53fcca9f0644ce18467d8e1a_24927_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1564&#34;
+				height=&#34;383&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+用默认即可&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Maven&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;可以用外部安装的，这里因为下了插件就用Jenkins里的插件就行，点击自动安装&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 348; flex-basis: 836px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled4.png&#34; data-size=&#34;1558x447&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled4.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled4_hu0cb1c24151919b445c1f229add0176ba_31527_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled4_hu0cb1c24151919b445c1f229add0176ba_31527_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1558&#34;
+				height=&#34;447&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+可以用外部安装的，这里因为下了插件就用Jenkins里的插件就行，点击自动安装&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Docker&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;都好了之后点&lt;code&gt;应用&lt;/code&gt;在点&lt;code&gt;保存&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 411; flex-basis: 987px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled5.png&#34; data-size=&#34;1568x381&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled5.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled5_hu5c5297cfe8d9e06e75558915e6ff0e8c_26226_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled5_hu5c5297cfe8d9e06e75558915e6ff0e8c_26226_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1568&#34;
+				height=&#34;381&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+都好了之后点&lt;code&gt;应用&lt;/code&gt;在点&lt;code&gt;保存&lt;/code&gt;&lt;/p&gt;
 &lt;h3 id=&#34;jenkins容器内使用vim&#34;&gt;Jenkins容器内使用vim&lt;/h3&gt;
 &lt;p&gt;进入Jenkins容器内部后想使用vim的话还需要额外安装，后面需要用到vim&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 更新一下软件源&lt;/span&gt;
@@ -2649,31 +3090,111 @@ apt-get install vim
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;重启jenkins，之后下载包时发现已经更改为阿里源了&lt;/p&gt;
 &lt;h2 id=&#34;创建项目准备自动化部署&#34;&gt;创建项目准备自动化部署&lt;/h2&gt;
 &lt;p&gt;左侧边栏新建一个任务，选择maven项目&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 77; flex-basis: 185px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/451610197149_.pic.jpg&#34; data-size=&#34;325x420&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/451610197149_.pic.jpg&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/451610197149_.pic_hu4b1c7002aa02b5068b94e8aad4fe1243_29850_480x0_resize_q75_box.jpg 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/451610197149_.pic_hu4b1c7002aa02b5068b94e8aad4fe1243_29850_1024x0_resize_q75_box.jpg 1024w&#34;
+				width=&#34;325&#34;
+				height=&#34;420&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+&lt;figure style=&#34;flex-grow: 178; flex-basis: 428px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/461610197185_.pic_hd.jpg&#34; data-size=&#34;1234x691&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/461610197185_.pic_hd.jpg&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/461610197185_.pic_hd_hue342ea4f2daf9d6d9b605c56d9e25c32_134999_480x0_resize_q75_box.jpg 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/461610197185_.pic_hd_hue342ea4f2daf9d6d9b605c56d9e25c32_134999_1024x0_resize_q75_box.jpg 1024w&#34;
+				width=&#34;1234&#34;
+				height=&#34;691&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;添加github仓库源码&#34;&gt;添加GitHub仓库源码&lt;/h3&gt;
 &lt;p&gt;这里用GitHub做代码仓库，也可以gitlab&lt;/p&gt;
 &lt;p&gt;有2种方式：&lt;code&gt;https&lt;/code&gt;和&lt;code&gt;ssh&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;如果是https的话添加&lt;code&gt;Credentials&lt;/code&gt; 的时候就直接配置自己的GitHub用户名和密码，仓库的URL填写github仓库的url就行&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 216; flex-basis: 520px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled6.png&#34; data-size=&#34;1430x660&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled6.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled6_hud61acc42edc5d7e60aa7fd2326a98ff3_56760_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled6_hud61acc42edc5d7e60aa7fd2326a98ff3_56760_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1430&#34;
+				height=&#34;660&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+如果是https的话添加&lt;code&gt;Credentials&lt;/code&gt; 的时候就直接配置自己的GitHub用户名和密码，仓库的URL填写github仓库的url就行&lt;/p&gt;
 &lt;p&gt;如果是ssh的话要配置密钥，点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;Manage Credentials&lt;/code&gt; →&lt;code&gt;全局&lt;/code&gt; ,点击左侧边栏&lt;code&gt;添加凭据&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;如果之前生成过，在自己机器上的&lt;code&gt;~/.ssh&lt;/code&gt; 下cat一下就行，没有的话就&lt;code&gt;ssh-keygen&lt;/code&gt; 生成&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 242; flex-basis: 581px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled7.png&#34; data-size=&#34;1906x787&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled7.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled7_hu9e5231ed2900057343a4f77007ab3c80_76513_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled7_hu9e5231ed2900057343a4f77007ab3c80_76513_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1906&#34;
+				height=&#34;787&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+如果之前生成过，在自己机器上的&lt;code&gt;~/.ssh&lt;/code&gt; 下cat一下就行，没有的话就&lt;code&gt;ssh-keygen&lt;/code&gt; 生成&lt;/p&gt;
 &lt;p&gt;注意此时url就要用&lt;code&gt;ssh://git@github.com/[用户名]/[项目名].git&lt;/code&gt; 的格式&lt;/p&gt;
 &lt;h3 id=&#34;加快代码拉取速度&#34;&gt;加快代码拉取速度&lt;/h3&gt;
 &lt;p&gt;为了加快构建速度，勾选此选项可以使jenkins不拉取代码的历史版本，从而加快构建速度&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;勾选浅克隆&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;初次之外，不要在本地打出jar包，不然这么大一个文件上传到仓库再被拉取很费时间&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 86; flex-basis: 207px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled8.png&#34; data-size=&#34;637x737&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled8.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled8_hu801cb86627989de6bc28c47a0041296b_68721_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled8_hu801cb86627989de6bc28c47a0041296b_68721_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;637&#34;
+				height=&#34;737&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+勾选浅克隆&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 313; flex-basis: 752px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled9.png&#34; data-size=&#34;1420x453&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled9.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled9_hu313af194f105461f02d579954be5baaf_38741_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled9_hu313af194f105461f02d579954be5baaf_38741_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1420&#34;
+				height=&#34;453&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+初次之外，不要在本地打出jar包，不然这么大一个文件上传到仓库再被拉取很费时间&lt;/p&gt;
 &lt;h3 id=&#34;构建触发器&#34;&gt;构建触发器&lt;/h3&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 292; flex-basis: 702px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled10.png&#34; data-size=&#34;761x260&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled10.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled10_hu9c396edf5424b600ae991cc99c9649fd_29438_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled10_hu9c396edf5424b600ae991cc99c9649fd_29438_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;761&#34;
+				height=&#34;260&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;添加maven构建步骤&#34;&gt;添加maven构建步骤&lt;/h3&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/clean_package.png&#34; alt=&#34;clean_package&#34;  /&gt;&lt;/p&gt;
-&lt;h3 id=&#34;构建脚本&#34;&gt;构建脚本&lt;/h3&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 538; flex-basis: 1292px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/clean_package.png&#34; data-size=&#34;1433x266&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/clean_package.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/clean_package_huce96ba1471d27e5fc0bfef41054b7b6d_20504_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/clean_package_huce96ba1471d27e5fc0bfef41054b7b6d_20504_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1433&#34;
+				height=&#34;266&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;### 构建脚本&lt;/p&gt;
 &lt;p&gt;这里是运行一些shell脚本来构建docker镜像和运行容器的&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;脚本如下，记得在项目目录下写好一个Dockerfile&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 279; flex-basis: 670px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled11.png&#34; data-size=&#34;1445x517&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled11.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled11_hu3f19456d5f7ff419ec80e23b2e3e964e_77766_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled11_hu3f19456d5f7ff419ec80e23b2e3e964e_77766_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1445&#34;
+				height=&#34;517&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+脚本如下，记得在项目目录下写好一个Dockerfile&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 进入项目目录&lt;/span&gt;
 &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /var/jenkins_home/workspace/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;项目名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 
@@ -2703,12 +3224,39 @@ docker run -d --name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;sp
 &lt;p&gt;为了实现只要我们一向代码仓库push就可以自动进行构建，我们需要配置&lt;code&gt;webhook&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;系统配置&lt;/code&gt; ，找到&lt;code&gt;GitHub&lt;/code&gt;选项，点击&lt;code&gt;高级&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;按下图操作：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;打开自己GitHub项目页面&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;粘贴刚刚复制的地址&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;下面勾选&lt;code&gt;Pushes&lt;/code&gt;和&lt;code&gt;Active&lt;/code&gt; ，最后点击添加即可&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 197; flex-basis: 472px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled12.png&#34; data-size=&#34;1350x685&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled12.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled12_hud0131ed01997f380618226b3a51cebfb_59567_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled12_hud0131ed01997f380618226b3a51cebfb_59567_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1350&#34;
+				height=&#34;685&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+打开自己GitHub项目页面&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 198; flex-basis: 475px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled13.png&#34; data-size=&#34;1359x686&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled13.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled13_hu73ec61555a99a8fbe315e709d261addf_87170_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled13_hu73ec61555a99a8fbe315e709d261addf_87170_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1359&#34;
+				height=&#34;686&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+粘贴刚刚复制的地址&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 213; flex-basis: 511px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled14.png&#34; data-size=&#34;950x446&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled14.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled14_hu3d6d267476996c248db27bf5d44b0b88_120014_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled14_hu3d6d267476996c248db27bf5d44b0b88_120014_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;950&#34;
+				height=&#34;446&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+下面勾选&lt;code&gt;Pushes&lt;/code&gt;和&lt;code&gt;Active&lt;/code&gt; ，最后点击添加即可&lt;/p&gt;
 &lt;p&gt;点击项目内左侧栏的&lt;code&gt;立即构建&lt;/code&gt; 可以手动开始构建&lt;/p&gt;
 &lt;p&gt;在进程中点击&lt;code&gt;控制台输出&lt;/code&gt; 看到构建过程中的日志信息，这些信息很重要我们经常要看，用来发现构建过程中的错误&lt;/p&gt;
 &lt;h3 id=&#34;清除无用的镜像&#34;&gt;清除无用的镜像&lt;/h3&gt;
@@ -2718,24 +3266,87 @@ docker run -d --name &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器名&lt;sp
 &lt;p&gt;在这之前保证安装了相关插件，如果一开始是选安装推荐插件那应该都安装了&lt;/p&gt;
 &lt;p&gt;点击&lt;code&gt;系统管理&lt;/code&gt;→&lt;code&gt;系统配置&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;先配一下管理员邮箱&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;然后拉到下面，按图中配置，这个邮箱要填刚刚上面的管理员邮箱&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 740; flex-basis: 1778px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled15.png&#34; data-size=&#34;1556x210&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled15.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled15_hu2c33936f58344a7ed0c7c8d82da4f54e_18753_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled15_hu2c33936f58344a7ed0c7c8d82da4f54e_18753_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1556&#34;
+				height=&#34;210&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+然后拉到下面，按图中配置，这个邮箱要填刚刚上面的管理员邮箱&lt;/p&gt;
 &lt;p&gt;注意里面的密码是开启SMTP的密码，不是邮箱的密码&lt;/p&gt;
 &lt;p&gt;然后可以点击发送测试邮件试试&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;上面还有一个&lt;code&gt;Extended E-mail Notification&lt;/code&gt; 也配一下，也按这些信息填写&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 212; flex-basis: 510px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled16.png&#34; data-size=&#34;1568x737&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled16.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled16_hu2723206f2f9d0984475a38ec20458584_57348_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled16_hu2723206f2f9d0984475a38ec20458584_57348_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1568&#34;
+				height=&#34;737&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+上面还有一个&lt;code&gt;Extended E-mail Notification&lt;/code&gt; 也配一下，也按这些信息填写&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Default Recipients&lt;/code&gt; 是默认接收通知的邮箱，可以填写多个，用英文半角逗号隔开&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Default Triggers&lt;/code&gt; 也可以配置一下，是触发邮件的事件&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;这里有个坑，在系统设置配置完之后，在项目里面的设置记得也要配置完整&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 78; flex-basis: 187px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled17.png&#34; data-size=&#34;396x506&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled17.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled17_hubeb9b94dd795c174dc1ed2dfd29bca6a_37403_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled17_hubeb9b94dd795c174dc1ed2dfd29bca6a_37403_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;396&#34;
+				height=&#34;506&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+这里有个坑，在系统设置配置完之后，在项目里面的设置记得也要配置完整&lt;/p&gt;
 &lt;p&gt;进入要发送邮箱功能的项目的&lt;code&gt;配置&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;再点击&lt;code&gt;增加构建后操作步骤&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;点击&lt;code&gt;高级设置&lt;/code&gt;后设置触发条件&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png&#34; alt=&#34;Jenkins%20&amp;#43;%20docker%20&amp;#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;其他的诸如&lt;code&gt;Content Type&lt;/code&gt;和&lt;code&gt;Default Content&lt;/code&gt; 之类的就按需求配就行&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 477; flex-basis: 1145px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled18.png&#34; data-size=&#34;1432x300&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled18.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled18_hu14b9e0f11a9349776105a89307ac1a86_33116_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled18_hu14b9e0f11a9349776105a89307ac1a86_33116_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1432&#34;
+				height=&#34;300&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+再点击&lt;code&gt;增加构建后操作步骤&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 117; flex-basis: 281px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled19.png&#34; data-size=&#34;439x374&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled19.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled19_hue93c06a2167b50c71a4e2b3307f5a666_37243_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled19_hue93c06a2167b50c71a4e2b3307f5a666_37243_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;439&#34;
+				height=&#34;374&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+&lt;figure style=&#34;flex-grow: 197; flex-basis: 473px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled20.png&#34; data-size=&#34;1221x619&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled20.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled20_hu884b8228a884892c43de604f5ed400a6_100993_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled20_hu884b8228a884892c43de604f5ed400a6_100993_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1221&#34;
+				height=&#34;619&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+点击&lt;code&gt;高级设置&lt;/code&gt;后设置触发条件&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 267; flex-basis: 641px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled21.png&#34; data-size=&#34;1274x477&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled21.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled21_huba1efe8e8fea35b00899c19f5b9545c3_49809_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/jenkins_docker_springboot/Untitled21_huba1efe8e8fea35b00899c19f5b9545c3_49809_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;1274&#34;
+				height=&#34;477&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+其他的诸如&lt;code&gt;Content Type&lt;/code&gt;和&lt;code&gt;Default Content&lt;/code&gt; 之类的就按需求配就行&lt;/p&gt;
 &lt;p&gt;之后在控制台输出就可以看到构建项目到最后有发邮件的步骤日志&lt;/p&gt;
 &lt;h3 id=&#34;主题美化&#34;&gt;主题美化&lt;/h3&gt;
 &lt;p&gt;可以参考下面这篇文章，个人觉得还是习惯于原版&lt;/p&gt;
@@ -2874,8 +3485,17 @@ docker run -d --name myredis -p 6379:6379 redis --requirepass &lt;span class=&#3
 &lt;/ol&gt;
 &lt;p&gt;在官网点击镜像会跳转到github对应的dockerfile&lt;/p&gt;
 &lt;p&gt;可以发现这些镜像也是通过dockerfile来构建的&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png&#34; alt=&#34;Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;上图是centos的dockerfile，其中&lt;code&gt;scratch&lt;/code&gt;是最基本的，90%都是基于这个镜像。&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 189; flex-basis: 453px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/dockerfile/Untitled.png&#34; data-size=&#34;911x482&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/dockerfile/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/dockerfile/Untitled_hu9fff8600ee255a49e225277cb53f18a9_146838_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/dockerfile/Untitled_hu9fff8600ee255a49e225277cb53f18a9_146838_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;911&#34;
+				height=&#34;482&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+上图是centos的dockerfile，其中&lt;code&gt;scratch&lt;/code&gt;是最基本的，90%都是基于这个镜像。&lt;/p&gt;
 &lt;p&gt;然后&lt;code&gt;ADD&lt;/code&gt; 就是添加来一层centos相关的镜像文件&lt;/p&gt;
 &lt;p&gt;官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。&lt;/p&gt;
 &lt;p&gt;比如我们可以直接构建一个&lt;code&gt;centos+jdk+tomcat+mysql&lt;/code&gt;的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？&lt;/p&gt;
@@ -2887,8 +3507,17 @@ docker run -d --name myredis -p 6379:6379 redis --requirepass &lt;span class=&#3
 &lt;li&gt;&amp;ldquo;#&amp;rdquo; 表示注释&lt;/li&gt;
 &lt;li&gt;每一个指令都会创建一个新的镜像层，并提交&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png&#34; alt=&#34;Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;以前开发交付都是用jar包或war包，现在&lt;strong&gt;云原生&lt;/strong&gt;时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 143; flex-basis: 345px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/dockerfile/Untitled1.png&#34; data-size=&#34;635x441&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/dockerfile/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/dockerfile/Untitled1_hu94d67dd6e863ba2d67091f0dc6d10468_192369_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/dockerfile/Untitled1_hu94d67dd6e863ba2d67091f0dc6d10468_192369_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;635&#34;
+				height=&#34;441&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+以前开发交付都是用jar包或war包，现在&lt;strong&gt;云原生&lt;/strong&gt;时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/alitech2017/article/details/104606956&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&#34;dockerfile常用指令&#34;&gt;Dockerfile常用指令&lt;/h2&gt;
@@ -2994,8 +3623,17 @@ docker run -d --name myredis -p 6379:6379 redis --requirepass &lt;span class=&#3
 &lt;p&gt;&lt;code&gt;-v&lt;/code&gt; ：挂载卷所需参数，后面的映射是&lt;code&gt;[宿主机目录]:[容器内目录]&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;用此命令查看容器参数&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker inspect &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;容器id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled.png&#34; alt=&#34;%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;如上图，在&lt;code&gt;Mounts&lt;/code&gt; 字段中可以看到：&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;figure style=&#34;flex-grow: 234; flex-basis: 562px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled.png&#34; data-size=&#34;539x230&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled_hu83e3fd0f5540a047118f5b9cd0086659_57376_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/docker_volumes/Untitled_hu83e3fd0f5540a047118f5b9cd0086659_57376_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;539&#34;
+				height=&#34;230&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+如上图，在&lt;code&gt;Mounts&lt;/code&gt; 字段中可以看到：&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Source&lt;/code&gt; 表示宿主机中被映射的目录&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Destination&lt;/code&gt; 表示容器内要映射的目录&lt;/p&gt;
 &lt;p&gt;这种挂载方式称为&lt;code&gt;bind mounts&lt;/code&gt;&lt;/p&gt;
@@ -3036,7 +3674,16 @@ docker pull mysql:5.7
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如上图的命令，&lt;code&gt;-v&lt;/code&gt; 是没有指定外部目录的，只写了内部目录，所以是匿名挂载，使用下面命令查看挂载的卷&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker volume ls
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;发现卷名是随机生成的字符串，所以是匿名的&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%201.png&#34; alt=&#34;%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%201.png&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 1272; flex-basis: 3053px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled1.png&#34; data-size=&#34;598x47&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled1.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled1_hu27ca281934b1ddafe693481e38a6d968_37945_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/docker_volumes/Untitled1_hu27ca281934b1ddafe693481e38a6d968_37945_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;598&#34;
+				height=&#34;47&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;具名挂载&#34;&gt;&lt;strong&gt;具名挂载&lt;/strong&gt;&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run -d -P --name nginx01 -v &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;自己起的卷名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:/etc/nginx nginx
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;[卷名]:[目录名]&lt;/code&gt; 这样指定了卷名的形式就是具名挂载&lt;/p&gt;
@@ -3044,8 +3691,17 @@ docker pull mysql:5.7
 &lt;h3 id=&#34;查看挂载的目录&#34;&gt;&lt;strong&gt;查看挂载的目录&lt;/strong&gt;&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker volume inspect &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;卷名&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;用这条命令就可以查看卷的一些信息，其中&lt;code&gt;Mountpoint&lt;/code&gt; 就是所挂载的外部目录&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%202.png&#34; alt=&#34;%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%202.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;所以这种在没有指定目录的情况下（具名或匿名）都是挂载在&lt;code&gt;/var/lib/docker/volumes/[卷名]/_data&lt;/code&gt;这个目录的&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 286; flex-basis: 687px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled2.png&#34; data-size=&#34;544x190&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled2.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled2_hua21c259d6eddd26da4787fab97eeef2a_72748_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/docker_volumes/Untitled2_hua21c259d6eddd26da4787fab97eeef2a_72748_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;544&#34;
+				height=&#34;190&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+所以这种在没有指定目录的情况下（具名或匿名）都是挂载在&lt;code&gt;/var/lib/docker/volumes/[卷名]/_data&lt;/code&gt;这个目录的&lt;/p&gt;
 &lt;p&gt;大多数情况下都是用&lt;code&gt;具名挂载&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;这两种挂载方式统称&lt;code&gt;volumes&lt;/code&gt;&lt;/p&gt;
 &lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
@@ -3084,8 +3740,17 @@ docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
 &lt;h3 id=&#34;卷的挂载机制&#34;&gt;卷的挂载机制&lt;/h3&gt;
 &lt;p&gt;不同容器的挂载机制并不是映射到单一到文件夹下的，如果这样的话其中一个容器被删除的话，其它所有容器对应都数据都会消失。&lt;/p&gt;
 &lt;p&gt;实际上挂载是一种&lt;code&gt;拷贝&lt;/code&gt;的机制，数据是有多份相同的备份的，删除一种一份其它的都还在，不会消失的，只是会占用更多的存储空间&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ccqstark.github.io/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%203.png&#34; alt=&#34;%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%203.png&#34;  /&gt;&lt;/p&gt;
-&lt;p&gt;只有把挂载这一卷的所有的容器都删除，这个卷才会消失&lt;/p&gt;
+&lt;p&gt;&lt;figure style=&#34;flex-grow: 292; flex-basis: 702px&#34;&gt;
+		&lt;a href=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled3.png&#34; data-size=&#34;863x295&#34;&gt;&lt;img src=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled3.png&#34;
+				srcset=&#34;https://ccqstark.github.io/p/docker_volumes/Untitled3_hu767952861a42967afdd07ee76103d212_96645_480x0_resize_box_2.png 480w, https://ccqstark.github.io/p/docker_volumes/Untitled3_hu767952861a42967afdd07ee76103d212_96645_1024x0_resize_box_2.png 1024w&#34;
+				width=&#34;863&#34;
+				height=&#34;295&#34;
+				loading=&#34;lazy&#34;
+				&gt;
+		&lt;/a&gt;
+		
+	&lt;/figure&gt;
+只有把挂载这一卷的所有的容器都删除，这个卷才会消失&lt;/p&gt;
 &lt;p&gt;当然，如果是bind到本地的目录那就删除全部容器数据也仍然在本地&lt;/p&gt;
 &lt;p&gt;参考自&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1og4y1q7M4?p=21&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;狂神的docker教程&lt;/a&gt;&lt;/p&gt;

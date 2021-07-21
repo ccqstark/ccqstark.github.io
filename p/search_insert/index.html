@@ -185,12 +185,39 @@ if (!doNotTrack) {
 </code></pre></div><p>二分搜索在目标值大于或小于<code>mid</code>位置的值时要如何改变<code>left</code>和<code>right</code> 就不说了，关键是为什么最后我们把<code>left</code> 作为插入位置呢？</p>
 <p>我们可以拿奇数个或偶数个元素的数组试一下，发现如果目标值不在数组中，那么它们最后都会面临这样一种情况：left和right相邻，而目标值就介于两者之间。</p>
 <p>举个例子，数组[0,2,4,5,6]，目标值3，如下图：</p>
-<p><img src="/35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled.png" alt="35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled.png"  /></p>
-<p>而下一个状态也是肯定的，因为此时mid和left相等，target&gt;nums[mid]，则<code>left = mid + 1</code> ，呈现下面的状态：left和right重叠，且在目标值的大一位</p>
-<p><img src="/35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%201.png" alt="35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%201.png"  /></p>
-<p>再下一个状态同样是一定的，mid此时就是left和right的位置，则target&lt;nums[mid]，即<code>right = mid - 1</code> ，right左移一位，达到while循环结束条件left&gt;right</p>
-<p><img src="/35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%202.png" alt="35%20%E6%90%9C%E7%B4%A2%E6%8F%92%E5%85%A5%E4%BD%8D%E7%BD%AE%20f704118369e447c49bf36a369f7d5062/Untitled%202.png"  /></p>
-<p>那很明显的，目标插入的位置就一定是最后这里left的位置。不管数组元素是奇数个还是偶数个，最终就会是这个情形，所以最后我们选择<code>left</code> 作为插入不存在目标值的位置。当然也可以提前一步，当<code>left == right</code> 时那个位置也是一样的，leetcode官方就是这么选择的。</p>
+<p><figure style="flex-grow: 196; flex-basis: 471px">
+		<a href="/p/search_insert/Untitled.png" data-size="974x496"><img src="/p/search_insert/Untitled.png"
+				srcset="/p/search_insert/Untitled_hu53e337c3de8fcb7ac811d31e42c85f96_32118_480x0_resize_box_2.png 480w, /p/search_insert/Untitled_hu53e337c3de8fcb7ac811d31e42c85f96_32118_1024x0_resize_box_2.png 1024w"
+				width="974"
+				height="496"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+而下一个状态也是肯定的，因为此时mid和left相等，target&gt;nums[mid]，则<code>left = mid + 1</code> ，呈现下面的状态：left和right重叠，且在目标值的大一位</p>
+<p><figure style="flex-grow: 174; flex-basis: 419px">
+		<a href="/p/search_insert/Untitled1.png" data-size="964x551"><img src="/p/search_insert/Untitled1.png"
+				srcset="/p/search_insert/Untitled1_hu23ba98e4e88a10fafee3e6e53fa8977a_31912_480x0_resize_box_2.png 480w, /p/search_insert/Untitled1_hu23ba98e4e88a10fafee3e6e53fa8977a_31912_1024x0_resize_box_2.png 1024w"
+				width="964"
+				height="551"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+再下一个状态同样是一定的，mid此时就是left和right的位置，则target&lt;nums[mid]，即<code>right = mid - 1</code> ，right左移一位，达到while循环结束条件left&gt;right</p>
+<p><figure style="flex-grow: 181; flex-basis: 435px">
+		<a href="/p/search_insert/Untitled2.png" data-size="981x541"><img src="/p/search_insert/Untitled2.png"
+				srcset="/p/search_insert/Untitled2_hu6643aa8aa9a4acd4ae8f56e54e5b0e42_32362_480x0_resize_box_2.png 480w, /p/search_insert/Untitled2_hu6643aa8aa9a4acd4ae8f56e54e5b0e42_32362_1024x0_resize_box_2.png 1024w"
+				width="981"
+				height="541"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+那很明显的，目标插入的位置就一定是最后这里left的位置。不管数组元素是奇数个还是偶数个，最终就会是这个情形，所以最后我们选择<code>left</code> 作为插入不存在目标值的位置。当然也可以提前一步，当<code>left == right</code> 时那个位置也是一样的，leetcode官方就是这么选择的。</p>
 <h3 id="复杂度分析">复杂度分析</h3>
 <ul>
 <li>时间复杂度：O(log n)，其中 n 为数组的长度。二分查找所需的时间复杂度为 O(log n)。</li>

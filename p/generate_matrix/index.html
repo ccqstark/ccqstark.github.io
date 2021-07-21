@@ -7,6 +7,7 @@
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
 还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
 下面就是n=5和n=4的例子：
+   
 代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !'><title>[leetcode]59.螺旋矩阵II</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/generate_matrix/'>
@@ -18,6 +19,7 @@
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
 还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
 下面就是n=5和n=4的例子：
+   
 代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !'>
 <meta property='og:url' content='https://ccqstark.github.io/p/generate_matrix/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
@@ -30,6 +32,7 @@
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
 还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
 下面就是n=5和n=4的例子：
+   
 代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !"><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/generate_matrix/leetcode.png' />
     <link rel="shortcut icon" href="/icon.ico" />
@@ -139,7 +142,7 @@ if (!doNotTrack) {
     <section class="article-content">
     <h2 id="题目">题目</h2>
 <p>给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。</p>
-<p><img src="https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg" alt="https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg"  /></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/6461626841649_.pic.jpg" alt=""  /></p>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nl">示例1:</span>
 <span class="nl">输入:</span><span class="n">n</span> <span class="o">=</span> <span class="n">3</span>
 <span class="nl">输出:</span><span class="o">[[</span><span class="n">1</span><span class="o">,</span><span class="n">2</span><span class="o">,</span><span class="n">3</span><span class="o">],[</span><span class="n">8</span><span class="o">,</span><span class="n">9</span><span class="o">,</span><span class="n">4</span><span class="o">],[</span><span class="n">7</span><span class="o">,</span><span class="n">6</span><span class="o">,</span><span class="n">5</span><span class="o">]]</span>
@@ -153,8 +156,26 @@ if (!doNotTrack) {
 <p>当然每次循环还需要注意，每行/列都遵循的是<code>左闭右开</code>的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。</p>
 <p>还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。</p>
 <p>下面就是n=5和n=4的例子：</p>
-<p><img src="/59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled.png" alt="59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled.png"  /></p>
-<p><img src="/59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled%201.png" alt="59%20%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II%2027e27f97b6c5405abd477f3be7df6ef5/Untitled%201.png"  /></p>
+<p><figure style="flex-grow: 102; flex-basis: 246px">
+		<a href="/p/generate_matrix/Untitled.png" data-size="636x620"><img src="/p/generate_matrix/Untitled.png"
+				srcset="/p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_480x0_resize_box_2.png 480w, /p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_1024x0_resize_box_2.png 1024w"
+				width="636"
+				height="620"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+<figure style="flex-grow: 94; flex-basis: 226px">
+		<a href="/p/generate_matrix/Untitled1.png" data-size="512x543"><img src="/p/generate_matrix/Untitled1.png"
+				srcset="/p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_480x0_resize_box_2.png 480w, /p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_1024x0_resize_box_2.png 1024w"
+				width="512"
+				height="543"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h2 id="代码">代码</h2>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="kt">int</span><span class="o">[][]</span> <span class="nf">generateMatrix</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>

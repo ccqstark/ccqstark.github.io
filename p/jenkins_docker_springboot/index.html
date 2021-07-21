@@ -162,17 +162,35 @@ docker info
 <p>用<code>http://主机IP:6001</code> 就可以访问Jenkins的网页端了</p>
 <h2 id="jenkins初始化">Jenkins初始化</h2>
 <p>访问页面后需要输入初始密码，用<code>cat</code> 命令查看一下页面上给出的路径就可以获得初始密码，复制进去后就可以成功进入</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled.png"  /></p>
-<p>到插件这里就选择安装推荐插件即可，等待安装完毕，速度稍慢。如果很多插件一直安装失败可以等下一步配置国内源之后再安装</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%201.png"  /></p>
-<p>然后按提示创建一个自己的管理员账户</p>
+<p><figure style="flex-grow: 227; flex-basis: 545px">
+		<a href="/p/jenkins_docker_springboot/Untitled.png" data-size="962x423"><img src="/p/jenkins_docker_springboot/Untitled.png"
+				srcset="/p/jenkins_docker_springboot/Untitled_hu0a92d7f71f50d7ed9feb659374ca0abb_50178_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled_hu0a92d7f71f50d7ed9feb659374ca0abb_50178_1024x0_resize_box_2.png 1024w"
+				width="962"
+				height="423"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+到插件这里就选择安装推荐插件即可，等待安装完毕，速度稍慢。如果很多插件一直安装失败可以等下一步配置国内源之后再安装</p>
+<p><figure style="flex-grow: 172; flex-basis: 414px">
+		<a href="/p/jenkins_docker_springboot/Untitled1.png" data-size="864x500"><img src="/p/jenkins_docker_springboot/Untitled1.png"
+				srcset="/p/jenkins_docker_springboot/Untitled1_huafac443a02e8f9a6833002595c731a17_77678_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled1_huafac443a02e8f9a6833002595c731a17_77678_1024x0_resize_box_2.png 1024w"
+				width="864"
+				height="500"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+然后按提示创建一个自己的管理员账户</p>
 <p><strong>如果想重启Jenkins：</strong></p>
 <p>在jenkins主页网址后加上<code>/restart</code> 后回车，点击确定即可</p>
 <h2 id="安装插件和必要配置">安装插件和必要配置</h2>
 <h3 id="修改插件国内源并安装其它插件">修改插件国内源并安装其它插件</h3>
 <p>点击侧边栏<code>系统管理</code>→<code>插件管理</code>→<code>高级</code></p>
-<p><img src="https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg" alt="https://static01.imgkr.com/temp/06e2f322cdd84009b2c0359631f7b899.jpg"  /></p>
-<p>将图中所示URL的输入中的链接改为阿里的：</p>
+<p><img src="/06e2f322cdd84009b2c0359631f7b899.jpg" alt=""  />
+将图中所示URL的输入中的链接改为阿里的：</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json
 </code></pre></div><h3 id="安装一些插件">安装一些插件</h3>
 <p>在<code>插件管理</code>中选择<code>可选插件</code></p>
@@ -180,17 +198,53 @@ docker info
 <h3 id="全局工具配置">全局工具配置</h3>
 <p>点击<code>系统管理</code>→<code>全局工具配置</code></p>
 <p>JDK</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%202.png"  /></p>
-<p>用<code>docker inspect jenkins</code> 查看<code>JAVA_HOME</code> 路径后填入即可，这是个openjdk1.8，刚好用于项目，因为jenkins就是Java开发的</p>
+<p><figure style="flex-grow: 258; flex-basis: 620px">
+		<a href="/p/jenkins_docker_springboot/Untitled2.png" data-size="995x385"><img src="/p/jenkins_docker_springboot/Untitled2.png"
+				srcset="/p/jenkins_docker_springboot/Untitled2_hu32a5b247825abd5ba4124dd776a451c2_20626_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled2_hu32a5b247825abd5ba4124dd776a451c2_20626_1024x0_resize_box_2.png 1024w"
+				width="995"
+				height="385"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+用<code>docker inspect jenkins</code> 查看<code>JAVA_HOME</code> 路径后填入即可，这是个openjdk1.8，刚好用于项目，因为jenkins就是Java开发的</p>
 <p><strong>Git</strong></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%203.png"  /></p>
-<p>用默认即可</p>
+<p><figure style="flex-grow: 408; flex-basis: 980px">
+		<a href="/p/jenkins_docker_springboot/Untitled3.png" data-size="1564x383"><img src="/p/jenkins_docker_springboot/Untitled3.png"
+				srcset="/p/jenkins_docker_springboot/Untitled3_hua015524d53fcca9f0644ce18467d8e1a_24927_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled3_hua015524d53fcca9f0644ce18467d8e1a_24927_1024x0_resize_box_2.png 1024w"
+				width="1564"
+				height="383"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+用默认即可</p>
 <p><strong>Maven</strong></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%204.png"  /></p>
-<p>可以用外部安装的，这里因为下了插件就用Jenkins里的插件就行，点击自动安装</p>
+<p><figure style="flex-grow: 348; flex-basis: 836px">
+		<a href="/p/jenkins_docker_springboot/Untitled4.png" data-size="1558x447"><img src="/p/jenkins_docker_springboot/Untitled4.png"
+				srcset="/p/jenkins_docker_springboot/Untitled4_hu0cb1c24151919b445c1f229add0176ba_31527_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled4_hu0cb1c24151919b445c1f229add0176ba_31527_1024x0_resize_box_2.png 1024w"
+				width="1558"
+				height="447"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+可以用外部安装的，这里因为下了插件就用Jenkins里的插件就行，点击自动安装</p>
 <p><strong>Docker</strong></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%205.png"  /></p>
-<p>都好了之后点<code>应用</code>在点<code>保存</code></p>
+<p><figure style="flex-grow: 411; flex-basis: 987px">
+		<a href="/p/jenkins_docker_springboot/Untitled5.png" data-size="1568x381"><img src="/p/jenkins_docker_springboot/Untitled5.png"
+				srcset="/p/jenkins_docker_springboot/Untitled5_hu5c5297cfe8d9e06e75558915e6ff0e8c_26226_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled5_hu5c5297cfe8d9e06e75558915e6ff0e8c_26226_1024x0_resize_box_2.png 1024w"
+				width="1568"
+				height="381"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+都好了之后点<code>应用</code>在点<code>保存</code></p>
 <h3 id="jenkins容器内使用vim">Jenkins容器内使用vim</h3>
 <p>进入Jenkins容器内部后想使用vim的话还需要额外安装，后面需要用到vim</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 更新一下软件源</span>
@@ -241,31 +295,111 @@ apt-get install vim
 </code></pre></div><p>重启jenkins，之后下载包时发现已经更改为阿里源了</p>
 <h2 id="创建项目准备自动化部署">创建项目准备自动化部署</h2>
 <p>左侧边栏新建一个任务，选择maven项目</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/451610197149_.pic.jpg"  /></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/461610197185_.pic_hd.jpg"  /></p>
+<p><figure style="flex-grow: 77; flex-basis: 185px">
+		<a href="/p/jenkins_docker_springboot/451610197149_.pic.jpg" data-size="325x420"><img src="/p/jenkins_docker_springboot/451610197149_.pic.jpg"
+				srcset="/p/jenkins_docker_springboot/451610197149_.pic_hu4b1c7002aa02b5068b94e8aad4fe1243_29850_480x0_resize_q75_box.jpg 480w, /p/jenkins_docker_springboot/451610197149_.pic_hu4b1c7002aa02b5068b94e8aad4fe1243_29850_1024x0_resize_q75_box.jpg 1024w"
+				width="325"
+				height="420"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+<figure style="flex-grow: 178; flex-basis: 428px">
+		<a href="/p/jenkins_docker_springboot/461610197185_.pic_hd.jpg" data-size="1234x691"><img src="/p/jenkins_docker_springboot/461610197185_.pic_hd.jpg"
+				srcset="/p/jenkins_docker_springboot/461610197185_.pic_hd_hue342ea4f2daf9d6d9b605c56d9e25c32_134999_480x0_resize_q75_box.jpg 480w, /p/jenkins_docker_springboot/461610197185_.pic_hd_hue342ea4f2daf9d6d9b605c56d9e25c32_134999_1024x0_resize_q75_box.jpg 1024w"
+				width="1234"
+				height="691"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h3 id="添加github仓库源码">添加GitHub仓库源码</h3>
 <p>这里用GitHub做代码仓库，也可以gitlab</p>
 <p>有2种方式：<code>https</code>和<code>ssh</code></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%206.png"  /></p>
-<p>如果是https的话添加<code>Credentials</code> 的时候就直接配置自己的GitHub用户名和密码，仓库的URL填写github仓库的url就行</p>
+<p><figure style="flex-grow: 216; flex-basis: 520px">
+		<a href="/p/jenkins_docker_springboot/Untitled6.png" data-size="1430x660"><img src="/p/jenkins_docker_springboot/Untitled6.png"
+				srcset="/p/jenkins_docker_springboot/Untitled6_hud61acc42edc5d7e60aa7fd2326a98ff3_56760_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled6_hud61acc42edc5d7e60aa7fd2326a98ff3_56760_1024x0_resize_box_2.png 1024w"
+				width="1430"
+				height="660"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+如果是https的话添加<code>Credentials</code> 的时候就直接配置自己的GitHub用户名和密码，仓库的URL填写github仓库的url就行</p>
 <p>如果是ssh的话要配置密钥，点击<code>系统管理</code>→<code>Manage Credentials</code> →<code>全局</code> ,点击左侧边栏<code>添加凭据</code></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%207.png"  /></p>
-<p>如果之前生成过，在自己机器上的<code>~/.ssh</code> 下cat一下就行，没有的话就<code>ssh-keygen</code> 生成</p>
+<p><figure style="flex-grow: 242; flex-basis: 581px">
+		<a href="/p/jenkins_docker_springboot/Untitled7.png" data-size="1906x787"><img src="/p/jenkins_docker_springboot/Untitled7.png"
+				srcset="/p/jenkins_docker_springboot/Untitled7_hu9e5231ed2900057343a4f77007ab3c80_76513_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled7_hu9e5231ed2900057343a4f77007ab3c80_76513_1024x0_resize_box_2.png 1024w"
+				width="1906"
+				height="787"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+如果之前生成过，在自己机器上的<code>~/.ssh</code> 下cat一下就行，没有的话就<code>ssh-keygen</code> 生成</p>
 <p>注意此时url就要用<code>ssh://git@github.com/[用户名]/[项目名].git</code> 的格式</p>
 <h3 id="加快代码拉取速度">加快代码拉取速度</h3>
 <p>为了加快构建速度，勾选此选项可以使jenkins不拉取代码的历史版本，从而加快构建速度</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%208.png"  /></p>
-<p>勾选浅克隆</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%209.png"  /></p>
-<p>初次之外，不要在本地打出jar包，不然这么大一个文件上传到仓库再被拉取很费时间</p>
+<p><figure style="flex-grow: 86; flex-basis: 207px">
+		<a href="/p/jenkins_docker_springboot/Untitled8.png" data-size="637x737"><img src="/p/jenkins_docker_springboot/Untitled8.png"
+				srcset="/p/jenkins_docker_springboot/Untitled8_hu801cb86627989de6bc28c47a0041296b_68721_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled8_hu801cb86627989de6bc28c47a0041296b_68721_1024x0_resize_box_2.png 1024w"
+				width="637"
+				height="737"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+勾选浅克隆</p>
+<p><figure style="flex-grow: 313; flex-basis: 752px">
+		<a href="/p/jenkins_docker_springboot/Untitled9.png" data-size="1420x453"><img src="/p/jenkins_docker_springboot/Untitled9.png"
+				srcset="/p/jenkins_docker_springboot/Untitled9_hu313af194f105461f02d579954be5baaf_38741_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled9_hu313af194f105461f02d579954be5baaf_38741_1024x0_resize_box_2.png 1024w"
+				width="1420"
+				height="453"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+初次之外，不要在本地打出jar包，不然这么大一个文件上传到仓库再被拉取很费时间</p>
 <h3 id="构建触发器">构建触发器</h3>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2010.png"  /></p>
+<p><figure style="flex-grow: 292; flex-basis: 702px">
+		<a href="/p/jenkins_docker_springboot/Untitled10.png" data-size="761x260"><img src="/p/jenkins_docker_springboot/Untitled10.png"
+				srcset="/p/jenkins_docker_springboot/Untitled10_hu9c396edf5424b600ae991cc99c9649fd_29438_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled10_hu9c396edf5424b600ae991cc99c9649fd_29438_1024x0_resize_box_2.png 1024w"
+				width="761"
+				height="260"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h3 id="添加maven构建步骤">添加maven构建步骤</h3>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/clean_package.png" alt="clean_package"  /></p>
-<h3 id="构建脚本">构建脚本</h3>
+<p><figure style="flex-grow: 538; flex-basis: 1292px">
+		<a href="/p/jenkins_docker_springboot/clean_package.png" data-size="1433x266"><img src="/p/jenkins_docker_springboot/clean_package.png"
+				srcset="/p/jenkins_docker_springboot/clean_package_huce96ba1471d27e5fc0bfef41054b7b6d_20504_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/clean_package_huce96ba1471d27e5fc0bfef41054b7b6d_20504_1024x0_resize_box_2.png 1024w"
+				width="1433"
+				height="266"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>### 构建脚本</p>
 <p>这里是运行一些shell脚本来构建docker镜像和运行容器的</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2011.png"  /></p>
-<p>脚本如下，记得在项目目录下写好一个Dockerfile</p>
+<p><figure style="flex-grow: 279; flex-basis: 670px">
+		<a href="/p/jenkins_docker_springboot/Untitled11.png" data-size="1445x517"><img src="/p/jenkins_docker_springboot/Untitled11.png"
+				srcset="/p/jenkins_docker_springboot/Untitled11_hu3f19456d5f7ff419ec80e23b2e3e964e_77766_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled11_hu3f19456d5f7ff419ec80e23b2e3e964e_77766_1024x0_resize_box_2.png 1024w"
+				width="1445"
+				height="517"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+脚本如下，记得在项目目录下写好一个Dockerfile</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 进入项目目录</span>
 <span class="nb">cd</span> /var/jenkins_home/workspace/<span class="o">[</span>项目名<span class="o">]</span>
 
@@ -295,12 +429,39 @@ docker run -d --name <span class="o">[</span>容器名<span class="o">]</span> -
 <p>为了实现只要我们一向代码仓库push就可以自动进行构建，我们需要配置<code>webhook</code></p>
 <p>点击<code>系统管理</code>→<code>系统配置</code> ，找到<code>GitHub</code>选项，点击<code>高级</code></p>
 <p>按下图操作：</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2012.png"  /></p>
-<p>打开自己GitHub项目页面</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2013.png"  /></p>
-<p>粘贴刚刚复制的地址</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2014.png"  /></p>
-<p>下面勾选<code>Pushes</code>和<code>Active</code> ，最后点击添加即可</p>
+<p><figure style="flex-grow: 197; flex-basis: 472px">
+		<a href="/p/jenkins_docker_springboot/Untitled12.png" data-size="1350x685"><img src="/p/jenkins_docker_springboot/Untitled12.png"
+				srcset="/p/jenkins_docker_springboot/Untitled12_hud0131ed01997f380618226b3a51cebfb_59567_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled12_hud0131ed01997f380618226b3a51cebfb_59567_1024x0_resize_box_2.png 1024w"
+				width="1350"
+				height="685"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+打开自己GitHub项目页面</p>
+<p><figure style="flex-grow: 198; flex-basis: 475px">
+		<a href="/p/jenkins_docker_springboot/Untitled13.png" data-size="1359x686"><img src="/p/jenkins_docker_springboot/Untitled13.png"
+				srcset="/p/jenkins_docker_springboot/Untitled13_hu73ec61555a99a8fbe315e709d261addf_87170_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled13_hu73ec61555a99a8fbe315e709d261addf_87170_1024x0_resize_box_2.png 1024w"
+				width="1359"
+				height="686"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+粘贴刚刚复制的地址</p>
+<p><figure style="flex-grow: 213; flex-basis: 511px">
+		<a href="/p/jenkins_docker_springboot/Untitled14.png" data-size="950x446"><img src="/p/jenkins_docker_springboot/Untitled14.png"
+				srcset="/p/jenkins_docker_springboot/Untitled14_hu3d6d267476996c248db27bf5d44b0b88_120014_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled14_hu3d6d267476996c248db27bf5d44b0b88_120014_1024x0_resize_box_2.png 1024w"
+				width="950"
+				height="446"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+下面勾选<code>Pushes</code>和<code>Active</code> ，最后点击添加即可</p>
 <p>点击项目内左侧栏的<code>立即构建</code> 可以手动开始构建</p>
 <p>在进程中点击<code>控制台输出</code> 看到构建过程中的日志信息，这些信息很重要我们经常要看，用来发现构建过程中的错误</p>
 <h3 id="清除无用的镜像">清除无用的镜像</h3>
@@ -310,24 +471,87 @@ docker run -d --name <span class="o">[</span>容器名<span class="o">]</span> -
 <p>在这之前保证安装了相关插件，如果一开始是选安装推荐插件那应该都安装了</p>
 <p>点击<code>系统管理</code>→<code>系统配置</code></p>
 <p>先配一下管理员邮箱</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2015.png"  /></p>
-<p>然后拉到下面，按图中配置，这个邮箱要填刚刚上面的管理员邮箱</p>
+<p><figure style="flex-grow: 740; flex-basis: 1778px">
+		<a href="/p/jenkins_docker_springboot/Untitled15.png" data-size="1556x210"><img src="/p/jenkins_docker_springboot/Untitled15.png"
+				srcset="/p/jenkins_docker_springboot/Untitled15_hu2c33936f58344a7ed0c7c8d82da4f54e_18753_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled15_hu2c33936f58344a7ed0c7c8d82da4f54e_18753_1024x0_resize_box_2.png 1024w"
+				width="1556"
+				height="210"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+然后拉到下面，按图中配置，这个邮箱要填刚刚上面的管理员邮箱</p>
 <p>注意里面的密码是开启SMTP的密码，不是邮箱的密码</p>
 <p>然后可以点击发送测试邮件试试</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2016.png"  /></p>
-<p>上面还有一个<code>Extended E-mail Notification</code> 也配一下，也按这些信息填写</p>
+<p><figure style="flex-grow: 212; flex-basis: 510px">
+		<a href="/p/jenkins_docker_springboot/Untitled16.png" data-size="1568x737"><img src="/p/jenkins_docker_springboot/Untitled16.png"
+				srcset="/p/jenkins_docker_springboot/Untitled16_hu2723206f2f9d0984475a38ec20458584_57348_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled16_hu2723206f2f9d0984475a38ec20458584_57348_1024x0_resize_box_2.png 1024w"
+				width="1568"
+				height="737"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+上面还有一个<code>Extended E-mail Notification</code> 也配一下，也按这些信息填写</p>
 <p><code>Default Recipients</code> 是默认接收通知的邮箱，可以填写多个，用英文半角逗号隔开</p>
 <p><code>Default Triggers</code> 也可以配置一下，是触发邮件的事件</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2017.png"  /></p>
-<p>这里有个坑，在系统设置配置完之后，在项目里面的设置记得也要配置完整</p>
+<p><figure style="flex-grow: 78; flex-basis: 187px">
+		<a href="/p/jenkins_docker_springboot/Untitled17.png" data-size="396x506"><img src="/p/jenkins_docker_springboot/Untitled17.png"
+				srcset="/p/jenkins_docker_springboot/Untitled17_hubeb9b94dd795c174dc1ed2dfd29bca6a_37403_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled17_hubeb9b94dd795c174dc1ed2dfd29bca6a_37403_1024x0_resize_box_2.png 1024w"
+				width="396"
+				height="506"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+这里有个坑，在系统设置配置完之后，在项目里面的设置记得也要配置完整</p>
 <p>进入要发送邮箱功能的项目的<code>配置</code></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2018.png"  /></p>
-<p>再点击<code>增加构建后操作步骤</code></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2019.png"  /></p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2020.png"  /></p>
-<p>点击<code>高级设置</code>后设置触发条件</p>
-<p><img src="/Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png" alt="Jenkins%20&#43;%20docker%20&#43;%20springboot%20%E5%AE%8C%E7%BE%8E%E9%85%8D%E5%90%88%E5%85%A8%E6%B5%81%E7%A8%8B%E6%95%99%E7%A8%8B%20e510c92879ca422aafb008869a20a133/Untitled%2021.png"  /></p>
-<p>其他的诸如<code>Content Type</code>和<code>Default Content</code> 之类的就按需求配就行</p>
+<p><figure style="flex-grow: 477; flex-basis: 1145px">
+		<a href="/p/jenkins_docker_springboot/Untitled18.png" data-size="1432x300"><img src="/p/jenkins_docker_springboot/Untitled18.png"
+				srcset="/p/jenkins_docker_springboot/Untitled18_hu14b9e0f11a9349776105a89307ac1a86_33116_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled18_hu14b9e0f11a9349776105a89307ac1a86_33116_1024x0_resize_box_2.png 1024w"
+				width="1432"
+				height="300"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+再点击<code>增加构建后操作步骤</code></p>
+<p><figure style="flex-grow: 117; flex-basis: 281px">
+		<a href="/p/jenkins_docker_springboot/Untitled19.png" data-size="439x374"><img src="/p/jenkins_docker_springboot/Untitled19.png"
+				srcset="/p/jenkins_docker_springboot/Untitled19_hue93c06a2167b50c71a4e2b3307f5a666_37243_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled19_hue93c06a2167b50c71a4e2b3307f5a666_37243_1024x0_resize_box_2.png 1024w"
+				width="439"
+				height="374"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+<figure style="flex-grow: 197; flex-basis: 473px">
+		<a href="/p/jenkins_docker_springboot/Untitled20.png" data-size="1221x619"><img src="/p/jenkins_docker_springboot/Untitled20.png"
+				srcset="/p/jenkins_docker_springboot/Untitled20_hu884b8228a884892c43de604f5ed400a6_100993_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled20_hu884b8228a884892c43de604f5ed400a6_100993_1024x0_resize_box_2.png 1024w"
+				width="1221"
+				height="619"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+点击<code>高级设置</code>后设置触发条件</p>
+<p><figure style="flex-grow: 267; flex-basis: 641px">
+		<a href="/p/jenkins_docker_springboot/Untitled21.png" data-size="1274x477"><img src="/p/jenkins_docker_springboot/Untitled21.png"
+				srcset="/p/jenkins_docker_springboot/Untitled21_huba1efe8e8fea35b00899c19f5b9545c3_49809_480x0_resize_box_2.png 480w, /p/jenkins_docker_springboot/Untitled21_huba1efe8e8fea35b00899c19f5b9545c3_49809_1024x0_resize_box_2.png 1024w"
+				width="1274"
+				height="477"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+其他的诸如<code>Content Type</code>和<code>Default Content</code> 之类的就按需求配就行</p>
 <p>之后在控制台输出就可以看到构建项目到最后有发邮件的步骤日志</p>
 <h3 id="主题美化">主题美化</h3>
 <p>可以参考下面这篇文章，个人觉得还是习惯于原版</p>
@@ -681,7 +905,6 @@ docker run -d --name <span class="o">[</span>容器名<span class="o">]</span> -
         <li><a href="#加快代码拉取速度">加快代码拉取速度</a></li>
         <li><a href="#构建触发器">构建触发器</a></li>
         <li><a href="#添加maven构建步骤">添加maven构建步骤</a></li>
-        <li><a href="#构建脚本">构建脚本</a></li>
         <li><a href="#push触发构建">push触发构建</a></li>
         <li><a href="#清除无用的镜像">清除无用的镜像</a></li>
       </ol>

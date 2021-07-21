@@ -24,10 +24,10 @@ Java的字符串采用了缓冲池的技术，我们新建一个字符串的时�
 java 字符串缓冲池 String缓冲池_天天的专栏-CSDN博客
 哪里不可变？ 那为什么说String不可变呢？我们明明可以通过给字符串变量赋一个新值来改变它的内容。
 String str = &amp;#34;aaaaaaa&amp;#34;; System.out.println(str); str = &amp;#34;bbbbbbbbb&amp;#34;; System.out.println(str); // 输出 //aaaaaaa //bbbbbbbbb 实际上，当我们给字符串重新赋值的时候，它并不是去改变这个String对象中的字符数组char[] value的值（下面会讲到），而是去缓冲池里寻找有没有已经存在这个值的String对象，有的话就直接指向它，没有的话创建一个对象再指向它。
-str只是一个引用，指向的String对象是在堆中的。改变字符串的值其实只是改变整个对象的引用。
+  str只是一个引用，指向的String对象是在堆中的。改变字符串的值其实只是改变整个对象的引用。
 而原来的String对象还是在那里没有被改变，之后要是有别的变量赋这个值可以继续指向它。
 为什么不可变？ 我们看下String的部分源码：
-public final class String implements java.io.Serializable, Comparable&amp;lt;String&amp;gt;, CharSequence { /** The value is used for character storage. */ private final char value[]; /** Cache the hash code for the string */ private int hash; // Default to 0 } 重点在这个字符数组value就是存放字符串内容的地方，注意它是被final 修饰的，也就是一旦初始化之后它的值就不能改变。</description>
+public final class String implements java.io.Serializable, Comparable&amp;lt;String&amp;gt;, CharSequence { /** The value is used for character storage.</description>
     </item>
     
   </channel>

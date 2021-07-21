@@ -4,7 +4,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='导入依赖 我们使用springboot操作es要用到对应的data相关starter
 &amp;lt;!-- elasticsearch的starter依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-data-elasticsearch&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- 将对象转为json传入source时要用 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.75&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;  ⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。
  版本对应表如下：
-我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
+  我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
 配置类 config目录下新建es的配置类ElasticSearchClientConfig.java
 @Configuration public class ElasticSearchClientConfig { @Bean public RestHighLevelClient restHighLevelClient() { final CredentialsProvider credentialsProvider = new BasicCredentialsProvider(); credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(&amp;#34;elastic&amp;#34;, &amp;#34;[密码]&amp;#34;)); RestHighLevelClient client = new RestHighLevelClient( RestClient.builder( new HttpHost(&amp;#34;[ip]&amp;#34;, 9200, &amp;#34;http&amp;#34;)) .setHttpClientConfigCallback(httpClientBuilder -&amp;gt; { httpClientBuilder.disableAuthCaching(); return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider); })); return client; } } 这里有用到x-pack基础安全功能，所以配置了用户和密码。如果没有用户和密码，参照官方文档连接代码如下：
 RestHighLevelClient client = new RestHighLevelClient( RestClient.'><title>[SpringBoot]整合ElasticSearch</title>
@@ -15,7 +15,7 @@ RestHighLevelClient client = new RestHighLevelClient( RestClient.'><title>[Sprin
 <meta property='og:description' content='导入依赖 我们使用springboot操作es要用到对应的data相关starter
 &amp;lt;!-- elasticsearch的starter依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-data-elasticsearch&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- 将对象转为json传入source时要用 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.75&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;  ⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。
  版本对应表如下：
-我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
+  我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
 配置类 config目录下新建es的配置类ElasticSearchClientConfig.java
 @Configuration public class ElasticSearchClientConfig { @Bean public RestHighLevelClient restHighLevelClient() { final CredentialsProvider credentialsProvider = new BasicCredentialsProvider(); credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(&amp;#34;elastic&amp;#34;, &amp;#34;[密码]&amp;#34;)); RestHighLevelClient client = new RestHighLevelClient( RestClient.builder( new HttpHost(&amp;#34;[ip]&amp;#34;, 9200, &amp;#34;http&amp;#34;)) .setHttpClientConfigCallback(httpClientBuilder -&amp;gt; { httpClientBuilder.disableAuthCaching(); return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider); })); return client; } } 这里有用到x-pack基础安全功能，所以配置了用户和密码。如果没有用户和密码，参照官方文档连接代码如下：
 RestHighLevelClient client = new RestHighLevelClient( RestClient.'>
@@ -27,7 +27,7 @@ RestHighLevelClient client = new RestHighLevelClient( RestClient.'>
 <meta name="twitter:description" content="导入依赖 我们使用springboot操作es要用到对应的data相关starter
 &amp;lt;!-- elasticsearch的starter依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-data-elasticsearch&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- 将对象转为json传入source时要用 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.75&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;  ⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。
  版本对应表如下：
-我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
+  我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
 配置类 config目录下新建es的配置类ElasticSearchClientConfig.java
 @Configuration public class ElasticSearchClientConfig { @Bean public RestHighLevelClient restHighLevelClient() { final CredentialsProvider credentialsProvider = new BasicCredentialsProvider(); credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(&amp;#34;elastic&amp;#34;, &amp;#34;[密码]&amp;#34;)); RestHighLevelClient client = new RestHighLevelClient( RestClient.builder( new HttpHost(&amp;#34;[ip]&amp;#34;, 9200, &amp;#34;http&amp;#34;)) .setHttpClientConfigCallback(httpClientBuilder -&amp;gt; { httpClientBuilder.disableAuthCaching(); return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider); })); return client; } } 这里有用到x-pack基础安全功能，所以配置了用户和密码。如果没有用户和密码，参照官方文档连接代码如下：
 RestHighLevelClient client = new RestHighLevelClient( RestClient."><meta name="twitter:card" content="summary_large_image">
@@ -154,8 +154,17 @@ if (!doNotTrack) {
 <p>⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。</p>
 </blockquote>
 <p>版本对应表如下：</p>
-<p><img src="/%E4%BD%BF%E7%94%A8SpringBoot%E6%93%8D%E4%BD%9CElasticSearch%201f30cd75c9374f088578e4c58ba60976/20201221111458835.png" alt="%E4%BD%BF%E7%94%A8SpringBoot%E6%93%8D%E4%BD%9CElasticSearch%201f30cd75c9374f088578e4c58ba60976/20201221111458835.png"  /></p>
-<p>我使用的这里用Springboot<code>2.4.1</code>，所以对应的elasticsearch是<code>7.9.3</code>版本</p>
+<p><figure style="flex-grow: 268; flex-basis: 645px">
+		<a href="/p/springboot_es/20201221111458835.png" data-size="928x345"><img src="/p/springboot_es/20201221111458835.png"
+				srcset="/p/springboot_es/20201221111458835_hu3434231879f07d017eb4f374d08f0e6c_37598_480x0_resize_box_2.png 480w, /p/springboot_es/20201221111458835_hu3434231879f07d017eb4f374d08f0e6c_37598_1024x0_resize_box_2.png 1024w"
+				width="928"
+				height="345"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+我使用的这里用Springboot<code>2.4.1</code>，所以对应的elasticsearch是<code>7.9.3</code>版本</p>
 <h2 id="配置类">配置类</h2>
 <p>config目录下新建es的配置类<code>ElasticSearchClientConfig.java</code></p>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Configuration</span>

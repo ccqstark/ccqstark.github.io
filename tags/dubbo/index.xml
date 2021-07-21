@@ -24,7 +24,8 @@ Apache ZooKeeper
 ZooKeeper可以去官网下载安装，这里我还是用docker在Linux服务器上安装。
 # 拉取镜像 docker pull zookeeper # 启动 docker run -d \ -p 2181:2181 \ -v /home/zookeeper/data/:/data/ \ --name=zookeeper \ --privileged zookeeper # 如果想运行自带的客户端可以： docker exec -it zookeeper bash cd bin ./zkCli.sh # 之后就可以使用相关命令了 安装ZooInspector来可视化查看zookeeper
 
-# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar 使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
+# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar  
+使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
 到github上下载
 apache/dubbo-admin
 解压后在application.properties中修改zookeeper地址

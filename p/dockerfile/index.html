@@ -5,11 +5,11 @@
 💡构建步骤：
  编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
 可以发现这些镜像也是通过dockerfile来构建的
-上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+  上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
 然后ADD 就是添加来一层centos相关的镜像文件
 官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
 比如我们可以直接构建一个centos&#43;jdk&#43;tomcat&#43;mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
-Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交    以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
 什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
 Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名&#43;邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子：'><title>[docker]初识Dockerfile</title>
 
@@ -20,11 +20,11 @@ Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的�
 💡构建步骤：
  编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
 可以发现这些镜像也是通过dockerfile来构建的
-上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+  上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
 然后ADD 就是添加来一层centos相关的镜像文件
 官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
 比如我们可以直接构建一个centos&#43;jdk&#43;tomcat&#43;mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
-Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交    以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
 什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
 Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名&#43;邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子：'>
 <meta property='og:url' content='https://ccqstark.github.io/p/dockerfile/'>
@@ -36,11 +36,11 @@ Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的�
 💡构建步骤：
  编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
 可以发现这些镜像也是通过dockerfile来构建的
-上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+  上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
 然后ADD 就是添加来一层centos相关的镜像文件
 官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
 比如我们可以直接构建一个centos&#43;jdk&#43;tomcat&#43;mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
-Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交    以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
 什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
 Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名&#43;邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子："><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/dockerfile/dockerfile.png' />
@@ -160,8 +160,17 @@ if (!doNotTrack) {
 </ol>
 <p>在官网点击镜像会跳转到github对应的dockerfile</p>
 <p>可以发现这些镜像也是通过dockerfile来构建的</p>
-<p><img src="/Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png" alt="Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled.png"  /></p>
-<p>上图是centos的dockerfile，其中<code>scratch</code>是最基本的，90%都是基于这个镜像。</p>
+<p><figure style="flex-grow: 189; flex-basis: 453px">
+		<a href="/p/dockerfile/Untitled.png" data-size="911x482"><img src="/p/dockerfile/Untitled.png"
+				srcset="/p/dockerfile/Untitled_hu9fff8600ee255a49e225277cb53f18a9_146838_480x0_resize_box_2.png 480w, /p/dockerfile/Untitled_hu9fff8600ee255a49e225277cb53f18a9_146838_1024x0_resize_box_2.png 1024w"
+				width="911"
+				height="482"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+上图是centos的dockerfile，其中<code>scratch</code>是最基本的，90%都是基于这个镜像。</p>
 <p>然后<code>ADD</code> 就是添加来一层centos相关的镜像文件</p>
 <p>官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。</p>
 <p>比如我们可以直接构建一个<code>centos+jdk+tomcat+mysql</code>的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？</p>
@@ -173,8 +182,17 @@ if (!doNotTrack) {
 <li>&ldquo;#&rdquo; 表示注释</li>
 <li>每一个指令都会创建一个新的镜像层，并提交</li>
 </ol>
-<p><img src="/Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png" alt="Dockerfile%20301ab8b18fee4cdb9b1ffde8b96fcc3d/Untitled%201.png"  /></p>
-<p>以前开发交付都是用jar包或war包，现在<strong>云原生</strong>时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile</p>
+<p><figure style="flex-grow: 143; flex-basis: 345px">
+		<a href="/p/dockerfile/Untitled1.png" data-size="635x441"><img src="/p/dockerfile/Untitled1.png"
+				srcset="/p/dockerfile/Untitled1_hu94d67dd6e863ba2d67091f0dc6d10468_192369_480x0_resize_box_2.png 480w, /p/dockerfile/Untitled1_hu94d67dd6e863ba2d67091f0dc6d10468_192369_1024x0_resize_box_2.png 1024w"
+				width="635"
+				height="441"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+以前开发交付都是用jar包或war包，现在<strong>云原生</strong>时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile</p>
 <p><a class="link" href="https://blog.csdn.net/alitech2017/article/details/104606956"  target="_blank" rel="noopener"
     >什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客</a></p>
 <h2 id="dockerfile常用指令">Dockerfile常用指令</h2>

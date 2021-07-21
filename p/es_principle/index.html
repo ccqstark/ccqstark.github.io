@@ -4,8 +4,10 @@
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
 基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
 官网地址：https://www.elastic.co/cn/elasticsearch/
+ 
 应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch &#43; logstash &#43; Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
 一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+ 
 概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
 es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
    Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。'><title>[ElasticSearch]ElasticSearch入门与原理浅析</title>
@@ -16,8 +18,10 @@ es索引体系的基本概念和关系型数据库中的有些类似，我们可
 <meta property='og:description' content='简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
 基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
 官网地址：https://www.elastic.co/cn/elasticsearch/
+ 
 应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch &#43; logstash &#43; Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
 一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+ 
 概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
 es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
    Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。'>
@@ -29,8 +33,10 @@ es索引体系的基本概念和关系型数据库中的有些类似，我们可
 <meta name="twitter:description" content="简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
 基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
 官网地址：https://www.elastic.co/cn/elasticsearch/
+ 
 应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch &#43; logstash &#43; Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
 一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+ 
 概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
 es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
    Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。"><meta name="twitter:card" content="summary_large_image">
@@ -147,7 +153,16 @@ if (!doNotTrack) {
 <p>Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的<code>Lucene</code>库进行开发，并以简单的<code>RESTful</code>风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。</p>
 <p>官网地址：<a class="link" href="https://www.elastic.co/cn/elasticsearch/"  target="_blank" rel="noopener"
     >https://www.elastic.co/cn/elasticsearch/</a></p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png"  /></p>
+<p><figure style="flex-grow: 217; flex-basis: 521px">
+		<a href="/p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png" data-size="1024x471"><img src="/p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w.png"
+				srcset="/p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w_huf021a1dfebbe47cdc6d389106a82318c_7114_480x0_resize_box_2.png 480w, /p/es_principle/v2-afa11bbba49acdd68b2cdb98aa61293f_720w_huf021a1dfebbe47cdc6d389106a82318c_7114_1024x0_resize_box_2.png 1024w"
+				width="1024"
+				height="471"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h3 id="应用场景">应用场景</h3>
 <ul>
 <li>应用程序搜索</li>
@@ -163,7 +178,16 @@ if (!doNotTrack) {
 <h3 id="elk">ELK</h3>
 <p><code>ELK</code>，即ElasticSearch + logstash + Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。</p>
 <p>一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled.png"  /></p>
+<p><figure style="flex-grow: 227; flex-basis: 545px">
+		<a href="/p/es_principle/Untitled.png" data-size="1831x805"><img src="/p/es_principle/Untitled.png"
+				srcset="/p/es_principle/Untitled_hu7dafef719c0da23a4ffc30c2466c80d1_362848_480x0_resize_box_2.png 480w, /p/es_principle/Untitled_hu7dafef719c0da23a4ffc30c2466c80d1_362848_1024x0_resize_box_2.png 1024w"
+				width="1831"
+				height="805"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h2 id="概念介绍">概念介绍</h2>
 <h3 id="基本概念">基本概念</h3>
 <p>ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。</p>
@@ -236,8 +260,17 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 <span class="se">\
     >[Elastic]使用docker安装ElasticSearch + Kibana</a></p>
 <h3 id="restful风格操作">RESTful风格操作</h3>
 <p>es使用RESTful风格的API进行CRUD，存储与传输使用的数据形式也是使用常见的JSON，常用的method和对应的功能如下：</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%201.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%201.png"  /></p>
-<p>其中查询支持多种类型的复杂查询，如match解析查询、排序查询、分页查询、bool查询、fileter查询、多关键字查询、term精确查询、高亮查询等等。详细可以查看我博客的另一篇文章。</p>
+<p><figure style="flex-grow: 265; flex-basis: 636px">
+		<a href="/p/es_principle/Untitled1.png" data-size="750x283"><img src="/p/es_principle/Untitled1.png"
+				srcset="/p/es_principle/Untitled1_hu84fd3aa02f569b683507f114748edc09_59329_480x0_resize_box_2.png 480w, /p/es_principle/Untitled1_hu84fd3aa02f569b683507f114748edc09_59329_1024x0_resize_box_2.png 1024w"
+				width="750"
+				height="283"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+其中查询支持多种类型的复杂查询，如match解析查询、排序查询、分页查询、bool查询、fileter查询、多关键字查询、term精确查询、高亮查询等等。详细可以查看我博客的另一篇文章。</p>
 <p><a class="link" href="https://ccqstark.github.io/p/es_rest/"  target="_blank" rel="noopener"
     >[ElasticSearch]REST风格操作</a></p>
 <h3 id="客户端">客户端</h3>
@@ -361,17 +394,44 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 <span class="se">\
 <p>其实很好理解，就是把我们以前设计表的那种把文章对应里面有哪些单词的结构，倒过来，变成一个单词与被包含在哪些文章中的对应关系，当我们搜索一个单词的时候就能快速得到包含这个单词的文章列表来。</p>
 <p><strong>举个例子：</strong></p>
 <p>比方说下面这张表</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%202.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%202.png"  /></p>
-<p>对direct字段利用倒排索引，变成：</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%203.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%203.png"  /></p>
-<p>那只要我们想查frontend对应有哪些人，就可以直接获得他们的id列表[21,16,54]，如果想查boss有哪些人，就可以得到[67,98]。这样就可以很快检索到我们想要到结果，而不用进行全表的搜索。</p>
+<p><figure style="flex-grow: 92; flex-basis: 220px">
+		<a href="/p/es_principle/Untitled2.png" data-size="323x351"><img src="/p/es_principle/Untitled2.png"
+				srcset="/p/es_principle/Untitled2_hua72aa8e6b64f1adb079c95b16fc1620c_31464_480x0_resize_box_2.png 480w, /p/es_principle/Untitled2_hua72aa8e6b64f1adb079c95b16fc1620c_31464_1024x0_resize_box_2.png 1024w"
+				width="323"
+				height="351"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+对direct字段利用倒排索引，变成：</p>
+<p><figure style="flex-grow: 107; flex-basis: 258px">
+		<a href="/p/es_principle/Untitled3.png" data-size="495x459"><img src="/p/es_principle/Untitled3.png"
+				srcset="/p/es_principle/Untitled3_hu1a0087a5c8443441516afb4eced10602_41097_480x0_resize_box_2.png 480w, /p/es_principle/Untitled3_hu1a0087a5c8443441516afb4eced10602_41097_1024x0_resize_box_2.png 1024w"
+				width="495"
+				height="459"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+那只要我们想查frontend对应有哪些人，就可以直接获得他们的id列表[21,16,54]，如果想查boss有哪些人，就可以得到[67,98]。这样就可以很快检索到我们想要到结果，而不用进行全表的搜索。</p>
 <p>对于上面的倒排表，我们把其中每一项称为<code>Term</code>，被索引的那一列也就是实例的direct字段为<code>Term Dictionary</code> ，对应被检索出来的id_list字段为<code>Posting List</code>。</p>
 <p>被检索的direct如果按顺序排列的话就可以用二分搜索快速找出，或者也可以在其上再加一层BTree来索引，提高关键词本身的搜索速度。</p>
 <h3 id="term-index">Term Index</h3>
 <p>当数据量很大的时候，Term Dictionary也会变得很大，无法完全放入内存（es本身运行已经占用非常大的内存了），这个时候我们再加一层索引叫<code>Term Index</code>。</p>
 <p>es使用 <code>Burst-Trie</code> 结构来实现，它是字典树（前缀树）<code>Trie</code> 的一种变种，它主要是将后缀进行了压缩，降低了Trie的高度，从而获取更好查询性能。</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%204.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%204.png"  /></p>
-<p>可以看到这棵树的根节点为空，接下来每一层是单词的从头到位的顺序的字母，某一节点的子节点连接所有单词中可能出现的下一个字母，根据下一个字母的可能的情况来分叉，同时多余的后缀也被省略。查询时可以先将Term Index缓存到内存中，据此找到我们要的Term Dictionary再去读磁盘，可以减少磁盘I/O次数。</p>
+<p><figure style="flex-grow: 138; flex-basis: 333px">
+		<a href="/p/es_principle/Untitled4.png" data-size="656x472"><img src="/p/es_principle/Untitled4.png"
+				srcset="/p/es_principle/Untitled4_hu4f32e137e35b5784fba3361a4454f69b_51474_480x0_resize_box_2.png 480w, /p/es_principle/Untitled4_hu4f32e137e35b5784fba3361a4454f69b_51474_1024x0_resize_box_2.png 1024w"
+				width="656"
+				height="472"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+可以看到这棵树的根节点为空，接下来每一层是单词的从头到位的顺序的字母，某一节点的子节点连接所有单词中可能出现的下一个字母，根据下一个字母的可能的情况来分叉，同时多余的后缀也被省略。查询时可以先将Term Index缓存到内存中，据此找到我们要的Term Dictionary再去读磁盘，可以减少磁盘I/O次数。</p>
 <h2 id="联合查询合并">联合查询合并</h2>
 <p>当我们用es进行联合查询时，比如查找方向为backend且年份等于2019的人，我们只需要对direct和year字段分别用倒排索引查找出结果集，最后对结果集进行合并就行了。</p>
 <p>在关系型数据库中我们一般会用join来合并两表，这里再次鞭尸一下MySQL，它的join实现性能也很差。比如下面这样的SQL：</p>
@@ -387,11 +447,29 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 <span class="se">\
 <p>而Elasticsearch使用跳表<code>Skip List</code>和位图<code>Bitset</code>来合并结果集，下面介绍一下这两种方法。</p>
 <h3 id="skip-list合并策略">Skip List合并策略</h3>
 <p>说到跳表，我们首先讲一下普通的链表，如下图：</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%205.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%205.png"  /></p>
-<p>图中的链表除了首位节点之外，其它节点都有一个指针指向下一个节点，但是由于不是顺序存储，我们无法从其中任意一个节点推算出其它任意一个节点的位置（除非是它指向的下一节点）。因此用这个数据结构来寻找某一节点效率偏低。</p>
+<p><figure style="flex-grow: 556; flex-basis: 1335px">
+		<a href="/p/es_principle/Untitled5.png" data-size="1024x184"><img src="/p/es_principle/Untitled5.png"
+				srcset="/p/es_principle/Untitled5_hu4f00d3328f98b6b5ea1266a13c82514a_12332_480x0_resize_box_2.png 480w, /p/es_principle/Untitled5_hu4f00d3328f98b6b5ea1266a13c82514a_12332_1024x0_resize_box_2.png 1024w"
+				width="1024"
+				height="184"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+图中的链表除了首位节点之外，其它节点都有一个指针指向下一个节点，但是由于不是顺序存储，我们无法从其中任意一个节点推算出其它任意一个节点的位置（除非是它指向的下一节点）。因此用这个数据结构来寻找某一节点效率偏低。</p>
 <p>然后说跳表<code>Skip List</code>，实际上是在链表的基础上多加了几层索引，使得查询效率加快，如图：</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%206.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%206.png"  /></p>
-<p>我们在原来的链表上多加了三层，而上面的每一层各节点之间的距离都在逐级递增，也就是说每次跨到本层的下一个节点，中间跳跃的相对与底层的节点数越来越多，所以叫跳表。利用这种数据结构的特性，我们在遍历原链表的时候就可以利用上面的索引来每次多跳几个节点，从而加快速度。</p>
+<p><figure style="flex-grow: 232; flex-basis: 558px">
+		<a href="/p/es_principle/Untitled6.png" data-size="1030x443"><img src="/p/es_principle/Untitled6.png"
+				srcset="/p/es_principle/Untitled6_hu961a20333dfd2ebcf6c70d2469c654fc_24717_480x0_resize_box_2.png 480w, /p/es_principle/Untitled6_hu961a20333dfd2ebcf6c70d2469c654fc_24717_1024x0_resize_box_2.png 1024w"
+				width="1030"
+				height="443"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+我们在原来的链表上多加了三层，而上面的每一层各节点之间的距离都在逐级递增，也就是说每次跨到本层的下一个节点，中间跳跃的相对与底层的节点数越来越多，所以叫跳表。利用这种数据结构的特性，我们在遍历原链表的时候就可以利用上面的索引来每次多跳几个节点，从而加快速度。</p>
 <p>ES利用Skip List进行合并结果集的时候就是从上往下，找到节点值大于等于目标值的最小节点，如果还是大于目标值，那就往下一层，相当于增加查找精度。例如我现在要找的目标值为2，从最上一层开始找，这层是0—&gt;6，6明显大于2了，到下一层；这一层是0—&gt;4—&gt;6，找到4还是大于2，那继续下一层；这时是0—&gt;2—&gt;4—&gt;6，我们就可以找到目标值2了。</p>
 <p>利用跳表，ES在找两个结果集的交集的时候就会快很多。</p>
 <h3 id="roaring-bitset合并策略">Roaring Bitset合并策略</h3>
@@ -404,8 +482,17 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 <span class="se">\
 如果使用位图 Bitset 来存储的话，即某个数如果存在的话，就将它对应的位图内的比特置为1，否则保持为0。这样多少个树就只需要消耗多少bit来存，这里是 2 ^ 32 位 = 512 MB，这可只有原来的 3.2 % 左右。</p>
 </blockquote>
 <p>Roaring Bitmap又是如何来解决稀疏的问题的呢？直接上图：</p>
-<p><img src="/ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%207.png" alt="ElasticSearch%E5%85%A5%E9%97%A8%E4%B8%8E%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90%20fd052d6c270449b7a84640d0c5bbf8f4/Untitled%207.png"  /></p>
-<p>如图中所示，我们把待存数除以65535，并根据所得商和余数分组。然后把相同商的组分到同一个存储单元，这个存储单元称为<code>container</code>，最后只需要存各container中的余数即可。</p>
+<p><figure style="flex-grow: 127; flex-basis: 305px">
+		<a href="/p/es_principle/Untitled7.png" data-size="962x756"><img src="/p/es_principle/Untitled7.png"
+				srcset="/p/es_principle/Untitled7_hufcb748e7c079b190c8a55a1ee7b111d9_56629_480x0_resize_box_2.png 480w, /p/es_principle/Untitled7_hufcb748e7c079b190c8a55a1ee7b111d9_56629_1024x0_resize_box_2.png 1024w"
+				width="962"
+				height="756"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+如图中所示，我们把待存数除以65535，并根据所得商和余数分组。然后把相同商的组分到同一个存储单元，这个存储单元称为<code>container</code>，最后只需要存各container中的余数即可。</p>
 <p>所以RoaringBitmap其实就是很多container的集合，如果是一个32位unsigned long的话，那最多就有2^32 / 65535 = 65535个container。</p>
 <p>对于其中的余数的存储（低16位），则是以下的存储规则：</p>
 <ul>

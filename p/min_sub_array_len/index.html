@@ -216,8 +216,17 @@ if (!doNotTrack) {
 </code></pre></div><p>这个方法我们先计算出nums中不同长度的前i个数之和的数组sums，也就是sums[i]表示nums[0]到nums[i-1]中的所有数之和。</p>
 <p>然后我们用二分查找在sums数组中找到下标bound，使得<code>sums[bound]-sums[i]&gt;=target</code>，且这个bound是所能找到的最小的。（由于nums都是正整数，sums一定是递增的，所以可以用二分搜索）</p>
 <p>最终<code>bound-i</code>就是我们要找的最小的窗口长度。</p>
-<p><img src="/209%20%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%208df7c8e57fe741178240bf389952300f/Untitled.png" alt="209%20%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84%208df7c8e57fe741178240bf389952300f/Untitled.png"  /></p>
-<p>这里的二分搜索如果找不到的话要返回插入的位置，Java有个Arrays.binarySearch()工具类可以使用，返回值为：</p>
+<p><figure style="flex-grow: 225; flex-basis: 541px">
+		<a href="/p/min_sub_array_len/Untitled.png" data-size="1018x451"><img src="/p/min_sub_array_len/Untitled.png"
+				srcset="/p/min_sub_array_len/Untitled_huda241c8e825d8179cb97936e0d37c238_34442_480x0_resize_box_2.png 480w, /p/min_sub_array_len/Untitled_huda241c8e825d8179cb97936e0d37c238_34442_1024x0_resize_box_2.png 1024w"
+				width="1018"
+				height="451"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+这里的二分搜索如果找不到的话要返回插入的位置，Java有个Arrays.binarySearch()工具类可以使用，返回值为：</p>
 <ul>
 <li>如果找到关键字，则返回值为关键字在数组中的位置索引，且索引<code>从0开始</code></li>
 <li>如果没有找到关键字，<code>返回值为负</code>的插入点值，所谓插入点值就是第一个比关键字大的元素在数组中的位置索引，而且这个位置索引<code>从1开始</code>。</li>

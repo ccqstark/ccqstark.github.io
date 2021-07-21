@@ -6,7 +6,7 @@
 元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。
 分析 对于数组而言，我们原地移除元素的话就肯定要把被移除的元素后面的全部元素都往前挪一个位，这是最基本的操作。所以最普通的暴力解法就是删除一个，整体挪动一个位。优化一点的话就是当有几个需要删除的数连在一起时，我们找到边界后一起挪动n个位，减少整体挪动的次数。
 最优的是经常被用到的双指针法，下面再解释。
-代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left&#43;&#43;) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left &#43; 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right&#43;&#43;; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i&#43;&#43;) { nums[left &#43; i] = nums[right &#43; i]; } } 此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。'><title>[leetcode]27.移除元素</title>
+代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left&#43;&#43;) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left &#43; 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right&#43;&#43;; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i&#43;&#43;) { nums[left &#43; i] = nums[right &#43; i]; } }   此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。'><title>[leetcode]27.移除元素</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/remove_element/'>
 
@@ -16,7 +16,7 @@
 元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。
 分析 对于数组而言，我们原地移除元素的话就肯定要把被移除的元素后面的全部元素都往前挪一个位，这是最基本的操作。所以最普通的暴力解法就是删除一个，整体挪动一个位。优化一点的话就是当有几个需要删除的数连在一起时，我们找到边界后一起挪动n个位，减少整体挪动的次数。
 最优的是经常被用到的双指针法，下面再解释。
-代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left&#43;&#43;) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left &#43; 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right&#43;&#43;; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i&#43;&#43;) { nums[left &#43; i] = nums[right &#43; i]; } } 此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。'>
+代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left&#43;&#43;) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left &#43; 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right&#43;&#43;; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i&#43;&#43;) { nums[left &#43; i] = nums[right &#43; i]; } }   此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。'>
 <meta property='og:url' content='https://ccqstark.github.io/p/remove_element/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='leetcode' /><meta property='article:published_time' content='2021-04-02T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2021-04-02T21:07:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/remove_element/leetcode.png' />
@@ -27,7 +27,7 @@
 元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。
 分析 对于数组而言，我们原地移除元素的话就肯定要把被移除的元素后面的全部元素都往前挪一个位，这是最基本的操作。所以最普通的暴力解法就是删除一个，整体挪动一个位。优化一点的话就是当有几个需要删除的数连在一起时，我们找到边界后一起挪动n个位，减少整体挪动的次数。
 最优的是经常被用到的双指针法，下面再解释。
-代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left&#43;&#43;) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left &#43; 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right&#43;&#43;; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i&#43;&#43;) { nums[left &#43; i] = nums[right &#43; i]; } } 此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。"><meta name="twitter:card" content="summary_large_image">
+代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left&#43;&#43;) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left &#43; 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right&#43;&#43;; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i&#43;&#43;) { nums[left &#43; i] = nums[right &#43; i]; } }   此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。"><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/remove_element/leetcode.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
@@ -172,8 +172,17 @@ if (!doNotTrack) {
         <span class="n">nums</span><span class="o">[</span><span class="n">left</span> <span class="o">+</span> <span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span> <span class="o">+</span> <span class="n">i</span><span class="o">];</span>
     <span class="o">}</span>
 <span class="o">}</span>
-</code></pre></div><p><img src="/27%20%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0%205a59d90099fd47aa96428284ab561018/Untitled.png" alt="27%20%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0%205a59d90099fd47aa96428284ab561018/Untitled.png"  /></p>
-<p>此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。</p>
+</code></pre></div><p><figure style="flex-grow: 272; flex-basis: 654px">
+		<a href="/p/remove_element/Untitled.png" data-size="911x334"><img src="/p/remove_element/Untitled.png"
+				srcset="/p/remove_element/Untitled_hu9040d830423d56d5eadd3168ece7bed3_20202_480x0_resize_box_2.png 480w, /p/remove_element/Untitled_hu9040d830423d56d5eadd3168ece7bed3_20202_1024x0_resize_box_2.png 1024w"
+				width="911"
+				height="334"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。</p>
 <p>这种方法在被删除元素都是在连续位置时可以很好提高速度。但是会有一些边界条件需要考虑，在上面代码中用注释强调了。</p>
 <h3 id="双指针法">双指针法</h3>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">int</span> <span class="nf">removeElement</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">,</span> <span class="kt">int</span> <span class="n">val</span><span class="o">)</span> <span class="o">{</span>

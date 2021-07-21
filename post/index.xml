@@ -14,10 +14,11 @@
       
       <guid>https://ccqstark.github.io/p/remove_elements/</guid>
       <description>题目 给你一个链表的头节点 head 和一个整数 val ，请你删除链表中所有满足 Node.val == val 的节点，并返回 新的头节点 。
+ 
 示例 1: 输入: head = [1,2,6,3,4,5,6], val = 6 输出: [1,2,3,4,5] 示例 2: 输入: head = [], val = 1 输出: [] 示例 3: 输入: head = [7,7,7,7], val = 7 输出: [] 分析 很普通的一道链表移除元素题目。这里我们主要考虑两种方式：
  直接在原链表上删除节点操作 增加一个虚拟节点（也叫哨兵节点）来操作  第二种方法主要是为了统一所有的删除节点操作，而不用在遇到要删除头节点情况时要单独写一段代码来处理。
 而对于普通节点，删除这个节点的操作一般是把自己的前驱节点的next指针指向自己的后驱节点，如图：
-由于是单链表，我们不能获得一个被删节点的前驱节点，所以一般是判断一个节点的next的值是否为被删值。
+  由于是单链表，我们不能获得一个被删节点的前驱节点，所以一般是判断一个节点的next的值是否为被删值。
  对于C/C++，不能自动释放内存我们就要手动释放被删除的节点的内存，但Java会帮我们做好这一切。
  代码 ListNode节点类的代码：
 public class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) { this.</description>
@@ -35,6 +36,7 @@ public class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) 
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
 还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
 下面就是n=5和n=4的例子：
+   
 代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !</description>
     </item>
     
@@ -55,10 +57,10 @@ Java的字符串采用了缓冲池的技术，我们新建一个字符串的时�
 java 字符串缓冲池 String缓冲池_天天的专栏-CSDN博客
 哪里不可变？ 那为什么说String不可变呢？我们明明可以通过给字符串变量赋一个新值来改变它的内容。
 String str = &amp;#34;aaaaaaa&amp;#34;; System.out.println(str); str = &amp;#34;bbbbbbbbb&amp;#34;; System.out.println(str); // 输出 //aaaaaaa //bbbbbbbbb 实际上，当我们给字符串重新赋值的时候，它并不是去改变这个String对象中的字符数组char[] value的值（下面会讲到），而是去缓冲池里寻找有没有已经存在这个值的String对象，有的话就直接指向它，没有的话创建一个对象再指向它。
-str只是一个引用，指向的String对象是在堆中的。改变字符串的值其实只是改变整个对象的引用。
+  str只是一个引用，指向的String对象是在堆中的。改变字符串的值其实只是改变整个对象的引用。
 而原来的String对象还是在那里没有被改变，之后要是有别的变量赋这个值可以继续指向它。
 为什么不可变？ 我们看下String的部分源码：
-public final class String implements java.io.Serializable, Comparable&amp;lt;String&amp;gt;, CharSequence { /** The value is used for character storage. */ private final char value[]; /** Cache the hash code for the string */ private int hash; // Default to 0 } 重点在这个字符数组value就是存放字符串内容的地方，注意它是被final 修饰的，也就是一旦初始化之后它的值就不能改变。</description>
+public final class String implements java.io.Serializable, Comparable&amp;lt;String&amp;gt;, CharSequence { /** The value is used for character storage.</description>
     </item>
     
     <item>
@@ -84,7 +86,7 @@ public final class String implements java.io.Serializable, Comparable&amp;lt;Str
 元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。
 分析 对于数组而言，我们原地移除元素的话就肯定要把被移除的元素后面的全部元素都往前挪一个位，这是最基本的操作。所以最普通的暴力解法就是删除一个，整体挪动一个位。优化一点的话就是当有几个需要删除的数连在一起时，我们找到边界后一起挪动n个位，减少整体挪动的次数。
 最优的是经常被用到的双指针法，下面再解释。
-代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left++) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left + 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right++; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i++) { nums[left + i] = nums[right + i]; } } 此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。</description>
+代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left++) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left + 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right++; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i++) { nums[left + i] = nums[right + i]; } }   此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。</description>
     </item>
     
     <item>
@@ -146,8 +148,10 @@ log4j.rootLogger = ERROR,stdout,log //第一个参数是日志等级 错误捕�
       <description>简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
 基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
 官网地址：https://www.elastic.co/cn/elasticsearch/
+ 
 应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch + logstash + Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
 一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+ 
 概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
 es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
    Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。</description>
@@ -170,7 +174,8 @@ Apache ZooKeeper
 ZooKeeper可以去官网下载安装，这里我还是用docker在Linux服务器上安装。
 # 拉取镜像 docker pull zookeeper # 启动 docker run -d \ -p 2181:2181 \ -v /home/zookeeper/data/:/data/ \ --name=zookeeper \ --privileged zookeeper # 如果想运行自带的客户端可以： docker exec -it zookeeper bash cd bin ./zkCli.sh # 之后就可以使用相关命令了 安装ZooInspector来可视化查看zookeeper
 
-# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar 使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
+# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar  
+使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
 到github上下载
 apache/dubbo-admin
 解压后在application.properties中修改zookeeper地址
@@ -186,18 +191,18 @@ dubbo.registry.address=zookeeper://[ip]:2181 之后用mvn命令打包再运行ja
       <guid>https://ccqstark.github.io/p/distributed_rpc/</guid>
       <description>随着互联网的发展，Web应用与服务的规模不断扩大，才能满足不断增加的用户和需求。而原来只用一台服务器来部署的单机应用的方式已经满足不了如此大的需求。为了提高性能，单机发展为分布式架构，简单来说就是通过增加服务器的数量来弥补性能上的不足，当然同时也带来了一些问题。
 分布式系统 分布式系统（distributed system）是由一组网络进行通信，为了完成共同的任务而协调工作的计算机节点组成的系统。分布式系统是为了用单体性能普通的机器完成单个计算机无法完成的计算、存储任务，通过合理调度各台计算机共同合作来提高性能，完成数量更多、体量更大的任务。
-比如百度或淘宝这样体量规模都十分大的应用，为了满足如此大的用户数量和请求压力，背后肯定不止一台计算机在提供服务，而是部署了计算机集群，通过提升计算机的数量来提高处理数据的能力。在流量高峰时，大量的请求可以被均匀地分配给各台服务器去处理，从而避免其中一台服务器由于压力过大而宕机，这就是负载均衡，也就是nginx可以做的事情。
-同时应用的各个模块也可以分别部署在不同的服务器上，比如淘宝这样的电商项目可以把服务拆分成商品、支付、订单、物流等不同的模块，不同模块可以部署在不同的服务器上。当一个模块部署到多台服务器上时，其中一台崩了，还有其他的服务器可以提供服务，提高了服务的稳定性与高可用。
-而对于用户来说，他们都是访问一个域名来获取服务的，所以对于用户来说服务还是一个整体，而不需要知道是哪台服务器为他们提供了服务。
+  比如百度或淘宝这样体量规模都十分大的应用，为了满足如此大的用户数量和请求压力，背后肯定不止一台计算机在提供服务，而是部署了计算机集群，通过提升计算机的数量来提高处理数据的能力。在流量高峰时，大量的请求可以被均匀地分配给各台服务器去处理，从而避免其中一台服务器由于压力过大而宕机，这就是负载均衡，也就是nginx可以做的事情。
+  同时应用的各个模块也可以分别部署在不同的服务器上，比如淘宝这样的电商项目可以把服务拆分成商品、支付、订单、物流等不同的模块，不同模块可以部署在不同的服务器上。当一个模块部署到多台服务器上时，其中一台崩了，还有其他的服务器可以提供服务，提高了服务的稳定性与高可用。
+  而对于用户来说，他们都是访问一个域名来获取服务的，所以对于用户来说服务还是一个整体，而不需要知道是哪台服务器为他们提供了服务。
 RPC 下图是Dubbo官方文档中的一张图，说明了网站应用的架构演变
-原来应用是单体应用，程序如果要调用一个函数或方法就直接调用就行了，因为都是在本地。
+  原来应用是单体应用，程序如果要调用一个函数或方法就直接调用就行了，因为都是在本地。
 现在应用采用分布式架构，服务被分散到不同的服务器上，一台服务器上的程序就会遇到需要调用另一台服务器上的某个方法的情况，这个时候就叫RPC(远程过程调用)(Remote Procedure call)
 RPC的调用过程如下图：
-通过网络发送调用消息就需要先序列化，到目标服务器后成功调用对应的服务后返回，反序列化得到结果。
+  通过网络发送调用消息就需要先序列化，到目标服务器后成功调用对应的服务后返回，反序列化得到结果。
 Dubbo就是一个流行的RPC框架，提供面向接口代理的高性能RPC调用、智能负载均衡、服务自动注册与发现、高度可扩展能力、运行期流量调度（灰度发布）、可视化工具等功能。
 流动计算架构 当服务增多时，服务的管理与资源的分配成为亟待解决的问题，此时，需要增加一个调度中心基于访问压力实时管理集群容量，提高集群的利用率。用于提高机器利用率的资源调度和治理中心(SOA)(Service Oriented Architecture)就十分重要。
 服务通过在注册中心进行注册，被统一的管理起来并可被发现，并对用户开放。当用户需要用到某一服务时，就去注册中心拿，注册中心就会将对应的服务提供给他。
-注册中心用的比较多的是Zookeeper</description>
+  注册中心用的比较多的是Zookeeper</description>
     </item>
     
     <item>
@@ -209,7 +214,7 @@ Dubbo就是一个流行的RPC框架，提供面向接口代理的高性能RPC调
       <description>导入依赖 我们使用springboot操作es要用到对应的data相关starter
 &amp;lt;!-- elasticsearch的starter依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-data-elasticsearch&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- 将对象转为json传入source时要用 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.75&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;  ⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。
  版本对应表如下：
-我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
+  我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
 配置类 config目录下新建es的配置类ElasticSearchClientConfig.java
 @Configuration public class ElasticSearchClientConfig { @Bean public RestHighLevelClient restHighLevelClient() { final CredentialsProvider credentialsProvider = new BasicCredentialsProvider(); credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(&amp;#34;elastic&amp;#34;, &amp;#34;[密码]&amp;#34;)); RestHighLevelClient client = new RestHighLevelClient( RestClient.builder( new HttpHost(&amp;#34;[ip]&amp;#34;, 9200, &amp;#34;http&amp;#34;)) .setHttpClientConfigCallback(httpClientBuilder -&amp;gt; { httpClientBuilder.disableAuthCaching(); return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider); })); return client; } } 这里有用到x-pack基础安全功能，所以配置了用户和密码。如果没有用户和密码，参照官方文档连接代码如下：
 RestHighLevelClient client = new RestHighLevelClient( RestClient.</description>
@@ -251,7 +256,7 @@ nvim 配置文件路径
 安装spacevim
 curl -sLf https://spacevim.org/cn/install.sh | bash 完成后重新打开nvim就会自动下载相关插件。
 然后就是主界面：
-主题的修改可以参考官方文档
+  主题的修改可以参考官方文档
 SpaceVim colorscheme 模块 | SpaceVim
 快捷键符号说明
 SPC 代表空格
@@ -260,13 +265,12 @@ SPC 代表空格
 打开系统偏好设置 → 键盘
 勾选将F1、F2等键用作标准功能键
 这同时也解决了Chrome的F12 不能打开控制台的问题
-文件目录树
+  文件目录树
 按F3 可以打开或关闭
 语法函数树
 按F2可以打开或关闭
 mac下可能会出现错误，解决方案：
-brew install ctags-exuberant 然后init.vim里添加下面这行即可
-let g:Tlist_Ctags_Cmd=&amp;#39;/usr/local/Cellar/ctags/5.8_1/bin/ctags&amp;#39; shell终端</description>
+brew install ctags-exuberant 然后init.</description>
     </item>
     
     <item>
@@ -338,7 +342,7 @@ network.host:0.0.0.0discovery.type:single-nodehttp.cors.enabled:truehttp.cors.al
 单点故障（Single Point Failure）是指在系统中某个组件一旦失效，这会让整个系统无法工作。而分布式系统的设计就是为了避免出现单点故障问题，为了实现一个节点的失效不影响整个系统的运行。
 无状态，是因为无状态的服务才能满足部分机器宕机不影响全部，可以随时进行扩展的需求。
 由于分布式系统的特点，在分布式环境中更容易出现问题，比如节点之间通信失败、网络分区故障、多个副本的数据不一致等，为了更好地在分布式系统下进行开发，学者们提出了一系列的理论，其中具有代表性的就是 CAP 理论。
-一致性是指“所有节点同时看到相同的数据”，即更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一致，等同于所有节点拥有数据的最新版本。
+  一致性是指“所有节点同时看到相同的数据”，即更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一致，等同于所有节点拥有数据的最新版本。
 可用性是指“任何时候，读写都是成功的”，即服务一直可用，而且是正常响应时间。平时会看到一些 IT 公司说系统稳定性已经做到 3 个 9、4 个 9，即 99.9%、99.99%，这里的 n 个 9 就是对可用性的一个描述，叫做 SLA，即服务水平协议。比如我们说月度 99.95% 的 SLA，则意味着每个月服务出现故障的时间只能占总时间的 0.05%，如果这个月是 30 天，那么就是 21.6 分钟。
 分区容忍性具体是指“当部分节点出现消息丢失或者分区故障的时候，分布式系统仍然能够继续运行”，即系统容忍网络出现分区，并且在遇到某节点或网络分区之间网络不可达的情况下，仍然能够对外提供满足一致性和可用性的服务。
 在分布式系统中，由于系统的各层拆分，P 是确定的，CAP 的应用模型就是 CP 架构和 AP 架构。分布式系统所关注的，就是在 Partition Tolerance 的前提下，如何实现更好的 A 和更稳定的 C。
@@ -356,6 +360,7 @@ CAP 理论说明在架构设计中，不要把精力浪费在如何设计能满�
       
       <guid>https://ccqstark.github.io/p/alfred_iterm/</guid>
       <description>为了提高在mac下连接ssh的效率，我们可以用alfred和iTerm配合，达到只要在输入框中输入ssh [主机名] 就可以快速连上了，效果如下图：
+ 
 使用ssh config 在~/.ssh/config文件里添加服务器信息，没有的话就新建一个
 vim ~/.ssh/config然后在文件中输入主机的信息，有多个主机就追加在后面就行
 Host [主机名] HostName [ip] User root Port [端口]使用密钥登陆 如果本地的~/.ssh 目录下没有id_rsa 私钥文件，可以是使用下面这个目录生成，一路回车即可，如果已经有了就可以跳过这步
@@ -364,11 +369,11 @@ ssh-copy-id -i -p[端口号] root@ip按提示输入一次密码，就会自动�
 安装alfred-ssh插件 https://github.com/deanishe/alfred-ssh
 到上面github链接下载最新版：Secure-SHell的alfredworkflow，双击自动添加到alfred的workflow
 添加后打开alfred的偏好设置可以看到效果如下：
-测试用alfred输入ssh+主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作
+  测试用alfred输入ssh+主机名就可以连上服务器了，但是默认是用mac自带但终端，想用好看的iTrem2还需要进一步操作
 安装alfred集成iTerm2配置 如下图，打开iTrem2的偏好设置，如下图设置默认方式为ssh
-进入下面github链接，按说明操作
+  进入下面github链接，按说明操作
 https://github.com/vitorgalvao/custom-alfred-iterm-scripts
-按上面要求运行命令并粘贴到对应地方就完成了！
+  按上面要求运行命令并粘贴到对应地方就完成了！
 参考文章： 开发效率神器之alfred集成ssh+iTerm2实现一步登录服务器</description>
     </item>
     
@@ -436,11 +441,11 @@ docker run -it -d -p [对外暴露端口]:8080 app:[tag] 部署MySQL容器 # 拉
 💡构建步骤：
  编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
 可以发现这些镜像也是通过dockerfile来构建的
-上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+  上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
 然后ADD 就是添加来一层centos相关的镜像文件
 官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
 比如我们可以直接构建一个centos+jdk+tomcat+mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
-Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交    以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
 什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
 Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名+邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子：</description>
     </item>
@@ -458,7 +463,7 @@ Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的�
 docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
 -v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
 用此命令查看容器参数
-docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+docker inspect [容器id]   如上图，在Mounts 字段中可以看到：
 Source 表示宿主机中被映射的目录
 Destination 表示容器内要映射的目录
 这种挂载方式称为bind mounts

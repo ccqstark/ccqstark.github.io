@@ -12,7 +12,8 @@ Apache ZooKeeper
 ZooKeeper可以去官网下载安装，这里我还是用docker在Linux服务器上安装。
 # 拉取镜像 docker pull zookeeper # 启动 docker run -d \ -p 2181:2181 \ -v /home/zookeeper/data/:/data/ \ --name=zookeeper \ --privileged zookeeper # 如果想运行自带的客户端可以： docker exec -it zookeeper bash cd bin ./zkCli.sh # 之后就可以使用相关命令了 安装ZooInspector来可视化查看zookeeper
 
-# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar 使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
+# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar  
+使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
 到github上下载
 apache/dubbo-admin
 解压后在application.properties中修改zookeeper地址
@@ -33,7 +34,8 @@ Apache ZooKeeper
 ZooKeeper可以去官网下载安装，这里我还是用docker在Linux服务器上安装。
 # 拉取镜像 docker pull zookeeper # 启动 docker run -d \ -p 2181:2181 \ -v /home/zookeeper/data/:/data/ \ --name=zookeeper \ --privileged zookeeper # 如果想运行自带的客户端可以： docker exec -it zookeeper bash cd bin ./zkCli.sh # 之后就可以使用相关命令了 安装ZooInspector来可视化查看zookeeper
 
-# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar 使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
+# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar  
+使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
 到github上下载
 apache/dubbo-admin
 解压后在application.properties中修改zookeeper地址
@@ -55,7 +57,8 @@ Apache ZooKeeper
 ZooKeeper可以去官网下载安装，这里我还是用docker在Linux服务器上安装。
 # 拉取镜像 docker pull zookeeper # 启动 docker run -d \ -p 2181:2181 \ -v /home/zookeeper/data/:/data/ \ --name=zookeeper \ --privileged zookeeper # 如果想运行自带的客户端可以： docker exec -it zookeeper bash cd bin ./zkCli.sh # 之后就可以使用相关命令了 安装ZooInspector来可视化查看zookeeper
 
-# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar 使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
+# 下载后进入build目录运行jar包，输入zookeeper的地址即可连接 java -jar zookeeper-dev-ZooInspector.jar  
+使用dubbo-admin可视化监控服务 dubbo-admin是一个Springboot项目，可以监控我们注册到注册中心到服务。
 到github上下载
 apache/dubbo-admin
 解压后在application.properties中修改zookeeper地址
@@ -200,7 +203,16 @@ docker <span class="nb">exec</span> -it zookeeper bash
     ></a></p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 下载后进入build目录运行jar包，输入zookeeper的地址即可连接</span>
 java -jar zookeeper-dev-ZooInspector.jar
-</code></pre></div><p><img src="/Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled.png" alt="Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled.png"  /></p>
+</code></pre></div><p><figure style="flex-grow: 137; flex-basis: 330px">
+		<a href="/p/dubbo_zookeeper/Untitled.png" data-size="1056x768"><img src="/p/dubbo_zookeeper/Untitled.png"
+				srcset="/p/dubbo_zookeeper/Untitled_hu4c9a62aa768df2fd487a8326f02f26eb_96669_480x0_resize_box_2.png 480w, /p/dubbo_zookeeper/Untitled_hu4c9a62aa768df2fd487a8326f02f26eb_96669_1024x0_resize_box_2.png 1024w"
+				width="1056"
+				height="768"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h2 id="使用dubbo-admin可视化监控服务">使用dubbo-admin可视化监控服务</h2>
 <p><code>dubbo-admin</code>是一个Springboot项目，可以监控我们注册到注册中心到服务。</p>
 <p>到github上下载</p>
@@ -210,8 +222,17 @@ java -jar zookeeper-dev-ZooInspector.jar
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">dubbo</span><span class="o">.</span><span class="na">registry</span><span class="o">.</span><span class="na">address</span><span class="o">=</span><span class="n">zookeeper</span><span class="o">:</span><span class="c1">//[ip]:2181
 </span></code></pre></div><p>之后用mvn命令打包再运行jar包即可，也可以直接在idea里打包</p>
 <p>运行后浏览器 打开<code>localhost:7001</code> ，输入账号密码默认都为root，来到主页</p>
-<p><img src="/Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%201.png" alt="Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%201.png"  /></p>
-<p>中间的搜索框可以搜索服务、应用、ip，菜单栏上也有各种监控服务的方式。</p>
+<p><figure style="flex-grow: 204; flex-basis: 490px">
+		<a href="/p/dubbo_zookeeper/Untitled1.png" data-size="1955x956"><img src="/p/dubbo_zookeeper/Untitled1.png"
+				srcset="/p/dubbo_zookeeper/Untitled1_hu8428c982ec4589bf24a1692d32c3f022_93969_480x0_resize_box_2.png 480w, /p/dubbo_zookeeper/Untitled1_hu8428c982ec4589bf24a1692d32c3f022_93969_1024x0_resize_box_2.png 1024w"
+				width="1955"
+				height="956"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+中间的搜索框可以搜索服务、应用、ip，菜单栏上也有各种监控服务的方式。</p>
 <h2 id="springboot-demo">SpringBoot Demo</h2>
 <p>用idea建立一个空项目，然后添加两个Modules，都为Springboot项目。</p>
 <p>一个作为服务提供者provider，一个作为服务消费者consumer</p>
@@ -304,7 +325,16 @@ java -jar zookeeper-dev-ZooInspector.jar
 </span><span class="c1"></span><span class="err">#</span> <span class="n">被注册的服务</span>
 <span class="n">dubbo</span><span class="o">.</span><span class="na">scan</span><span class="o">.</span><span class="na">base</span><span class="o">-</span><span class="n">packages</span><span class="o">=</span><span class="n">com</span><span class="o">.</span><span class="na">ccqstark</span><span class="o">.</span><span class="na">service</span>
 </code></pre></div><p>然后启动项目，就可以在之前安装的dubbo中发现该服务了</p>
-<p><img src="/Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%202.png" alt="Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%202.png"  /></p>
+<p><figure style="flex-grow: 177; flex-basis: 425px">
+		<a href="/p/dubbo_zookeeper/Untitled2.png" data-size="628x354"><img src="/p/dubbo_zookeeper/Untitled2.png"
+				srcset="/p/dubbo_zookeeper/Untitled2_hu2ef583d0d6cb487fedab8b1c4af81a21_30689_480x0_resize_box_2.png 480w, /p/dubbo_zookeeper/Untitled2_hu2ef583d0d6cb487fedab8b1c4af81a21_30689_1024x0_resize_box_2.png 1024w"
+				width="628"
+				height="354"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h3 id="在consumer项目中调用服务">在consumer项目中调用服务</h3>
 <p>配置文件中增加配置</p>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="err">#</span> <span class="n">消费者暴露的服务应用名称</span>
@@ -343,8 +373,17 @@ java -jar zookeeper-dev-ZooInspector.jar
 
 <span class="o">}</span>
 </code></pre></div><p>运行之后就可以发现consumer项目调用provider的服务成功！</p>
-<p><img src="/Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%203.png" alt="Dubbo%20&#43;%20ZooKeeper%20%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%20bdbb946b7fbd405f84bb1486e4365746/Untitled%203.png"  /></p>
-<p>最基本的服务注册发现与rpc调用大概是demo这样。</p>
+<p><figure style="flex-grow: 325; flex-basis: 781px">
+		<a href="/p/dubbo_zookeeper/Untitled3.png" data-size="798x245"><img src="/p/dubbo_zookeeper/Untitled3.png"
+				srcset="/p/dubbo_zookeeper/Untitled3_huf1aa39a1f5831f563e82bbaed8909fd5_29247_480x0_resize_box_2.png 480w, /p/dubbo_zookeeper/Untitled3_huf1aa39a1f5831f563e82bbaed8909fd5_29247_1024x0_resize_box_2.png 1024w"
+				width="798"
+				height="245"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+最基本的服务注册发现与rpc调用大概是demo这样。</p>
 <p>参考自：
 <a class="link" href="https://www.bilibili.com/video/BV1PE411i7CV?p=60"  target="_blank" rel="noopener"
     >bilibili</a></p>

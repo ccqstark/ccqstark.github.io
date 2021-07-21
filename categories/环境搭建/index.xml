@@ -128,11 +128,11 @@ docker run -it -d -p [对外暴露端口]:8080 app:[tag] 部署MySQL容器 # 拉
 💡构建步骤：
  编写dockerfile脚本 用docker build命令构建一个镜像 用docker run运行镜像 用docker push发布镜像（DockerHub、阿里云仓库）  在官网点击镜像会跳转到github对应的dockerfile
 可以发现这些镜像也是通过dockerfile来构建的
-上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
+  上图是centos的dockerfile，其中scratch是最基本的，90%都是基于这个镜像。
 然后ADD 就是添加来一层centos相关的镜像文件
 官方很多镜像都是基础包，功能很少，很多我们需要的都没有，所以我们通常都会构建自己的镜像。
 比如我们可以直接构建一个centos+jdk+tomcat+mysql的镜像，不就直接有来一个可以运行javaweb项目的环境镜像了吗？
-Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交  以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
+Dockerfile构建过程 基本规则  每个关键字（保留字）都是大写的 执行顺序是从上到下的 &amp;ldquo;#&amp;rdquo; 表示注释 每一个指令都会创建一个新的镜像层，并提交    以前开发交付都是用jar包或war包，现在云原生时代交付的就是docker镜像，docker镜像也逐渐成为企业交付标准，而构建docker镜像就需要学会编写dockerfile
 什么是云原生？聊聊云原生的今生_阿里云开发者-CSDN博客
 Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的基础镜像   MAINTAINER 镜像作者，一般是姓名+邮箱   RUN 镜像构建时运行的命令   ADD 为镜像添加内容   WORKDIR 镜像的工作目录   VOLUME 挂载目录   EXPOSE 暴露的端口   CMD 容器启动时需要运行的命令，只有最后一个会生效，可被替代   ENTRYPOINT 也是指定启动时需要运行的命令，但是可以追加   ONBUILD 构建一个被继承的dockerfile时会运行ONBUILD的指令。触发指令   COPY 类似ADD，将文件拷贝到镜像中   ENV 构建时设置的环境变量    实践：构建自己的centos 举个例子：</description>
     </item>
@@ -150,7 +150,7 @@ Dockerfile常用指令    指令关键字 作用     FROM 构建镜像所用的�
 docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
 -v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
 用此命令查看容器参数
-docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+docker inspect [容器id]   如上图，在Mounts 字段中可以看到：
 Source 表示宿主机中被映射的目录
 Destination 表示容器内要映射的目录
 这种挂载方式称为bind mounts

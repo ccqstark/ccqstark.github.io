@@ -8,7 +8,7 @@
 docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
 -v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
 用此命令查看容器参数
-docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+docker inspect [容器id]   如上图，在Mounts 字段中可以看到：
 Source 表示宿主机中被映射的目录
 Destination 表示容器内要映射的目录
 这种挂载方式称为bind mounts
@@ -28,7 +28,7 @@ docker run \ -d \ -p 3310:3306 \ -v /home/mysql/conf:/etc/mysql/conf.d \ -v /hom
 docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
 -v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
 用此命令查看容器参数
-docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+docker inspect [容器id]   如上图，在Mounts 字段中可以看到：
 Source 表示宿主机中被映射的目录
 Destination 表示容器内要映射的目录
 这种挂载方式称为bind mounts
@@ -49,7 +49,7 @@ docker run \ -d \ -p 3310:3306 \ -v /home/mysql/conf:/etc/mysql/conf.d \ -v /hom
 docker run -it -v [宿主机目录]:[容器内目录] centos /bin/bash -it ：-t选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开，通常写成-it
 -v ：挂载卷所需参数，后面的映射是[宿主机目录]:[容器内目录]
 用此命令查看容器参数
-docker inspect [容器id] 如上图，在Mounts 字段中可以看到：
+docker inspect [容器id]   如上图，在Mounts 字段中可以看到：
 Source 表示宿主机中被映射的目录
 Destination 表示容器内要映射的目录
 这种挂载方式称为bind mounts
@@ -178,8 +178,17 @@ if (!doNotTrack) {
 <p><code>-v</code> ：挂载卷所需参数，后面的映射是<code>[宿主机目录]:[容器内目录]</code></p>
 <p>用此命令查看容器参数</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker inspect <span class="o">[</span>容器id<span class="o">]</span>
-</code></pre></div><p><img src="/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled.png"  /></p>
-<p>如上图，在<code>Mounts</code> 字段中可以看到：</p>
+</code></pre></div><p><figure style="flex-grow: 234; flex-basis: 562px">
+		<a href="/p/docker_volumes/Untitled.png" data-size="539x230"><img src="/p/docker_volumes/Untitled.png"
+				srcset="/p/docker_volumes/Untitled_hu83e3fd0f5540a047118f5b9cd0086659_57376_480x0_resize_box_2.png 480w, /p/docker_volumes/Untitled_hu83e3fd0f5540a047118f5b9cd0086659_57376_1024x0_resize_box_2.png 1024w"
+				width="539"
+				height="230"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+如上图，在<code>Mounts</code> 字段中可以看到：</p>
 <p><code>Source</code> 表示宿主机中被映射的目录</p>
 <p><code>Destination</code> 表示容器内要映射的目录</p>
 <p>这种挂载方式称为<code>bind mounts</code></p>
@@ -220,7 +229,16 @@ docker pull mysql:5.7
 </code></pre></div><p>如上图的命令，<code>-v</code> 是没有指定外部目录的，只写了内部目录，所以是匿名挂载，使用下面命令查看挂载的卷</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker volume ls
 </code></pre></div><p>发现卷名是随机生成的字符串，所以是匿名的</p>
-<p><img src="/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%201.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%201.png"  /></p>
+<p><figure style="flex-grow: 1272; flex-basis: 3053px">
+		<a href="/p/docker_volumes/Untitled1.png" data-size="598x47"><img src="/p/docker_volumes/Untitled1.png"
+				srcset="/p/docker_volumes/Untitled1_hu27ca281934b1ddafe693481e38a6d968_37945_480x0_resize_box_2.png 480w, /p/docker_volumes/Untitled1_hu27ca281934b1ddafe693481e38a6d968_37945_1024x0_resize_box_2.png 1024w"
+				width="598"
+				height="47"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure></p>
 <h3 id="具名挂载"><strong>具名挂载</strong></h3>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -P --name nginx01 -v <span class="o">[</span>自己起的卷名<span class="o">]</span>:/etc/nginx nginx
 </code></pre></div><p><code>[卷名]:[目录名]</code> 这样指定了卷名的形式就是具名挂载</p>
@@ -228,8 +246,17 @@ docker pull mysql:5.7
 <h3 id="查看挂载的目录"><strong>查看挂载的目录</strong></h3>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker volume inspect <span class="o">[</span>卷名<span class="o">]</span>
 </code></pre></div><p>用这条命令就可以查看卷的一些信息，其中<code>Mountpoint</code> 就是所挂载的外部目录</p>
-<p><img src="/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%202.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%202.png"  /></p>
-<p>所以这种在没有指定目录的情况下（具名或匿名）都是挂载在<code>/var/lib/docker/volumes/[卷名]/_data</code>这个目录的</p>
+<p><figure style="flex-grow: 286; flex-basis: 687px">
+		<a href="/p/docker_volumes/Untitled2.png" data-size="544x190"><img src="/p/docker_volumes/Untitled2.png"
+				srcset="/p/docker_volumes/Untitled2_hua21c259d6eddd26da4787fab97eeef2a_72748_480x0_resize_box_2.png 480w, /p/docker_volumes/Untitled2_hua21c259d6eddd26da4787fab97eeef2a_72748_1024x0_resize_box_2.png 1024w"
+				width="544"
+				height="190"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+所以这种在没有指定目录的情况下（具名或匿名）都是挂载在<code>/var/lib/docker/volumes/[卷名]/_data</code>这个目录的</p>
 <p>大多数情况下都是用<code>具名挂载</code></p>
 <p>这两种挂载方式统称<code>volumes</code></p>
 <h2 id="总结">总结</h2>
@@ -268,8 +295,17 @@ docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
 <h3 id="卷的挂载机制">卷的挂载机制</h3>
 <p>不同容器的挂载机制并不是映射到单一到文件夹下的，如果这样的话其中一个容器被删除的话，其它所有容器对应都数据都会消失。</p>
 <p>实际上挂载是一种<code>拷贝</code>的机制，数据是有多份相同的备份的，删除一种一份其它的都还在，不会消失的，只是会占用更多的存储空间</p>
-<p><img src="/%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%203.png" alt="%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7%20b1baaa6db0a64ef88290e380e7cc610d/Untitled%203.png"  /></p>
-<p>只有把挂载这一卷的所有的容器都删除，这个卷才会消失</p>
+<p><figure style="flex-grow: 292; flex-basis: 702px">
+		<a href="/p/docker_volumes/Untitled3.png" data-size="863x295"><img src="/p/docker_volumes/Untitled3.png"
+				srcset="/p/docker_volumes/Untitled3_hu767952861a42967afdd07ee76103d212_96645_480x0_resize_box_2.png 480w, /p/docker_volumes/Untitled3_hu767952861a42967afdd07ee76103d212_96645_1024x0_resize_box_2.png 1024w"
+				width="863"
+				height="295"
+				loading="lazy"
+				>
+		</a>
+		
+	</figure>
+只有把挂载这一卷的所有的容器都删除，这个卷才会消失</p>
 <p>当然，如果是bind到本地的目录那就删除全部容器数据也仍然在本地</p>
 <p>参考自<a class="link" href="https://www.bilibili.com/video/BV1og4y1q7M4?p=21"  target="_blank" rel="noopener"
     >狂神的docker教程</a></p>

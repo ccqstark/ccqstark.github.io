@@ -28,7 +28,7 @@ nvim 配置文件路径
 安装spacevim
 curl -sLf https://spacevim.org/cn/install.sh | bash 完成后重新打开nvim就会自动下载相关插件。
 然后就是主界面：
-主题的修改可以参考官方文档
+  主题的修改可以参考官方文档
 SpaceVim colorscheme 模块 | SpaceVim
 快捷键符号说明
 SPC 代表空格
@@ -37,13 +37,12 @@ SPC 代表空格
 打开系统偏好设置 → 键盘
 勾选将F1、F2等键用作标准功能键
 这同时也解决了Chrome的F12 不能打开控制台的问题
-文件目录树
+  文件目录树
 按F3 可以打开或关闭
 语法函数树
 按F2可以打开或关闭
 mac下可能会出现错误，解决方案：
-brew install ctags-exuberant 然后init.vim里添加下面这行即可
-let g:Tlist_Ctags_Cmd=&amp;#39;/usr/local/Cellar/ctags/5.8_1/bin/ctags&amp;#39; shell终端</description>
+brew install ctags-exuberant 然后init.</description>
     </item>
     
   </channel>

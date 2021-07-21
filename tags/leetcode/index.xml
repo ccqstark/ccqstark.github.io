@@ -14,10 +14,11 @@
       
       <guid>https://ccqstark.github.io/p/remove_elements/</guid>
       <description>题目 给你一个链表的头节点 head 和一个整数 val ，请你删除链表中所有满足 Node.val == val 的节点，并返回 新的头节点 。
+ 
 示例 1: 输入: head = [1,2,6,3,4,5,6], val = 6 输出: [1,2,3,4,5] 示例 2: 输入: head = [], val = 1 输出: [] 示例 3: 输入: head = [7,7,7,7], val = 7 输出: [] 分析 很普通的一道链表移除元素题目。这里我们主要考虑两种方式：
  直接在原链表上删除节点操作 增加一个虚拟节点（也叫哨兵节点）来操作  第二种方法主要是为了统一所有的删除节点操作，而不用在遇到要删除头节点情况时要单独写一段代码来处理。
 而对于普通节点，删除这个节点的操作一般是把自己的前驱节点的next指针指向自己的后驱节点，如图：
-由于是单链表，我们不能获得一个被删节点的前驱节点，所以一般是判断一个节点的next的值是否为被删值。
+  由于是单链表，我们不能获得一个被删节点的前驱节点，所以一般是判断一个节点的next的值是否为被删值。
  对于C/C++，不能自动释放内存我们就要手动释放被删除的节点的内存，但Java会帮我们做好这一切。
  代码 ListNode节点类的代码：
 public class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) { this.</description>
@@ -35,6 +36,7 @@ public class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) 
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
 还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
 下面就是n=5和n=4的例子：
+   
 代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !</description>
     </item>
     
@@ -61,7 +63,7 @@ public class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) 
 元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。
 分析 对于数组而言，我们原地移除元素的话就肯定要把被移除的元素后面的全部元素都往前挪一个位，这是最基本的操作。所以最普通的暴力解法就是删除一个，整体挪动一个位。优化一点的话就是当有几个需要删除的数连在一起时，我们找到边界后一起挪动n个位，减少整体挪动的次数。
 最优的是经常被用到的双指针法，下面再解释。
-代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left++) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left + 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right++; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i++) { nums[left + i] = nums[right + i]; } } 此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。</description>
+代码 混合暴力法 public int removeElement(int[] nums, int val) { int len = nums.length; for (int left = 0; left &amp;lt; len; left++) { if (nums[left] == val) { // left位于最后一个元素时  if (left == len - 1) { return len - 1; } int right = left + 1; while (right &amp;lt;= len - 1 &amp;amp;&amp;amp; nums[right] == val) right++; if (right == len - 1 &amp;amp;&amp;amp; nums[right] == val) { // right超过长度时  return len - (right - left); } // 把元素right处整体前移到left  moveUp(left, right, nums, len); len = len - (right - left); } } return len; } // 该函数用于将right及后面的元素完前移到left位置 public void moveUp(int left, int right, int[] nums, int len) { int step = len - 1 - right; for (int i = 0; i &amp;lt;= step; i++) { nums[left + i] = nums[right + i]; } }   此方法其实是初步优化的暴力法，假设我们要移除值为2的元素，left指针找到第一被删除的元素，right指向left后第一个不等于2的元素，然后把从right开始的后面全部元素都往前挪至left位置。</description>
     </item>
     
     <item>
