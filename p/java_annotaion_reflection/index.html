@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='注解 概述 不是程序本身，可以对程序作出解释，可以被其他程序（如编译器等）读取
+可以附加在package、class、method、field等上面，可以通过反射机制编程实现对这些元数据对访问
+内置注解 @Override
+只用修饰方法，表示一个方法声明打算重写超类中的另一个方法声明
+@Deprecated
+可以用于修饰方法，属性，类，表示不鼓励程序猿使用，但是还是可以使用的，只是使用它可能有危险或者存在更好的选择。
+@SuppressWarnings
+用来抑制编译时的警告信息，需要添加一个参数
+元注解 @Target
+用于描述注解的使用范围
+@Target(value = {ElementType.METHOD, ElementType.TYPE}) @Retention
+表示需要在什么级别保存该注释信息（SOURCE &amp;gt; CLASS &amp;gt; RUNTIME）
+@Retention(value = RetentionPolicy.RUNTIME) @Document 说明该注解将被包含在javadoc中
+@Inherited
+说明子类可以继承父类中的该注解
+自定义注解 使用@interface自定义注解时,自动继承了java. lang.annotation Annotation接口
+@interface用来声明一个注解，格式: public @interface 注解名 { 定义内容 }
+其中的每一个方法实际上是声明了一个配置参数，方法的名称就是参数的名称 返回值类型就是参数的类型(返回值只能是基本类型, Class, String, enum)
+可以通过 default来声明参数的默认值
+如果只有一个参数成员,一般参数名为 value 注解元素必须要有值，我们定义注解元素时，经常使用空字符串和0作为默认值
+@Target({ElementType.TYPE, ElementType.METHOD}) @Retention(RetentionPolicy.RUNTIME) @interface MyAnnotation2 { // 方法名为参数名  String name() default &amp;#34;&amp;#34;; int age() default 0; int id() default -1; // 如果默认值为-1, 代表不存在  String[] schools() default {&amp;#34;西部开源&amp;#34;, &amp;#34;东部闭源&amp;#34;}; } 反射 概述 Java不是动态语言，但是可以通过反射机制获得类似动态语言的特性。'><title>Java注解和反射</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/java_annotaion_reflection/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Java注解和反射'>
+<meta property='og:description' content='注解 概述 不是程序本身，可以对程序作出解释，可以被其他程序（如编译器等）读取
+可以附加在package、class、method、field等上面，可以通过反射机制编程实现对这些元数据对访问
+内置注解 @Override
+只用修饰方法，表示一个方法声明打算重写超类中的另一个方法声明
+@Deprecated
+可以用于修饰方法，属性，类，表示不鼓励程序猿使用，但是还是可以使用的，只是使用它可能有危险或者存在更好的选择。
+@SuppressWarnings
+用来抑制编译时的警告信息，需要添加一个参数
+元注解 @Target
+用于描述注解的使用范围
+@Target(value = {ElementType.METHOD, ElementType.TYPE}) @Retention
+表示需要在什么级别保存该注释信息（SOURCE &amp;gt; CLASS &amp;gt; RUNTIME）
+@Retention(value = RetentionPolicy.RUNTIME) @Document 说明该注解将被包含在javadoc中
+@Inherited
+说明子类可以继承父类中的该注解
+自定义注解 使用@interface自定义注解时,自动继承了java. lang.annotation Annotation接口
+@interface用来声明一个注解，格式: public @interface 注解名 { 定义内容 }
+其中的每一个方法实际上是声明了一个配置参数，方法的名称就是参数的名称 返回值类型就是参数的类型(返回值只能是基本类型, Class, String, enum)
+可以通过 default来声明参数的默认值
+如果只有一个参数成员,一般参数名为 value 注解元素必须要有值，我们定义注解元素时，经常使用空字符串和0作为默认值
+@Target({ElementType.TYPE, ElementType.METHOD}) @Retention(RetentionPolicy.RUNTIME) @interface MyAnnotation2 { // 方法名为参数名  String name() default &amp;#34;&amp;#34;; int age() default 0; int id() default -1; // 如果默认值为-1, 代表不存在  String[] schools() default {&amp;#34;西部开源&amp;#34;, &amp;#34;东部闭源&amp;#34;}; } 反射 概述 Java不是动态语言，但是可以通过反射机制获得类似动态语言的特性。'>
+<meta property='og:url' content='https://ccqstark.github.io/p/java_annotaion_reflection/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Java' /><meta property='article:published_time' content='2021-07-22T23:43:42&#43;08:00'/><meta property='article:modified_time' content='2021-07-22T23:43:42&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/java_annotaion_reflection/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Java注解和反射">
+<meta name="twitter:description" content="注解 概述 不是程序本身，可以对程序作出解释，可以被其他程序（如编译器等）读取
+可以附加在package、class、method、field等上面，可以通过反射机制编程实现对这些元数据对访问
+内置注解 @Override
+只用修饰方法，表示一个方法声明打算重写超类中的另一个方法声明
+@Deprecated
+可以用于修饰方法，属性，类，表示不鼓励程序猿使用，但是还是可以使用的，只是使用它可能有危险或者存在更好的选择。
+@SuppressWarnings
+用来抑制编译时的警告信息，需要添加一个参数
+元注解 @Target
+用于描述注解的使用范围
+@Target(value = {ElementType.METHOD, ElementType.TYPE}) @Retention
+表示需要在什么级别保存该注释信息（SOURCE &amp;gt; CLASS &amp;gt; RUNTIME）
+@Retention(value = RetentionPolicy.RUNTIME) @Document 说明该注解将被包含在javadoc中
+@Inherited
+说明子类可以继承父类中的该注解
+自定义注解 使用@interface自定义注解时,自动继承了java. lang.annotation Annotation接口
+@interface用来声明一个注解，格式: public @interface 注解名 { 定义内容 }
+其中的每一个方法实际上是声明了一个配置参数，方法的名称就是参数的名称 返回值类型就是参数的类型(返回值只能是基本类型, Class, String, enum)
+可以通过 default来声明参数的默认值
+如果只有一个参数成员,一般参数名为 value 注解元素必须要有值，我们定义注解元素时，经常使用空字符串和0作为默认值
+@Target({ElementType.TYPE, ElementType.METHOD}) @Retention(RetentionPolicy.RUNTIME) @interface MyAnnotation2 { // 方法名为参数名  String name() default &amp;#34;&amp;#34;; int age() default 0; int id() default -1; // 如果默认值为-1, 代表不存在  String[] schools() default {&amp;#34;西部开源&amp;#34;, &amp;#34;东部闭源&amp;#34;}; } 反射 概述 Java不是动态语言，但是可以通过反射机制获得类似动态语言的特性。"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/java_annotaion_reflection/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-PXLPFFZ3XD', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ccqstark.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/java_annotaion_reflection/">
+                <img src="/p/java_annotaion_reflection/cover_hud3682ca23d8f51585d79a941911fa5ce_24013_800x0_resize_box_2.png"
+                        srcset="/p/java_annotaion_reflection/cover_hud3682ca23d8f51585d79a941911fa5ce_24013_800x0_resize_box_2.png 800w, /p/java_annotaion_reflection/cover_hud3682ca23d8f51585d79a941911fa5ce_24013_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="414" 
+                        loading="lazy"
+                        alt="Featured image of post Java注解和反射" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/java_annotaion_reflection/">Java注解和反射</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jul 22, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="注解">注解</h2>
+<h3 id="概述">概述</h3>
+<p>不是程序本身，可以对程序作出解释，可以被其他程序（如编译器等）读取</p>
+<p>可以附加在package、class、method、field等上面，可以通过反射机制编程实现对这些元数据对访问</p>
+<h3 id="内置注解">内置注解</h3>
+<p><code>@Override</code></p>
+<p>只用修饰方法，表示一个方法声明打算重写超类中的另一个方法声明</p>
+<p><code>@Deprecated</code></p>
+<p>可以用于修饰方法，属性，类，表示不鼓励程序猿使用，但是还是可以使用的，只是使用它可能有危险或者存在更好的选择。</p>
+<p><code>@SuppressWarnings</code></p>
+<p>用来抑制编译时的警告信息，需要添加一个参数</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722153224.png" alt=""  /></p>
+<h3 id="元注解">元注解</h3>
+<p><code>@Target</code></p>
+<p>用于描述注解的使用范围</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Target</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="o">{</span><span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">TYPE</span><span class="o">})</span>
+</code></pre></div><p><code>@Retention</code></p>
+<p>表示需要在什么级别保存该注释信息（SOURCE &gt; CLASS &gt; RUNTIME）</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Retention</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+</code></pre></div><p><code>@Document</code>
+说明该注解将被包含在javadoc中</p>
+<p><code>@Inherited</code></p>
+<p>说明子类可以继承父类中的该注解</p>
+<h3 id="自定义注解">自定义注解</h3>
+<p>使用<code>@interface</code>自定义注解时,自动继承了java. lang.annotation Annotation接口</p>
+<p><code>@interface</code>用来声明一个注解，格式: public @interface 注解名 { 定义内容 }</p>
+<p>其中的每一个方法实际上是声明了一个配置参数，方法的名称就是参数的名称
+返回值类型就是参数的类型(返回值只能是基本类型, Class, String, enum)</p>
+<p>可以通过 default来声明参数的默认值</p>
+<p>如果只有一个参数成员,一般参数名为 value
+注解元素必须要有值，我们定义注解元素时，经常使用空字符串和0作为默认值</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Target</span><span class="o">({</span><span class="n">ElementType</span><span class="o">.</span><span class="na">TYPE</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">})</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@interface</span> <span class="n">MyAnnotation2</span> <span class="o">{</span>
+    <span class="c1">// 方法名为参数名
+</span><span class="c1"></span>    <span class="n">String</span> <span class="nf">name</span><span class="o">()</span> <span class="k">default</span> <span class="s">&#34;&#34;</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="nf">age</span><span class="o">()</span> <span class="k">default</span> <span class="n">0</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="nf">id</span><span class="o">()</span> <span class="k">default</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span> <span class="c1">// 如果默认值为-1, 代表不存在
+</span><span class="c1"></span>    <span class="n">String</span><span class="o">[]</span> <span class="nf">schools</span><span class="o">()</span> <span class="k">default</span> <span class="o">{</span><span class="s">&#34;西部开源&#34;</span><span class="o">,</span> <span class="s">&#34;东部闭源&#34;</span><span class="o">};</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="反射">反射</h2>
+<h3 id="概述-1">概述</h3>
+<p>Java不是动态语言，但是可以通过反射机制获得类似动态语言的特性。</p>
+<p>Reflection（反射）允许程序在执行期间借助 Reflection API 取得任何类的内部信息，并能直接操作任意对象的内部属性及方法。</p>
+<p>加载完类之后，在堆内存的方法区中就产生了一个Class类型的对象（一个类只有一个Class对象），这个对象就包含了完整的类的结构信息。我们可以通过这个对象看到类的结构。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722153541.png" alt=""  /></p>
+<h3 id="java反射机制提供的功能">Java反射机制提供的功能</h3>
+<ul>
+<li>在运行时判断任意一个对象所属的类</li>
+<li>在运行时构造任意一个类的对象</li>
+<li>在运行时判断一个类所具有的成员变量和方法</li>
+<li>在运行时获取泛型信息</li>
+<li>在运行时调用任意一个对象的成员变量和方法</li>
+<li>在运行时处理注解</li>
+<li>生成动态代理</li>
+<li>&hellip;</li>
+</ul>
+<p><strong>优点</strong>：可以实现动态创建对象和编译，体现出很大的灵活性</p>
+<p><strong>缺点</strong>：对性能有影响。使用反射是让JVM执行我们命令的操作，这类操作总是慢于直接执行相同的操作。</p>
+<h3 id="class类">Class类</h3>
+<ul>
+<li>Class本身也是一个类</li>
+<li>Class对象只能由系统创建对象</li>
+<li>一个加载的类在JVM中只会有一个Class实例</li>
+<li>一个Class对象对应的是一个加载到JVM的一个.class文件</li>
+<li>每个类的实例都会记得自己是由哪个Class实例所生成的</li>
+<li>通过Class可以完整的得到一个类中所有被加载的结构</li>
+<li>Class类是Reflection的根源，针对任何想动态加载、运行的类，唯有先获得相应的Class对象</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722153724.png" alt=""  /></p>
+<h3 id="得到class的几种办法">得到Class的几种办法</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 方式一：通过对象获得
+</span><span class="c1"></span><span class="n">Class</span> <span class="n">c1</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c1</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+
+<span class="c1">// 方式二：通过forName获得
+</span><span class="c1"></span><span class="n">Class</span> <span class="n">c2</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&#34;com.ccqstark.reflection.Person&#34;</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c2</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+
+<span class="c1">// 方法三：通过类名.class获得
+</span><span class="c1"></span><span class="n">Class</span> <span class="n">c3</span> <span class="o">=</span> <span class="n">Student</span><span class="o">.</span><span class="na">class</span><span class="o">;</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c3</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+
+<span class="c1">// 方法四：基本内置类型的包装类都有一个Type属性
+</span><span class="c1"></span><span class="n">Class</span> <span class="n">c4</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">TYPE</span><span class="o">;</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c4</span><span class="o">);</span>
+
+<span class="c1">// 获得父类类型
+</span><span class="c1"></span><span class="n">Class</span> <span class="n">c5</span> <span class="o">=</span>  <span class="n">c1</span><span class="o">.</span><span class="na">getSuperclass</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c5</span><span class="o">);</span>
+</code></pre></div><h3 id="有class对象的类型">有Class对象的类型</h3>
+<ul>
+<li>class 外部类，成员（成员内部类，静态内部类），局部内部类，匿名内部类</li>
+<li>interface 接口</li>
+<li><input disabled="" type="checkbox"> 数组</li>
+<li>enum 枚举</li>
+<li>annotation 注解</li>
+<li>primitive type 基本数据类型</li>
+<li>void</li>
+</ul>
+<h3 id="类加载器的作用">类加载器的作用</h3>
+<p>类加载的作用：将class文件字节码内容加载到内存中，并将这些静态数据转换成方法区的运行时数据结构，然后在堆中生成一个代表这个类的<code>java.lang.Class</code>对象，作为方法区中类数据的访问入口。</p>
+<p>类缓存：标准的JavaSE类加载器可以按要求查找类，但一旦某个类被加载到类加载器中，它将维持加载（缓存）一段时间。不过JVM垃圾回收机制可以回收这些Class对象。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722154454.png" alt=""  /></p>
+<p><strong>三种类加载器：</strong></p>
+<ul>
+<li><strong>引导类加载器</strong>：用C++编写的，是JVM自带的类加载器，负责Java平台核心库(<code>rt.jar</code>)，用来转载核心类库。该加载器无法直接获取</li>
+<li><strong>扩展类加载器</strong>：负责jre/lib/ext目录下的jar包或者<code>-D java.ext.dirs</code>指定目录下的jar包装入工作库</li>
+<li><strong>系统类加载器</strong>：负责 <code>java -classpath</code> 或 <code>-D java.class.path</code> 所指目录下的类与jar包装入工作，是常用的加载器</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722155700.png" alt=""  /></p>
+<p><strong>示例代码：</strong></p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 获取系统的类加载器
+</span><span class="c1"></span><span class="n">ClassLoader</span> <span class="n">systemClassLoader</span> <span class="o">=</span> <span class="n">ClassLoader</span><span class="o">.</span><span class="na">getSystemClassLoader</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">systemClassLoader</span><span class="o">);</span>
+
+<span class="c1">// 获取系统的类加载器的父类加载器--&gt;扩展类加载器
+</span><span class="c1"></span><span class="n">ClassLoader</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">systemClassLoader</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">parent</span><span class="o">);</span>
+
+<span class="c1">// 获取扩展类加载器的父类加载器--&gt;根加载器(c/c++)
+</span><span class="c1"></span><span class="n">ClassLoader</span> <span class="n">parent1</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">parent1</span><span class="o">);</span>
+
+<span class="c1">// 测试当前的类是哪个加载器加载的
+</span><span class="c1"></span><span class="n">ClassLoader</span> <span class="n">classLoader</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&#34;com.ccqstark.reflection.Test07&#34;</span><span class="o">).</span><span class="na">getClassLoader</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">classLoader</span><span class="o">);</span>
+
+<span class="c1">// 测试JDK内置的类是谁加载的
+</span><span class="c1"></span><span class="n">classLoader</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&#34;java.lang.Object&#34;</span><span class="o">).</span><span class="na">getClassLoader</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">classLoader</span><span class="o">);</span>
+
+<span class="c1">// 获得系统类加载器可以加载的路径
+</span><span class="c1"></span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">&#34;java.class.path&#34;</span><span class="o">));</span>
+</code></pre></div><h3 id="获得运行时类的完整结构">获得运行时类的完整结构</h3>
+<p><strong>上代码</strong>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Class</span> <span class="n">c1</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&#34;com.ccqstark.reflection.User&#34;</span><span class="o">);</span>
+
+<span class="c1">// 获得类的名字
+</span><span class="c1"></span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c1</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">c1</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">());</span>
+
+<span class="c1">// 获得类的属性
+</span><span class="c1"></span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;========================&#34;</span><span class="o">);</span>
+<span class="n">Field</span><span class="o">[]</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getFields</span><span class="o">();</span> <span class="c1">// 只能找到public属性
+</span><span class="c1"></span>
+<span class="n">fields</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getDeclaredFields</span><span class="o">();</span> <span class="c1">// 找到全部的属性
+</span><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="n">Field</span> <span class="n">field</span> <span class="o">:</span> <span class="n">fields</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">field</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// 获得指定属性的值
+</span><span class="c1"></span><span class="n">Field</span> <span class="n">name</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">&#34;name&#34;</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+
+<span class="c1">// 获得方法
+</span><span class="c1"></span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========================&#34;</span><span class="o">);</span>
+<span class="n">Method</span><span class="o">[]</span> <span class="n">methods</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getMethods</span><span class="o">();</span> <span class="c1">// 获得本类及其父类的全部public方法
+</span><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="n">Method</span> <span class="n">method</span> <span class="o">:</span> <span class="n">methods</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;父类以及公有的：&#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="n">methods</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getDeclaredMethods</span><span class="o">();</span> <span class="c1">// 获得本类的所有方法
+</span><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="n">Method</span> <span class="n">method</span> <span class="o">:</span> <span class="n">methods</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;本类所有的方法：&#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// 获得指定的方法
+</span><span class="c1"></span><span class="n">Method</span> <span class="n">getName</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">&#34;getName&#34;</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+<span class="n">Method</span> <span class="n">setName</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">&#34;setName&#34;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">getName</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">setName</span><span class="o">);</span>
+
+<span class="c1">// 获得指定的构造器
+</span><span class="c1"></span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==========================&#34;</span><span class="o">);</span>
+<span class="n">Constructor</span><span class="o">[]</span> <span class="n">constructors</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getConstructors</span><span class="o">();</span> <span class="c1">// 获得公有的
+</span><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="n">Constructor</span> <span class="n">constructor</span> <span class="o">:</span> <span class="n">constructors</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">constructor</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="n">constructors</span> <span class="o">=</span>  <span class="n">c1</span><span class="o">.</span><span class="na">getDeclaredConstructors</span><span class="o">();</span> <span class="c1">// 获取全部
+</span><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="n">Constructor</span> <span class="n">constructor</span> <span class="o">:</span> <span class="n">constructors</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;#&#34;</span> <span class="o">+</span> <span class="n">constructor</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// 获得指定的构造器
+</span><span class="c1"></span><span class="n">Constructor</span> <span class="n">declaredConstructor</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getDeclaredConstructor</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;指定：&#34;</span> <span class="o">+</span> <span class="n">declaredConstructor</span><span class="o">);</span>
+</code></pre></div><h3 id="通过反射动态创建对象">通过反射动态创建对象</h3>
+<p>创建类的对象：调用Class对象的<code>newInstance()</code>方法：</p>
+<ol>
+<li>类必须有一个无参构造器</li>
+<li>类的构造器的访问权限需要足够</li>
+</ol>
+<p>也可以通过调用有参构造器：</p>
+<ol>
+<li>通过Class类的<code>getDeclaredConstructor(Class ... parameterTypes)</code>取得本类的指定参数类型的构造器</li>
+<li>向构造器的形参中传递一个对象数组进去，里面包含了构造器中所需的各个参数</li>
+<li>通过<code>Constructor</code>实例化对象（newInstance()方法）</li>
+</ol>
+<p><strong>示例代码</strong>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 获得Class对象
+</span><span class="c1"></span><span class="n">Class</span> <span class="n">c1</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&#34;com.ccqstark.reflection.User&#34;</span><span class="o">);</span>
+
+<span class="c1">// 构造一个对象
+</span><span class="c1"></span><span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">User</span><span class="o">)</span> <span class="n">c1</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+
+<span class="c1">// 通过构造器创建对象
+</span><span class="c1"></span><span class="n">Constructor</span> <span class="n">constructor</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getConstructor</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">User</span> <span class="n">user2</span> <span class="o">=</span> <span class="o">(</span><span class="n">User</span><span class="o">)</span> <span class="n">constructor</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span><span class="s">&#34;ccq&#34;</span><span class="o">,</span> <span class="n">1</span><span class="o">,</span> <span class="n">2</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">user2</span><span class="o">);</span>
+</code></pre></div><h3 id="通过反射调用指定的方法">通过反射调用指定的方法</h3>
+<p>通过反射，调用类中的方法，通过Method类完成</p>
+<ol>
+<li>通过Class类的<code>getMethod(String name, Class...parameterTypes)</code>方法取得一个Method对象，并设置此方法操作时所需的参类型。</li>
+<li>之后使用<code>Object invoke(Object obj, Object[] args)</code>进行调用，并向方法中传递要调用此方法的obj对象以及方法的参数</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722173651.png" alt=""  /></p>
+<p><strong>示例代码</strong>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 通过反射调用普通方法
+</span><span class="c1"></span><span class="n">User</span> <span class="n">user3</span> <span class="o">=</span> <span class="o">(</span><span class="n">User</span><span class="o">)</span> <span class="n">c1</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+<span class="c1">// 通过反射获取一个方法
+</span><span class="c1"></span><span class="n">Method</span> <span class="n">setName</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getDeclaredMethod</span><span class="o">(</span><span class="s">&#34;setName&#34;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="c1">// invoke(对象, &#34;方法的参数&#34;)
+</span><span class="c1"></span><span class="n">setName</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">user3</span><span class="o">,</span> <span class="s">&#34;ccq&#34;</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">user3</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</code></pre></div><p><strong>Object invoke(Object obj, Object&hellip; args)</strong></p>
+<ul>
+<li>Object对应原方法的返回值，若原方法无返回值，此时返回null</li>
+<li>若原方法若为静态方法，此时形参Object obj可为null</li>
+<li>若原方法的形参列表为空，则Object[] args为null</li>
+<li>若原方法声明为<code>private</code>，则需要在调用此<code>invoke()</code>方法前，显示调用方法对象的<code>setAccessible(true)</code>方法，将可访问private的方法。</li>
+</ul>
+<p><strong>setAccessible</strong></p>
+<ul>
+<li>Method和 Field、 Constructor 对象都有 setaccessible()方法</li>
+<li><code>setAccessible</code>作用是启动和禁用访问安全检查的开关。</li>
+<li>参数值为true则指示反射的对象在使用时应该取消<strong>Java语言访问检查</strong>。
+<ul>
+<li>提高反射的效率。如果代码中必须用反射，而该句代码需要频繁的被调用，最好设置为<code>true</code></li>
+<li>使得原本无法访问的私有成员也可以访问</li>
+</ul>
+</li>
+<li>参数值为<code>false</code>则指示反射的对象应该实施Java语言访问检查</li>
+</ul>
+<h3 id="反射操作泛型">反射操作泛型</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">test01</span><span class="o">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">User</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;test01&#34;</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">User</span><span class="o">&gt;</span> <span class="nf">test02</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;test02&#34;</span><span class="o">);</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NoSuchMethodException</span> <span class="o">{</span>
+    <span class="n">Method</span> <span class="n">method</span> <span class="o">=</span> <span class="n">Test11</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">&#34;test01&#34;</span><span class="o">,</span> <span class="n">Map</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">List</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="c1">// 获得范型参数类型
+</span><span class="c1"></span>    <span class="n">Type</span><span class="o">[]</span> <span class="n">genericParameterTypes</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="na">getGenericParameterTypes</span><span class="o">();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Type</span> <span class="n">genericParameterType</span> <span class="o">:</span> <span class="n">genericParameterTypes</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">genericParameterType</span><span class="o">);</span>
+        <span class="c1">// 如果是参数化类型
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">genericParameterType</span> <span class="k">instanceof</span> <span class="n">ParameterizedType</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// 强转为参数化类型，并且获得真实类型
+</span><span class="c1"></span>            <span class="n">Type</span><span class="o">[]</span> <span class="n">actualTypeArguments</span> <span class="o">=</span> <span class="o">((</span><span class="n">ParameterizedType</span><span class="o">)</span> <span class="n">genericParameterType</span><span class="o">).</span><span class="na">getActualTypeArguments</span><span class="o">();</span>
+            <span class="k">for</span> <span class="o">(</span><span class="n">Type</span> <span class="n">actualTypeArgument</span> <span class="o">:</span> <span class="n">actualTypeArguments</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">actualTypeArgument</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="n">method</span> <span class="o">=</span> <span class="n">Test11</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">&#34;test02&#34;</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="c1">// 获得泛型返回类型
+</span><span class="c1"></span>    <span class="n">Type</span> <span class="n">genericReturnType</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="na">getGenericReturnType</span><span class="o">();</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">genericReturnType</span> <span class="k">instanceof</span> <span class="n">ParameterizedType</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Type</span><span class="o">[]</span> <span class="n">actualTypeArguments</span> <span class="o">=</span> <span class="o">((</span><span class="n">ParameterizedType</span><span class="o">)</span> <span class="n">genericReturnType</span><span class="o">).</span><span class="na">getActualTypeArguments</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Type</span> <span class="n">actualTypeArgument</span> <span class="o">:</span> <span class="n">actualTypeArguments</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">actualTypeArgument</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><h3 id="通过反射操作注解">通过反射操作注解</h3>
+<p>通过反射操作注解来实现一些功能就是很多框架的原理了，像Spring、MyBatis中的注解底层就是通过反射来获得一些信息并进行一些操作来达成某些功能的。</p>
+<p>例如下面的实现ORM的示例，通过自定义注解让用户使用，让用户定义类名对应的表名，属性名对应的字段名，然后通过反射获取这些信息，就可以生成对应的SQL了。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 反射操作注解
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test12</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ClassNotFoundException</span><span class="o">,</span> <span class="n">NoSuchFieldException</span> <span class="o">{</span>
+        <span class="n">Class</span> <span class="n">c1</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&#34;com.ccqstark.reflection.Student2&#34;</span><span class="o">);</span>
+
+        <span class="c1">// 通过反射获得注解
+</span><span class="c1"></span>        <span class="n">Annotation</span><span class="o">[]</span> <span class="n">annotations</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getAnnotations</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Annotation</span> <span class="n">annotation</span> <span class="o">:</span> <span class="n">annotations</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">annotation</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="c1">// 获得注解的value值，这里通过反射获得了映射表名的注解的值，也就是获得了表名
+</span><span class="c1"></span>        <span class="n">TableCcq</span> <span class="n">tableCcq</span> <span class="o">=</span> <span class="o">(</span><span class="n">TableCcq</span><span class="o">)</span> <span class="n">c1</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="n">TableCcq</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">value</span> <span class="o">=</span> <span class="n">tableCcq</span><span class="o">.</span><span class="na">value</span><span class="o">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+
+        <span class="c1">// 通过反射操作field的注解，获得了属性映射的表字段的信息，如字段名、类型、长度
+</span><span class="c1"></span>        <span class="n">Field</span> <span class="n">f</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">&#34;name&#34;</span><span class="o">);</span>
+        <span class="n">FieldCcq</span> <span class="n">annotation</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="n">FieldCcq</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">annotation</span><span class="o">.</span><span class="na">columnName</span><span class="o">());</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">annotation</span><span class="o">.</span><span class="na">type</span><span class="o">());</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">annotation</span><span class="o">.</span><span class="na">length</span><span class="o">());</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="nd">@TableCcq</span><span class="o">(</span><span class="s">&#34;db_ccq&#34;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">Student2</span> <span class="o">{</span>
+
+    <span class="nd">@FieldCcq</span><span class="o">(</span><span class="n">columnName</span> <span class="o">=</span> <span class="s">&#34;db_id&#34;</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&#34;int&#34;</span><span class="o">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">10</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+    <span class="nd">@FieldCcq</span><span class="o">(</span><span class="n">columnName</span> <span class="o">=</span> <span class="s">&#34;db_age&#34;</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&#34;int&#34;</span><span class="o">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">10</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span><span class="o">;</span>
+    <span class="nd">@FieldCcq</span><span class="o">(</span><span class="n">columnName</span> <span class="o">=</span> <span class="s">&#34;db_name&#34;</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&#34;varchar&#34;</span><span class="o">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">3</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+<span class="o">}</span>
+
+<span class="c1">// 类名-&gt;表名 的注解
+</span><span class="c1"></span><span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">TYPE</span><span class="o">)</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@interface</span> <span class="n">TableCcq</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="nf">value</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="c1">// 属性-&gt;字段 的注解
+</span><span class="c1"></span><span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">)</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@interface</span> <span class="n">FieldCcq</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="nf">columnName</span><span class="o">();</span>
+
+    <span class="n">String</span> <span class="nf">type</span><span class="o">();</span>
+
+    <span class="kt">int</span> <span class="nf">length</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="总结">总结</h2>
+<p>注解是给程序做的注释、标记，让程序可以读取一些额外信息并做出一些行为</p>
+<p>反射让Java程序在运行时可以获取到类和对象的信息（类名、属性、方法&hellip;）</p>
+<p>注解和反射与Java很多流行框架息息相关，两者的搭配使用是它们的底层原理，所以非常重要。</p>
+<p>参考自：</p>
+<p><a class="link" href="https://www.bilibili.com/video/BV1p4411P7V3"  target="_blank" rel="noopener"
+    >【狂神说Java】注解和反射</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/java/">Java</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/log_catch_error/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]日志与异常捕获</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_principle/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_principle/es.94df52b03b9215a4dc212e1f3acd4cfb_hu709c9dbb1dd93df65cfe69a9e6744979_88514_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_principle" 
+                        data-hash="md5-lN9SsDuSFaTcIS4fOs1M&#43;w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]ElasticSearch入门与原理浅析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/springboot_es/">
+        
+        
+            <div class="article-image">
+                <img src="/p/springboot_es/springboot-es.68bd173d94a8eaf642b2ac727cbde179_hu5dbd9828aef42d61c56fd952a73b2be9_64126_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_es" 
+                        data-hash="md5-aL0XPZSo6vZCsqxyfL3heQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合ElasticSearch</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_rest/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_rest/restful.fd9d194403593239aeab75914828e254_hud0b30a641456616a14ef2ef618957a76_22844_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_rest" 
+                        data-hash="md5-/Z0ZRANZMjmuq3WRSCjiVA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]REST风格操作</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot_shiro_jwt/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合shiro&#43;JWT做鉴权</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+     
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#注解">注解</a>
+      <ol>
+        <li><a href="#概述">概述</a></li>
+        <li><a href="#内置注解">内置注解</a></li>
+        <li><a href="#元注解">元注解</a></li>
+        <li><a href="#自定义注解">自定义注解</a></li>
+      </ol>
+    </li>
+    <li><a href="#反射">反射</a>
+      <ol>
+        <li><a href="#概述-1">概述</a></li>
+        <li><a href="#java反射机制提供的功能">Java反射机制提供的功能</a></li>
+        <li><a href="#class类">Class类</a></li>
+        <li><a href="#得到class的几种办法">得到Class的几种办法</a></li>
+        <li><a href="#有class对象的类型">有Class对象的类型</a></li>
+        <li><a href="#类加载器的作用">类加载器的作用</a></li>
+        <li><a href="#获得运行时类的完整结构">获得运行时类的完整结构</a></li>
+        <li><a href="#通过反射动态创建对象">通过反射动态创建对象</a></li>
+        <li><a href="#通过反射调用指定的方法">通过反射调用指定的方法</a></li>
+        <li><a href="#反射操作泛型">反射操作泛型</a></li>
+        <li><a href="#通过反射操作注解">通过反射操作注解</a></li>
+      </ol>
+    </li>
+    <li><a href="#总结">总结</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
