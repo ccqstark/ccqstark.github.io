@@ -1,40 +1,37 @@
 <!DOCTYPE html>
 <html lang="en-us">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
-示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
-我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
-当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
-还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
-下面就是n=5和n=4的例子：
-   
-代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !'><title>[leetcode]59.螺旋矩阵II</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='题目 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a &#43; b &#43; c = 0 ？请你找出所有和为 0 且不重复的三元组。
+注意：答案中不可以包含重复的三元组。
+示例 1： 输入：nums = [-1,0,1,2,-1,-4] 输出：[[-1,-1,2],[-1,0,1]] 示例 2： 输入：nums = [] 输出：[] 示例 3： 输入：nums = [0] 输出：[] 分析 这里本可以借鉴两数之和的哈希法，通过判断0-(a&#43;b)是否存在数组中来解答，但是由于题目要求的不能包含重复的三元组用这个方法实在很难去处理，所以这里就不推荐用哈希法了。
+这里推荐排序&#43;双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i&#43;1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
+如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
+动画如下：
+代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i&#43;&#43;) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i &#43; 1; int right = nums.'><title>[leetcode]15.三数之和</title>
 
-<link rel='canonical' href='https://ccqstark.github.io/p/generate_matrix/'>
+<link rel='canonical' href='https://ccqstark.github.io/p/three_sum/'>
 
-<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[leetcode]59.螺旋矩阵II'>
-<meta property='og:description' content='题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
-示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
-我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
-当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
-还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
-下面就是n=5和n=4的例子：
-   
-代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !'>
-<meta property='og:url' content='https://ccqstark.github.io/p/generate_matrix/'>
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[leetcode]15.三数之和'>
+<meta property='og:description' content='题目 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a &#43; b &#43; c = 0 ？请你找出所有和为 0 且不重复的三元组。
+注意：答案中不可以包含重复的三元组。
+示例 1： 输入：nums = [-1,0,1,2,-1,-4] 输出：[[-1,-1,2],[-1,0,1]] 示例 2： 输入：nums = [] 输出：[] 示例 3： 输入：nums = [0] 输出：[] 分析 这里本可以借鉴两数之和的哈希法，通过判断0-(a&#43;b)是否存在数组中来解答，但是由于题目要求的不能包含重复的三元组用这个方法实在很难去处理，所以这里就不推荐用哈希法了。
+这里推荐排序&#43;双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i&#43;1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
+如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
+动画如下：
+代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i&#43;&#43;) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i &#43; 1; int right = nums.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/three_sum/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='leetcode' /><meta property='article:published_time' content='2021-04-07T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2021-04-07T21:07:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/generate_matrix/leetcode.png' />
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='leetcode' /><meta property='article:published_time' content='2021-07-23T16:55:26&#43;08:00'/><meta property='article:modified_time' content='2021-07-23T16:55:26&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/three_sum/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
-    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[leetcode]59.螺旋矩阵II">
-<meta name="twitter:description" content="题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
-示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
-我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
-当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
-还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。
-下面就是n=5和n=4的例子：
-   
-代码 class Solution { public int[][] generateMatrix(int n) { // 矩阵本体  int[][] matrix = new int[n][n]; // 横行和纵向开始填充的起始点  int startx = 0, starty = 0; // 循环次数  int loop = n / 2; // n为奇数时矩阵的中间格  int mid = n / 2; // 用来填充的数字，从1开始  int count = 1; // 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小  int offset = 1; // 填充时用的指针，i为行，j为列  int i, j; while (loop-- !"><meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content='https://ccqstark.github.io/p/generate_matrix/leetcode.png' />
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[leetcode]15.三数之和">
+<meta name="twitter:description" content="题目 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a &#43; b &#43; c = 0 ？请你找出所有和为 0 且不重复的三元组。
+注意：答案中不可以包含重复的三元组。
+示例 1： 输入：nums = [-1,0,1,2,-1,-4] 输出：[[-1,-1,2],[-1,0,1]] 示例 2： 输入：nums = [] 输出：[] 示例 3： 输入：nums = [0] 输出：[] 分析 这里本可以借鉴两数之和的哈希法，通过判断0-(a&#43;b)是否存在数组中来解答，但是由于题目要求的不能包含重复的三元组用这个方法实在很难去处理，所以这里就不推荐用哈希法了。
+这里推荐排序&#43;双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i&#43;1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
+如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
+动画如下：
+代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i&#43;&#43;) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i &#43; 1; int right = nums."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/three_sum/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script type="application/javascript">
@@ -99,13 +96,13 @@ if (!doNotTrack) {
     <article class="has-image main-article">
     <header class="article-header">
         <div class="article-image">
-            <a href="/p/generate_matrix/">
-                <img src="/p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_800x0_resize_box_2.png"
-                        srcset="/p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_800x0_resize_box_2.png 800w, /p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_1600x0_resize_box_2.png 1600w"
+            <a href="/p/three_sum/">
+                <img src="/p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_800x0_resize_box_2.png"
+                        srcset="/p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_800x0_resize_box_2.png 800w, /p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_1600x0_resize_box_2.png 1600w"
                         width="800" 
-                        height="244" 
+                        height="330" 
                         loading="lazy"
-                        alt="Featured image of post [leetcode]59.螺旋矩阵II" />
+                        alt="Featured image of post [leetcode]15.三数之和" />
                 
             </a>
         </div>
@@ -123,7 +120,7 @@ if (!doNotTrack) {
     
 
     <h2 class="article-title">
-        <a href="/p/generate_matrix/">[leetcode]59.螺旋矩阵II</a>
+        <a href="/p/three_sum/">[leetcode]15.三数之和</a>
     </h2>
 
     <footer class="article-time">
@@ -135,111 +132,119 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Apr 07, 2021</time>
+        <time class="article-time--published">Jul 23, 2021</time>
     </footer></div>
 </header>
 
     <section class="article-content">
     <h2 id="题目">题目</h2>
-<p>给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/6461626841649_.pic.jpg" alt=""  /></p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nl">示例1:</span>
-<span class="nl">输入:</span><span class="n">n</span> <span class="o">=</span> <span class="n">3</span>
-<span class="nl">输出:</span><span class="o">[[</span><span class="n">1</span><span class="o">,</span><span class="n">2</span><span class="o">,</span><span class="n">3</span><span class="o">],[</span><span class="n">8</span><span class="o">,</span><span class="n">9</span><span class="o">,</span><span class="n">4</span><span class="o">],[</span><span class="n">7</span><span class="o">,</span><span class="n">6</span><span class="o">,</span><span class="n">5</span><span class="o">]]</span>
-<span class="nl">
-</span><span class="nl">示例2:</span>
-<span class="nl">输入:</span> <span class="n">n</span> <span class="o">=</span> <span class="n">1</span>
-<span class="nl">输出:</span> <span class="o">[[</span><span class="n">1</span><span class="o">]]</span>
+<p>给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有和为 0 且不重复的三元组。</p>
+<p>注意：答案中不可以包含重复的三元组。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">示例</span> <span class="n">1</span><span class="err">：</span>
+<span class="n">输入</span><span class="err">：</span><span class="n">nums</span> <span class="o">=</span> <span class="o">[-</span><span class="n">1</span><span class="o">,</span><span class="n">0</span><span class="o">,</span><span class="n">1</span><span class="o">,</span><span class="n">2</span><span class="o">,-</span><span class="n">1</span><span class="o">,-</span><span class="n">4</span><span class="o">]</span>
+<span class="n">输出</span><span class="err">：</span><span class="o">[[-</span><span class="n">1</span><span class="o">,-</span><span class="n">1</span><span class="o">,</span><span class="n">2</span><span class="o">],[-</span><span class="n">1</span><span class="o">,</span><span class="n">0</span><span class="o">,</span><span class="n">1</span><span class="o">]]</span>
+
+<span class="n">示例</span> <span class="n">2</span><span class="err">：</span>
+<span class="n">输入</span><span class="err">：</span><span class="n">nums</span> <span class="o">=</span> <span class="o">[]</span>
+<span class="n">输出</span><span class="err">：</span><span class="o">[]</span>
+
+<span class="n">示例</span> <span class="n">3</span><span class="err">：</span>
+<span class="n">输入</span><span class="err">：</span><span class="n">nums</span> <span class="o">=</span> <span class="o">[</span><span class="n">0</span><span class="o">]</span>
+<span class="n">输出</span><span class="err">：</span><span class="o">[]</span>
 </code></pre></div><h2 id="分析">分析</h2>
-<p>第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。</p>
-<p>我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。</p>
-<p>当然每次循环还需要注意，每行/列都遵循的是<code>左闭右开</code>的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。</p>
-<p>还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。</p>
-<p>下面就是n=5和n=4的例子：</p>
-<p><figure style="flex-grow: 102; flex-basis: 246px">
-		<a href="/p/generate_matrix/Untitled.png" data-size="636x620"><img src="/p/generate_matrix/Untitled.png"
-				srcset="/p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_480x0_resize_box_2.png 480w, /p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_1024x0_resize_box_2.png 1024w"
-				width="636"
-				height="620"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure>
-<figure style="flex-grow: 94; flex-basis: 226px">
-		<a href="/p/generate_matrix/Untitled1.png" data-size="512x543"><img src="/p/generate_matrix/Untitled1.png"
-				srcset="/p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_480x0_resize_box_2.png 480w, /p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_1024x0_resize_box_2.png 1024w"
-				width="512"
-				height="543"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p>这里本可以借鉴<code>两数之和</code>的哈希法，通过判断0-(a+b)是否存在数组中来解答，但是由于题目要求的不能包含重复的三元组用这个方法实在很难去处理，所以这里就不推荐用哈希法了。</p>
+<p>这里推荐<code>排序+双指针法</code> 来解决。先对数组进行排序，然后用一个<code>指针i</code>对所有元素进行遍历，每一次遍历我们都有两个指针叫<code>left</code>和<code>right</code>，left一开始指向<code>i+1</code>，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。</p>
+<p>如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。</p>
+<p>动画如下：</p>
+<p><img src="https://code-thinking.cdn.bcebos.com/gifs/15.%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.gif" alt=""  /></p>
 <h2 id="代码">代码</h2>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
-    <span class="kd">public</span> <span class="kt">int</span><span class="o">[][]</span> <span class="nf">generateMatrix</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>
-        <span class="c1">// 矩阵本体
-</span><span class="c1"></span>        <span class="kt">int</span><span class="o">[][]</span> <span class="n">matrix</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="n">n</span><span class="o">][</span><span class="n">n</span><span class="o">];</span>
-        <span class="c1">// 横行和纵向开始填充的起始点
-</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">startx</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">starty</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
-        <span class="c1">// 循环次数
-</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="n">n</span> <span class="o">/</span> <span class="n">2</span><span class="o">;</span>
-        <span class="c1">// n为奇数时矩阵的中间格
-</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">mid</span> <span class="o">=</span> <span class="n">n</span> <span class="o">/</span> <span class="n">2</span><span class="o">;</span>
-        <span class="c1">// 用来填充的数字，从1开始
-</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
-        <span class="c1">// 每列或每行在循环一次后，下一次循环时要填充的元素个数会减少2，用这个变量来记录当前减少的大小
-</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
-        <span class="c1">// 填充时用的指针，i为行，j为列
-</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">i</span><span class="o">,</span> <span class="n">j</span><span class="o">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 排序+双指针法（较优）
+</span><span class="c1"></span><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="nf">threeSum</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">)</span> <span class="o">{</span>
 
-        <span class="k">while</span> <span class="o">(</span><span class="n">loop</span><span class="o">--</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
-            <span class="c1">// 指针置于起始位置
-</span><span class="c1"></span>            <span class="n">i</span> <span class="o">=</span> <span class="n">startx</span><span class="o">;</span>
-            <span class="n">j</span> <span class="o">=</span> <span class="n">starty</span><span class="o">;</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+    <span class="c1">// 排序
+</span><span class="c1"></span>    <span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">nums</span><span class="o">);</span>
 
-            <span class="c1">// 上行，从左到右
-</span><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="n">j</span> <span class="o">=</span> <span class="n">starty</span><span class="o">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">starty</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="n">offset</span><span class="o">;</span> <span class="n">j</span><span class="o">++)</span> <span class="o">{</span>
-                <span class="n">matrix</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">count</span><span class="o">++;</span>
-            <span class="o">}</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nums</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
 
-            <span class="c1">// 右列，从上到下
-</span><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="n">i</span> <span class="o">=</span> <span class="n">startx</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">startx</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="n">offset</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-                <span class="n">matrix</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">count</span><span class="o">++;</span>
-            <span class="o">}</span>
-
-            <span class="c1">// 下行，从右到左
-</span><span class="c1"></span>            <span class="k">for</span> <span class="o">(;</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="n">starty</span><span class="o">;</span> <span class="n">j</span><span class="o">--)</span> <span class="o">{</span>
-                <span class="n">matrix</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">count</span><span class="o">++;</span>
-            <span class="o">}</span>
-
-            <span class="c1">// 左列，从下到上
-</span><span class="c1"></span>            <span class="k">for</span> <span class="o">(;</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">startx</span><span class="o">;</span> <span class="n">i</span><span class="o">--)</span> <span class="o">{</span>
-                <span class="n">matrix</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">count</span><span class="o">++;</span>
-            <span class="o">}</span>
-
-            <span class="c1">// 循环一次后，下一次起始位置+1
-</span><span class="c1"></span>            <span class="n">startx</span><span class="o">++;</span>
-            <span class="n">starty</span><span class="o">++;</span>
-            <span class="c1">// 下一次循环时，每行/列填充的个数要-2
-</span><span class="c1"></span>            <span class="n">offset</span> <span class="o">+=</span> <span class="n">2</span><span class="o">;</span>
+        <span class="c1">// 首位大于0的直接返回
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">nums</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
         <span class="o">}</span>
 
-        <span class="c1">// n为奇数要填中间一格
-</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">%</span> <span class="n">2</span> <span class="o">==</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">matrix</span><span class="o">[</span><span class="n">mid</span><span class="o">][</span><span class="n">mid</span><span class="o">]</span> <span class="o">=</span> <span class="n">count</span><span class="o">;</span>
+        <span class="c1">// i的去重
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">0</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">1</span><span class="o">])</span> <span class="o">{</span>
+            <span class="k">continue</span><span class="o">;</span>
         <span class="o">}</span>
 
-        <span class="k">return</span> <span class="n">matrix</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">left</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">1</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">right</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">1</span><span class="o">;</span>
+        <span class="c1">// 循环
+</span><span class="c1"></span>        <span class="k">while</span> <span class="o">(</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">left</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// 计算此时的三数之和
+</span><span class="c1"></span>            <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">nums</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">+</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">]</span> <span class="o">+</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">];</span>
+            <span class="c1">// 三种情况
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">sum</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">right</span><span class="o">--;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">sum</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">left</span><span class="o">++;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="c1">// 找到一种答案添加到结果集
+</span><span class="c1"></span>                <span class="n">result</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">nums</span><span class="o">[</span><span class="n">i</span><span class="o">],</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">],</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">]));</span>
+                <span class="c1">// 去重
+</span><span class="c1"></span>                <span class="k">while</span> <span class="o">(</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span> <span class="o">-</span> <span class="n">1</span><span class="o">])</span> <span class="n">right</span><span class="o">--;</span>
+                <span class="k">while</span> <span class="o">(</span><span class="n">right</span> <span class="o">&gt;</span> <span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span> <span class="o">+</span> <span class="n">1</span><span class="o">])</span> <span class="n">left</span><span class="o">++;</span>
+                <span class="c1">// 找到一个答案后两边指针都收缩
+</span><span class="c1"></span>                <span class="n">right</span><span class="o">--;</span>
+                <span class="n">left</span><span class="o">++;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
     <span class="o">}</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
 <span class="o">}</span>
-</code></pre></div><h2 id="复杂度分析">复杂度分析</h2>
-<ul>
-<li>时间复杂度：O(n^2)，其中 nn 是给定的正整数。矩阵的大小是 n \times nn×n，需要填入矩阵中的每个元素。</li>
-<li>空间复杂度：O(1)。除了返回的矩阵以外，空间复杂度是常数。</li>
-</ul>
+</code></pre></div><p>时间复杂度：O(n^2)</p>
+<h2 id="延伸">延伸</h2>
+<p>这里顺便把四数之和也说了，思路也是差不多的，多了一个数其实就多加一层循环再去使用left和right算sum罢了，时间复杂度就变成O(n^3)，如果有五数之和、六数之和也是一样的道理。</p>
+<p>直接上代码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="nf">fourSum</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">,</span> <span class="kt">int</span> <span class="n">target</span><span class="o">)</span> <span class="o">{</span>
 
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+    <span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">nums</span><span class="o">);</span>
+
+    <span class="c1">// 四数之和实际上是在三数之和上多加了一层循环
+</span><span class="c1"></span>    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nums</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">0</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">1</span><span class="o">])</span> <span class="o">{</span>
+            <span class="k">continue</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">1</span><span class="o">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">nums</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">j</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">j</span> <span class="o">&gt;</span> <span class="n">i</span> <span class="o">+</span> <span class="n">1</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">j</span> <span class="o">-</span> <span class="n">1</span><span class="o">])</span> <span class="o">{</span>
+                <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+
+            <span class="kt">int</span> <span class="n">left</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">1</span><span class="o">;</span>
+            <span class="kt">int</span> <span class="n">right</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">1</span><span class="o">;</span>
+
+            <span class="k">while</span> <span class="o">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">)</span> <span class="o">{</span>
+                <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">nums</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">+</span> <span class="n">nums</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">+</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">]</span> <span class="o">+</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">];</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">sum</span> <span class="o">&gt;</span> <span class="n">target</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">right</span><span class="o">--;</span>
+                <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">sum</span> <span class="o">&lt;</span> <span class="n">target</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">left</span> <span class="o">++;</span>
+                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                    <span class="n">result</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">nums</span><span class="o">[</span><span class="n">i</span><span class="o">],</span> <span class="n">nums</span><span class="o">[</span><span class="n">j</span><span class="o">],</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">],</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">]));</span>
+                    <span class="c1">// 去重
+</span><span class="c1"></span>                    <span class="k">while</span> <span class="o">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span> <span class="o">-</span> <span class="n">1</span><span class="o">])</span> <span class="n">right</span><span class="o">--;</span>
+                    <span class="k">while</span> <span class="o">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span> <span class="o">+</span> <span class="n">1</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">])</span> <span class="n">left</span><span class="o">++;</span>
+                    <span class="c1">// 找到后左右指针各搜索一下
+</span><span class="c1"></span>                    <span class="n">right</span><span class="o">--;</span>
+                    <span class="n">left</span><span class="o">++;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div>
 </section>
 
 
@@ -278,28 +283,6 @@ if (!doNotTrack) {
                 
                     
 <article class="has-image">
-    <a href="/p/three_sum/">
-        
-        
-            <div class="article-image">
-                <img src="/p/three_sum/cover.33dd6c414f4a115d6aaa313112588b51_huf957eb7cc0803733802fcc4099cfd7cb_35766_250x150_fill_box_smart1_2.png" 
-                        width="250" 
-                        height="150" 
-                        loading="lazy" 
-                        data-key="three_sum" 
-                        data-hash="md5-M91sQU9KEV1qqjExEliLUQ==">
-                
-            </div>
-        
-
-        <div class="article-details">
-            <h2 class="article-title">[leetcode]15.三数之和</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="has-image">
     <a href="/p/remove_elements/">
         
         
@@ -316,6 +299,28 @@ if (!doNotTrack) {
 
         <div class="article-details">
             <h2 class="article-title">[leetcode]203.移除链表元素</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/generate_matrix/">
+        
+        
+            <div class="article-image">
+                <img src="/p/generate_matrix/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="generate_matrix" 
+                        data-hash="md5-PsXR8ZU10GA6cA&#43;CLUdV3A==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[leetcode]59.螺旋矩阵II</h2>
         </div>
     </a>
 </article>
@@ -555,7 +560,7 @@ if (!doNotTrack) {
     <li><a href="#题目">题目</a></li>
     <li><a href="#分析">分析</a></li>
     <li><a href="#代码">代码</a></li>
-    <li><a href="#复杂度分析">复杂度分析</a></li>
+    <li><a href="#延伸">延伸</a></li>
   </ol>
 </nav>
                 </div>
