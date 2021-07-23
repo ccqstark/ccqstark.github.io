@@ -235,7 +235,7 @@ if (!doNotTrack) {
                     <span class="c1">// 去重
 </span><span class="c1"></span>                    <span class="k">while</span> <span class="o">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span> <span class="o">-</span> <span class="n">1</span><span class="o">])</span> <span class="n">right</span><span class="o">--;</span>
                     <span class="k">while</span> <span class="o">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span> <span class="o">+</span> <span class="n">1</span><span class="o">]</span> <span class="o">==</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">])</span> <span class="n">left</span><span class="o">++;</span>
-                    <span class="c1">// 找到后左右指针各搜索一下
+                    <span class="c1">// 找到后左右指针各收缩一下
 </span><span class="c1"></span>                    <span class="n">right</span><span class="o">--;</span>
                     <span class="n">left</span><span class="o">++;</span>
                 <span class="o">}</span>
