@@ -6,7 +6,161 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Fri, 23 Jul 2021 16:55:26 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 27 Jul 2021 03:44:28 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[实战]自己动手编译JDK实录</title>
+        <link>https://ccqstark.github.io/p/compile_jdk/</link>
+        <pubDate>Tue, 27 Jul 2021 03:44:28 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/compile_jdk/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/compile_jdk/cover.png" alt="Featured image of post [实战]自己动手编译JDK实录" /&gt;&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+&lt;p&gt;最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。&lt;/p&gt;
+&lt;h2 id=&#34;环境准备&#34;&gt;环境准备&lt;/h2&gt;
+&lt;h3 id=&#34;系统环境&#34;&gt;系统环境&lt;/h3&gt;
+&lt;p&gt;我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013611.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;h3 id=&#34;xcode下载&#34;&gt;Xcode下载&lt;/h3&gt;
+&lt;p&gt;一些C/C++相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。&lt;/p&gt;
+&lt;p&gt;xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。&lt;/p&gt;
+&lt;p&gt;还有就是解压时可能会遇到系统验证问题，通过以下两步解决：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;运行以下命令行&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 最后是xip文件的位置&lt;/span&gt;
+xattr -d com.apple.quarantine Xcode_11.xip
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol&gt;
+&lt;li&gt;在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;所有软件环境基础&#34;&gt;所有软件环境基础&lt;/h3&gt;
+&lt;p&gt;以下都是编译中需要用到的软件环境，确保都已经安装&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 有一个已经可用的jdk，版本至少是要编译的版本-1&lt;/span&gt;
+java -version
+&lt;span class=&#34;c1&#34;&gt;# 输出&lt;/span&gt;
+openjdk version &lt;span class=&#34;s2&#34;&gt;&amp;#34;11.0.9&amp;#34;&lt;/span&gt; 2020-10-20
+OpenJDK Runtime Environment &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;build 11.0.9+11&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+OpenJDK 64-Bit Server VM &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;build 11.0.9+11, mixed mode&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# C的编译器&lt;/span&gt;
+clang --version
+&lt;span class=&#34;c1&#34;&gt;# 输出&lt;/span&gt;
+Apple clang version 11.0.0 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;clang-1100.0.33.8&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+&lt;span class=&#34;c1&#34;&gt;# C++的编译器&lt;/span&gt;
+clang++ --version
+&lt;span class=&#34;c1&#34;&gt;# 输出&lt;/span&gt;
+Apple clang version 11.0.0 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;clang-1100.0.33.8&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+&lt;span class=&#34;c1&#34;&gt;# 自动配置工具autoconf&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;# 下载方式：brew install autoconf&lt;/span&gt;
+autoconf --version
+&lt;span class=&#34;c1&#34;&gt;# 输出&lt;/span&gt;
+autoconf &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;GNU Autoconf&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 2.69
+
+&lt;span class=&#34;c1&#34;&gt;# 编译构建工具&lt;/span&gt;
+make --version
+&lt;span class=&#34;c1&#34;&gt;# 输出&lt;/span&gt;
+GNU Make 3.81
+
+&lt;span class=&#34;c1&#34;&gt;# 渲染库freetype&lt;/span&gt;
+freetype-config --ftversion
+&lt;span class=&#34;c1&#34;&gt;# 输出&lt;/span&gt;
+2.10.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;源码下载&#34;&gt;源码下载&lt;/h2&gt;
+&lt;p&gt;这次要编译的目标版本是jdk11，所以下载jdk11的源码&lt;/p&gt;
+&lt;h3 id=&#34;方式一通过mercurial&#34;&gt;方式一：通过Mercurial&lt;/h3&gt;
+&lt;p&gt;JDK是通过这个叫Mercurial的版本管理工具来进行代码管理的，这个和git是一类工具，只不过过于小众。而且这种方式慢，不推荐。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;安装Mercurial&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;brew install mercurial
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;去网址hg.openjdk.java.net上复制地址&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png&#34; alt=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png&#34;  /&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;使用命令clone源码包&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;hg clone https://hg.openjdk.java.net/jdk/jdk11/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;方式二官网下载压缩包&#34;&gt;方式二：官网下载压缩包&lt;/h3&gt;
+&lt;p&gt;这种方式速度快，推荐这种方式&lt;/p&gt;
+&lt;p&gt;前往地址：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://jdk.java.net/java-se-ri/11&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Java Platform, Standard Edition 11 Reference Implementations&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;点击下载zip压缩包即可&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020308.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;新建一个专门的文件夹存放源码包，解压后就可以看到目录结构&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020419.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;src就是源码部分，看到里面基本都是C和C++的代码，说明Java就是用C和C++写的。&lt;/p&gt;
+&lt;h2 id=&#34;自动配置工作&#34;&gt;自动配置工作&lt;/h2&gt;
+&lt;p&gt;这一步进行编译前的自动编译工作&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 首先cd进源码目录，也就是上图的openjdk11&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; openjdk11
+
+&lt;span class=&#34;c1&#34;&gt;# 运行脚本&lt;/span&gt;
+sh configure
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这个过程较快，最后会输出一些概览信息。&lt;/p&gt;
+&lt;h2 id=&#34;正式编译工作&#34;&gt;正式编译工作&lt;/h2&gt;
+&lt;p&gt;第一次编译直接进行全量编译，执行：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;make all
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这个过程比较久，耐心等待，会生成可执行文件，JDK成品镜像等很多东西&lt;/p&gt;
+&lt;p&gt;过程中的警告可以忽略，只要不出现错误导致整个过程停止即可&lt;/p&gt;
+&lt;p&gt;可以看到这个过程中我的mac的活动监视器，CPU快要炸了&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013350.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;直到控制台最后几行输出一下信息就证明成功了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Creating support/demos/image/jfc/SampleTree/SampleTree.jar
+Creating support/demos/image/jfc/TableExample/TableExample.jar
+Creating support/demos/image/jfc/TransparentRuler/TransparentRuler.jar
+Creating jdk image
+Finished building target &lt;span class=&#34;s1&#34;&gt;&amp;#39;all&amp;#39;&lt;/span&gt; in configuration &lt;span class=&#34;s1&#34;&gt;&amp;#39;macosx-x86_64-normal-server-release&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;成品验收&#34;&gt;成品验收&lt;/h2&gt;
+&lt;p&gt;完成上一步后就可以发现目录下多了一个build目录，进入&lt;code&gt;build/macosx-x86_64-normal-server-release/&lt;/code&gt;目录可以看到如下文件&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022009.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;命令行验证下&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 进入编译后的jdk的bin目录&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; build/macosx-x86_64-normal-server-release/jdk/bin
+
+&lt;span class=&#34;c1&#34;&gt;# 执行java命令查看版本&lt;/span&gt;
+./java -version
+
+&lt;span class=&#34;c1&#34;&gt;# 输出&lt;/span&gt;
+openjdk version &lt;span class=&#34;s2&#34;&gt;&amp;#34;11-internal&amp;#34;&lt;/span&gt; 2018-09-25
+OpenJDK Runtime Environment &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;build 11-internal+0-adhoc.ccqstark.openjdk11&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+OpenJDK 64-Bit Server VM &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;build 11-internal+0-adhoc.ccqstark.openjdk11, mixed mode&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;最终的JDK成品就在&lt;code&gt;images/jdk&lt;/code&gt;目录下，这个就和我们平时在官网上下载的JDK基本是一样的&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022600.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;idea中使用新jdk&#34;&gt;IDEA中使用新JDK&lt;/h2&gt;
+&lt;p&gt;新建一个Hello World项目&lt;/p&gt;
+&lt;p&gt;添加自己编译的JDK的路径&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030400.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;切换项目所用的JDK为刚刚新增的&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030440.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;运行之后可以看到我们使用的JDK已经换成自己编译得到的了&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030536.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;定制jdk&#34;&gt;定制JDK&lt;/h2&gt;
+&lt;p&gt;当我们需要自己定制一套属于自己的JDK的时候就需要我们去修改源码中的一些实现，修改之后要生效的话必须重新编译一次，这次的编译就可以用增量编译了。&lt;/p&gt;
+&lt;h3 id=&#34;修改sourcepath&#34;&gt;修改Sourcepath&lt;/h3&gt;
+&lt;p&gt;删除原来全部路径&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727031328.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;重新添加我们一开始下载的压缩包中解压出来的&lt;code&gt;src&lt;/code&gt;目录下的源码，并让IDEA重新索引&lt;/p&gt;
+&lt;h3 id=&#34;修改源码&#34;&gt;修改源码&lt;/h3&gt;
+&lt;p&gt;我们Ctrl加鼠标点击进入println源码，并做点修改意思意思&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727032804.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;h3 id=&#34;增量编译&#34;&gt;增量编译&lt;/h3&gt;
+&lt;p&gt;再次cd到解压出来的大目录下，执行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;make images
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;进行增量编译，速度会比全量编译快&lt;/p&gt;
+&lt;p&gt;再次运行代码发现之前对源码的修改已经生效&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727033822.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[leetcode]15.三数之和</title>
         <link>https://ccqstark.github.io/p/three_sum/</link>
         <pubDate>Fri, 23 Jul 2021 16:55:26 +0800</pubDate>

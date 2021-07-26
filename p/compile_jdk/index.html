@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
+环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+Xcode下载 一些C/C&#43;&#43;相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
+xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
+还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
+ 运行以下命令行  # 最后是xip文件的位置 xattr -d com.apple.quarantine Xcode_11.xip  在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。  所有软件环境基础 以下都是编译中需要用到的软件环境，确保都已经安装
+# 有一个已经可用的jdk，版本至少是要编译的版本-1 java -version # 输出 openjdk version &amp;#34;11.0.9&amp;#34; 2020-10-20 OpenJDK Runtime Environment (build 11.0.9&#43;11) OpenJDK 64-Bit Server VM (build 11.0.9&#43;11, mixed mode) # C的编译器 clang --version # 输出 Apple clang version 11.0.0 (clang-1100.0.33.8) Target: x86_64-apple-darwin18.7.0 Thread model: posix InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin # C&#43;&#43;的编译器 clang&#43;&#43; --version # 输出 Apple clang version 11.'><title>[实战]自己动手编译JDK实录</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/compile_jdk/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[实战]自己动手编译JDK实录'>
+<meta property='og:description' content='前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
+环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+Xcode下载 一些C/C&#43;&#43;相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
+xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
+还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
+ 运行以下命令行  # 最后是xip文件的位置 xattr -d com.apple.quarantine Xcode_11.xip  在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。  所有软件环境基础 以下都是编译中需要用到的软件环境，确保都已经安装
+# 有一个已经可用的jdk，版本至少是要编译的版本-1 java -version # 输出 openjdk version &amp;#34;11.0.9&amp;#34; 2020-10-20 OpenJDK Runtime Environment (build 11.0.9&#43;11) OpenJDK 64-Bit Server VM (build 11.0.9&#43;11, mixed mode) # C的编译器 clang --version # 输出 Apple clang version 11.0.0 (clang-1100.0.33.8) Target: x86_64-apple-darwin18.7.0 Thread model: posix InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin # C&#43;&#43;的编译器 clang&#43;&#43; --version # 输出 Apple clang version 11.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/compile_jdk/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='JDK' /><meta property='article:published_time' content='2021-07-27T03:44:28&#43;08:00'/><meta property='article:modified_time' content='2021-07-27T03:44:28&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/compile_jdk/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[实战]自己动手编译JDK实录">
+<meta name="twitter:description" content="前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
+环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+Xcode下载 一些C/C&#43;&#43;相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
+xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
+还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
+ 运行以下命令行  # 最后是xip文件的位置 xattr -d com.apple.quarantine Xcode_11.xip  在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。  所有软件环境基础 以下都是编译中需要用到的软件环境，确保都已经安装
+# 有一个已经可用的jdk，版本至少是要编译的版本-1 java -version # 输出 openjdk version &amp;#34;11.0.9&amp;#34; 2020-10-20 OpenJDK Runtime Environment (build 11.0.9&#43;11) OpenJDK 64-Bit Server VM (build 11.0.9&#43;11, mixed mode) # C的编译器 clang --version # 输出 Apple clang version 11.0.0 (clang-1100.0.33.8) Target: x86_64-apple-darwin18.7.0 Thread model: posix InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin # C&#43;&#43;的编译器 clang&#43;&#43; --version # 输出 Apple clang version 11."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/compile_jdk/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-PXLPFFZ3XD', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ccqstark.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/compile_jdk/">
+                <img src="/p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_800x0_resize_box_2.png"
+                        srcset="/p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_800x0_resize_box_2.png 800w, /p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="368" 
+                        loading="lazy"
+                        alt="Featured image of post [实战]自己动手编译JDK实录" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/" >
+                其它技术
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/compile_jdk/">[实战]自己动手编译JDK实录</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jul 27, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。</p>
+<h2 id="环境准备">环境准备</h2>
+<h3 id="系统环境">系统环境</h3>
+<p>我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013611.png" alt=""  /></p>
+<h3 id="xcode下载">Xcode下载</h3>
+<p>一些C/C++相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。</p>
+<p>xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。</p>
+<p>还有就是解压时可能会遇到系统验证问题，通过以下两步解决：</p>
+<ol>
+<li>运行以下命令行</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 最后是xip文件的位置</span>
+xattr -d com.apple.quarantine Xcode_11.xip
+</code></pre></div><ol>
+<li>在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。</li>
+</ol>
+<h3 id="所有软件环境基础">所有软件环境基础</h3>
+<p>以下都是编译中需要用到的软件环境，确保都已经安装</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 有一个已经可用的jdk，版本至少是要编译的版本-1</span>
+java -version
+<span class="c1"># 输出</span>
+openjdk version <span class="s2">&#34;11.0.9&#34;</span> 2020-10-20
+OpenJDK Runtime Environment <span class="o">(</span>build 11.0.9+11<span class="o">)</span>
+OpenJDK 64-Bit Server VM <span class="o">(</span>build 11.0.9+11, mixed mode<span class="o">)</span>
+
+<span class="c1"># C的编译器</span>
+clang --version
+<span class="c1"># 输出</span>
+Apple clang version 11.0.0 <span class="o">(</span>clang-1100.0.33.8<span class="o">)</span>
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+<span class="c1"># C++的编译器</span>
+clang++ --version
+<span class="c1"># 输出</span>
+Apple clang version 11.0.0 <span class="o">(</span>clang-1100.0.33.8<span class="o">)</span>
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+<span class="c1"># 自动配置工具autoconf</span>
+<span class="c1"># 下载方式：brew install autoconf</span>
+autoconf --version
+<span class="c1"># 输出</span>
+autoconf <span class="o">(</span>GNU Autoconf<span class="o">)</span> 2.69
+
+<span class="c1"># 编译构建工具</span>
+make --version
+<span class="c1"># 输出</span>
+GNU Make 3.81
+
+<span class="c1"># 渲染库freetype</span>
+freetype-config --ftversion
+<span class="c1"># 输出</span>
+2.10.4
+</code></pre></div><h2 id="源码下载">源码下载</h2>
+<p>这次要编译的目标版本是jdk11，所以下载jdk11的源码</p>
+<h3 id="方式一通过mercurial">方式一：通过Mercurial</h3>
+<p>JDK是通过这个叫Mercurial的版本管理工具来进行代码管理的，这个和git是一类工具，只不过过于小众。而且这种方式慢，不推荐。</p>
+<ul>
+<li>安装Mercurial</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">brew install mercurial
+</code></pre></div><ul>
+<li>
+<p>去网址hg.openjdk.java.net上复制地址</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png" alt="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png"  /></p>
+</li>
+<li>
+<p>使用命令clone源码包</p>
+</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">hg clone https://hg.openjdk.java.net/jdk/jdk11/
+</code></pre></div><h3 id="方式二官网下载压缩包">方式二：官网下载压缩包</h3>
+<p>这种方式速度快，推荐这种方式</p>
+<p>前往地址：</p>
+<p><a class="link" href="https://jdk.java.net/java-se-ri/11"  target="_blank" rel="noopener"
+    >Java Platform, Standard Edition 11 Reference Implementations</a></p>
+<p>点击下载zip压缩包即可</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020308.png" alt=""  /></p>
+<p>新建一个专门的文件夹存放源码包，解压后就可以看到目录结构</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020419.png" alt=""  /></p>
+<p>src就是源码部分，看到里面基本都是C和C++的代码，说明Java就是用C和C++写的。</p>
+<h2 id="自动配置工作">自动配置工作</h2>
+<p>这一步进行编译前的自动编译工作</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 首先cd进源码目录，也就是上图的openjdk11</span>
+<span class="nb">cd</span> openjdk11
+
+<span class="c1"># 运行脚本</span>
+sh configure
+</code></pre></div><p>这个过程较快，最后会输出一些概览信息。</p>
+<h2 id="正式编译工作">正式编译工作</h2>
+<p>第一次编译直接进行全量编译，执行：</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">make all
+</code></pre></div><p>这个过程比较久，耐心等待，会生成可执行文件，JDK成品镜像等很多东西</p>
+<p>过程中的警告可以忽略，只要不出现错误导致整个过程停止即可</p>
+<p>可以看到这个过程中我的mac的活动监视器，CPU快要炸了</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013350.png" alt=""  /></p>
+<p>直到控制台最后几行输出一下信息就证明成功了</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Creating support/demos/image/jfc/SampleTree/SampleTree.jar
+Creating support/demos/image/jfc/TableExample/TableExample.jar
+Creating support/demos/image/jfc/TransparentRuler/TransparentRuler.jar
+Creating jdk image
+Finished building target <span class="s1">&#39;all&#39;</span> in configuration <span class="s1">&#39;macosx-x86_64-normal-server-release&#39;</span>
+</code></pre></div><h2 id="成品验收">成品验收</h2>
+<p>完成上一步后就可以发现目录下多了一个build目录，进入<code>build/macosx-x86_64-normal-server-release/</code>目录可以看到如下文件</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022009.png" alt=""  /></p>
+<p>命令行验证下</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 进入编译后的jdk的bin目录</span>
+<span class="nb">cd</span> build/macosx-x86_64-normal-server-release/jdk/bin
+
+<span class="c1"># 执行java命令查看版本</span>
+./java -version
+
+<span class="c1"># 输出</span>
+openjdk version <span class="s2">&#34;11-internal&#34;</span> 2018-09-25
+OpenJDK Runtime Environment <span class="o">(</span>build 11-internal+0-adhoc.ccqstark.openjdk11<span class="o">)</span>
+OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqstark.openjdk11, mixed mode<span class="o">)</span>
+</code></pre></div><p>最终的JDK成品就在<code>images/jdk</code>目录下，这个就和我们平时在官网上下载的JDK基本是一样的</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022600.png" alt=""  /></p>
+<h2 id="idea中使用新jdk">IDEA中使用新JDK</h2>
+<p>新建一个Hello World项目</p>
+<p>添加自己编译的JDK的路径</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030400.png" alt=""  /></p>
+<p>切换项目所用的JDK为刚刚新增的</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030440.png" alt=""  /></p>
+<p>运行之后可以看到我们使用的JDK已经换成自己编译得到的了</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030536.png" alt=""  /></p>
+<h2 id="定制jdk">定制JDK</h2>
+<p>当我们需要自己定制一套属于自己的JDK的时候就需要我们去修改源码中的一些实现，修改之后要生效的话必须重新编译一次，这次的编译就可以用增量编译了。</p>
+<h3 id="修改sourcepath">修改Sourcepath</h3>
+<p>删除原来全部路径</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727031328.png" alt=""  /></p>
+<p>重新添加我们一开始下载的压缩包中解压出来的<code>src</code>目录下的源码，并让IDEA重新索引</p>
+<h3 id="修改源码">修改源码</h3>
+<p>我们Ctrl加鼠标点击进入println源码，并做点修改意思意思</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727032804.png" alt=""  /></p>
+<h3 id="增量编译">增量编译</h3>
+<p>再次cd到解压出来的大目录下，执行</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">make images
+</code></pre></div><p>进行增量编译，速度会比全量编译快</p>
+<p>再次运行代码发现之前对源码的修改已经生效</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727033822.png" alt=""  /></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/jdk/">JDK</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/vim/">
+        
+        
+            <div class="article-image">
+                <img src="/p/vim/vim.0882332af3fa94ead27d5a8d66d4e63b_hu721b1231aff42422e86b1dd0b5ea6e91_94583_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="vim" 
+                        data-hash="md5-CIIzKvP6lOrSfVqNZtTmOw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">我的vim入门配置折腾</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/alfred_iterm/">
+        
+        
+            <div class="article-image">
+                <img src="/p/alfred_iterm/ssh.3ce5409a5975ec3894f1a84f91e3282e_hu16ae618dcf0f79ca9c769a7fb0762a5e_66847_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="alfred_iterm" 
+                        data-hash="md5-POVAmll17DiU8ahPkeMoLg==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Alfred &#43; iTerm2 快速ssh连接服务器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/mac_terminal/">
+        
+        
+            <div class="article-image">
+                <img src="/p/mac_terminal/Mojave-desktop.249161a282f13f05b4ec6038f56c2863_hu0caf60027e85952cdd6ae94392d12e9b_35582_250x150_fill_q75_box_smart1.jpg" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="mac_terminal" 
+                        data-hash="md5-JJFhooLxPwW07GA49WwoYw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">MacOS终端美化指北</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">
+        
+        
+            <div class="article-image">
+                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.c21ba899c77312de9895762f5d2f27b8_hu8b6407a07803ab5ecf8133363f04b00e_28892_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="" 
+                        data-hash="md5-whuomcdzEt6YlXYvXS8nuA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Hugo&#43;github/gitee搭建个人博客</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+     
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#环境准备">环境准备</a>
+      <ol>
+        <li><a href="#系统环境">系统环境</a></li>
+        <li><a href="#xcode下载">Xcode下载</a></li>
+        <li><a href="#所有软件环境基础">所有软件环境基础</a></li>
+      </ol>
+    </li>
+    <li><a href="#源码下载">源码下载</a>
+      <ol>
+        <li><a href="#方式一通过mercurial">方式一：通过Mercurial</a></li>
+        <li><a href="#方式二官网下载压缩包">方式二：官网下载压缩包</a></li>
+      </ol>
+    </li>
+    <li><a href="#自动配置工作">自动配置工作</a></li>
+    <li><a href="#正式编译工作">正式编译工作</a></li>
+    <li><a href="#成品验收">成品验收</a></li>
+    <li><a href="#idea中使用新jdk">IDEA中使用新JDK</a></li>
+    <li><a href="#定制jdk">定制JDK</a>
+      <ol>
+        <li><a href="#修改sourcepath">修改Sourcepath</a></li>
+        <li><a href="#修改源码">修改源码</a></li>
+        <li><a href="#增量编译">增量编译</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

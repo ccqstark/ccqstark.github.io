@@ -6,7 +6,22 @@
     <description>Recent content in Posts on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 Jul 2021 16:55:26 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 27 Jul 2021 03:44:28 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[实战]自己动手编译JDK实录</title>
+      <link>https://ccqstark.github.io/p/compile_jdk/</link>
+      <pubDate>Tue, 27 Jul 2021 03:44:28 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/compile_jdk/</guid>
+      <description>前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
+环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+Xcode下载 一些C/C++相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
+xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
+还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
+ 运行以下命令行  # 最后是xip文件的位置 xattr -d com.apple.quarantine Xcode_11.xip  在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。  所有软件环境基础 以下都是编译中需要用到的软件环境，确保都已经安装
+# 有一个已经可用的jdk，版本至少是要编译的版本-1 java -version # 输出 openjdk version &amp;#34;11.0.9&amp;#34; 2020-10-20 OpenJDK Runtime Environment (build 11.0.9+11) OpenJDK 64-Bit Server VM (build 11.0.9+11, mixed mode) # C的编译器 clang --version # 输出 Apple clang version 11.0.0 (clang-1100.0.33.8) Target: x86_64-apple-darwin18.7.0 Thread model: posix InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin # C++的编译器 clang++ --version # 输出 Apple clang version 11.</description>
+    </item>
+    
     <item>
       <title>[leetcode]15.三数之和</title>
       <link>https://ccqstark.github.io/p/three_sum/</link>
