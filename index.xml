@@ -27,7 +27,7 @@
 &lt;/ol&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 最后是xip文件的位置&lt;/span&gt;
 xattr -d com.apple.quarantine Xcode_11.xip
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h3 id=&#34;所有软件环境基础&#34;&gt;所有软件环境基础&lt;/h3&gt;
@@ -158,6 +158,12 @@ OpenJDK 64-Bit Server VM &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;build 11-in
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;进行增量编译，速度会比全量编译快&lt;/p&gt;
 &lt;p&gt;再次运行代码发现之前对源码的修改已经生效&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727033822.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;参考资料&#34;&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;《深入理解Java虚拟机》 周志明&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1zT4y177Zf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;JDK都没手动编译过，敢说自己是Java程序员吗？实战编译Java源码（JDK源码,JVM）视频教程  CodeSheep&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         <item>
