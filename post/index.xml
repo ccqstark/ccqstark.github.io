@@ -6,7 +6,31 @@
     <description>Recent content in Posts on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 25 Aug 2021 16:07:15 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 26 Aug 2021 03:57:56 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Redis布隆过滤器与点赞功能设计</title>
+      <link>https://ccqstark.github.io/p/bloom_filter/</link>
+      <pubDate>Thu, 26 Aug 2021 03:57:56 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/bloom_filter/</guid>
+      <description>什么是布隆过滤器 简介 布隆过滤器（Bloom Filter）是 1970 年由布隆提出的。它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都比一般的算法要好的多，缺点是有一定的误识别率和删除困难。
+具体实现原理 如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。
+当要判断一个元素是否在过滤器中，也是先进行Hash计算出对应的位，判断二进制数组中所有对应的位是否都为1，是的话表示元素在其中；反之不在。
+存在的问题 布隆过滤器存在误判率，也是可能会把一个不存在的元素判定为存在的。因为在加入大量元素后，二进制数组中可能大部分位都被置为1了，所以一个新的数据Hash出来对应的位就很可能也都置为1了。
+解决办法就是增加二进制数组的长度，使得二进制数组不那么快饱和，就可以容纳更多的元素，降低误判概率；或者增加Hash次数，使得数据更加分散。
+所以但布隆过滤器判断一个元素存在时，可能不一定真的存在；但假如它判断一个元素不存在，那这个元素一定不存在，这种情况不存在误判。
+还有一个问题是删除困难，因为在元素较多的情况下它们对应的位总有交叉，如果你把其中一个元素对应的位都置0了，那很可能也会影响到其他的元素，很难仅仅删除一个元素。
+应用场景  网页爬虫对 URL 去重，避免爬取相同的 URL 地址； 反垃圾邮件，从数十亿个垃圾邮件列表中判断某邮箱是否垃圾邮箱； Google Chrome 使用布隆过滤器识别恶意 URL； Medium 使用布隆过滤器避免推荐给用户已经读过的文章； Google BigTable，Apache HBbase 和 Apache Cassandra 使用布隆过滤器减少对不存在的行和列的查找。  除了上述的应用场景之外，布隆过滤器还有一个应用场景就是解决缓存穿透的问题。所谓的缓存穿透就是服务调用方每次都是查询不在缓存中的数据，这样每次服务调用都会到数据库中进行查询，如果这类请求比较多的话，就会导致数据库压力增大，这样缓存就失去了意义。
+所以当有黑客生成大量随机的不存在的值请求服务器导致查询数据库，造成大量缓存穿透的情况时。我们可以用布隆过滤器进行拦截，被布隆过滤器判断为不存在的值就不需要查询数据库了，直接返回，大大减低了数据库压力。(少量判断为存在的值因为有误判率所以可以进行下一步查询)
+在redis中安装布隆过滤器 redis本身是不自带布隆过滤器功能的，要么基于bitmap自己实现，要么安装插件
+（布隆过滤器在guava包中也有实现）
+安装redis插件 非docker安装的redis可以采用安装插件的方式来
+# 去这个github仓库看看最新版本 wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz # 解压 tar zxvf v2.2.4.tar.gz # 编译 cd RedisBloom-2.2.4 make 以上执行完之后在目录下多了一个rebloom.so文件，将其移动到一个合适的位置
+然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用info 命令查看）
+# 后面为rebloom.so文件所在的目录 loadmodule /xxx/xxx/xxx/[rebloom.so](http://rebloom.so/) 重启redis后进入redis-cli尝试以下命令
+bf.add test 1 bf.add test 2 bf.</description>
+    </item>
+    
     <item>
       <title>Redis分布式缓存实现</title>
       <link>https://ccqstark.github.io/p/redis_mybatis_cache/</link>

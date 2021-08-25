@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='什么是布隆过滤器 简介 布隆过滤器（Bloom Filter）是 1970 年由布隆提出的。它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都比一般的算法要好的多，缺点是有一定的误识别率和删除困难。
+具体实现原理 如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。
+当要判断一个元素是否在过滤器中，也是先进行Hash计算出对应的位，判断二进制数组中所有对应的位是否都为1，是的话表示元素在其中；反之不在。
+存在的问题 布隆过滤器存在误判率，也是可能会把一个不存在的元素判定为存在的。因为在加入大量元素后，二进制数组中可能大部分位都被置为1了，所以一个新的数据Hash出来对应的位就很可能也都置为1了。
+解决办法就是增加二进制数组的长度，使得二进制数组不那么快饱和，就可以容纳更多的元素，降低误判概率；或者增加Hash次数，使得数据更加分散。
+所以但布隆过滤器判断一个元素存在时，可能不一定真的存在；但假如它判断一个元素不存在，那这个元素一定不存在，这种情况不存在误判。
+还有一个问题是删除困难，因为在元素较多的情况下它们对应的位总有交叉，如果你把其中一个元素对应的位都置0了，那很可能也会影响到其他的元素，很难仅仅删除一个元素。
+应用场景  网页爬虫对 URL 去重，避免爬取相同的 URL 地址； 反垃圾邮件，从数十亿个垃圾邮件列表中判断某邮箱是否垃圾邮箱； Google Chrome 使用布隆过滤器识别恶意 URL； Medium 使用布隆过滤器避免推荐给用户已经读过的文章； Google BigTable，Apache HBbase 和 Apache Cassandra 使用布隆过滤器减少对不存在的行和列的查找。  除了上述的应用场景之外，布隆过滤器还有一个应用场景就是解决缓存穿透的问题。所谓的缓存穿透就是服务调用方每次都是查询不在缓存中的数据，这样每次服务调用都会到数据库中进行查询，如果这类请求比较多的话，就会导致数据库压力增大，这样缓存就失去了意义。
+所以当有黑客生成大量随机的不存在的值请求服务器导致查询数据库，造成大量缓存穿透的情况时。我们可以用布隆过滤器进行拦截，被布隆过滤器判断为不存在的值就不需要查询数据库了，直接返回，大大减低了数据库压力。(少量判断为存在的值因为有误判率所以可以进行下一步查询)
+在redis中安装布隆过滤器 redis本身是不自带布隆过滤器功能的，要么基于bitmap自己实现，要么安装插件
+（布隆过滤器在guava包中也有实现）
+安装redis插件 非docker安装的redis可以采用安装插件的方式来
+# 去这个github仓库看看最新版本 wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz # 解压 tar zxvf v2.2.4.tar.gz # 编译 cd RedisBloom-2.2.4 make 以上执行完之后在目录下多了一个rebloom.so文件，将其移动到一个合适的位置
+然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用info 命令查看）
+# 后面为rebloom.so文件所在的目录 loadmodule /xxx/xxx/xxx/[rebloom.so](http://rebloom.so/) 重启redis后进入redis-cli尝试以下命令
+bf.add test 1 bf.add test 2 bf.'><title>Redis布隆过滤器与点赞功能设计</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/bloom_filter/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Redis布隆过滤器与点赞功能设计'>
+<meta property='og:description' content='什么是布隆过滤器 简介 布隆过滤器（Bloom Filter）是 1970 年由布隆提出的。它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都比一般的算法要好的多，缺点是有一定的误识别率和删除困难。
+具体实现原理 如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。
+当要判断一个元素是否在过滤器中，也是先进行Hash计算出对应的位，判断二进制数组中所有对应的位是否都为1，是的话表示元素在其中；反之不在。
+存在的问题 布隆过滤器存在误判率，也是可能会把一个不存在的元素判定为存在的。因为在加入大量元素后，二进制数组中可能大部分位都被置为1了，所以一个新的数据Hash出来对应的位就很可能也都置为1了。
+解决办法就是增加二进制数组的长度，使得二进制数组不那么快饱和，就可以容纳更多的元素，降低误判概率；或者增加Hash次数，使得数据更加分散。
+所以但布隆过滤器判断一个元素存在时，可能不一定真的存在；但假如它判断一个元素不存在，那这个元素一定不存在，这种情况不存在误判。
+还有一个问题是删除困难，因为在元素较多的情况下它们对应的位总有交叉，如果你把其中一个元素对应的位都置0了，那很可能也会影响到其他的元素，很难仅仅删除一个元素。
+应用场景  网页爬虫对 URL 去重，避免爬取相同的 URL 地址； 反垃圾邮件，从数十亿个垃圾邮件列表中判断某邮箱是否垃圾邮箱； Google Chrome 使用布隆过滤器识别恶意 URL； Medium 使用布隆过滤器避免推荐给用户已经读过的文章； Google BigTable，Apache HBbase 和 Apache Cassandra 使用布隆过滤器减少对不存在的行和列的查找。  除了上述的应用场景之外，布隆过滤器还有一个应用场景就是解决缓存穿透的问题。所谓的缓存穿透就是服务调用方每次都是查询不在缓存中的数据，这样每次服务调用都会到数据库中进行查询，如果这类请求比较多的话，就会导致数据库压力增大，这样缓存就失去了意义。
+所以当有黑客生成大量随机的不存在的值请求服务器导致查询数据库，造成大量缓存穿透的情况时。我们可以用布隆过滤器进行拦截，被布隆过滤器判断为不存在的值就不需要查询数据库了，直接返回，大大减低了数据库压力。(少量判断为存在的值因为有误判率所以可以进行下一步查询)
+在redis中安装布隆过滤器 redis本身是不自带布隆过滤器功能的，要么基于bitmap自己实现，要么安装插件
+（布隆过滤器在guava包中也有实现）
+安装redis插件 非docker安装的redis可以采用安装插件的方式来
+# 去这个github仓库看看最新版本 wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz # 解压 tar zxvf v2.2.4.tar.gz # 编译 cd RedisBloom-2.2.4 make 以上执行完之后在目录下多了一个rebloom.so文件，将其移动到一个合适的位置
+然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用info 命令查看）
+# 后面为rebloom.so文件所在的目录 loadmodule /xxx/xxx/xxx/[rebloom.so](http://rebloom.so/) 重启redis后进入redis-cli尝试以下命令
+bf.add test 1 bf.add test 2 bf.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/bloom_filter/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Redis' /><meta property='article:tag' content='布隆过滤器' /><meta property='article:published_time' content='2021-08-26T03:57:56&#43;08:00'/><meta property='article:modified_time' content='2021-08-26T03:57:56&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/bloom_filter/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Redis布隆过滤器与点赞功能设计">
+<meta name="twitter:description" content="什么是布隆过滤器 简介 布隆过滤器（Bloom Filter）是 1970 年由布隆提出的。它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都比一般的算法要好的多，缺点是有一定的误识别率和删除困难。
+具体实现原理 如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。
+当要判断一个元素是否在过滤器中，也是先进行Hash计算出对应的位，判断二进制数组中所有对应的位是否都为1，是的话表示元素在其中；反之不在。
+存在的问题 布隆过滤器存在误判率，也是可能会把一个不存在的元素判定为存在的。因为在加入大量元素后，二进制数组中可能大部分位都被置为1了，所以一个新的数据Hash出来对应的位就很可能也都置为1了。
+解决办法就是增加二进制数组的长度，使得二进制数组不那么快饱和，就可以容纳更多的元素，降低误判概率；或者增加Hash次数，使得数据更加分散。
+所以但布隆过滤器判断一个元素存在时，可能不一定真的存在；但假如它判断一个元素不存在，那这个元素一定不存在，这种情况不存在误判。
+还有一个问题是删除困难，因为在元素较多的情况下它们对应的位总有交叉，如果你把其中一个元素对应的位都置0了，那很可能也会影响到其他的元素，很难仅仅删除一个元素。
+应用场景  网页爬虫对 URL 去重，避免爬取相同的 URL 地址； 反垃圾邮件，从数十亿个垃圾邮件列表中判断某邮箱是否垃圾邮箱； Google Chrome 使用布隆过滤器识别恶意 URL； Medium 使用布隆过滤器避免推荐给用户已经读过的文章； Google BigTable，Apache HBbase 和 Apache Cassandra 使用布隆过滤器减少对不存在的行和列的查找。  除了上述的应用场景之外，布隆过滤器还有一个应用场景就是解决缓存穿透的问题。所谓的缓存穿透就是服务调用方每次都是查询不在缓存中的数据，这样每次服务调用都会到数据库中进行查询，如果这类请求比较多的话，就会导致数据库压力增大，这样缓存就失去了意义。
+所以当有黑客生成大量随机的不存在的值请求服务器导致查询数据库，造成大量缓存穿透的情况时。我们可以用布隆过滤器进行拦截，被布隆过滤器判断为不存在的值就不需要查询数据库了，直接返回，大大减低了数据库压力。(少量判断为存在的值因为有误判率所以可以进行下一步查询)
+在redis中安装布隆过滤器 redis本身是不自带布隆过滤器功能的，要么基于bitmap自己实现，要么安装插件
+（布隆过滤器在guava包中也有实现）
+安装redis插件 非docker安装的redis可以采用安装插件的方式来
+# 去这个github仓库看看最新版本 wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz # 解压 tar zxvf v2.2.4.tar.gz # 编译 cd RedisBloom-2.2.4 make 以上执行完之后在目录下多了一个rebloom.so文件，将其移动到一个合适的位置
+然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用info 命令查看）
+# 后面为rebloom.so文件所在的目录 loadmodule /xxx/xxx/xxx/[rebloom.so](http://rebloom.so/) 重启redis后进入redis-cli尝试以下命令
+bf.add test 1 bf.add test 2 bf."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/bloom_filter/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-PXLPFFZ3XD', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ccqstark.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/bloom_filter/">
+                <img src="/p/bloom_filter/cover_hu4ee9ebaa10fc0f0205471a9a6145c894_228532_800x0_resize_box_2.png"
+                        srcset="/p/bloom_filter/cover_hu4ee9ebaa10fc0f0205471a9a6145c894_228532_800x0_resize_box_2.png 800w, /p/bloom_filter/cover_hu4ee9ebaa10fc0f0205471a9a6145c894_228532_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="470" 
+                        loading="lazy"
+                        alt="Featured image of post Redis布隆过滤器与点赞功能设计" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" >
+                数据库
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/bloom_filter/">Redis布隆过滤器与点赞功能设计</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Aug 26, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="什么是布隆过滤器">什么是布隆过滤器</h2>
+<h3 id="简介">简介</h3>
+<p>布隆过滤器（<code>Bloom Filter</code>）是 1970 年由布隆提出的。它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都比一般的算法要好的多，缺点是有一定的误识别率和删除困难。</p>
+<h3 id="具体实现原理">具体实现原理</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210825171931.png" alt=""  /></p>
+<p>如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。</p>
+<p>当要判断一个元素是否在过滤器中，也是先进行Hash计算出对应的位，判断二进制数组中所有对应的位是否都为1，是的话表示元素在其中；反之不在。</p>
+<h3 id="存在的问题">存在的问题</h3>
+<p>布隆过滤器存在<code>误判率</code>，也是可能会把一个不存在的元素判定为存在的。因为在加入大量元素后，二进制数组中可能大部分位都被置为1了，所以一个新的数据Hash出来对应的位就很可能也都置为1了。</p>
+<p>解决办法就是增加二进制数组的长度，使得二进制数组不那么快饱和，就可以容纳更多的元素，降低误判概率；或者增加Hash次数，使得数据更加分散。</p>
+<p>所以但布隆过滤器判断一个元素存在时，可能不一定真的存在；但假如它判断一个元素不存在，那这个元素一定不存在，这种情况不存在误判。</p>
+<p>还有一个问题是<code>删除困难</code>，因为在元素较多的情况下它们对应的位总有交叉，如果你把其中一个元素对应的位都置0了，那很可能也会影响到其他的元素，很难仅仅删除一个元素。</p>
+<h3 id="应用场景">应用场景</h3>
+<ul>
+<li>网页爬虫对 URL 去重，避免爬取相同的 URL 地址；</li>
+<li>反垃圾邮件，从数十亿个垃圾邮件列表中判断某邮箱是否垃圾邮箱；</li>
+<li>Google Chrome 使用布隆过滤器识别恶意 URL；</li>
+<li>Medium 使用布隆过滤器避免推荐给用户已经读过的文章；</li>
+<li>Google BigTable，Apache HBbase 和 Apache Cassandra 使用布隆过滤器减少对不存在的行和列的查找。</li>
+</ul>
+<p>除了上述的应用场景之外，布隆过滤器还有一个应用场景就是解决<code>缓存穿透</code>的问题。所谓的缓存穿透就是服务调用方每次都是查询不在缓存中的数据，这样每次服务调用都会到数据库中进行查询，如果这类请求比较多的话，就会导致数据库压力增大，这样缓存就失去了意义。</p>
+<p>所以当有黑客生成大量随机的不存在的值请求服务器导致查询数据库，造成大量缓存穿透的情况时。我们可以用布隆过滤器进行拦截，被布隆过滤器判断为不存在的值就不需要查询数据库了，直接返回，大大减低了数据库压力。(少量判断为存在的值因为有误判率所以可以进行下一步查询)</p>
+<h2 id="在redis中安装布隆过滤器">在redis中安装布隆过滤器</h2>
+<p>redis本身是不自带布隆过滤器功能的，要么基于bitmap自己实现，要么安装插件</p>
+<p>（布隆过滤器在guava包中也有实现）</p>
+<h3 id="安装redis插件">安装redis插件</h3>
+<p>非docker安装的redis可以采用安装插件的方式来</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 去这个github仓库看看最新版本</span>
+wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz
+<span class="c1"># 解压</span>
+tar zxvf v2.2.4.tar.gz
+<span class="c1"># 编译</span>
+<span class="nb">cd</span> RedisBloom-2.2.4
+make
+</code></pre></div><p>以上执行完之后在目录下多了一个<code>rebloom.so</code>文件，将其移动到一个合适的位置</p>
+<p>然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用<code>info</code> 命令查看）</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 后面为rebloom.so文件所在的目录</span>
+loadmodule /xxx/xxx/xxx/<span class="o">[</span>rebloom.so<span class="o">](</span>http://rebloom.so/<span class="o">)</span>
+</code></pre></div><p>重启redis后进入redis-cli尝试以下命令</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">bf.add <span class="nb">test</span> <span class="m">1</span>
+bf.add <span class="nb">test</span> <span class="m">2</span>
+bf.exists <span class="nb">test</span> <span class="m">1</span>
+bf.exists <span class="nb">test</span> <span class="m">222</span>
+</code></pre></div><h3 id="docker镜像">Docker镜像</h3>
+<p>拉取镜像并运行容器</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d -p 6379:6379 --name redis-redisbloom redislabs/rebloom:latest
+</code></pre></div><p>进入容器测试命令</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 进入容器</span>
+docker <span class="nb">exec</span> -it redis-redisbloom bash
+<span class="c1"># 启动客户端</span>
+redis-cli
+</code></pre></div><p>同样去测试<code>bf.add</code>和<code>bf.exists</code>命令即可</p>
+<h2 id="使用redisson的api进行操作">使用Redisson的API进行操作</h2>
+<p><code>Redisson</code>是著名的redis客户端，有很多强大的功能，其中就包括了布隆过滤器的实现，而且是直接基于redis的bitmap的，所以也不需要去在redis安装布隆过滤器的插件，原生的redis即可。</p>
+<h3 id="引入依赖">引入依赖</h3>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.redisson<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>redisson-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>3.16.1<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div><p>如果只为了使用redisson的布隆过滤器api，则不需要配置其他东西，只需要在项目配置文件中配好redis地址密码等，用redistemplate原来那些配置就行。</p>
+<h3 id="简单使用demo">简单使用demo</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">TestRedissonBloomFilter</span><span class="o">()</span> <span class="o">{</span>
+		<span class="c1">// 先根据key获取一个布隆过滤器（不管存不存在）
+</span><span class="c1"></span>    <span class="n">RBloomFilter</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">bloomFilter</span> <span class="o">=</span> <span class="n">redissonClient</span><span class="o">.</span><span class="na">getBloomFilter</span><span class="o">(</span><span class="s">&#34;phoneList&#34;</span><span class="o">);</span>
+    <span class="c1">//初始化布隆过滤器：预计元素为100000000L,误差率为3%
+</span><span class="c1"></span>    <span class="n">bloomFilter</span><span class="o">.</span><span class="na">tryInit</span><span class="o">(</span><span class="n">100000000L</span><span class="o">,</span> <span class="n">0</span><span class="o">.</span><span class="na">03</span><span class="o">);</span>
+    <span class="c1">//将号码10086插入到布隆过滤器中
+</span><span class="c1"></span>    <span class="n">bloomFilter</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">666</span><span class="o">);</span>
+
+    <span class="c1">//判断下面号码是否在布隆过滤器中
+</span><span class="c1"></span>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">bloomFilter</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">666</span><span class="o">));</span><span class="c1">//false
+</span><span class="c1"></span>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">bloomFilter</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">66666</span><span class="o">));</span><span class="c1">//true
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><h3 id="封装进redisutil">封装进RedisUtil</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
+</span><span class="cm"> * 初始化一个布隆过滤器
+</span><span class="cm"> *
+</span><span class="cm"> * @param expectedInsertions 预期元素数量
+</span><span class="cm"> * @param falseProbability   误判率
+</span><span class="cm"> * @return 是否创建成功
+</span><span class="cm"> */</span>
+<span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="kt">boolean</span> <span class="nf">initBloomFilter</span><span class="o">(</span><span class="n">RBloomFilter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">bloomFilter</span><span class="o">,</span> <span class="kt">long</span> <span class="n">expectedInsertions</span><span class="o">,</span> <span class="kt">double</span> <span class="n">falseProbability</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">bloomFilter</span><span class="o">.</span><span class="na">tryInit</span><span class="o">(</span><span class="n">expectedInsertions</span><span class="o">,</span> <span class="n">falseProbability</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+</span><span class="cm"> * 获取布隆过滤器
+</span><span class="cm"> */</span>
+<span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">RBloomFilter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="nf">getBloomFilter</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">redissonClient</span><span class="o">.</span><span class="na">getBloomFilter</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+</span><span class="cm"> * 在布隆过滤器中增加一个值
+</span><span class="cm"> */</span>
+<span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="kt">boolean</span> <span class="nf">addInBloomFilter</span><span class="o">(</span><span class="n">RBloomFilter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">bloomFilter</span><span class="o">,</span> <span class="n">T</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">bloomFilter</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalStateException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">initBloomFilter</span><span class="o">(</span><span class="n">bloomFilter</span><span class="o">,</span> <span class="n">50000L</span><span class="o">,</span> <span class="n">0</span><span class="o">.</span><span class="na">01</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">bloomFilter</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+</span><span class="cm"> * 判断某值是否存在于过滤器中
+</span><span class="cm"> */</span>
+<span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="kt">boolean</span> <span class="nf">containsInBloomFilter</span><span class="o">(</span><span class="n">RBloomFilter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">bloomFilter</span><span class="o">,</span> <span class="n">T</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">bloomFilter</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalStateException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">initBloomFilter</span><span class="o">(</span><span class="n">bloomFilter</span><span class="o">,</span> <span class="n">50000L</span><span class="o">,</span> <span class="n">0</span><span class="o">.</span><span class="na">01</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">bloomFilter</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>为了方便使用这些API，这里我自己封装了一些工具类。</p>
+<p>因为BloomFilter不像redis其他数据结构，不用初始化就可以直接set和get，如果<code>getBloomFilter</code> 方法获取了一个未初始化的过滤器，并进行了add和contains操作，就会报错。因此我在这两个操作的方法中捕获了未初始化的异常，假如检测到了异常就自动进行初始化（默认值），简化了使用。</p>
+<h2 id="点赞功能的设计与思考">点赞功能的设计与思考</h2>
+<p>点赞，一个看起来很简单的功能实现，在数据量大，并发量大情况下就不是这么回事了。</p>
+<p>可以代入微博的场景来思考，假如明星发一条微博，瞬间几十万点赞，这波流量要顶住也不是那么容易，尽管只是一个点赞功能而已。最近在做公司那个项目的点赞功能，为了设计得更加高可用，也是去好好地思考了。</p>
+<h3 id="功能拆解">功能拆解</h3>
+<p>点赞，说到底就两个方面需要实现</p>
+<ul>
+<li>对应帖子的点赞数</li>
+<li>用户与点赞帖子的关联关系</li>
+</ul>
+<p>第一个本质就是一个计数器，我们需要对每一个帖子被点赞的次数进行计数</p>
+<p>第二个主要是用来判断此用户是否已经点赞过文章，从而避免二次点赞或者进行取消点赞的操作，需要维护的是一个类似二元组的关系结构（用户id，帖子id）</p>
+<p>方案主要也是从两个数据库入手，即MySQL和Redis，也就是怎么处理好存储层和缓存层之间的关系、怎么最合理地配合使用它们来达到最佳的实现效果，这也是这个问题的本质。</p>
+<p>看透问题的本质再思考方案与动手实践，才是正确的解决问题的方式。教父曾经说过：”花半秒钟就看透事物本质的人，和花一辈子都看不清事物本质的人，注定是截然不同的命运。”（doge）</p>
+<h3 id="方案一">方案一</h3>
+<p>这个方案是我最开始在翻阅查询了晚上的一些资料后想出来的，看起来好像有模有样，其实问题还是挺多的，主要也是和公司的同事讨论后被指出很多不合理的地方。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210826025904.png" alt=""  /></p>
+<p><strong>方案介绍</strong></p>
+<ol>
+<li>这个流程主要是在点赞时前端直接在本地将点赞数+1并改变样式，然后再去请求后端，</li>
+<li>然后就是请求的接口是把点赞的这个消息或者说任务，放到了消息队列里，之后等待被消费。每次消费是先直接在redis对计数器incr。</li>
+<li>接着用户是否点赞是存在布隆过滤器中的，一篇文章一个bloom filter，里面存的就是点过赞的用户的id。</li>
+<li>最后是定期将redis中的数据持久化到mysql。</li>
+</ol>
+<p><strong>反思</strong></p>
+<p>前端本地先+1主要是为了用户直观感觉到点赞可以立马得到反馈，而不是因为到等待后端返回而带来的延迟感，影响用户体验。</p>
+<p>消息队列，加入它的本意是为了让消息可以被准确消费从未保证点赞数较为精确，后来发现这样失去了实时性同时增加了开销，而且我还得去保证消息的可靠消费，就为了其实压根不需要很准确的点赞数，实在没有必要，所以后续删了。</p>
+<p>之前在学redis的应用场景的时候好像就听过可以用incr来做点赞，所以这次要做点赞就直接先到了incr。得益于redis单线程，这样没有并发修改问题，速度也快，但同步到mysql是个大问题。</p>
+<p>没错，我直接用一个布隆过滤器当做存储用了，还在想之后持久化到mysql可以用binary类型来存，完全没有意识到人家是一个过滤器，不是一个存储器，我直接忽略了误判率。导致这些错误的使用也是当时对它认识还不够深刻。</p>
+<p>对于持久化到mysql，当时还没仔细往下查具体的方案，感觉业内应该会有一个成熟的机制或者什么插件中间件之类的可以方便快捷稳定地完成这个任务，后来发现并没有，需要自己业务代码做定时任务定期写入库，感觉就比较麻烦不好非常优雅完美地实现，如果缓存中的数据越来越多，这个同步任务岂不是越来越庞大？这个暂时不知道如何解决。</p>
+<p>总结就是方案十分不成熟，漏洞百出，是一个孬方案。</p>
+<h3 id="方案二">方案二</h3>
+<p>在与同事讨论后对方案一进行改良后的方案，也是最后确定使用的方案。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210825043059.png" alt=""  /></p>
+<p><strong>方案介绍</strong></p>
+<ol>
+<li>首先前端还是和方案一一样，不再赘述。</li>
+<li>如何采用了MyBatis的二级缓存，将每次查询到的结果缓存到redis中，有变更就清除，查不到再回库查。点赞数就在查的时候缓存到了redis中，但是每次更新点赞数都是直接到库中操作的，而且附带一个清缓存的操作。</li>
+<li>用户是否点赞用一个布隆过滤器先做过滤，一个redis的set来存储点赞和帖子的关系，直接用redis的持久化机制，不入MySQL。</li>
+</ol>
+<p><strong>反思</strong></p>
+<p>这个方案对比方案一明显有了改进，首先是去掉了意义不大的消息队列，很好。</p>
+<p>然后是二级缓存，虽然每次点赞都会直接操作库，对性能有影响而且同时还清缓存，导致下一次查询也要进库才能再设缓存，但是考虑到项目一开始用户应该不多，点赞行为的发生次数相对来说不会非常多，至少要比普通的查询少上一些，这样一来hit到缓存的几率还是不小的，缓存还是能起到一定的作用的，而且二级缓存也不仅仅只是用在点赞功能上，而是全线使用。</p>
+<p>接着夸一下这次布隆过滤器用的不错，真当一个过滤器用了，用来过滤掉很多元素不存在的情况，对性能提升作用还是不小的；然后就是点赞关系的存储，有人说既然是一个类似二元组的关系为啥不一个Hash结构搞定呢？考虑到目前直接用redis持久化的，如果慢慢积累下来，这个Hash变得硕大无比，也是会影响性能的。所以我是通过树形的key来使得一篇帖子有一个set集合（同时也有一个布隆），集合里放点赞过的userID。</p>
+<p>最后说一下redis和mysql同步的问题，在讨论过程中搜了一下，发现很多同步方案都是针对于mysql的改动同步到redis的（而不是redis同步到mysql），常见的有两种：</p>
+<ol>
+<li>触发器+用户自定义函数UDF</li>
+<li>中间件canal（binlog）</li>
+</ol>
+<p>后来在学习redis当MyBatis的二级缓存中发现其实没有必要搞这个了，二级缓存本质已经解决了数据需要更新的问题（清除再设置）</p>
+<p>总结就是改进不少，但是仍有不足，或许是现阶段现情景下最好的选择。</p>
+<h3 id="方案三">方案三</h3>
+<p>这个是在我对着搜索引擎直接输入关键字“redis实现点赞功能”后查出来的常见方案，大同小异，这里简答讲下就行。和之前的方案主要的不同是数据修改都是直接缓存中操作，然后再在业务代码中用定时任务例如<code>Quartz</code>每隔一段时间写入到mysql中；还有一个是存储点赞关系用redis的Hash。</p>
+<p>我这于两个不同点的看法上面也提到过了，在这里只能这样说也不失为一种方案吧。</p>
+<h3 id="总结">总结</h3>
+<p>方案很多，但是哪种最优，哪种更好，可能脱离场景的情况下不会有一个标准答案，对于好方案的追求与优化我也将不断追寻。。。（升华了doge）</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a class="link" href="https://juejin.cn/post/6844904007790673933"  target="_blank" rel="noopener"
+    >https://juejin.cn/post/6844904007790673933</a></p>
+<p><a class="link" href="https://zhuanlan.zhihu.com/p/346651831"  target="_blank" rel="noopener"
+    >https://zhuanlan.zhihu.com/p/346651831</a></p>
+<p><a class="link" href="https://blog.csdn.net/ChenMMo/article/details/93615438"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/ChenMMo/article/details/93615438</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/redis/">Redis</a>
+        
+            <a href="/tags/%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/">布隆过滤器</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/redis_mybatis_cache/">
+        
+        
+            <div class="article-image">
+                <img src="/p/redis_mybatis_cache/cover.554c786f4fb1f35b703d6ef7a44b5db9_hu98723c96db4cad61d3193fddfb3126c4_90918_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="redis_mybatis_cache" 
+                        data-hash="md5-VUx4b0&#43;x81twPW73pEtduQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Redis分布式缓存实现</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/mysql_master_slave_replic/">
+        
+        
+            <div class="article-image">
+                <img src="/p/mysql_master_slave_replic/cover.8daf3fb2497f304c26dbeec6f6b85751_huff5578d477b5a7be0373e736738479ea_238860_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="mysql_master_slave_replic" 
+                        data-hash="md5-ja8/skl/MEwm2&#43;7G9rhXUQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">MySQL主从复制搭建与原理</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+     
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#什么是布隆过滤器">什么是布隆过滤器</a>
+      <ol>
+        <li><a href="#简介">简介</a></li>
+        <li><a href="#具体实现原理">具体实现原理</a></li>
+        <li><a href="#存在的问题">存在的问题</a></li>
+        <li><a href="#应用场景">应用场景</a></li>
+      </ol>
+    </li>
+    <li><a href="#在redis中安装布隆过滤器">在redis中安装布隆过滤器</a>
+      <ol>
+        <li><a href="#安装redis插件">安装redis插件</a></li>
+        <li><a href="#docker镜像">Docker镜像</a></li>
+      </ol>
+    </li>
+    <li><a href="#使用redisson的api进行操作">使用Redisson的API进行操作</a>
+      <ol>
+        <li><a href="#引入依赖">引入依赖</a></li>
+        <li><a href="#简单使用demo">简单使用demo</a></li>
+        <li><a href="#封装进redisutil">封装进RedisUtil</a></li>
+      </ol>
+    </li>
+    <li><a href="#点赞功能的设计与思考">点赞功能的设计与思考</a>
+      <ol>
+        <li><a href="#功能拆解">功能拆解</a></li>
+        <li><a href="#方案一">方案一</a></li>
+        <li><a href="#方案二">方案二</a></li>
+        <li><a href="#方案三">方案三</a></li>
+        <li><a href="#总结">总结</a></li>
+      </ol>
+    </li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

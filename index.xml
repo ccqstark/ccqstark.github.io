@@ -6,7 +6,198 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Wed, 25 Aug 2021 16:07:15 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 26 Aug 2021 03:57:56 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Redis布隆过滤器与点赞功能设计</title>
+        <link>https://ccqstark.github.io/p/bloom_filter/</link>
+        <pubDate>Thu, 26 Aug 2021 03:57:56 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/bloom_filter/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/bloom_filter/cover.png" alt="Featured image of post Redis布隆过滤器与点赞功能设计" /&gt;&lt;h2 id=&#34;什么是布隆过滤器&#34;&gt;什么是布隆过滤器&lt;/h2&gt;
+&lt;h3 id=&#34;简介&#34;&gt;简介&lt;/h3&gt;
+&lt;p&gt;布隆过滤器（&lt;code&gt;Bloom Filter&lt;/code&gt;）是 1970 年由布隆提出的。它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都比一般的算法要好的多，缺点是有一定的误识别率和删除困难。&lt;/p&gt;
+&lt;h3 id=&#34;具体实现原理&#34;&gt;具体实现原理&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210825171931.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。&lt;/p&gt;
+&lt;p&gt;当要判断一个元素是否在过滤器中，也是先进行Hash计算出对应的位，判断二进制数组中所有对应的位是否都为1，是的话表示元素在其中；反之不在。&lt;/p&gt;
+&lt;h3 id=&#34;存在的问题&#34;&gt;存在的问题&lt;/h3&gt;
+&lt;p&gt;布隆过滤器存在&lt;code&gt;误判率&lt;/code&gt;，也是可能会把一个不存在的元素判定为存在的。因为在加入大量元素后，二进制数组中可能大部分位都被置为1了，所以一个新的数据Hash出来对应的位就很可能也都置为1了。&lt;/p&gt;
+&lt;p&gt;解决办法就是增加二进制数组的长度，使得二进制数组不那么快饱和，就可以容纳更多的元素，降低误判概率；或者增加Hash次数，使得数据更加分散。&lt;/p&gt;
+&lt;p&gt;所以但布隆过滤器判断一个元素存在时，可能不一定真的存在；但假如它判断一个元素不存在，那这个元素一定不存在，这种情况不存在误判。&lt;/p&gt;
+&lt;p&gt;还有一个问题是&lt;code&gt;删除困难&lt;/code&gt;，因为在元素较多的情况下它们对应的位总有交叉，如果你把其中一个元素对应的位都置0了，那很可能也会影响到其他的元素，很难仅仅删除一个元素。&lt;/p&gt;
+&lt;h3 id=&#34;应用场景&#34;&gt;应用场景&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;网页爬虫对 URL 去重，避免爬取相同的 URL 地址；&lt;/li&gt;
+&lt;li&gt;反垃圾邮件，从数十亿个垃圾邮件列表中判断某邮箱是否垃圾邮箱；&lt;/li&gt;
+&lt;li&gt;Google Chrome 使用布隆过滤器识别恶意 URL；&lt;/li&gt;
+&lt;li&gt;Medium 使用布隆过滤器避免推荐给用户已经读过的文章；&lt;/li&gt;
+&lt;li&gt;Google BigTable，Apache HBbase 和 Apache Cassandra 使用布隆过滤器减少对不存在的行和列的查找。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;除了上述的应用场景之外，布隆过滤器还有一个应用场景就是解决&lt;code&gt;缓存穿透&lt;/code&gt;的问题。所谓的缓存穿透就是服务调用方每次都是查询不在缓存中的数据，这样每次服务调用都会到数据库中进行查询，如果这类请求比较多的话，就会导致数据库压力增大，这样缓存就失去了意义。&lt;/p&gt;
+&lt;p&gt;所以当有黑客生成大量随机的不存在的值请求服务器导致查询数据库，造成大量缓存穿透的情况时。我们可以用布隆过滤器进行拦截，被布隆过滤器判断为不存在的值就不需要查询数据库了，直接返回，大大减低了数据库压力。(少量判断为存在的值因为有误判率所以可以进行下一步查询)&lt;/p&gt;
+&lt;h2 id=&#34;在redis中安装布隆过滤器&#34;&gt;在redis中安装布隆过滤器&lt;/h2&gt;
+&lt;p&gt;redis本身是不自带布隆过滤器功能的，要么基于bitmap自己实现，要么安装插件&lt;/p&gt;
+&lt;p&gt;（布隆过滤器在guava包中也有实现）&lt;/p&gt;
+&lt;h3 id=&#34;安装redis插件&#34;&gt;安装redis插件&lt;/h3&gt;
+&lt;p&gt;非docker安装的redis可以采用安装插件的方式来&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 去这个github仓库看看最新版本&lt;/span&gt;
+wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz
+&lt;span class=&#34;c1&#34;&gt;# 解压&lt;/span&gt;
+tar zxvf v2.2.4.tar.gz
+&lt;span class=&#34;c1&#34;&gt;# 编译&lt;/span&gt;
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; RedisBloom-2.2.4
+make
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;以上执行完之后在目录下多了一个&lt;code&gt;rebloom.so&lt;/code&gt;文件，将其移动到一个合适的位置&lt;/p&gt;
+&lt;p&gt;然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用&lt;code&gt;info&lt;/code&gt; 命令查看）&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 后面为rebloom.so文件所在的目录&lt;/span&gt;
+loadmodule /xxx/xxx/xxx/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;rebloom.so&lt;span class=&#34;o&#34;&gt;](&lt;/span&gt;http://rebloom.so/&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;重启redis后进入redis-cli尝试以下命令&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;bf.add &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+bf.add &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;
+bf.exists &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+bf.exists &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;222&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;docker镜像&#34;&gt;Docker镜像&lt;/h3&gt;
+&lt;p&gt;拉取镜像并运行容器&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;docker run -d -p 6379:6379 --name redis-redisbloom redislabs/rebloom:latest
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;进入容器测试命令&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 进入容器&lt;/span&gt;
+docker &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; -it redis-redisbloom bash
+&lt;span class=&#34;c1&#34;&gt;# 启动客户端&lt;/span&gt;
+redis-cli
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;同样去测试&lt;code&gt;bf.add&lt;/code&gt;和&lt;code&gt;bf.exists&lt;/code&gt;命令即可&lt;/p&gt;
+&lt;h2 id=&#34;使用redisson的api进行操作&#34;&gt;使用Redisson的API进行操作&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;Redisson&lt;/code&gt;是著名的redis客户端，有很多强大的功能，其中就包括了布隆过滤器的实现，而且是直接基于redis的bitmap的，所以也不需要去在redis安装布隆过滤器的插件，原生的redis即可。&lt;/p&gt;
+&lt;h3 id=&#34;引入依赖&#34;&gt;引入依赖&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.redisson&lt;span class=&#34;nt&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;redisson-spring-boot-starter&lt;span class=&#34;nt&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;3.16.1&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果只为了使用redisson的布隆过滤器api，则不需要配置其他东西，只需要在项目配置文件中配好redis地址密码等，用redistemplate原来那些配置就行。&lt;/p&gt;
+&lt;h3 id=&#34;简单使用demo&#34;&gt;简单使用demo&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;TestRedissonBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;// 先根据key获取一个布隆过滤器（不管存不存在）
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;RBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Integer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;redissonClient&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;phoneList&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;//初始化布隆过滤器：预计元素为100000000L,误差率为3%
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;tryInit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;100000000L&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;03&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;//将号码10086插入到布隆过滤器中
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;add&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;666&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+
+    &lt;span class=&#34;c1&#34;&gt;//判断下面号码是否在布隆过滤器中
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;contains&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;666&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;));&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//false
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;contains&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;66666&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;));&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//true
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;封装进redisutil&#34;&gt;封装进RedisUtil&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;cm&#34;&gt;/**
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * 初始化一个布隆过滤器
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; *
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * @param expectedInsertions 预期元素数量
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * @param falseProbability   误判率
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * @return 是否创建成功
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;boolean&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;initBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;expectedInsertions&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;double&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;falseProbability&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;tryInit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;expectedInsertions&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;falseProbability&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;cm&#34;&gt;/**
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * 获取布隆过滤器
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;RBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;redissonClient&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;cm&#34;&gt;/**
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * 在布隆过滤器中增加一个值
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;boolean&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;addInBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;T&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;add&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;IllegalStateException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;initBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;50000L&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;01&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;add&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;cm&#34;&gt;/**
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * 判断某值是否存在于过滤器中
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;boolean&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;containsInBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;RBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;T&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;try&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;contains&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;catch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;IllegalStateException&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;e&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;initBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;50000L&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;01&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;contains&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;为了方便使用这些API，这里我自己封装了一些工具类。&lt;/p&gt;
+&lt;p&gt;因为BloomFilter不像redis其他数据结构，不用初始化就可以直接set和get，如果&lt;code&gt;getBloomFilter&lt;/code&gt; 方法获取了一个未初始化的过滤器，并进行了add和contains操作，就会报错。因此我在这两个操作的方法中捕获了未初始化的异常，假如检测到了异常就自动进行初始化（默认值），简化了使用。&lt;/p&gt;
+&lt;h2 id=&#34;点赞功能的设计与思考&#34;&gt;点赞功能的设计与思考&lt;/h2&gt;
+&lt;p&gt;点赞，一个看起来很简单的功能实现，在数据量大，并发量大情况下就不是这么回事了。&lt;/p&gt;
+&lt;p&gt;可以代入微博的场景来思考，假如明星发一条微博，瞬间几十万点赞，这波流量要顶住也不是那么容易，尽管只是一个点赞功能而已。最近在做公司那个项目的点赞功能，为了设计得更加高可用，也是去好好地思考了。&lt;/p&gt;
+&lt;h3 id=&#34;功能拆解&#34;&gt;功能拆解&lt;/h3&gt;
+&lt;p&gt;点赞，说到底就两个方面需要实现&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;对应帖子的点赞数&lt;/li&gt;
+&lt;li&gt;用户与点赞帖子的关联关系&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;第一个本质就是一个计数器，我们需要对每一个帖子被点赞的次数进行计数&lt;/p&gt;
+&lt;p&gt;第二个主要是用来判断此用户是否已经点赞过文章，从而避免二次点赞或者进行取消点赞的操作，需要维护的是一个类似二元组的关系结构（用户id，帖子id）&lt;/p&gt;
+&lt;p&gt;方案主要也是从两个数据库入手，即MySQL和Redis，也就是怎么处理好存储层和缓存层之间的关系、怎么最合理地配合使用它们来达到最佳的实现效果，这也是这个问题的本质。&lt;/p&gt;
+&lt;p&gt;看透问题的本质再思考方案与动手实践，才是正确的解决问题的方式。教父曾经说过：”花半秒钟就看透事物本质的人，和花一辈子都看不清事物本质的人，注定是截然不同的命运。”（doge）&lt;/p&gt;
+&lt;h3 id=&#34;方案一&#34;&gt;方案一&lt;/h3&gt;
+&lt;p&gt;这个方案是我最开始在翻阅查询了晚上的一些资料后想出来的，看起来好像有模有样，其实问题还是挺多的，主要也是和公司的同事讨论后被指出很多不合理的地方。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210826025904.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;方案介绍&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;这个流程主要是在点赞时前端直接在本地将点赞数+1并改变样式，然后再去请求后端，&lt;/li&gt;
+&lt;li&gt;然后就是请求的接口是把点赞的这个消息或者说任务，放到了消息队列里，之后等待被消费。每次消费是先直接在redis对计数器incr。&lt;/li&gt;
+&lt;li&gt;接着用户是否点赞是存在布隆过滤器中的，一篇文章一个bloom filter，里面存的就是点过赞的用户的id。&lt;/li&gt;
+&lt;li&gt;最后是定期将redis中的数据持久化到mysql。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;反思&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;前端本地先+1主要是为了用户直观感觉到点赞可以立马得到反馈，而不是因为到等待后端返回而带来的延迟感，影响用户体验。&lt;/p&gt;
+&lt;p&gt;消息队列，加入它的本意是为了让消息可以被准确消费从未保证点赞数较为精确，后来发现这样失去了实时性同时增加了开销，而且我还得去保证消息的可靠消费，就为了其实压根不需要很准确的点赞数，实在没有必要，所以后续删了。&lt;/p&gt;
+&lt;p&gt;之前在学redis的应用场景的时候好像就听过可以用incr来做点赞，所以这次要做点赞就直接先到了incr。得益于redis单线程，这样没有并发修改问题，速度也快，但同步到mysql是个大问题。&lt;/p&gt;
+&lt;p&gt;没错，我直接用一个布隆过滤器当做存储用了，还在想之后持久化到mysql可以用binary类型来存，完全没有意识到人家是一个过滤器，不是一个存储器，我直接忽略了误判率。导致这些错误的使用也是当时对它认识还不够深刻。&lt;/p&gt;
+&lt;p&gt;对于持久化到mysql，当时还没仔细往下查具体的方案，感觉业内应该会有一个成熟的机制或者什么插件中间件之类的可以方便快捷稳定地完成这个任务，后来发现并没有，需要自己业务代码做定时任务定期写入库，感觉就比较麻烦不好非常优雅完美地实现，如果缓存中的数据越来越多，这个同步任务岂不是越来越庞大？这个暂时不知道如何解决。&lt;/p&gt;
+&lt;p&gt;总结就是方案十分不成熟，漏洞百出，是一个孬方案。&lt;/p&gt;
+&lt;h3 id=&#34;方案二&#34;&gt;方案二&lt;/h3&gt;
+&lt;p&gt;在与同事讨论后对方案一进行改良后的方案，也是最后确定使用的方案。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210825043059.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;方案介绍&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;首先前端还是和方案一一样，不再赘述。&lt;/li&gt;
+&lt;li&gt;如何采用了MyBatis的二级缓存，将每次查询到的结果缓存到redis中，有变更就清除，查不到再回库查。点赞数就在查的时候缓存到了redis中，但是每次更新点赞数都是直接到库中操作的，而且附带一个清缓存的操作。&lt;/li&gt;
+&lt;li&gt;用户是否点赞用一个布隆过滤器先做过滤，一个redis的set来存储点赞和帖子的关系，直接用redis的持久化机制，不入MySQL。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;反思&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;这个方案对比方案一明显有了改进，首先是去掉了意义不大的消息队列，很好。&lt;/p&gt;
+&lt;p&gt;然后是二级缓存，虽然每次点赞都会直接操作库，对性能有影响而且同时还清缓存，导致下一次查询也要进库才能再设缓存，但是考虑到项目一开始用户应该不多，点赞行为的发生次数相对来说不会非常多，至少要比普通的查询少上一些，这样一来hit到缓存的几率还是不小的，缓存还是能起到一定的作用的，而且二级缓存也不仅仅只是用在点赞功能上，而是全线使用。&lt;/p&gt;
+&lt;p&gt;接着夸一下这次布隆过滤器用的不错，真当一个过滤器用了，用来过滤掉很多元素不存在的情况，对性能提升作用还是不小的；然后就是点赞关系的存储，有人说既然是一个类似二元组的关系为啥不一个Hash结构搞定呢？考虑到目前直接用redis持久化的，如果慢慢积累下来，这个Hash变得硕大无比，也是会影响性能的。所以我是通过树形的key来使得一篇帖子有一个set集合（同时也有一个布隆），集合里放点赞过的userID。&lt;/p&gt;
+&lt;p&gt;最后说一下redis和mysql同步的问题，在讨论过程中搜了一下，发现很多同步方案都是针对于mysql的改动同步到redis的（而不是redis同步到mysql），常见的有两种：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;触发器+用户自定义函数UDF&lt;/li&gt;
+&lt;li&gt;中间件canal（binlog）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;后来在学习redis当MyBatis的二级缓存中发现其实没有必要搞这个了，二级缓存本质已经解决了数据需要更新的问题（清除再设置）&lt;/p&gt;
+&lt;p&gt;总结就是改进不少，但是仍有不足，或许是现阶段现情景下最好的选择。&lt;/p&gt;
+&lt;h3 id=&#34;方案三&#34;&gt;方案三&lt;/h3&gt;
+&lt;p&gt;这个是在我对着搜索引擎直接输入关键字“redis实现点赞功能”后查出来的常见方案，大同小异，这里简答讲下就行。和之前的方案主要的不同是数据修改都是直接缓存中操作，然后再在业务代码中用定时任务例如&lt;code&gt;Quartz&lt;/code&gt;每隔一段时间写入到mysql中；还有一个是存储点赞关系用redis的Hash。&lt;/p&gt;
+&lt;p&gt;我这于两个不同点的看法上面也提到过了，在这里只能这样说也不失为一种方案吧。&lt;/p&gt;
+&lt;h3 id=&#34;总结&#34;&gt;总结&lt;/h3&gt;
+&lt;p&gt;方案很多，但是哪种最优，哪种更好，可能脱离场景的情况下不会有一个标准答案，对于好方案的追求与优化我也将不断追寻。。。（升华了doge）&lt;/p&gt;
+&lt;h2 id=&#34;参考链接&#34;&gt;参考链接&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://juejin.cn/post/6844904007790673933&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://juejin.cn/post/6844904007790673933&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/346651831&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://zhuanlan.zhihu.com/p/346651831&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/ChenMMo/article/details/93615438&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://blog.csdn.net/ChenMMo/article/details/93615438&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>Redis分布式缓存实现</title>
         <link>https://ccqstark.github.io/p/redis_mybatis_cache/</link>
         <pubDate>Wed, 25 Aug 2021 16:07:15 +0800</pubDate>
