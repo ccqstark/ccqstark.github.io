@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='缓存的分类 本地缓存(local cache)：存在应用服务器内存中的数据称为本地缓存
+分布式缓存(dustribute cache)：存储在当前应用服务器之外的数据称为分布式缓存
+这里顺带提及集群和分布式的区别
+集群(cluster)：将同一种服务的多个节点放在一起共同对系统提供服务，称为集群
+分布式(distribute system)：有多个不同服务集群功能对系统提供服务，这个系统称之为分布式系统
+所以两者虽然都是多个服务器节点，区别就在多个节点中，集群侧重的是同一种服务，而分布式侧重的是不同的服务，而且分布式还是建立在集群的基础之上的。
+缓存发挥的作用 由图中可以看出，缓存是作为存储层和客户端之间的中间层，当客户端的请求过来时，首先请求缓存中的内容，如果查到（hit）则直接返回，不再去查找存储层；如果没有（miss），则去存储层中查找并将结果写入缓存（write cache）再返回，以便之后相同的请求可以去缓存中获取。
+之所以加入缓存层是因为存储层一般是需要读写磁盘的，而缓存层在内存中，两者的读写速度完全不是一个量级，内存快的多。而大部分应用的请求都有一个特点——读多写少，所以将总是需要查到的数据放在缓存层中可以大大提高应用的响应速度，减少存储层的压力。
+一般Web应用中，存储层就是我们用的关系型数据库，MySQL、Oracle、SQLServer等，而缓存层分类上面已经提到，常用的有Redis，Memcached等。
+MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。
+开启方法：
+在业务的mapper.xml文件中添加
+&amp;lt;cache/&amp;gt; 二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
+当开启缓存后，数据的查询执行的流程就是 二级缓存 -&amp;gt; 一级缓存 -&amp;gt; 数据库。
+这样开启的是本地二级缓存，这样有个缺点就是应用重新启动后，JVM重新分配内存，这样的话之前的缓存就都没了，所以我们得用分布式缓存来解决。
+使用Redis作为Mybatis的二级缓存 MyBatis的缓存实现类默认是PerpetualCache，它继承类Cache接口，除此之外还有其他实现类。
+原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。
+Cache接口 public interface Cache { String getId(); void putObject(Object var1, Object var2); Object getObject(Object var1); Object removeObject(Object var1); void clear(); int getSize(); ReadWriteLock getReadWriteLock(); } 解析
+getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key putObject ：此方法就是用来将数据放入缓存的
+getObject ：用以根据key获取缓存的值
+removeObject ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用
+clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存
+getSize ：获取缓存大小，暂时用处不大
+getReadWriteLock ：获取读写锁，这是用来拿到互斥锁解决缓存击穿问题的'><title>Redis分布式缓存实现</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/redis_mybatis_cache/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Redis分布式缓存实现'>
+<meta property='og:description' content='缓存的分类 本地缓存(local cache)：存在应用服务器内存中的数据称为本地缓存
+分布式缓存(dustribute cache)：存储在当前应用服务器之外的数据称为分布式缓存
+这里顺带提及集群和分布式的区别
+集群(cluster)：将同一种服务的多个节点放在一起共同对系统提供服务，称为集群
+分布式(distribute system)：有多个不同服务集群功能对系统提供服务，这个系统称之为分布式系统
+所以两者虽然都是多个服务器节点，区别就在多个节点中，集群侧重的是同一种服务，而分布式侧重的是不同的服务，而且分布式还是建立在集群的基础之上的。
+缓存发挥的作用 由图中可以看出，缓存是作为存储层和客户端之间的中间层，当客户端的请求过来时，首先请求缓存中的内容，如果查到（hit）则直接返回，不再去查找存储层；如果没有（miss），则去存储层中查找并将结果写入缓存（write cache）再返回，以便之后相同的请求可以去缓存中获取。
+之所以加入缓存层是因为存储层一般是需要读写磁盘的，而缓存层在内存中，两者的读写速度完全不是一个量级，内存快的多。而大部分应用的请求都有一个特点——读多写少，所以将总是需要查到的数据放在缓存层中可以大大提高应用的响应速度，减少存储层的压力。
+一般Web应用中，存储层就是我们用的关系型数据库，MySQL、Oracle、SQLServer等，而缓存层分类上面已经提到，常用的有Redis，Memcached等。
+MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。
+开启方法：
+在业务的mapper.xml文件中添加
+&amp;lt;cache/&amp;gt; 二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
+当开启缓存后，数据的查询执行的流程就是 二级缓存 -&amp;gt; 一级缓存 -&amp;gt; 数据库。
+这样开启的是本地二级缓存，这样有个缺点就是应用重新启动后，JVM重新分配内存，这样的话之前的缓存就都没了，所以我们得用分布式缓存来解决。
+使用Redis作为Mybatis的二级缓存 MyBatis的缓存实现类默认是PerpetualCache，它继承类Cache接口，除此之外还有其他实现类。
+原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。
+Cache接口 public interface Cache { String getId(); void putObject(Object var1, Object var2); Object getObject(Object var1); Object removeObject(Object var1); void clear(); int getSize(); ReadWriteLock getReadWriteLock(); } 解析
+getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key putObject ：此方法就是用来将数据放入缓存的
+getObject ：用以根据key获取缓存的值
+removeObject ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用
+clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存
+getSize ：获取缓存大小，暂时用处不大
+getReadWriteLock ：获取读写锁，这是用来拿到互斥锁解决缓存击穿问题的'>
+<meta property='og:url' content='https://ccqstark.github.io/p/redis_mybatis_cache/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Redis' /><meta property='article:tag' content='MyBatis' /><meta property='article:published_time' content='2021-08-25T16:07:15&#43;08:00'/><meta property='article:modified_time' content='2021-08-25T16:07:15&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/redis_mybatis_cache/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Redis分布式缓存实现">
+<meta name="twitter:description" content="缓存的分类 本地缓存(local cache)：存在应用服务器内存中的数据称为本地缓存
+分布式缓存(dustribute cache)：存储在当前应用服务器之外的数据称为分布式缓存
+这里顺带提及集群和分布式的区别
+集群(cluster)：将同一种服务的多个节点放在一起共同对系统提供服务，称为集群
+分布式(distribute system)：有多个不同服务集群功能对系统提供服务，这个系统称之为分布式系统
+所以两者虽然都是多个服务器节点，区别就在多个节点中，集群侧重的是同一种服务，而分布式侧重的是不同的服务，而且分布式还是建立在集群的基础之上的。
+缓存发挥的作用 由图中可以看出，缓存是作为存储层和客户端之间的中间层，当客户端的请求过来时，首先请求缓存中的内容，如果查到（hit）则直接返回，不再去查找存储层；如果没有（miss），则去存储层中查找并将结果写入缓存（write cache）再返回，以便之后相同的请求可以去缓存中获取。
+之所以加入缓存层是因为存储层一般是需要读写磁盘的，而缓存层在内存中，两者的读写速度完全不是一个量级，内存快的多。而大部分应用的请求都有一个特点——读多写少，所以将总是需要查到的数据放在缓存层中可以大大提高应用的响应速度，减少存储层的压力。
+一般Web应用中，存储层就是我们用的关系型数据库，MySQL、Oracle、SQLServer等，而缓存层分类上面已经提到，常用的有Redis，Memcached等。
+MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。
+开启方法：
+在业务的mapper.xml文件中添加
+&amp;lt;cache/&amp;gt; 二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
+当开启缓存后，数据的查询执行的流程就是 二级缓存 -&amp;gt; 一级缓存 -&amp;gt; 数据库。
+这样开启的是本地二级缓存，这样有个缺点就是应用重新启动后，JVM重新分配内存，这样的话之前的缓存就都没了，所以我们得用分布式缓存来解决。
+使用Redis作为Mybatis的二级缓存 MyBatis的缓存实现类默认是PerpetualCache，它继承类Cache接口，除此之外还有其他实现类。
+原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。
+Cache接口 public interface Cache { String getId(); void putObject(Object var1, Object var2); Object getObject(Object var1); Object removeObject(Object var1); void clear(); int getSize(); ReadWriteLock getReadWriteLock(); } 解析
+getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key putObject ：此方法就是用来将数据放入缓存的
+getObject ：用以根据key获取缓存的值
+removeObject ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用
+clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存
+getSize ：获取缓存大小，暂时用处不大
+getReadWriteLock ：获取读写锁，这是用来拿到互斥锁解决缓存击穿问题的"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/redis_mybatis_cache/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-PXLPFFZ3XD', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ccqstark.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/redis_mybatis_cache/">
+                <img src="/p/redis_mybatis_cache/cover_hu98723c96db4cad61d3193fddfb3126c4_90918_800x0_resize_box_2.png"
+                        srcset="/p/redis_mybatis_cache/cover_hu98723c96db4cad61d3193fddfb3126c4_90918_800x0_resize_box_2.png 800w, /p/redis_mybatis_cache/cover_hu98723c96db4cad61d3193fddfb3126c4_90918_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="419" 
+                        loading="lazy"
+                        alt="Featured image of post Redis分布式缓存实现" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" >
+                数据库
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/redis_mybatis_cache/">Redis分布式缓存实现</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Aug 25, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="缓存的分类">缓存的分类</h2>
+<p>本地缓存(<code>local cache</code>)：存在应用服务器内存中的数据称为本地缓存</p>
+<p>分布式缓存(<code>dustribute cache</code>)：存储在当前应用服务器之外的数据称为分布式缓存</p>
+<p>这里顺带提及集群和分布式的区别</p>
+<p>集群(<code>cluster</code>)：将同一种服务的多个节点放在一起共同对系统提供服务，称为集群</p>
+<p>分布式(<code>distribute system</code>)：有多个不同服务集群功能对系统提供服务，这个系统称之为分布式系统</p>
+<p>所以两者虽然都是多个服务器节点，区别就在多个节点中，集群侧重的是同一种服务，而分布式侧重的是不同的服务，而且分布式还是建立在集群的基础之上的。</p>
+<h2 id="缓存发挥的作用">缓存发挥的作用</h2>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210825144223.png" alt=""  /></p>
+<p>由图中可以看出，缓存是作为存储层和客户端之间的中间层，当客户端的请求过来时，首先请求缓存中的内容，如果查到（hit）则直接返回，不再去查找存储层；如果没有（miss），则去存储层中查找并将结果写入缓存（write cache）再返回，以便之后相同的请求可以去缓存中获取。</p>
+<p>之所以加入缓存层是因为存储层一般是需要读写磁盘的，而缓存层在内存中，两者的读写速度完全不是一个量级，内存快的多。而大部分应用的请求都有一个特点——读多写少，所以将总是需要查到的数据放在缓存层中可以大大提高应用的响应速度，减少存储层的压力。</p>
+<p>一般Web应用中，存储层就是我们用的关系型数据库，MySQL、Oracle、SQLServer等，而缓存层分类上面已经提到，常用的有Redis，Memcached等。</p>
+<h2 id="mybatis开启二级缓存">MyBatis开启二级缓存</h2>
+<p>MyBatis一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。</p>
+<p>开启方法：</p>
+<p>在业务的mapper.xml文件中添加</p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;cache/&gt;</span>
+</code></pre></div><p>二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。</p>
+<p>当开启缓存后，数据的查询执行的流程就是 <code>二级缓存 -&gt; 一级缓存 -&gt; 数据库</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210825154918.png" alt=""  /></p>
+<p>这样开启的是本地二级缓存，这样有个缺点就是应用重新启动后，JVM重新分配内存，这样的话之前的缓存就都没了，所以我们得用分布式缓存来解决。</p>
+<h2 id="使用redis作为mybatis的二级缓存">使用Redis作为Mybatis的二级缓存</h2>
+<p>MyBatis的缓存实现类默认是PerpetualCache，它继承类<code>Cache</code>接口，除此之外还有其他实现类。</p>
+<p>原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。</p>
+<h3 id="cache接口">Cache接口</h3>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Cache</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="nf">getId</span><span class="o">();</span>
+
+    <span class="kt">void</span> <span class="nf">putObject</span><span class="o">(</span><span class="n">Object</span> <span class="n">var1</span><span class="o">,</span> <span class="n">Object</span> <span class="n">var2</span><span class="o">);</span>
+
+    <span class="n">Object</span> <span class="nf">getObject</span><span class="o">(</span><span class="n">Object</span> <span class="n">var1</span><span class="o">);</span>
+
+    <span class="n">Object</span> <span class="nf">removeObject</span><span class="o">(</span><span class="n">Object</span> <span class="n">var1</span><span class="o">);</span>
+
+    <span class="kt">void</span> <span class="nf">clear</span><span class="o">();</span>
+
+    <span class="kt">int</span> <span class="nf">getSize</span><span class="o">();</span>
+
+    <span class="n">ReadWriteLock</span> <span class="nf">getReadWriteLock</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div><p><strong>解析</strong></p>
+<p><code>getId</code> ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key
+<code>putObject</code> ：此方法就是用来将数据放入缓存的</p>
+<p><code>getObject</code> ：用以根据key获取缓存的值</p>
+<p><code>removeObject</code> ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用</p>
+<p><code>clear</code> ：<strong>每次</strong>执行update/delete/insert语句都会调用此方法进行清除原有的缓存</p>
+<p><code>getSize</code> ：获取缓存大小，暂时用处不大</p>
+<p><code>getReadWriteLock</code> ：获取读写锁，这是用来拿到互斥锁解决<strong>缓存击穿</strong>问题的</p>
+<p>所以我们只要恰当地实现以上方法，对接上redis，就可以使用redis作为mybatis的二级缓存了。</p>
+<h3 id="mybatisrediscache实现类">MyBatisRedisCache实现类</h3>
+<p>这里在网上找了一个博主实现地比较好的，链接在文章最后，作者为<strong>Leven</strong></p>
+<h4 id="springboot配置">SpringBoot配置</h4>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">mybatis</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">configuration</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">cache-enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></code></pre></div><h4 id="redisconfig中配置redistemplate">RedisConfig中配置RedisTemplate</h4>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
+</span><span class="cm"> * Redis缓存配置
+</span><span class="cm"> * @author Leven
+</span><span class="cm"> * @date 2019-09-07
+</span><span class="cm"> */</span>
+<span class="nd">@Configuration</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RedisConfig</span> <span class="o">{</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 配置自定义redisTemplate
+</span><span class="cm">     * @return redisTemplate
+</span><span class="cm">     */</span>
+    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="n">RedisTemplate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="nf">redisTemplate</span><span class="o">(</span><span class="n">RedisConnectionFactory</span> <span class="n">redisConnectionFactory</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">RedisTemplate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">template</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RedisTemplate</span><span class="o">&lt;&gt;();</span>
+        <span class="n">template</span><span class="o">.</span><span class="na">setConnectionFactory</span><span class="o">(</span><span class="n">redisConnectionFactory</span><span class="o">);</span>
+        <span class="c1">// 使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值
+</span><span class="c1"></span>        <span class="n">Jackson2JsonRedisSerializer</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">jackson2JsonRedisSerializer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Jackson2JsonRedisSerializer</span><span class="o">&lt;&gt;(</span><span class="n">Object</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">StringRedisSerializer</span> <span class="n">stringRedisSerializer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringRedisSerializer</span><span class="o">();</span>
+        <span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">();</span>
+        <span class="n">mapper</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">PropertyAccessor</span><span class="o">.</span><span class="na">ALL</span><span class="o">,</span> <span class="n">JsonAutoDetect</span><span class="o">.</span><span class="na">Visibility</span><span class="o">.</span><span class="na">ANY</span><span class="o">);</span>
+        <span class="n">mapper</span><span class="o">.</span><span class="na">enableDefaultTyping</span><span class="o">(</span><span class="n">ObjectMapper</span><span class="o">.</span><span class="na">DefaultTyping</span><span class="o">.</span><span class="na">NON_FINAL</span><span class="o">);</span>
+        <span class="n">jackson2JsonRedisSerializer</span><span class="o">.</span><span class="na">setObjectMapper</span><span class="o">(</span><span class="n">mapper</span><span class="o">);</span>
+        <span class="n">template</span><span class="o">.</span><span class="na">setKeySerializer</span><span class="o">(</span><span class="n">stringRedisSerializer</span><span class="o">);</span>
+        <span class="n">template</span><span class="o">.</span><span class="na">setValueSerializer</span><span class="o">(</span><span class="n">jackson2JsonRedisSerializer</span><span class="o">);</span>
+        <span class="n">template</span><span class="o">.</span><span class="na">setHashKeySerializer</span><span class="o">(</span><span class="n">stringRedisSerializer</span><span class="o">);</span>
+        <span class="n">template</span><span class="o">.</span><span class="na">setHashValueSerializer</span><span class="o">(</span><span class="n">jackson2JsonRedisSerializer</span><span class="o">);</span>
+        <span class="n">template</span><span class="o">.</span><span class="na">afterPropertiesSet</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">template</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h4 id="redisservice接口">RedisService接口</h4>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
+</span><span class="cm"> * redis基础服务接口
+</span><span class="cm"> * @author Leven
+</span><span class="cm"> * @date 2019-09-07
+</span><span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">RedisService</span> <span class="o">{</span>
+<span class="c1">// =============================common============================
+</span><span class="c1"></span>    <span class="cm">/**
+</span><span class="cm">     * 指定缓存失效时间
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param time 时间(秒)
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">expire</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 指定缓存失效时间
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param expireAt 失效时间点
+</span><span class="cm">     * @return 处理结果
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">expireAt</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Date</span> <span class="n">expireAt</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 根据key 获取过期时间
+</span><span class="cm">     * @param key 键 不能为null
+</span><span class="cm">     * @return 时间(秒) 返回0代表为永久有效
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">getExpire</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 判断key是否存在
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return true 存在 false不存在
+</span><span class="cm">     */</span>
+    <span class="n">Boolean</span> <span class="nf">hasKey</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除缓存
+</span><span class="cm">     * @param key 可以传一个值 或多个
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除缓存
+</span><span class="cm">     * @param keys 可以传一个值 或多个
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keys</span><span class="o">);</span>
+
+    <span class="c1">// ============================String=============================
+</span><span class="c1"></span>
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存获取
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return 值
+</span><span class="cm">     */</span>
+    <span class="n">Object</span> <span class="nf">get</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存放入
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存放入并设置时间
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time 时间(秒) time要大于0 如果time小于等于0 将设置无限期
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存放入并设置时间
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time 时间(秒) time要大于0 如果time小于等于0 将设置无限期
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="n">TimeUnit</span> <span class="n">timeUnit</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 递增
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 要增加几(大于0)
+</span><span class="cm">     * @return 递增后结果
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">incr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 递减
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 要减少几(大于0)
+</span><span class="cm">     * @return 递减后结果
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">decr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="c1">// ================================Map=================================
+</span><span class="c1"></span>    <span class="cm">/**
+</span><span class="cm">     * HashGet
+</span><span class="cm">     * @param key 键 不能为null
+</span><span class="cm">     * @param item 项 不能为null
+</span><span class="cm">     * @return 值
+</span><span class="cm">     */</span>
+    <span class="n">Object</span> <span class="nf">hashGet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取hashKey对应的所有键值
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return 对应的多个键值
+</span><span class="cm">     */</span>
+    <span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="nf">hashEntries</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * HashSet
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param map 对应多个键值
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * HashSet 并设置时间
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param map 对应多个键值
+</span><span class="cm">     * @param time 时间(秒)
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 向一张hash表中放入数据,如果不存在将创建
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param item 项
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 向一张hash表中放入数据,如果不存在将创建
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param item 项
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time 时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除hash表中的值
+</span><span class="cm">     * @param key 键 不能为null
+</span><span class="cm">     * @param item 项 可以使多个 不能为null
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">hashDelete</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">item</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除hash表中的值
+</span><span class="cm">     * @param key 键 不能为null
+</span><span class="cm">     * @param items 项 可以使多个 不能为null
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">hashDelete</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Collection</span> <span class="n">items</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 判断hash表中是否有该项的值
+</span><span class="cm">     * @param key 键 不能为null
+</span><span class="cm">     * @param item 项 不能为null
+</span><span class="cm">     * @return true 存在 false不存在
+</span><span class="cm">     */</span>
+    <span class="n">Boolean</span> <span class="nf">hashHasKey</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * hash递增 如果不存在,就会创建一个 并把新增后的值返回
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param item 项
+</span><span class="cm">     * @param value 要增加几(大于0)
+</span><span class="cm">     * @return 递增后结果
+</span><span class="cm">     */</span>
+    <span class="n">Double</span> <span class="nf">hashIncr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="kt">double</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * hash递减
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param item 项
+</span><span class="cm">     * @param value 要减少记(小于0)
+</span><span class="cm">     * @return 递减后结果
+</span><span class="cm">     */</span>
+    <span class="n">Double</span> <span class="nf">hashDecr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="kt">double</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="c1">// ============================set=============================
+</span><span class="c1"></span>    <span class="cm">/**
+</span><span class="cm">     * 根据key获取Set中的所有值
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return set集合
+</span><span class="cm">     */</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="nf">setGet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 根据value从一个set中查询,是否存在
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @return true 存在 false不存在
+</span><span class="cm">     */</span>
+    <span class="n">Boolean</span> <span class="nf">setIsMember</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将数据放入set缓存
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 成功个数
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">setAdd</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">values</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将数据放入set缓存
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 成功个数
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">setAdd</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Collection</span> <span class="n">values</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将set数据放入缓存
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param time 时间(秒)
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 成功个数
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">setAdd</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">values</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取set缓存的长度
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return set长度
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">setSize</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 移除值为value的
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 移除的个数
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">setRemove</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">values</span><span class="o">);</span>
+
+    <span class="c1">// ===============================list=================================
+</span><span class="c1"></span>    <span class="cm">/**
+</span><span class="cm">     * 获取list缓存的内容
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param start 开始
+</span><span class="cm">     * @param end 结束 0 到 -1代表所有值
+</span><span class="cm">     * @return 缓存列表
+</span><span class="cm">     */</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="nf">listRange</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">start</span><span class="o">,</span> <span class="kt">long</span> <span class="n">end</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取list缓存的长度
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return 长度
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">listSize</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 通过索引 获取list中的值
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param index 索引 index&gt;=0时， 0 表头，1 第二个元素，依次类推；index&lt;0时，-1，表尾，-2倒数第二个元素，依次类推
+</span><span class="cm">     * @return 值
+</span><span class="cm">     */</span>
+    <span class="n">Object</span> <span class="nf">listIndex</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">index</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">listRightPush</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time 时间(秒)
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">listRightPush</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">listRightPushAll</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time 时间(秒)
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">listRightPushAll</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 根据索引修改list中的某条数据
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param index 索引
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">listSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">index</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">);</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 移除N个值为value
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param count 移除多少个
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @return 移除的个数
+</span><span class="cm">     */</span>
+    <span class="n">Long</span> <span class="nf">listRemove</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">count</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><h4 id="redisserviceimpl实现">RedisServiceImpl实现</h4>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
+</span><span class="cm"> * redis基础服务接口实现
+</span><span class="cm"> *
+</span><span class="cm"> * @author Leven
+</span><span class="cm"> * @date 2019-09-07
+</span><span class="cm"> */</span>
+<span class="nd">@Slf4j</span>
+<span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RedisServiceImpl</span> <span class="kd">implements</span> <span class="n">RedisService</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">PREFIX</span> <span class="o">=</span> <span class="s">&#34;应用名&#34;</span><span class="o">;</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="n">RedisTemplate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">redisTemplate</span><span class="o">;</span>
+
+    <span class="c1">// =============================common============================
+</span><span class="c1"></span>
+    <span class="cm">/**
+</span><span class="cm">     * 指定缓存失效时间
+</span><span class="cm">     *
+</span><span class="cm">     * @param key  键
+</span><span class="cm">     * @param time 时间(秒)
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">expire</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">expire</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">time</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 指定缓存失效时间
+</span><span class="cm">     *
+</span><span class="cm">     * @param key      键
+</span><span class="cm">     * @param expireAt 失效时间点
+</span><span class="cm">     * @return 处理结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">expireAt</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Date</span> <span class="n">expireAt</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">expireAt</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">expireAt</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 根据key 获取过期时间
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键 不能为null
+</span><span class="cm">     * @return 时间(秒) 返回0代表为永久有效
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">getExpire</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">getExpire</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 判断key是否存在
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return true 存在 false不存在
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Boolean</span> <span class="nf">hasKey</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">hasKey</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param keys 可以传一个值 或多个
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">keys</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">keys</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">keys</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">keys</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">redisTemplate</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">keys</span><span class="o">[</span><span class="n">0</span><span class="o">]));</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keyList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="n">keys</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+                <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">key</span> <span class="o">:</span> <span class="n">keys</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">keyList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+                <span class="o">}</span>
+                <span class="n">redisTemplate</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">keyList</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param keys 可以传一个值 或多个
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keys</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">keys</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">keys</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keyList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="n">keys</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+            <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">key</span> <span class="o">:</span> <span class="n">keys</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">keyList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+            <span class="o">}</span>
+            <span class="n">redisTemplate</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">keyList</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="c1">// ============================String=============================
+</span><span class="c1"></span>
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存获取
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">get</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForValue</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存放入
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForValue</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存放入并设置时间
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time  时间(秒) time要大于0 如果time小于等于0 将设置无限期
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">set</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">,</span> <span class="n">time</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 普通缓存放入并设置时间
+</span><span class="cm">     *
+</span><span class="cm">     * @param key      键
+</span><span class="cm">     * @param value    值
+</span><span class="cm">     * @param time     时间 time要大于0 如果time小于等于0 将设置无限期
+</span><span class="cm">     * @param timeUnit 时间单位
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="n">TimeUnit</span> <span class="n">timeUnit</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">time</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForValue</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">,</span> <span class="n">time</span><span class="o">,</span> <span class="n">timeUnit</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">set</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 递增
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 要增加几(大于0)
+</span><span class="cm">     * @return 递增后结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">incr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">BizException</span><span class="o">(</span><span class="s">&#34;递增因子必须大于0&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForValue</span><span class="o">().</span><span class="na">increment</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 递减
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 要减少几(大于0)
+</span><span class="cm">     * @return 递减后结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">decr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">BizException</span><span class="o">(</span><span class="s">&#34;递减因子必须大于0&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForValue</span><span class="o">().</span><span class="na">decrement</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="c1">// ================================Map=================================
+</span><span class="c1"></span>
+    <span class="cm">/**
+</span><span class="cm">     * HashGet
+</span><span class="cm">     *
+</span><span class="cm">     * @param key  键 不能为null
+</span><span class="cm">     * @param item 项 不能为null
+</span><span class="cm">     * @return 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">hashGet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">item</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取hashKey对应的所有键值
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return 对应的多个键值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="nf">hashEntries</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">entries</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * HashSet
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @param map 对应多个键值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">putAll</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">map</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * HashSet 并设置时间
+</span><span class="cm">     *
+</span><span class="cm">     * @param key  键
+</span><span class="cm">     * @param map  对应多个键值
+</span><span class="cm">     * @param time 时间(秒)
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">k</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">putAll</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">map</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">time</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">expire</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">time</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 向一张hash表中放入数据,如果不存在将创建
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param item  项
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">putIfAbsent</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">item</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 向一张hash表中放入数据,如果不存在将创建
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param item  项
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time  时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hashSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">k</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">putIfAbsent</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">item</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">time</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">expire</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">time</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除hash表中的值
+</span><span class="cm">     *
+</span><span class="cm">     * @param key  键 不能为null
+</span><span class="cm">     * @param item 项 可以使多个 不能为null
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hashDelete</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">item</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">item</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除hash表中的值
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键 不能为null
+</span><span class="cm">     * @param items 项 可以使多个 不能为null
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hashDelete</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Collection</span> <span class="n">items</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">items</span><span class="o">.</span><span class="na">toArray</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 判断hash表中是否有该项的值
+</span><span class="cm">     *
+</span><span class="cm">     * @param key  键 不能为null
+</span><span class="cm">     * @param item 项 不能为null
+</span><span class="cm">     * @return true 存在 false不存在
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Boolean</span> <span class="nf">hashHasKey</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">hasKey</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">item</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * hash递增 如果不存在,就会创建一个 并把新增后的值返回
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param item  项
+</span><span class="cm">     * @param value 要增加几(大于0)
+</span><span class="cm">     * @return 递增后结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Double</span> <span class="nf">hashIncr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="kt">double</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">BizException</span><span class="o">(</span><span class="s">&#34;递增因子必须大于0&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">increment</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">item</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * hash递减
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param item  项
+</span><span class="cm">     * @param value 要减少记(小于0)
+</span><span class="cm">     * @return 递减后结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Double</span> <span class="nf">hashDecr</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">String</span> <span class="n">item</span><span class="o">,</span> <span class="kt">double</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">BizException</span><span class="o">(</span><span class="s">&#34;递减因子必须大于0&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForHash</span><span class="o">().</span><span class="na">increment</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">item</span><span class="o">,</span> <span class="o">-</span><span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="c1">// ============================set=============================
+</span><span class="c1"></span>
+    <span class="cm">/**
+</span><span class="cm">     * 根据key获取Set中的所有值
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return set集合
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="nf">setGet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForSet</span><span class="o">().</span><span class="na">members</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 根据value从一个set中查询,是否存在
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @return true 存在 false不存在
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Boolean</span> <span class="nf">setIsMember</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForSet</span><span class="o">().</span><span class="na">isMember</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将数据放入set缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key    键
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 成功个数
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">setAdd</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForSet</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">values</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将数据放入set缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key    键
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 成功个数
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">setAdd</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Collection</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForSet</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">values</span><span class="o">.</span><span class="na">toArray</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将set数据放入缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key    键
+</span><span class="cm">     * @param time   时间(秒)
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 成功个数
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">setAdd</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">k</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="n">Long</span> <span class="n">count</span> <span class="o">=</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForSet</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">values</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">time</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">expire</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">time</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">count</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取set缓存的长度
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return set长度
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">setSize</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForSet</span><span class="o">().</span><span class="na">size</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 移除值为value的
+</span><span class="cm">     *
+</span><span class="cm">     * @param key    键
+</span><span class="cm">     * @param values 值 可以是多个
+</span><span class="cm">     * @return 移除的个数
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">setRemove</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForSet</span><span class="o">().</span><span class="na">remove</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">values</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="c1">// ===============================list=================================
+</span><span class="c1"></span>
+    <span class="cm">/**
+</span><span class="cm">     * 获取list缓存的内容
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param start 开始
+</span><span class="cm">     * @param end   结束 0 到 -1代表所有值
+</span><span class="cm">     * @return 缓存列表
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="nf">listRange</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">start</span><span class="o">,</span> <span class="kt">long</span> <span class="n">end</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">range</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">start</span><span class="o">,</span> <span class="n">end</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取list缓存的长度
+</span><span class="cm">     *
+</span><span class="cm">     * @param key 键
+</span><span class="cm">     * @return 长度
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">listSize</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">size</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 通过索引 获取list中的值
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param index 索引 index&gt;=0时， 0 表头，1 第二个元素，依次类推；index&lt;0时，-1，表尾，-2倒数第二个元素，依次类推
+</span><span class="cm">     * @return 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">listIndex</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">index</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">index</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">listRightPush</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">rightPush</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time  时间(秒)
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">listRightPush</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">k</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">rightPush</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">time</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">expire</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">time</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">listRightPushAll</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">rightPushAll</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 将list放入缓存
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @param time  时间(秒)
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">listRightPushAll</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">k</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">rightPushAll</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">time</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">expire</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">time</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 根据索引修改list中的某条数据
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param index 索引
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">listSet</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">index</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">index</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 移除N个值为value
+</span><span class="cm">     *
+</span><span class="cm">     * @param key   键
+</span><span class="cm">     * @param count 移除多少个
+</span><span class="cm">     * @param value 值
+</span><span class="cm">     * @return 移除的个数
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">listRemove</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">count</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">redisTemplate</span><span class="o">.</span><span class="na">opsForList</span><span class="o">().</span><span class="na">remove</span><span class="o">(</span><span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">count</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="nf">getKey</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">PREFIX</span> <span class="o">+</span> <span class="s">&#34;:&#34;</span> <span class="o">+</span> <span class="n">key</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h4 id="实现cache接口的mybatisrediscache">实现Cache接口的MybatisRedisCache</h4>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
+</span><span class="cm"> * MyBatis二级缓存Redis实现
+</span><span class="cm"> * 重点处理以下几个问题
+</span><span class="cm"> * 1、缓存穿透：存储空值解决，MyBatis框架实现
+</span><span class="cm"> * 2、缓存击穿：使用互斥锁，我们自己实现
+</span><span class="cm"> * 3、缓存雪崩：缓存有效期设置为一个随机范围，我们自己实现
+</span><span class="cm"> * 4、读写性能：redis key不能过长，会影响性能，这里使用SHA-256计算摘要当成key
+</span><span class="cm"> * @author Leven
+</span><span class="cm"> * @date 2019-09-07
+</span><span class="cm"> */</span>
+<span class="nd">@Slf4j</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MybatisRedisCache</span> <span class="kd">implements</span> <span class="n">Cache</span> <span class="o">{</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 统一字符集
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">CHARSET</span> <span class="o">=</span> <span class="s">&#34;utf-8&#34;</span><span class="o">;</span>
+    <span class="cm">/**
+</span><span class="cm">     * key摘要算法
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">ALGORITHM</span> <span class="o">=</span> <span class="s">&#34;SHA-256&#34;</span><span class="o">;</span>
+    <span class="cm">/**
+</span><span class="cm">     * 统一缓存头
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">CACHE_NAME</span> <span class="o">=</span> <span class="s">&#34;MyBatis:&#34;</span><span class="o">;</span>
+    <span class="cm">/**
+</span><span class="cm">     * 读写锁：解决缓存击穿
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">ReadWriteLock</span> <span class="n">readWriteLock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReentrantReadWriteLock</span><span class="o">();</span>
+    <span class="cm">/**
+</span><span class="cm">     * 表空间ID：方便后面的缓存清理
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">id</span><span class="o">;</span>
+    <span class="cm">/**
+</span><span class="cm">     * redis服务接口：提供基本的读写和清理
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">volatile</span> <span class="n">RedisService</span> <span class="n">redisService</span><span class="o">;</span>
+    <span class="cm">/**
+</span><span class="cm">     * 信息摘要
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">volatile</span> <span class="n">MessageDigest</span> <span class="n">messageDigest</span><span class="o">;</span>
+
+    <span class="c1">/////////////////////// 解决缓存雪崩，具体范围根据业务需要设置合理值 //////////////////////////
+</span><span class="c1"></span>    <span class="cm">/**
+</span><span class="cm">     * 缓存最小有效期
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MIN_EXPIRE_MINUTES</span> <span class="o">=</span> <span class="n">60</span><span class="o">;</span>
+    <span class="cm">/**
+</span><span class="cm">     * 缓存最大有效期
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_EXPIRE_MINUTES</span> <span class="o">=</span> <span class="n">120</span><span class="o">;</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * MyBatis给每个表空间初始化的时候要用到
+</span><span class="cm">     * @param id 其实就是namespace的值
+</span><span class="cm">     */</span>
+    <span class="kd">public</span> <span class="nf">MybatisRedisCache</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">id</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Cache instances require an ID&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取ID
+</span><span class="cm">     * @return 真实值
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 创建缓存
+</span><span class="cm">     * @param key 其实就是sql语句
+</span><span class="cm">     * @param value sql语句查询结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">putObject</span><span class="o">(</span><span class="n">Object</span> <span class="n">key</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">strKey</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+            <span class="c1">// 有效期为1~2小时之间随机，防止雪崩
+</span><span class="c1"></span>            <span class="kt">int</span> <span class="n">expireMinutes</span> <span class="o">=</span> <span class="n">RandomUtils</span><span class="o">.</span><span class="na">nextInt</span><span class="o">(</span><span class="n">MIN_EXPIRE_MINUTES</span><span class="o">,</span> <span class="n">MAX_EXPIRE_MINUTES</span><span class="o">);</span>
+            <span class="n">getRedisService</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="n">strKey</span><span class="o">,</span> <span class="n">value</span><span class="o">,</span> <span class="n">expireMinutes</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MINUTES</span><span class="o">);</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;Put cache to redis, id={}&#34;</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;Redis put failed, id=&#34;</span> <span class="o">+</span> <span class="n">id</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 读取缓存
+</span><span class="cm">     * @param key 其实就是sql语句
+</span><span class="cm">     * @return 缓存结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getObject</span><span class="o">(</span><span class="n">Object</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">strKey</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;Get cache from redis, id={}&#34;</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">getRedisService</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">strKey</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;Redis get failed, fail over to db&#34;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 删除缓存
+</span><span class="cm">     * @param key 其实就是sql语句
+</span><span class="cm">     * @return 结果
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">removeObject</span><span class="o">(</span><span class="n">Object</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">strKey</span> <span class="o">=</span> <span class="n">getKey</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+            <span class="n">getRedisService</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span><span class="n">strKey</span><span class="o">);</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;Remove cache from redis, id={}&#34;</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;Redis remove failed&#34;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 缓存清理
+</span><span class="cm">     * 网上好多博客这里用了flushDb甚至是flushAll，感觉好坑鸭！
+</span><span class="cm">     * 应该是根据表空间进行清理
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">clear</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;clear cache, id={}&#34;</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+            <span class="n">String</span> <span class="n">hsKey</span> <span class="o">=</span> <span class="n">CACHE_NAME</span> <span class="o">+</span> <span class="n">id</span><span class="o">;</span>
+            <span class="c1">// 获取CacheNamespace所有缓存key
+</span><span class="c1"></span>            <span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">idMap</span> <span class="o">=</span> <span class="n">getRedisService</span><span class="o">().</span><span class="na">hashEntries</span><span class="o">(</span><span class="n">hsKey</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">idMap</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+                <span class="n">Set</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">keySet</span> <span class="o">=</span> <span class="n">idMap</span><span class="o">.</span><span class="na">keySet</span><span class="o">();</span>
+                <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keys</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;(</span><span class="n">keySet</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+                <span class="n">keySet</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">item</span> <span class="o">-&gt;</span> <span class="n">keys</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">item</span><span class="o">.</span><span class="na">toString</span><span class="o">()));</span>
+                <span class="c1">// 清空CacheNamespace所有缓存
+</span><span class="c1"></span>                <span class="n">getRedisService</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span><span class="n">keys</span><span class="o">);</span>
+                <span class="c1">// 清空CacheNamespace
+</span><span class="c1"></span>                <span class="n">getRedisService</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span><span class="n">hsKey</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;clear cache failed&#34;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取缓存大小，暂时没用上
+</span><span class="cm">     * @return 长度
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getSize</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">0</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取读写锁：为了解决缓存击穿
+</span><span class="cm">     * @return 锁
+</span><span class="cm">     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">ReadWriteLock</span> <span class="nf">getReadWriteLock</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">readWriteLock</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 计算出key的摘要
+</span><span class="cm">     * @param cacheKey CacheKey
+</span><span class="cm">     * @return 字符串key
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="nf">getKey</span><span class="o">(</span><span class="n">Object</span> <span class="n">cacheKey</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">cacheKeyStr</span> <span class="o">=</span> <span class="n">cacheKey</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;count hash key, cache key origin string:{}&#34;</span><span class="o">,</span> <span class="n">cacheKeyStr</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">strKey</span> <span class="o">=</span> <span class="n">byte2hex</span><span class="o">(</span><span class="n">getSHADigest</span><span class="o">(</span><span class="n">cacheKeyStr</span><span class="o">));</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;hash key:{}&#34;</span><span class="o">,</span> <span class="n">strKey</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">CACHE_NAME</span> <span class="o">+</span> <span class="n">strKey</span><span class="o">;</span>
+        <span class="c1">// 在redis额外维护CacheNamespace创建的key，clear的时候只清理当前CacheNamespace的数据
+</span><span class="c1"></span>        <span class="n">getRedisService</span><span class="o">().</span><span class="na">hashSet</span><span class="o">(</span><span class="n">CACHE_NAME</span> <span class="o">+</span> <span class="n">id</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span> <span class="s">&#34;1&#34;</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">key</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取信息摘要
+</span><span class="cm">     * @param data 待计算字符串
+</span><span class="cm">     * @return 字节数组
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">getSHADigest</span><span class="o">(</span><span class="n">String</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">messageDigest</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="kd">synchronized</span> <span class="o">(</span><span class="n">MessageDigest</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">messageDigest</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">messageDigest</span> <span class="o">=</span> <span class="n">MessageDigest</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">ALGORITHM</span><span class="o">);</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="n">messageDigest</span><span class="o">.</span><span class="na">digest</span><span class="o">(</span><span class="n">data</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="n">CHARSET</span><span class="o">));</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;SHA-256 digest error: &#34;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">SPIException</span><span class="o">(</span><span class="n">ExceptionCode</span><span class="o">.</span><span class="na">RUNTIME_UNITE_EXP</span><span class="o">,</span><span class="s">&#34;SHA-256 digest error, id=&#34;</span> <span class="o">+</span> <span class="n">id</span> <span class="o">+</span>  <span class="s">&#34;.&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 字节数组转16进制字符串
+</span><span class="cm">     * @param bytes 待转换数组
+</span><span class="cm">     * @return 16进制字符串
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="nf">byte2hex</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">bytes</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">StringBuilder</span> <span class="n">sign</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringBuilder</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">byte</span> <span class="n">aByte</span> <span class="o">:</span> <span class="n">bytes</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">hex</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toHexString</span><span class="o">(</span><span class="n">aByte</span> <span class="o">&amp;</span> <span class="n">0xFF</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">hex</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">==</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">sign</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="s">&#34;0&#34;</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="n">sign</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">hex</span><span class="o">.</span><span class="na">toUpperCase</span><span class="o">());</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">sign</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * 获取Redis服务接口
+</span><span class="cm">     * 使用双重检查保证线程安全
+</span><span class="cm">     * @return 服务实例
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="n">RedisService</span> <span class="nf">getRedisService</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">redisService</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">RedisService</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">redisService</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">redisService</span> <span class="o">=</span> <span class="n">ApplicationContextUtils</span><span class="o">.</span><span class="na">getBeanByClass</span><span class="o">(</span><span class="n">RedisService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">redisService</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h4 id="配置实现类">配置实现类</h4>
+<p>有两种方式配置二级缓存实现类到mapper上，二选一</p>
+<ol>
+<li>Java代码（注解）</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@CacheNamespace</span><span class="o">(</span><span class="n">implementation</span><span class="o">=</span><span class="n">com</span><span class="o">.</span><span class="na">leven</span><span class="o">.</span><span class="na">mybatis</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">cache</span><span class="o">.</span><span class="na">MybatisRedisCache</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">UserMapper</span> <span class="kd">extends</span> <span class="n">OracleMapper</span><span class="o">&lt;</span><span class="n">UserDO</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="o">}</span>
+</code></pre></div><ol start="2">
+<li>XML</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;cache</span> <span class="na">type=</span><span class="s">&#34;com.leven.mybatis.core.cache.MybatisRedisCache&#34;</span><span class="nt">/&gt;</span>
+</code></pre></div><h3 id="实现类解析与缓存三大问题的解决">实现类解析与缓存三大问题的解决</h3>
+<p>通过阅读以上实现类源码可以看出其中一些设计的精巧，下面一一来分析。</p>
+<ol>
+<li><strong>Key的命名</strong></li>
+</ol>
+<p>key的命名可以看到使用了一些前缀，比如最终对某一sql运行结果缓存的key实际上是</p>
+<p><code>应用名:MyBatis:SQL转为的HEX</code></p>
+<p>可以看出是用冒号隔开的，一层一层的，类似命名空间一样的方式，这种key命名方式的好处是可以很好地区分不同业务的key，使得缓存的存储更有条理更加规范，同时也可以使得在RDM等redis可视化界面中呈现树形的结构。</p>
+<ol start="2">
+<li><strong>key的摘要处理</strong></li>
+</ol>
+<p>MyBatis原始的key里是直接包含了被执行的sql语句，但是这样会导致key的长度太大，对redis性能有一定的影响，所以这里的处理是用<code>SHA-256</code>算法计算出原本为string的key的摘要，最后将其转换为十六进制的表示形式。</p>
+<p>这样做的优点是可以缩短key的长度，提升redis性能，同时也保证了sql与key的唯一对应性，只是需要一点开销去计算这个过程。</p>
+<ol start="3">
+<li><strong>CacheNamespace</strong></li>
+</ol>
+<p>网上很多其他的clear方法的实现类都是<code>flushdb</code>的，这样做不好，因为很多情况下不同namespace下的数据并无关联，这边的修改不会影响那边，所以只需要清除本SQL所在的namespace即可，不需要全部清除，被清除的之后还要去数据库中取也是增加了开销。（如果有关联的缓存则用另一种方法处理，文章下面有介绍）</p>
+<p>上面的实现类就是通过redis维护一个hash结构，key为namespace，里面的每个field就是其下的执行过的SQL的摘要，value只是标志位。而SQL对应的查询结果缓存则是单独用普通的string的key-value进行存储，只是我们制定了序列化用json而已。在clear时，查询到此namespace下的所有摘要，想删除了对应的所有的string的key-value，再去把hash结构删了。</p>
+<p>那有人可能会说，为啥不直接在hash中field对应的value里存储SQL的查询结果，要在外面另外的用key-value结构去存呢，这样我clear的时候直接删除整个namespace对应的hash就行了呗。这其实也是一种方案，但是缺点有两个：（一）无法对每一个SQL摘要进行单独设置过期时间，最多只能对hash结构的大key设置；（二）hash中的filed不宜过多</p>
+<ol start="4">
+<li><strong>随机过期时间——应对缓存雪崩</strong></li>
+</ol>
+<p><code>缓存雪崩</code>，简单来说就是当我们有一组key因为过期时间点相近，在那一小段时间内这组key集体失效，而此时又有很多请求过来要获取这组key的内容，那就全部打在MySQL上，可能就会造成数据库压力过大而崩溃。</p>
+<p>解决方法是在设置key的过期时间时加上随机数，使得他们的过期时间尽量分散，避免在同一时间内集体失效。</p>
+<ol start="5">
+<li><strong>存储空值——应对缓存穿透</strong></li>
+</ol>
+<p><code>缓存穿透</code> ，当客户端请求一个数据库中没有的值得时候，缓存中自然也不会有，那就穿过缓存直接来到数据库进行查询，如果这样的请求多了的话对数据库也不利。</p>
+<p>解决方法是对查询不存在的结果也在缓存中存储空值来解决，这个由MyBatis实现，下次再来请求这个不存在的值得时候就可以拦截在缓存中了。</p>
+<p>如果遇到那种黑客攻击，生成了一堆随机的，不存在的值来穿透，来打到我们的数据库怎么办？那就要用大名鼎鼎的<code>布隆过滤器</code>（<code>bloom filter</code>）了，这里不展开。</p>
+<ol start="6">
+<li><strong>使用互斥锁——应对缓存击穿</strong></li>
+</ol>
+<p><code>缓存击穿</code> ，这个跟缓存雪崩有点类似，缓存雪崩是大规模的key失效，而缓存击穿是一个<strong>热点的key</strong>失效，经常有大并发集中对其进行访问，突然间这个Key失效了，导致大并发全部打在数据库上，导致数据库压力剧增。这种现象就叫做缓存击穿。</p>
+<p>解决方案是互斥锁，当这个热点key失效时先加把互斥锁，拿到锁的线程去数据库中查找，其它线程只能等到重试，等load db完成后再写到缓存中，拿到锁的线程才释放锁，这时其他线程就可以去缓存中取了，这样就减少了数据库的压力。当然，用了锁就会影响系统一定的性能。</p>
+<h3 id="关联缓存">关联缓存</h3>
+<p>当遇到不同namespace之间的数据有关联，也就是在清除一个namespace时，也需要清除另一个与之相关联的避免读到脏数据，这个时候我们可以使用关联缓存。</p>
+<p>开启方法：在对应的mapper下加上以下标签：</p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;cache-ref</span> <span class="na">namespace=</span><span class="s">&#34;xxxxxxx&#34;</span><span class="nt">/&gt;</span>
+</code></pre></div><p>设置之后本mapper的缓存会放到cache-ref制定的namespace下，也就是不再自己一个namespace，共用了指向的namespace，那到时清除的时候就会一块清除。</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a class="link" href="https://segmentfault.com/a/1190000023667657"  target="_blank" rel="noopener"
+    >MyBatis整合Redis实现二级缓存</a></p>
+<p><a class="link" href="https://tech.meituan.com/2018/01/19/mybatis-cache.html"  target="_blank" rel="noopener"
+    >聊聊MyBatis缓存机制</a></p>
+<p><a class="link" href="https://www.bilibili.com/video/BV1jD4y1Q7tU?p=22"  target="_blank" rel="noopener"
+    >【编程不良人】适合后端编程人员的Redis实战教程、redis应用场景、分布式缓存、Session管理、面试相关等已完结!</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/redis/">Redis</a>
+        
+            <a href="/tags/mybatis/">MyBatis</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/mysql_master_slave_replic/">
+        
+        
+            <div class="article-image">
+                <img src="/p/mysql_master_slave_replic/cover.8daf3fb2497f304c26dbeec6f6b85751_huff5578d477b5a7be0373e736738479ea_238860_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="mysql_master_slave_replic" 
+                        data-hash="md5-ja8/skl/MEwm2&#43;7G9rhXUQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">MySQL主从复制搭建与原理</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+     
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#缓存的分类">缓存的分类</a></li>
+    <li><a href="#缓存发挥的作用">缓存发挥的作用</a></li>
+    <li><a href="#mybatis开启二级缓存">MyBatis开启二级缓存</a></li>
+    <li><a href="#使用redis作为mybatis的二级缓存">使用Redis作为Mybatis的二级缓存</a>
+      <ol>
+        <li><a href="#cache接口">Cache接口</a></li>
+        <li><a href="#mybatisrediscache实现类">MyBatisRedisCache实现类</a>
+          <ol>
+            <li><a href="#springboot配置">SpringBoot配置</a></li>
+            <li><a href="#redisconfig中配置redistemplate">RedisConfig中配置RedisTemplate</a></li>
+            <li><a href="#redisservice接口">RedisService接口</a></li>
+            <li><a href="#redisserviceimpl实现">RedisServiceImpl实现</a></li>
+            <li><a href="#实现cache接口的mybatisrediscache">实现Cache接口的MybatisRedisCache</a></li>
+            <li><a href="#配置实现类">配置实现类</a></li>
+          </ol>
+        </li>
+        <li><a href="#实现类解析与缓存三大问题的解决">实现类解析与缓存三大问题的解决</a></li>
+        <li><a href="#关联缓存">关联缓存</a></li>
+      </ol>
+    </li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

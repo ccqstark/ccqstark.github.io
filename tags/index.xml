@@ -6,7 +6,25 @@
     <description>Recent content in Tags on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 27 Jul 2021 03:44:28 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 25 Aug 2021 16:07:15 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MyBatis</title>
+      <link>https://ccqstark.github.io/tags/mybatis/</link>
+      <pubDate>Wed, 25 Aug 2021 16:07:15 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/tags/mybatis/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Redis</title>
+      <link>https://ccqstark.github.io/tags/redis/</link>
+      <pubDate>Wed, 25 Aug 2021 16:07:15 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/tags/redis/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>JDK</title>
       <link>https://ccqstark.github.io/tags/jdk/</link>
