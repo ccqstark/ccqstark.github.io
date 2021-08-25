@@ -19,7 +19,8 @@ MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就�
 使用Redis作为Mybatis的二级缓存 MyBatis的缓存实现类默认是PerpetualCache，它继承类Cache接口，除此之外还有其他实现类。
 原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。
 Cache接口 public interface Cache { String getId(); void putObject(Object var1, Object var2); Object getObject(Object var1); Object removeObject(Object var1); void clear(); int getSize(); ReadWriteLock getReadWriteLock(); } 解析
-getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key putObject ：此方法就是用来将数据放入缓存的
+getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key
+putObject ：此方法就是用来将数据放入缓存的
 getObject ：用以根据key获取缓存的值
 removeObject ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用
 clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存
@@ -47,7 +48,8 @@ MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就�
 使用Redis作为Mybatis的二级缓存 MyBatis的缓存实现类默认是PerpetualCache，它继承类Cache接口，除此之外还有其他实现类。
 原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。
 Cache接口 public interface Cache { String getId(); void putObject(Object var1, Object var2); Object getObject(Object var1); Object removeObject(Object var1); void clear(); int getSize(); ReadWriteLock getReadWriteLock(); } 解析
-getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key putObject ：此方法就是用来将数据放入缓存的
+getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key
+putObject ：此方法就是用来将数据放入缓存的
 getObject ：用以根据key获取缓存的值
 removeObject ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用
 clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存
@@ -76,7 +78,8 @@ MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就�
 使用Redis作为Mybatis的二级缓存 MyBatis的缓存实现类默认是PerpetualCache，它继承类Cache接口，除此之外还有其他实现类。
 原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。
 Cache接口 public interface Cache { String getId(); void putObject(Object var1, Object var2); Object getObject(Object var1); Object removeObject(Object var1); void clear(); int getSize(); ReadWriteLock getReadWriteLock(); } 解析
-getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key putObject ：此方法就是用来将数据放入缓存的
+getId ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key
+putObject ：此方法就是用来将数据放入缓存的
 getObject ：用以根据key获取缓存的值
 removeObject ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用
 clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存
@@ -229,8 +232,8 @@ if (!doNotTrack) {
     <span class="n">ReadWriteLock</span> <span class="nf">getReadWriteLock</span><span class="o">();</span>
 <span class="o">}</span>
 </code></pre></div><p><strong>解析</strong></p>
-<p><code>getId</code> ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key
-<code>putObject</code> ：此方法就是用来将数据放入缓存的</p>
+<p><code>getId</code> ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key</p>
+<p><code>putObject</code> ：此方法就是用来将数据放入缓存的</p>
 <p><code>getObject</code> ：用以根据key获取缓存的值</p>
 <p><code>removeObject</code> ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用</p>
 <p><code>clear</code> ：<strong>每次</strong>执行update/delete/insert语句都会调用此方法进行清除原有的缓存</p>

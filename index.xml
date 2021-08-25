@@ -53,8 +53,8 @@
     &lt;span class=&#34;n&#34;&gt;ReadWriteLock&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getReadWriteLock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;解析&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;getId&lt;/code&gt; ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key
-&lt;code&gt;putObject&lt;/code&gt; ：此方法就是用来将数据放入缓存的&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;getId&lt;/code&gt; ：这个方法其实是获取了执行的sql对应的namespace，可以用来组成缓存的key&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;putObject&lt;/code&gt; ：此方法就是用来将数据放入缓存的&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;getObject&lt;/code&gt; ：用以根据key获取缓存的值&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;removeObject&lt;/code&gt; ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;clear&lt;/code&gt; ：&lt;strong&gt;每次&lt;/strong&gt;执行update/delete/insert语句都会调用此方法进行清除原有的缓存&lt;/p&gt;
