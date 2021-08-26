@@ -49,7 +49,7 @@ make
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;以上执行完之后在目录下多了一个&lt;code&gt;rebloom.so&lt;/code&gt;文件，将其移动到一个合适的位置&lt;/p&gt;
 &lt;p&gt;然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用&lt;code&gt;info&lt;/code&gt; 命令查看）&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 后面为rebloom.so文件所在的目录&lt;/span&gt;
-loadmodule /xxx/xxx/xxx/&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;rebloom.so&lt;span class=&#34;o&#34;&gt;](&lt;/span&gt;http://rebloom.so/&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+loadmodule /xxx/xxx/xxx/rebloom.so
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;重启redis后进入redis-cli尝试以下命令&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;bf.add &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
 bf.add &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;

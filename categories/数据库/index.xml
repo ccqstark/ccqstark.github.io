@@ -27,7 +27,7 @@
 安装redis插件 非docker安装的redis可以采用安装插件的方式来
 # 去这个github仓库看看最新版本 wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz # 解压 tar zxvf v2.2.4.tar.gz # 编译 cd RedisBloom-2.2.4 make 以上执行完之后在目录下多了一个rebloom.so文件，将其移动到一个合适的位置
 然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用info 命令查看）
-# 后面为rebloom.so文件所在的目录 loadmodule /xxx/xxx/xxx/[rebloom.so](http://rebloom.so/) 重启redis后进入redis-cli尝试以下命令
+# 后面为rebloom.so文件所在的目录 loadmodule /xxx/xxx/xxx/rebloom.so 重启redis后进入redis-cli尝试以下命令
 bf.add test 1 bf.add test 2 bf.</description>
     </item>
     
