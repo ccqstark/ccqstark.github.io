@@ -6,7 +6,208 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 26 Aug 2021 03:57:56 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 30 Aug 2021 12:34:20 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Java单元测试利器——Mockito</title>
+        <link>https://ccqstark.github.io/p/mockito/</link>
+        <pubDate>Mon, 30 Aug 2021 12:34:20 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/mockito/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/mockito/cover.png" alt="Featured image of post Java单元测试利器——Mockito" /&gt;&lt;h2 id=&#34;mock介绍&#34;&gt;Mock介绍&lt;/h2&gt;
+&lt;h3 id=&#34;基本介绍&#34;&gt;基本介绍&lt;/h3&gt;
+&lt;p&gt;为了提高代码质量，除了做静态代码测试，动态的单元测试也少不了。而在单元测试过程中，&lt;code&gt;Mock&lt;/code&gt;是少不了的技术。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Mock&lt;/code&gt;是允许用模拟对象替换测试中的系统部件，并断言它们是如何被使用的一项技术。&lt;/p&gt;
+&lt;h3 id=&#34;mock的作用如下&#34;&gt;Mock的作用如下&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;解决依赖问题：当测试一个接口或者功能模块的时候，如果这个接口或者功能模块依赖其他接口或其他模块，那么如果所依赖的接口或功能模块未开发完毕，那么我们就可以使用Mock模拟被依赖接口，完成目标接口的测试。&lt;/li&gt;
+&lt;li&gt;单元测试：如果某个功能未开发完成，又要进行测试用例的代码编写，也可以先模拟这个功能进行测试。&lt;/li&gt;
+&lt;li&gt;模拟复杂业务的接口：实际工作中如果我们在测试一个接口功能时，如果这个接口依赖一个非常复杂的接口业务或者来源于第三方接口（如第三方支付接口），那么我们完全可以使用Mock来模拟这个复杂的业务接口，其实这个和解决接口依赖是一样的原理。&lt;/li&gt;
+&lt;li&gt;前后端联调：进行前后端分离编程时，如果进行一个前端页面开发，需要根据后合返回的状态展示不同的页面，那么就需要调用后合的接口，但是后合接口还未开发完成，完全可以借助mock来模拟后台这个接口返回想要的数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;mock与stub桩&#34;&gt;Mock与Stub(桩)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;桩代码(Stub)&lt;/code&gt;：用来代替真实代码的临时代码，主要作用是使被测代码能够独立编译、 链接，并独立运行&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Mock代码&lt;/code&gt;：也是用来代替真实代码的临时代码，起到隔离和补齐的作用，但是它还可&lt;strong&gt;深入的模拟对象之间的交互方式&lt;/strong&gt;，可以&lt;strong&gt;对结果进行验证&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;mockito测试框架&#34;&gt;Mockito测试框架&lt;/h2&gt;
+&lt;p&gt;Mockito是Java单元测试中使用率最高的Mock框架之一，同时也是SpringBoot默认引入的mock框架(spring-boot-starter-test包括JUnit, Hamcrest 和 Mockito)&lt;/p&gt;
+&lt;h3 id=&#34;maven依赖&#34;&gt;Maven依赖&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.mockito&lt;span class=&#34;nt&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;mockito-core&lt;span class=&#34;nt&#34;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;3.12.4&lt;span class=&#34;nt&#34;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;test&lt;span class=&#34;nt&#34;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;验证某些行为是否被调用&#34;&gt;验证某些行为是否被调用&lt;/h3&gt;
+&lt;p&gt;Mockito可以验证某些行为：一旦mock对象被创建了，mock对象会记住所有的交互&lt;/p&gt;
+&lt;p&gt;使用方法&lt;code&gt;verify()&lt;/code&gt; 判断方法是否被调用过&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;verifyTest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Mockito&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+
+    &lt;span class=&#34;n&#34;&gt;Mockito&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Mockito&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 此方法没有调用过，所以会报错
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;测试桩stub&#34;&gt;测试桩Stub&lt;/h3&gt;
+&lt;p&gt;Mockito可以做一些测试桩（&lt;code&gt;Stub&lt;/code&gt;），做测试桩的目的是为了在某些方法还没有开发出来，但我们测试时却需要调用它的时候，给这个方法模拟一个假的返回值供我们测试用。&lt;/p&gt;
+&lt;p&gt;默认情况下，所有函数都有返回值。mock函数默认返回的是null，一个空的集合或者一个被对象类型包装的内置类型。&lt;/p&gt;
+&lt;p&gt;当我们要指定某的函数的返回值时，可以使用&lt;code&gt;when()&lt;/code&gt; 和 &lt;code&gt;ThenReturn()&lt;/code&gt; 、&lt;code&gt;ThenThrow()&lt;/code&gt; 方法&lt;/p&gt;
+&lt;p&gt;之后调用这些函数时，就会返回我们上面指定的值（注意返回类型也要正确）&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;stubTest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Mockito&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Mockito&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;when&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;thenReturn&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Mockito&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;when&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;thenThrow&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;NoSuchMethodError&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;());&lt;/span&gt;
+
+    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;());&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;// 返回1
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;());&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 抛出异常NoSuchMethodError
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;一个方法可能多次调用，想要每次调用都设置对应返回值也是可以的&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;constStubTest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;personMock&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;when&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;personMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;())&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;thenReturn&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;thenReturn&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;1&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;personMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;());&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;// 第一次返回cc
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;personMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;());&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;// 第二次返回1
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;类型范围&#34;&gt;类型范围&lt;/h3&gt;
+&lt;p&gt;使用&lt;code&gt;anyInt()&lt;/code&gt; 、&lt;code&gt;anyString()&lt;/code&gt;、&lt;code&gt;anyList()&lt;/code&gt;等方法可以对参数类型进行限制或者放宽范围&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;matchTest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Mockito&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;when&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setKeyById&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;anyInt&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;())).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;thenReturn&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;0001Test1000&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;// 表示只要传入int类型就返回&amp;#34;0001Test1000&amp;#34;
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setKeyById&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;10&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;));&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setKeyById&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;10&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;方法调用次数验证&#34;&gt;方法调用次数验证&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;times()&lt;/code&gt;可以用来验证方法的调用次数，如果不是预期次数则会不通过&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;timesTest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    
+    &lt;span class=&#34;n&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mockPerson&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;times&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;方法调用顺序验证&#34;&gt;方法调用顺序验证&lt;/h3&gt;
+&lt;p&gt;当我们需要验证方法调用的前后顺序是否符合预期，可以&lt;code&gt;InOrder&lt;/code&gt; 类以及它的&lt;code&gt;verify()&lt;/code&gt; 方法&lt;/p&gt;
+&lt;p&gt;不仅使用与单个对象，多个对象的方法之间的调研顺序也可以进行判断&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;orderTest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;singeMock&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;singeMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;singeMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;qq&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;// 单个对象方法的调用顺序
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;InOrder&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inOrder&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inOrder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;singeMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;inOrder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;singeMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;inOrder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;singeMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;qq&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 顺序正确
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;firstMock&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;secondMock&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;firstMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;secondMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;// 多个方法的调用顺序
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;InOrder&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inOrder1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inOrder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;firstMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;secondMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;inOrder1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;secondMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;inOrder1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;verify&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;firstMock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;setId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 顺序错误
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;spy监控对象&#34;&gt;spy监控对象&lt;/h3&gt;
+&lt;p&gt;spy可以监控或控制一个真正new创建出来的对象，而不是去mock的对象，两者区别在于mock的对象如果不指定返回值就会返回null这样的零值，而spy则介于真正的bean和mock之间，对于被我们指定了返回值的优先按指定的，没有指定的就按对象实际值返回。&lt;/p&gt;
+&lt;p&gt;下面的例子是修改一个对象中某个属性的返回值，使得其返回值不在是属性的真实值&lt;/p&gt;
+&lt;p&gt;也可以用&lt;code&gt;@Spy&lt;/code&gt; 注解&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;spyTest&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;person&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;cc&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Person&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;spy&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;spy&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;person&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;when&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;spy&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()).&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;thenReturn&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;qq&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;spy&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getName&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;());&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 返回qq，而不是cc
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;System&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;out&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;spy&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getId&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;());&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;// 返回1，因为没有设置过
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;spring-boot中的单元测试&#34;&gt;Spring Boot中的单元测试&lt;/h2&gt;
+&lt;p&gt;Spring Boot的结构上来说，Service层是依赖Dao层的，而Controller层又依赖于Service层&lt;/p&gt;
+&lt;p&gt;从单元测试的角度，对某个Service和Controller进行单元测试的时候，所有需要依赖的类或方法都应该mock，只针对某一段代码进行运行逻辑测试，测试Service层时，就可以使用Mockito来隔离Dao层；Dao层的单元测试可以用工具随机生成测试数据，然后使用工具测试SQL即可，就不要还启动整个应用，效率比较低。&lt;/p&gt;
+&lt;p&gt;下面是几种mock的方案&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在before函数中直接mock实例化对象&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@BeforeEach&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;before&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;userService&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mock&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;UserService&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;使用&lt;code&gt;@Mock&lt;/code&gt;注解来Mock对象&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Mock&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;UserSerice&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;userService&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;nd&#34;&gt;@BeforeEach&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;before&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;MockitoAnnotations&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;initMocks&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;this&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 此方法已被deprecad
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;使用&lt;code&gt;@RunWith(MockitoJunitRunner.class)&lt;/code&gt; ，搭配@Mock就可以直接使用了，不用再初始化（此方法只能用于Junit4）（较为推荐）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@RunWith&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;MockitoJunitRunner&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@SpringBootTest&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Test&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nd&#34;&gt;@Mock&lt;/span&gt;
+	&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;UserSerice&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;userService&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+	&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+	&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;test&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;// code
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;使用&lt;code&gt;MockitoRule&lt;/code&gt;，但是对象的访问级别必须是public（此方法也只能用于Junit4）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@RunWith&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;JUnit4&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;nd&#34;&gt;@SpringBootTest&lt;/span&gt;
+&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Test&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+  &lt;span class=&#34;nd&#34;&gt;@Rule&lt;/span&gt;
+	&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;MockitoRule&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rule&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;MockitoJUnit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;rule&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+
+	&lt;span class=&#34;nd&#34;&gt;@Mock&lt;/span&gt;
+	&lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;UserSerice&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;userService&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+
+	&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
+	&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;test&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+		&lt;span class=&#34;c1&#34;&gt;// code
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;单元测试常用&#34;&gt;单元测试常用&lt;/h2&gt;
+&lt;h3 id=&#34;注解&#34;&gt;注解&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;@Test&lt;/code&gt; 标注一个测试方法&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;@BeforeEach&lt;/code&gt; / &lt;code&gt;@AfterEach&lt;/code&gt; 在每个测试方法之前/后运行&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;@BeforeAll&lt;/code&gt; / &lt;code&gt;@AfterAll&lt;/code&gt; 在整个测试流程之前/后运行，整个测试过程只会运行一次&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;@SpringBootTest&lt;/code&gt; 初始化Spring上下文来进行测试，当测试中用到类需要用Spring容器管理时加&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;@MockBean&lt;/code&gt; 同Mockito的@Mock&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;@SpyBean&lt;/code&gt; 同Mockito的@Spy&lt;/p&gt;
+&lt;h3 id=&#34;断言&#34;&gt;断言&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Assert&lt;/code&gt;类&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;JUnit4提供，使用较为简单，点进去看源码的方法即可。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Assertions&lt;/code&gt;类&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;JUnit5提供，和Assert类差不多。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;assertThat(T actual, Matcher&amp;lt;? super T&amp;gt; matcher);&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;assertThat(Assert类中)是JUnit 4.4引入的一个全新的断言语法，可以只使用这一个方法，实现所有的断言测试。&lt;/p&gt;
+&lt;p&gt;其中actual为需要测试的变量值，matcher为使用Hamcrest的匹配符来表达变量actual期望值的声明，如果值与matcher所表达的期望值相符，则测试成功，否则失败。&lt;/p&gt;
+&lt;p&gt;匹配器有可读性强、满足复杂匹配条件等优点，常用匹配器可以查文档，也不难使用。&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>Redis布隆过滤器与点赞功能设计</title>
         <link>https://ccqstark.github.io/p/bloom_filter/</link>
         <pubDate>Thu, 26 Aug 2021 03:57:56 +0800</pubDate>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>单元测试 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</link>
+    <description>Recent content in 单元测试 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 30 Aug 2021 12:34:20 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Java单元测试利器——Mockito</title>
+      <link>https://ccqstark.github.io/p/mockito/</link>
+      <pubDate>Mon, 30 Aug 2021 12:34:20 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/mockito/</guid>
+      <description>Mock介绍 基本介绍 为了提高代码质量，除了做静态代码测试，动态的单元测试也少不了。而在单元测试过程中，Mock是少不了的技术。
+Mock是允许用模拟对象替换测试中的系统部件，并断言它们是如何被使用的一项技术。
+Mock的作用如下  解决依赖问题：当测试一个接口或者功能模块的时候，如果这个接口或者功能模块依赖其他接口或其他模块，那么如果所依赖的接口或功能模块未开发完毕，那么我们就可以使用Mock模拟被依赖接口，完成目标接口的测试。 单元测试：如果某个功能未开发完成，又要进行测试用例的代码编写，也可以先模拟这个功能进行测试。 模拟复杂业务的接口：实际工作中如果我们在测试一个接口功能时，如果这个接口依赖一个非常复杂的接口业务或者来源于第三方接口（如第三方支付接口），那么我们完全可以使用Mock来模拟这个复杂的业务接口，其实这个和解决接口依赖是一样的原理。 前后端联调：进行前后端分离编程时，如果进行一个前端页面开发，需要根据后合返回的状态展示不同的页面，那么就需要调用后合的接口，但是后合接口还未开发完成，完全可以借助mock来模拟后台这个接口返回想要的数据。  Mock与Stub(桩)  桩代码(Stub)：用来代替真实代码的临时代码，主要作用是使被测代码能够独立编译、 链接，并独立运行 Mock代码：也是用来代替真实代码的临时代码，起到隔离和补齐的作用，但是它还可深入的模拟对象之间的交互方式，可以对结果进行验证  Mockito测试框架 Mockito是Java单元测试中使用率最高的Mock框架之一，同时也是SpringBoot默认引入的mock框架(spring-boot-starter-test包括JUnit, Hamcrest 和 Mockito)
+Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mockito-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.12.4&amp;lt;/version&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; 验证某些行为是否被调用 Mockito可以验证某些行为：一旦mock对象被创建了，mock对象会记住所有的交互
+使用方法verify() 判断方法是否被调用过
+@Test void verifyTest(){ Person mockPerson = Mockito.mock(Person.class); mockPerson.setId(1); Mockito.verify(mockPerson).setId(1); Mockito.verify(mockPerson).setName(&amp;#34;cc&amp;#34;); // 此方法没有调用过，所以会报错 } 测试桩Stub Mockito可以做一些测试桩（Stub），做测试桩的目的是为了在某些方法还没有开发出来，但我们测试时却需要调用它的时候，给这个方法模拟一个假的返回值供我们测试用。
+默认情况下，所有函数都有返回值。mock函数默认返回的是null，一个空的集合或者一个被对象类型包装的内置类型。
+当我们要指定某的函数的返回值时，可以使用when() 和 ThenReturn() 、ThenThrow() 方法
+之后调用这些函数时，就会返回我们上面指定的值（注意返回类型也要正确）
+@Test void stubTest(){ Person mockPerson = Mockito.mock(Person.class); Mockito.when(mockPerson.getId()).thenReturn(1); Mockito.when(mockPerson.getName()).thenThrow(new NoSuchMethodError()); System.out.println(mockPerson.getId()); // 返回1  System.out.println(mockPerson.getName()); // 抛出异常NoSuchMethodError } 一个方法可能多次调用，想要每次调用都设置对应返回值也是可以的</description>
+    </item>
+    
+  </channel>
+</rss>

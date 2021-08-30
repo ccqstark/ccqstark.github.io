@@ -6,7 +6,16 @@
     <description>Recent content in Tags on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 26 Aug 2021 03:57:56 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 30 Aug 2021 12:34:20 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>单元测试</title>
+      <link>https://ccqstark.github.io/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</link>
+      <pubDate>Mon, 30 Aug 2021 12:34:20 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Redis</title>
       <link>https://ccqstark.github.io/tags/redis/</link>

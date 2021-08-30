@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Mock介绍 基本介绍 为了提高代码质量，除了做静态代码测试，动态的单元测试也少不了。而在单元测试过程中，Mock是少不了的技术。
+Mock是允许用模拟对象替换测试中的系统部件，并断言它们是如何被使用的一项技术。
+Mock的作用如下  解决依赖问题：当测试一个接口或者功能模块的时候，如果这个接口或者功能模块依赖其他接口或其他模块，那么如果所依赖的接口或功能模块未开发完毕，那么我们就可以使用Mock模拟被依赖接口，完成目标接口的测试。 单元测试：如果某个功能未开发完成，又要进行测试用例的代码编写，也可以先模拟这个功能进行测试。 模拟复杂业务的接口：实际工作中如果我们在测试一个接口功能时，如果这个接口依赖一个非常复杂的接口业务或者来源于第三方接口（如第三方支付接口），那么我们完全可以使用Mock来模拟这个复杂的业务接口，其实这个和解决接口依赖是一样的原理。 前后端联调：进行前后端分离编程时，如果进行一个前端页面开发，需要根据后合返回的状态展示不同的页面，那么就需要调用后合的接口，但是后合接口还未开发完成，完全可以借助mock来模拟后台这个接口返回想要的数据。  Mock与Stub(桩)  桩代码(Stub)：用来代替真实代码的临时代码，主要作用是使被测代码能够独立编译、 链接，并独立运行 Mock代码：也是用来代替真实代码的临时代码，起到隔离和补齐的作用，但是它还可深入的模拟对象之间的交互方式，可以对结果进行验证  Mockito测试框架 Mockito是Java单元测试中使用率最高的Mock框架之一，同时也是SpringBoot默认引入的mock框架(spring-boot-starter-test包括JUnit, Hamcrest 和 Mockito)
+Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mockito-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.12.4&amp;lt;/version&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; 验证某些行为是否被调用 Mockito可以验证某些行为：一旦mock对象被创建了，mock对象会记住所有的交互
+使用方法verify() 判断方法是否被调用过
+@Test void verifyTest(){ Person mockPerson = Mockito.mock(Person.class); mockPerson.setId(1); Mockito.verify(mockPerson).setId(1); Mockito.verify(mockPerson).setName(&amp;#34;cc&amp;#34;); // 此方法没有调用过，所以会报错 } 测试桩Stub Mockito可以做一些测试桩（Stub），做测试桩的目的是为了在某些方法还没有开发出来，但我们测试时却需要调用它的时候，给这个方法模拟一个假的返回值供我们测试用。
+默认情况下，所有函数都有返回值。mock函数默认返回的是null，一个空的集合或者一个被对象类型包装的内置类型。
+当我们要指定某的函数的返回值时，可以使用when() 和 ThenReturn() 、ThenThrow() 方法
+之后调用这些函数时，就会返回我们上面指定的值（注意返回类型也要正确）
+@Test void stubTest(){ Person mockPerson = Mockito.mock(Person.class); Mockito.when(mockPerson.getId()).thenReturn(1); Mockito.when(mockPerson.getName()).thenThrow(new NoSuchMethodError()); System.out.println(mockPerson.getId()); // 返回1  System.out.println(mockPerson.getName()); // 抛出异常NoSuchMethodError } 一个方法可能多次调用，想要每次调用都设置对应返回值也是可以的'><title>Java单元测试利器——Mockito</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/mockito/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Java单元测试利器——Mockito'>
+<meta property='og:description' content='Mock介绍 基本介绍 为了提高代码质量，除了做静态代码测试，动态的单元测试也少不了。而在单元测试过程中，Mock是少不了的技术。
+Mock是允许用模拟对象替换测试中的系统部件，并断言它们是如何被使用的一项技术。
+Mock的作用如下  解决依赖问题：当测试一个接口或者功能模块的时候，如果这个接口或者功能模块依赖其他接口或其他模块，那么如果所依赖的接口或功能模块未开发完毕，那么我们就可以使用Mock模拟被依赖接口，完成目标接口的测试。 单元测试：如果某个功能未开发完成，又要进行测试用例的代码编写，也可以先模拟这个功能进行测试。 模拟复杂业务的接口：实际工作中如果我们在测试一个接口功能时，如果这个接口依赖一个非常复杂的接口业务或者来源于第三方接口（如第三方支付接口），那么我们完全可以使用Mock来模拟这个复杂的业务接口，其实这个和解决接口依赖是一样的原理。 前后端联调：进行前后端分离编程时，如果进行一个前端页面开发，需要根据后合返回的状态展示不同的页面，那么就需要调用后合的接口，但是后合接口还未开发完成，完全可以借助mock来模拟后台这个接口返回想要的数据。  Mock与Stub(桩)  桩代码(Stub)：用来代替真实代码的临时代码，主要作用是使被测代码能够独立编译、 链接，并独立运行 Mock代码：也是用来代替真实代码的临时代码，起到隔离和补齐的作用，但是它还可深入的模拟对象之间的交互方式，可以对结果进行验证  Mockito测试框架 Mockito是Java单元测试中使用率最高的Mock框架之一，同时也是SpringBoot默认引入的mock框架(spring-boot-starter-test包括JUnit, Hamcrest 和 Mockito)
+Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mockito-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.12.4&amp;lt;/version&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; 验证某些行为是否被调用 Mockito可以验证某些行为：一旦mock对象被创建了，mock对象会记住所有的交互
+使用方法verify() 判断方法是否被调用过
+@Test void verifyTest(){ Person mockPerson = Mockito.mock(Person.class); mockPerson.setId(1); Mockito.verify(mockPerson).setId(1); Mockito.verify(mockPerson).setName(&amp;#34;cc&amp;#34;); // 此方法没有调用过，所以会报错 } 测试桩Stub Mockito可以做一些测试桩（Stub），做测试桩的目的是为了在某些方法还没有开发出来，但我们测试时却需要调用它的时候，给这个方法模拟一个假的返回值供我们测试用。
+默认情况下，所有函数都有返回值。mock函数默认返回的是null，一个空的集合或者一个被对象类型包装的内置类型。
+当我们要指定某的函数的返回值时，可以使用when() 和 ThenReturn() 、ThenThrow() 方法
+之后调用这些函数时，就会返回我们上面指定的值（注意返回类型也要正确）
+@Test void stubTest(){ Person mockPerson = Mockito.mock(Person.class); Mockito.when(mockPerson.getId()).thenReturn(1); Mockito.when(mockPerson.getName()).thenThrow(new NoSuchMethodError()); System.out.println(mockPerson.getId()); // 返回1  System.out.println(mockPerson.getName()); // 抛出异常NoSuchMethodError } 一个方法可能多次调用，想要每次调用都设置对应返回值也是可以的'>
+<meta property='og:url' content='https://ccqstark.github.io/p/mockito/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='单元测试' /><meta property='article:published_time' content='2021-08-30T12:34:20&#43;08:00'/><meta property='article:modified_time' content='2021-08-30T12:34:20&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/mockito/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Java单元测试利器——Mockito">
+<meta name="twitter:description" content="Mock介绍 基本介绍 为了提高代码质量，除了做静态代码测试，动态的单元测试也少不了。而在单元测试过程中，Mock是少不了的技术。
+Mock是允许用模拟对象替换测试中的系统部件，并断言它们是如何被使用的一项技术。
+Mock的作用如下  解决依赖问题：当测试一个接口或者功能模块的时候，如果这个接口或者功能模块依赖其他接口或其他模块，那么如果所依赖的接口或功能模块未开发完毕，那么我们就可以使用Mock模拟被依赖接口，完成目标接口的测试。 单元测试：如果某个功能未开发完成，又要进行测试用例的代码编写，也可以先模拟这个功能进行测试。 模拟复杂业务的接口：实际工作中如果我们在测试一个接口功能时，如果这个接口依赖一个非常复杂的接口业务或者来源于第三方接口（如第三方支付接口），那么我们完全可以使用Mock来模拟这个复杂的业务接口，其实这个和解决接口依赖是一样的原理。 前后端联调：进行前后端分离编程时，如果进行一个前端页面开发，需要根据后合返回的状态展示不同的页面，那么就需要调用后合的接口，但是后合接口还未开发完成，完全可以借助mock来模拟后台这个接口返回想要的数据。  Mock与Stub(桩)  桩代码(Stub)：用来代替真实代码的临时代码，主要作用是使被测代码能够独立编译、 链接，并独立运行 Mock代码：也是用来代替真实代码的临时代码，起到隔离和补齐的作用，但是它还可深入的模拟对象之间的交互方式，可以对结果进行验证  Mockito测试框架 Mockito是Java单元测试中使用率最高的Mock框架之一，同时也是SpringBoot默认引入的mock框架(spring-boot-starter-test包括JUnit, Hamcrest 和 Mockito)
+Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mockito-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.12.4&amp;lt;/version&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; 验证某些行为是否被调用 Mockito可以验证某些行为：一旦mock对象被创建了，mock对象会记住所有的交互
+使用方法verify() 判断方法是否被调用过
+@Test void verifyTest(){ Person mockPerson = Mockito.mock(Person.class); mockPerson.setId(1); Mockito.verify(mockPerson).setId(1); Mockito.verify(mockPerson).setName(&amp;#34;cc&amp;#34;); // 此方法没有调用过，所以会报错 } 测试桩Stub Mockito可以做一些测试桩（Stub），做测试桩的目的是为了在某些方法还没有开发出来，但我们测试时却需要调用它的时候，给这个方法模拟一个假的返回值供我们测试用。
+默认情况下，所有函数都有返回值。mock函数默认返回的是null，一个空的集合或者一个被对象类型包装的内置类型。
+当我们要指定某的函数的返回值时，可以使用when() 和 ThenReturn() 、ThenThrow() 方法
+之后调用这些函数时，就会返回我们上面指定的值（注意返回类型也要正确）
+@Test void stubTest(){ Person mockPerson = Mockito.mock(Person.class); Mockito.when(mockPerson.getId()).thenReturn(1); Mockito.when(mockPerson.getName()).thenThrow(new NoSuchMethodError()); System.out.println(mockPerson.getId()); // 返回1  System.out.println(mockPerson.getName()); // 抛出异常NoSuchMethodError } 一个方法可能多次调用，想要每次调用都设置对应返回值也是可以的"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/mockito/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'G-PXLPFFZ3XD', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ccqstark.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/mockito/">
+                <img src="/p/mockito/cover_hu0fac036fa1f4a6a5daf062f2a604284c_100124_800x0_resize_box_2.png"
+                        srcset="/p/mockito/cover_hu0fac036fa1f4a6a5daf062f2a604284c_100124_800x0_resize_box_2.png 800w, /p/mockito/cover_hu0fac036fa1f4a6a5daf062f2a604284c_100124_1600x0_resize_box_2.png 1600w"
+                        width="800" 
+                        height="352" 
+                        loading="lazy"
+                        alt="Featured image of post Java单元测试利器——Mockito" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/mockito/">Java单元测试利器——Mockito</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Aug 30, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="mock介绍">Mock介绍</h2>
+<h3 id="基本介绍">基本介绍</h3>
+<p>为了提高代码质量，除了做静态代码测试，动态的单元测试也少不了。而在单元测试过程中，<code>Mock</code>是少不了的技术。</p>
+<p><code>Mock</code>是允许用模拟对象替换测试中的系统部件，并断言它们是如何被使用的一项技术。</p>
+<h3 id="mock的作用如下">Mock的作用如下</h3>
+<ul>
+<li>解决依赖问题：当测试一个接口或者功能模块的时候，如果这个接口或者功能模块依赖其他接口或其他模块，那么如果所依赖的接口或功能模块未开发完毕，那么我们就可以使用Mock模拟被依赖接口，完成目标接口的测试。</li>
+<li>单元测试：如果某个功能未开发完成，又要进行测试用例的代码编写，也可以先模拟这个功能进行测试。</li>
+<li>模拟复杂业务的接口：实际工作中如果我们在测试一个接口功能时，如果这个接口依赖一个非常复杂的接口业务或者来源于第三方接口（如第三方支付接口），那么我们完全可以使用Mock来模拟这个复杂的业务接口，其实这个和解决接口依赖是一样的原理。</li>
+<li>前后端联调：进行前后端分离编程时，如果进行一个前端页面开发，需要根据后合返回的状态展示不同的页面，那么就需要调用后合的接口，但是后合接口还未开发完成，完全可以借助mock来模拟后台这个接口返回想要的数据。</li>
+</ul>
+<h3 id="mock与stub桩">Mock与Stub(桩)</h3>
+<ul>
+<li><code>桩代码(Stub)</code>：用来代替真实代码的临时代码，主要作用是使被测代码能够独立编译、 链接，并独立运行</li>
+<li><code>Mock代码</code>：也是用来代替真实代码的临时代码，起到隔离和补齐的作用，但是它还可<strong>深入的模拟对象之间的交互方式</strong>，可以<strong>对结果进行验证</strong></li>
+</ul>
+<h2 id="mockito测试框架">Mockito测试框架</h2>
+<p>Mockito是Java单元测试中使用率最高的Mock框架之一，同时也是SpringBoot默认引入的mock框架(spring-boot-starter-test包括JUnit, Hamcrest 和 Mockito)</p>
+<h3 id="maven依赖">Maven依赖</h3>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.mockito<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>mockito-core<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>3.12.4<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div><h3 id="验证某些行为是否被调用">验证某些行为是否被调用</h3>
+<p>Mockito可以验证某些行为：一旦mock对象被创建了，mock对象会记住所有的交互</p>
+<p>使用方法<code>verify()</code> 判断方法是否被调用过</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">verifyTest</span><span class="o">(){</span>
+    <span class="n">Person</span> <span class="n">mockPerson</span> <span class="o">=</span> <span class="n">Mockito</span><span class="o">.</span><span class="na">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">mockPerson</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
+
+    <span class="n">Mockito</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">).</span><span class="na">setId</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
+    <span class="n">Mockito</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">).</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;cc&#34;</span><span class="o">);</span> <span class="c1">// 此方法没有调用过，所以会报错
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><h3 id="测试桩stub">测试桩Stub</h3>
+<p>Mockito可以做一些测试桩（<code>Stub</code>），做测试桩的目的是为了在某些方法还没有开发出来，但我们测试时却需要调用它的时候，给这个方法模拟一个假的返回值供我们测试用。</p>
+<p>默认情况下，所有函数都有返回值。mock函数默认返回的是null，一个空的集合或者一个被对象类型包装的内置类型。</p>
+<p>当我们要指定某的函数的返回值时，可以使用<code>when()</code> 和 <code>ThenReturn()</code> 、<code>ThenThrow()</code> 方法</p>
+<p>之后调用这些函数时，就会返回我们上面指定的值（注意返回类型也要正确）</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">stubTest</span><span class="o">(){</span>
+    <span class="n">Person</span> <span class="n">mockPerson</span> <span class="o">=</span> <span class="n">Mockito</span><span class="o">.</span><span class="na">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Mockito</span><span class="o">.</span><span class="na">when</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">.</span><span class="na">getId</span><span class="o">()).</span><span class="na">thenReturn</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
+    <span class="n">Mockito</span><span class="o">.</span><span class="na">when</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">thenThrow</span><span class="o">(</span><span class="k">new</span> <span class="n">NoSuchMethodError</span><span class="o">());</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>  <span class="c1">// 返回1
+</span><span class="c1"></span>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span> <span class="c1">// 抛出异常NoSuchMethodError
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><p>一个方法可能多次调用，想要每次调用都设置对应返回值也是可以的</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">constStubTest</span><span class="o">(){</span>
+    <span class="n">Person</span> <span class="n">personMock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">when</span><span class="o">(</span><span class="n">personMock</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
+            <span class="o">.</span><span class="na">thenReturn</span><span class="o">(</span><span class="s">&#34;cc&#34;</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">thenReturn</span><span class="o">(</span><span class="s">&#34;1&#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">personMock</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>  <span class="c1">// 第一次返回cc
+</span><span class="c1"></span>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">personMock</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>  <span class="c1">// 第二次返回1
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><h3 id="类型范围">类型范围</h3>
+<p>使用<code>anyInt()</code> 、<code>anyString()</code>、<code>anyList()</code>等方法可以对参数类型进行限制或者放宽范围</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">matchTest</span><span class="o">(){</span>
+    <span class="n">Person</span> <span class="n">mockPerson</span> <span class="o">=</span> <span class="n">Mockito</span><span class="o">.</span><span class="na">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">when</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">.</span><span class="na">setKeyById</span><span class="o">(</span><span class="n">anyInt</span><span class="o">())).</span><span class="na">thenReturn</span><span class="o">(</span><span class="s">&#34;0001Test1000&#34;</span><span class="o">);</span>
+    <span class="c1">// 表示只要传入int类型就返回&#34;0001Test1000&#34;
+</span><span class="c1"></span>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">.</span><span class="na">setKeyById</span><span class="o">(</span><span class="n">10</span><span class="o">));</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">).</span><span class="na">setKeyById</span><span class="o">(</span><span class="n">10</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><h3 id="方法调用次数验证">方法调用次数验证</h3>
+<p><code>times()</code>可以用来验证方法的调用次数，如果不是预期次数则会不通过</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">timesTest</span><span class="o">(){</span>
+    <span class="n">Person</span> <span class="n">mockPerson</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">mockPerson</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
+    <span class="n">mockPerson</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;cc&#34;</span><span class="o">);</span>
+    <span class="n">mockPerson</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;cc&#34;</span><span class="o">);</span>
+    
+    <span class="n">verify</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">).</span><span class="na">setId</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">mockPerson</span><span class="o">,</span> <span class="n">times</span><span class="o">(</span><span class="n">2</span><span class="o">)).</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;cc&#34;</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><h3 id="方法调用顺序验证">方法调用顺序验证</h3>
+<p>当我们需要验证方法调用的前后顺序是否符合预期，可以<code>InOrder</code> 类以及它的<code>verify()</code> 方法</p>
+<p>不仅使用与单个对象，多个对象的方法之间的调研顺序也可以进行判断</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">orderTest</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Person</span> <span class="n">singeMock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">singeMock</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;cc&#34;</span><span class="o">);</span>
+    <span class="n">singeMock</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;qq&#34;</span><span class="o">);</span>
+    <span class="c1">// 单个对象方法的调用顺序
+</span><span class="c1"></span>    <span class="n">InOrder</span> <span class="n">inOrder</span> <span class="o">=</span> <span class="n">inOrder</span><span class="o">(</span><span class="n">singeMock</span><span class="o">);</span>
+    <span class="n">inOrder</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">singeMock</span><span class="o">).</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;cc&#34;</span><span class="o">);</span>
+    <span class="n">inOrder</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">singeMock</span><span class="o">).</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;qq&#34;</span><span class="o">);</span> <span class="c1">// 顺序正确
+</span><span class="c1"></span>    
+    <span class="n">Person</span> <span class="n">firstMock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Person</span> <span class="n">secondMock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">firstMock</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
+    <span class="n">secondMock</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">2</span><span class="o">);</span>
+    <span class="c1">// 多个方法的调用顺序
+</span><span class="c1"></span>    <span class="n">InOrder</span> <span class="n">inOrder1</span> <span class="o">=</span> <span class="n">inOrder</span><span class="o">(</span><span class="n">firstMock</span><span class="o">,</span> <span class="n">secondMock</span><span class="o">);</span>
+    <span class="n">inOrder1</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">secondMock</span><span class="o">).</span><span class="na">setId</span><span class="o">(</span><span class="n">2</span><span class="o">);</span>
+    <span class="n">inOrder1</span><span class="o">.</span><span class="na">verify</span><span class="o">(</span><span class="n">firstMock</span><span class="o">).</span><span class="na">setId</span><span class="o">(</span><span class="n">1</span><span class="o">);</span> <span class="c1">// 顺序错误
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><h3 id="spy监控对象">spy监控对象</h3>
+<p>spy可以监控或控制一个真正new创建出来的对象，而不是去mock的对象，两者区别在于mock的对象如果不指定返回值就会返回null这样的零值，而spy则介于真正的bean和mock之间，对于被我们指定了返回值的优先按指定的，没有指定的就按对象实际值返回。</p>
+<p>下面的例子是修改一个对象中某个属性的返回值，使得其返回值不在是属性的真实值</p>
+<p>也可以用<code>@Spy</code> 注解</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">spyTest</span><span class="o">(){</span>
+    <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">(</span><span class="n">1</span><span class="o">,</span> <span class="s">&#34;cc&#34;</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="n">Person</span> <span class="n">spy</span> <span class="o">=</span> <span class="n">spy</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+    <span class="n">when</span><span class="o">(</span><span class="n">spy</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">thenReturn</span><span class="o">(</span><span class="s">&#34;qq&#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">spy</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span> <span class="c1">// 返回qq，而不是cc
+</span><span class="c1"></span>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">spy</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>  <span class="c1">// 返回1，因为没有设置过
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><h2 id="spring-boot中的单元测试">Spring Boot中的单元测试</h2>
+<p>Spring Boot的结构上来说，Service层是依赖Dao层的，而Controller层又依赖于Service层</p>
+<p>从单元测试的角度，对某个Service和Controller进行单元测试的时候，所有需要依赖的类或方法都应该mock，只针对某一段代码进行运行逻辑测试，测试Service层时，就可以使用Mockito来隔离Dao层；Dao层的单元测试可以用工具随机生成测试数据，然后使用工具测试SQL即可，就不要还启动整个应用，效率比较低。</p>
+<p>下面是几种mock的方案</p>
+<ul>
+<li>在before函数中直接mock实例化对象</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@BeforeEach</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">before</span><span class="o">(){</span>
+	<span class="n">userService</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">UserService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><ul>
+<li>使用<code>@Mock</code>注解来Mock对象</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Mock</span>
+<span class="kd">private</span> <span class="n">UserSerice</span> <span class="n">userService</span><span class="o">;</span>
+
+<span class="nd">@BeforeEach</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">before</span><span class="o">(){</span>
+	<span class="n">MockitoAnnotations</span><span class="o">.</span><span class="na">initMocks</span><span class="o">(</span><span class="k">this</span><span class="o">);</span> <span class="c1">// 此方法已被deprecad
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><ul>
+<li>使用<code>@RunWith(MockitoJunitRunner.class)</code> ，搭配@Mock就可以直接使用了，不用再初始化（此方法只能用于Junit4）（较为推荐）</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RunWith</span><span class="o">(</span><span class="n">MockitoJunitRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@SpringBootTest</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>
+	<span class="nd">@Mock</span>
+	<span class="kd">private</span> <span class="n">UserSerice</span> <span class="n">userService</span><span class="o">;</span>
+
+	<span class="nd">@Test</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">(){</span>
+		<span class="c1">// code
+</span><span class="c1"></span>	<span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><ul>
+<li>使用<code>MockitoRule</code>，但是对象的访问级别必须是public（此方法也只能用于Junit4）</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RunWith</span><span class="o">(</span><span class="n">JUnit4</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@SpringBootTest</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>
+  <span class="nd">@Rule</span>
+	<span class="kd">public</span> <span class="n">MockitoRule</span> <span class="n">rule</span> <span class="o">=</span> <span class="n">MockitoJUnit</span><span class="o">.</span><span class="na">rule</span><span class="o">();</span>
+
+	<span class="nd">@Mock</span>
+	<span class="kd">private</span> <span class="n">UserSerice</span> <span class="n">userService</span><span class="o">;</span>
+
+	<span class="nd">@Test</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">(){</span>
+		<span class="c1">// code
+</span><span class="c1"></span>	<span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><h2 id="单元测试常用">单元测试常用</h2>
+<h3 id="注解">注解</h3>
+<p><code>@Test</code> 标注一个测试方法</p>
+<p><code>@BeforeEach</code> / <code>@AfterEach</code> 在每个测试方法之前/后运行</p>
+<p><code>@BeforeAll</code> / <code>@AfterAll</code> 在整个测试流程之前/后运行，整个测试过程只会运行一次</p>
+<p><code>@SpringBootTest</code> 初始化Spring上下文来进行测试，当测试中用到类需要用Spring容器管理时加</p>
+<p><code>@MockBean</code> 同Mockito的@Mock</p>
+<p><code>@SpyBean</code> 同Mockito的@Spy</p>
+<h3 id="断言">断言</h3>
+<ul>
+<li><code>Assert</code>类</li>
+</ul>
+<p>JUnit4提供，使用较为简单，点进去看源码的方法即可。</p>
+<ul>
+<li><code>Assertions</code>类</li>
+</ul>
+<p>JUnit5提供，和Assert类差不多。</p>
+<ul>
+<li><code>assertThat(T actual, Matcher&lt;? super T&gt; matcher);</code></li>
+</ul>
+<p>assertThat(Assert类中)是JUnit 4.4引入的一个全新的断言语法，可以只使用这一个方法，实现所有的断言测试。</p>
+<p>其中actual为需要测试的变量值，matcher为使用Hamcrest的匹配符来表达变量actual期望值的声明，如果值与matcher所表达的期望值相符，则测试成功，否则失败。</p>
+<p>匹配器有可读性强、满足复杂匹配条件等优点，常用匹配器可以查文档，也不难使用。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">单元测试</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/java_annotaion_reflection/">
+        
+        
+            <div class="article-image">
+                <img src="/p/java_annotaion_reflection/cover.ed2667aacf6a9ce4441c3a9ec506edf0_hud3682ca23d8f51585d79a941911fa5ce_24013_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="java_annotaion_reflection" 
+                        data-hash="md5-7SZnqs9qnOREHDqexQbt8A==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java注解和反射</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/log_catch_error/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]日志与异常捕获</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_principle/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_principle/es.94df52b03b9215a4dc212e1f3acd4cfb_hu709c9dbb1dd93df65cfe69a9e6744979_88514_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_principle" 
+                        data-hash="md5-lN9SsDuSFaTcIS4fOs1M&#43;w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]ElasticSearch入门与原理浅析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/springboot_es/">
+        
+        
+            <div class="article-image">
+                <img src="/p/springboot_es/springboot-es.68bd173d94a8eaf642b2ac727cbde179_hu5dbd9828aef42d61c56fd952a73b2be9_64126_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_es" 
+                        data-hash="md5-aL0XPZSo6vZCsqxyfL3heQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合ElasticSearch</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_rest/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_rest/restful.fd9d194403593239aeab75914828e254_hud0b30a641456616a14ef2ef618957a76_22844_250x150_fill_box_smart1_2.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_rest" 
+                        data-hash="md5-/Z0ZRANZMjmuq3WRSCjiVA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]REST风格操作</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+     
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#mock介绍">Mock介绍</a>
+      <ol>
+        <li><a href="#基本介绍">基本介绍</a></li>
+        <li><a href="#mock的作用如下">Mock的作用如下</a></li>
+        <li><a href="#mock与stub桩">Mock与Stub(桩)</a></li>
+      </ol>
+    </li>
+    <li><a href="#mockito测试框架">Mockito测试框架</a>
+      <ol>
+        <li><a href="#maven依赖">Maven依赖</a></li>
+        <li><a href="#验证某些行为是否被调用">验证某些行为是否被调用</a></li>
+        <li><a href="#测试桩stub">测试桩Stub</a></li>
+        <li><a href="#类型范围">类型范围</a></li>
+        <li><a href="#方法调用次数验证">方法调用次数验证</a></li>
+        <li><a href="#方法调用顺序验证">方法调用顺序验证</a></li>
+        <li><a href="#spy监控对象">spy监控对象</a></li>
+      </ol>
+    </li>
+    <li><a href="#spring-boot中的单元测试">Spring Boot中的单元测试</a></li>
+    <li><a href="#单元测试常用">单元测试常用</a>
+      <ol>
+        <li><a href="#注解">注解</a></li>
+        <li><a href="#断言">断言</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
