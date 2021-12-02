@@ -3,6 +3,7 @@
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
 环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+ 
 Xcode下载 一些C/C&#43;&#43;相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
 xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
 还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
@@ -14,6 +15,7 @@ xip文件在解压时需要用系统自带的解压工具，不要用第三方�
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[实战]自己动手编译JDK实录'>
 <meta property='og:description' content='前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
 环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+ 
 Xcode下载 一些C/C&#43;&#43;相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
 xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
 还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
@@ -26,6 +28,7 @@ xip文件在解压时需要用系统自带的解压工具，不要用第三方�
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[实战]自己动手编译JDK实录">
 <meta name="twitter:description" content="前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
 环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+ 
 Xcode下载 一些C/C&#43;&#43;相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
 xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
 还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
@@ -34,16 +37,14 @@ xip文件在解压时需要用系统自带的解压工具，不要用第三方�
     <meta name="twitter:image" content='https://ccqstark.github.io/p/compile_jdk/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -80,7 +81,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -97,8 +98,8 @@ if (!doNotTrack) {
     <header class="article-header">
         <div class="article-image">
             <a href="/p/compile_jdk/">
-                <img src="/p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_800x0_resize_box_2.png"
-                        srcset="/p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_800x0_resize_box_2.png 800w, /p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_1600x0_resize_box_2.png 1600w"
+                <img src="/p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_800x0_resize_box_3.png"
+                        srcset="/p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_800x0_resize_box_3.png 800w, /p/compile_jdk/cover_hucf54841c06fdf75c53fe986b35c09dc3_55691_1600x0_resize_box_3.png 1600w"
                         width="800" 
                         height="368" 
                         loading="lazy"
@@ -123,8 +124,28 @@ if (!doNotTrack) {
         <a href="/p/compile_jdk/">[实战]自己动手编译JDK实录</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 27, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -132,8 +153,14 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Jul 27, 2021</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
@@ -142,7 +169,18 @@ if (!doNotTrack) {
 <h2 id="环境准备">环境准备</h2>
 <h3 id="系统环境">系统环境</h3>
 <p>我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013611.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013611.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013611.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h3 id="xcode下载">Xcode下载</h3>
 <p>一些C/C++相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。</p>
 <p>xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。</p>
@@ -150,14 +188,14 @@ if (!doNotTrack) {
 <ol>
 <li>运行以下命令行</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 最后是xip文件的位置</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 最后是xip文件的位置</span>
 xattr -d com.apple.quarantine Xcode_11.xip
 </code></pre></div><ol start="2">
 <li>在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。</li>
 </ol>
 <h3 id="所有软件环境基础">所有软件环境基础</h3>
 <p>以下都是编译中需要用到的软件环境，确保都已经安装</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 有一个已经可用的jdk，版本至少是要编译的版本-1</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 有一个已经可用的jdk，版本至少是要编译的版本-1</span>
 java -version
 <span class="c1"># 输出</span>
 openjdk version <span class="s2">&#34;11.0.9&#34;</span> 2020-10-20
@@ -202,30 +240,65 @@ freetype-config --ftversion
 <ul>
 <li>安装Mercurial</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">brew install mercurial
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">brew install mercurial
 </code></pre></div><ul>
 <li>
 <p>去网址hg.openjdk.java.net上复制地址</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png" alt="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png"  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png"
+			
+			
+			
+			loading="lazy"
+			alt="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png">
+	</a>
+	
+	<figcaption><a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png">https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020008.png</a></figcaption>
+	
+</figure></p>
 </li>
 <li>
 <p>使用命令clone源码包</p>
 </li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">hg clone https://hg.openjdk.java.net/jdk/jdk11/
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">hg clone https://hg.openjdk.java.net/jdk/jdk11/
 </code></pre></div><h3 id="方式二官网下载压缩包">方式二：官网下载压缩包</h3>
 <p>这种方式速度快，推荐这种方式</p>
 <p>前往地址：</p>
 <p><a class="link" href="https://jdk.java.net/java-se-ri/11"  target="_blank" rel="noopener"
     >Java Platform, Standard Edition 11 Reference Implementations</a></p>
 <p>点击下载zip压缩包即可</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020308.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020308.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020308.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>新建一个专门的文件夹存放源码包，解压后就可以看到目录结构</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020419.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020419.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727020419.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>src就是源码部分，看到里面基本都是C和C++的代码，说明Java就是用C和C++写的。</p>
 <h2 id="自动配置工作">自动配置工作</h2>
 <p>这一步进行编译前的自动编译工作</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 首先cd进源码目录，也就是上图的openjdk11</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 首先cd进源码目录，也就是上图的openjdk11</span>
 <span class="nb">cd</span> openjdk11
 
 <span class="c1"># 运行脚本</span>
@@ -233,22 +306,44 @@ sh configure
 </code></pre></div><p>这个过程较快，最后会输出一些概览信息。</p>
 <h2 id="正式编译工作">正式编译工作</h2>
 <p>第一次编译直接进行全量编译，执行：</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">make all
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">make all
 </code></pre></div><p>这个过程比较久，耐心等待，会生成可执行文件，JDK成品镜像等很多东西</p>
 <p>过程中的警告可以忽略，只要不出现错误导致整个过程停止即可</p>
 <p>可以看到这个过程中我的mac的活动监视器，CPU快要炸了</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013350.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013350.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727013350.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>直到控制台最后几行输出一下信息就证明成功了</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Creating support/demos/image/jfc/SampleTree/SampleTree.jar
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Creating support/demos/image/jfc/SampleTree/SampleTree.jar
 Creating support/demos/image/jfc/TableExample/TableExample.jar
 Creating support/demos/image/jfc/TransparentRuler/TransparentRuler.jar
 Creating jdk image
 Finished building target <span class="s1">&#39;all&#39;</span> in configuration <span class="s1">&#39;macosx-x86_64-normal-server-release&#39;</span>
 </code></pre></div><h2 id="成品验收">成品验收</h2>
 <p>完成上一步后就可以发现目录下多了一个build目录，进入<code>build/macosx-x86_64-normal-server-release/</code>目录可以看到如下文件</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022009.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022009.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022009.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>命令行验证下</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 进入编译后的jdk的bin目录</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 进入编译后的jdk的bin目录</span>
 <span class="nb">cd</span> build/macosx-x86_64-normal-server-release/jdk/bin
 
 <span class="c1"># 执行java命令查看版本</span>
@@ -259,30 +354,107 @@ openjdk version <span class="s2">&#34;11-internal&#34;</span> 2018-09-25
 OpenJDK Runtime Environment <span class="o">(</span>build 11-internal+0-adhoc.ccqstark.openjdk11<span class="o">)</span>
 OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqstark.openjdk11, mixed mode<span class="o">)</span>
 </code></pre></div><p>最终的JDK成品就在<code>images/jdk</code>目录下，这个就和我们平时在官网上下载的JDK基本是一样的</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022600.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022600.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727022600.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="idea中使用新jdk">IDEA中使用新JDK</h2>
 <p>新建一个Hello World项目</p>
 <p>添加自己编译的JDK的路径</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030400.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030400.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030400.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>切换项目所用的JDK为刚刚新增的</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030440.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030440.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030440.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>运行之后可以看到我们使用的JDK已经换成自己编译得到的了</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030536.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030536.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727030536.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="定制jdk">定制JDK</h2>
 <p>当我们需要自己定制一套属于自己的JDK的时候就需要我们去修改源码中的一些实现，修改之后要生效的话必须重新编译一次，这次的编译就可以用增量编译了。</p>
 <h3 id="修改sourcepath">修改Sourcepath</h3>
 <p>删除原来全部路径</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727031328.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727031328.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727031328.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>重新添加我们一开始下载的压缩包中解压出来的<code>src</code>目录下的源码，并让IDEA重新索引</p>
 <h3 id="修改源码">修改源码</h3>
 <p>我们Ctrl加鼠标点击进入println源码，并做点修改意思意思</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727032804.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727032804.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727032804.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h3 id="增量编译">增量编译</h3>
 <p>再次cd到解压出来的大目录下，执行</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">make images
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">make images
 </code></pre></div><p>进行增量编译，速度会比全量编译快</p>
 <p>再次运行代码发现之前对源码的修改已经生效</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727033822.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727033822.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210727033822.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="参考资料">参考资料</h2>
 <ul>
 <li>《深入理解Java虚拟机》 周志明</li>
@@ -316,6 +488,7 @@ OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqst
     </section>
     </footer>
 
+
     
 </article>
 
@@ -332,7 +505,7 @@ OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqst
         
         
             <div class="article-image">
-                <img src="/p/vim/vim.0882332af3fa94ead27d5a8d66d4e63b_hu721b1231aff42422e86b1dd0b5ea6e91_94583_250x150_fill_box_smart1_2.png" 
+                <img src="/p/vim/vim.0882332af3fa94ead27d5a8d66d4e63b_hu721b1231aff42422e86b1dd0b5ea6e91_94583_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -354,7 +527,7 @@ OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqst
         
         
             <div class="article-image">
-                <img src="/p/alfred_iterm/ssh.3ce5409a5975ec3894f1a84f91e3282e_hu16ae618dcf0f79ca9c769a7fb0762a5e_66847_250x150_fill_box_smart1_2.png" 
+                <img src="/p/alfred_iterm/ssh.3ce5409a5975ec3894f1a84f91e3282e_hu16ae618dcf0f79ca9c769a7fb0762a5e_66847_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -398,7 +571,7 @@ OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqst
         
         
             <div class="article-image">
-                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.c21ba899c77312de9895762f5d2f27b8_hu8b6407a07803ab5ecf8133363f04b00e_28892_250x150_fill_box_smart1_2.png" 
+                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.c21ba899c77312de9895762f5d2f27b8_hu8b6407a07803ab5ecf8133363f04b00e_28892_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -420,7 +593,7 @@ OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqst
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -476,10 +649,13 @@ OpenJDK 64-Bit Server VM <span class="o">(</span>build 11-internal+0-adhoc.ccqst
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

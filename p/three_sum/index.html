@@ -7,7 +7,8 @@
 这里推荐排序&#43;双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i&#43;1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
 如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
 动画如下：
-代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i&#43;&#43;) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i &#43; 1; int right = nums.'><title>[leetcode]15.三数之和</title>
+ 
+代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.'><title>[leetcode]15.三数之和</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/three_sum/'>
 
@@ -18,7 +19,8 @@
 这里推荐排序&#43;双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i&#43;1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
 如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
 动画如下：
-代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i&#43;&#43;) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i &#43; 1; int right = nums.'>
+ 
+代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.'>
 <meta property='og:url' content='https://ccqstark.github.io/p/three_sum/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='leetcode' /><meta property='article:published_time' content='2021-07-23T16:55:26&#43;08:00'/><meta property='article:modified_time' content='2021-07-23T16:55:26&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/three_sum/cover.png' />
@@ -30,20 +32,19 @@
 这里推荐排序&#43;双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i&#43;1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
 如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
 动画如下：
-代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i&#43;&#43;) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i &#43; 1; int right = nums."><meta name="twitter:card" content="summary_large_image">
+ 
+代码 // 排序&#43;双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums."><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/three_sum/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -80,7 +81,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -97,8 +98,8 @@ if (!doNotTrack) {
     <header class="article-header">
         <div class="article-image">
             <a href="/p/three_sum/">
-                <img src="/p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_800x0_resize_box_2.png"
-                        srcset="/p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_800x0_resize_box_2.png 800w, /p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_1600x0_resize_box_2.png 1600w"
+                <img src="/p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_800x0_resize_box_3.png"
+                        srcset="/p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_800x0_resize_box_3.png 800w, /p/three_sum/cover_huf957eb7cc0803733802fcc4099cfd7cb_35766_1600x0_resize_box_3.png 1600w"
                         width="800" 
                         height="330" 
                         loading="lazy"
@@ -123,8 +124,28 @@ if (!doNotTrack) {
         <a href="/p/three_sum/">[leetcode]15.三数之和</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 23, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -132,15 +153,21 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Jul 23, 2021</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
     <h2 id="题目">题目</h2>
 <p>给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有和为 0 且不重复的三元组。</p>
 <p>注意：答案中不可以包含重复的三元组。</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">示例</span> <span class="n">1</span><span class="err">：</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="n">示例</span> <span class="n">1</span><span class="err">：</span>
 <span class="n">输入</span><span class="err">：</span><span class="n">nums</span> <span class="o">=</span> <span class="o">[-</span><span class="n">1</span><span class="o">,</span><span class="n">0</span><span class="o">,</span><span class="n">1</span><span class="o">,</span><span class="n">2</span><span class="o">,-</span><span class="n">1</span><span class="o">,-</span><span class="n">4</span><span class="o">]</span>
 <span class="n">输出</span><span class="err">：</span><span class="o">[[-</span><span class="n">1</span><span class="o">,-</span><span class="n">1</span><span class="o">,</span><span class="n">2</span><span class="o">],[-</span><span class="n">1</span><span class="o">,</span><span class="n">0</span><span class="o">,</span><span class="n">1</span><span class="o">]]</span>
 
@@ -156,9 +183,20 @@ if (!doNotTrack) {
 <p>这里推荐<code>排序+双指针法</code> 来解决。先对数组进行排序，然后用一个<code>指针i</code>对所有元素进行遍历，每一次遍历我们都有两个指针叫<code>left</code>和<code>right</code>，left一开始指向<code>i+1</code>，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。</p>
 <p>如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。</p>
 <p>动画如下：</p>
-<p><img src="https://code-thinking.cdn.bcebos.com/gifs/15.%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.gif" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://code-thinking.cdn.bcebos.com/gifs/15.%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.gif" >
+		<img src="https://code-thinking.cdn.bcebos.com/gifs/15.%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.gif"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="代码">代码</h2>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 排序+双指针法（较优）
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 排序+双指针法（较优）
 </span><span class="c1"></span><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="nf">threeSum</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">)</span> <span class="o">{</span>
 
     <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
@@ -206,7 +244,7 @@ if (!doNotTrack) {
 <h2 id="延伸">延伸</h2>
 <p>这里顺便把四数之和也说了，思路也是差不多的，多了一个数其实就多加一层循环再去使用left和right算sum罢了，时间复杂度就变成O(n^3)，如果有五数之和、六数之和也是一样的道理。</p>
 <p>直接上代码：</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="nf">fourSum</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">,</span> <span class="kt">int</span> <span class="n">target</span><span class="o">)</span> <span class="o">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="nf">fourSum</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">,</span> <span class="kt">int</span> <span class="n">target</span><span class="o">)</span> <span class="o">{</span>
 
     <span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
     <span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">nums</span><span class="o">);</span>
@@ -271,6 +309,7 @@ if (!doNotTrack) {
     </section>
     </footer>
 
+
     
 </article>
 
@@ -287,7 +326,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/remove_elements/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/remove_elements/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -309,7 +348,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/generate_matrix/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/generate_matrix/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -331,7 +370,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/min_sub_array_len/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/min_sub_array_len/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -353,7 +392,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/remove_element/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/remove_element/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -375,7 +414,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/search_insert/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/search_insert/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -397,7 +436,7 @@ if (!doNotTrack) {
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -453,10 +492,13 @@ if (!doNotTrack) {
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

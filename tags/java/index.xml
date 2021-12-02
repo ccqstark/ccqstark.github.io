@@ -21,6 +21,7 @@
 可以用于修饰方法，属性，类，表示不鼓励程序猿使用，但是还是可以使用的，只是使用它可能有危险或者存在更好的选择。
 @SuppressWarnings
 用来抑制编译时的警告信息，需要添加一个参数
+ 
 元注解 @Target
 用于描述注解的使用范围
 @Target(value = {ElementType.METHOD, ElementType.TYPE}) @Retention
@@ -49,7 +50,7 @@ String a = &amp;#34;ok&amp;#34;; String b = new String(&amp;#34;ok&amp;#3
 第二种就是创建String类的对象，因为String本来就是一个类，而不是像int和double那样的基本数据类型。
 Java的字符串采用了缓冲池的技术，我们新建一个字符串的时候会去缓冲池寻找是否有已经存在的相同的字符串，如果有的话直接指向它即可；没有的话再创建，缓冲池是在堆里面的。
 如下图，是下面代码的结果：
-// one和two内容相同，指向同一String对象 String one = &amp;#34;someString&amp;#34;; String two = &amp;#34;someString&amp;#34;; 关于更深入的创建对象和之间的比较可以看下面这篇：
+// one和two内容相同，指向同一String对象 String one = &amp;#34;someString&amp;#34;; String two = &amp;#34;someString&amp;#34;;   关于更深入的创建对象和之间的比较可以看下面这篇：
 java 字符串缓冲池 String缓冲池_天天的专栏-CSDN博客
 哪里不可变？ 那为什么说String不可变呢？我们明明可以通过给字符串变量赋一个新值来改变它的内容。
 String str = &amp;#34;aaaaaaa&amp;#34;; System.out.println(str); str = &amp;#34;bbbbbbbbb&amp;#34;; System.out.println(str); // 输出 //aaaaaaa //bbbbbbbbb 实际上，当我们给字符串重新赋值的时候，它并不是去改变这个String对象中的字符数组char[] value的值（下面会讲到），而是去缓冲池里寻找有没有已经存在这个值的String对象，有的话就直接指向它，没有的话创建一个对象再指向它。

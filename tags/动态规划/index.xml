@@ -87,8 +87,7 @@ dp[i] = max{ dp[j]+1, dp[i] }
 就是每次划分为2部分，整体最优解=左部分最优解+右部分的最优解+两者相乘所需乘法数
 矩阵i的行数为p[i-1]，列数为p[i]
  
-我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
-代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.</description>
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。</description>
     </item>
     
   </channel>

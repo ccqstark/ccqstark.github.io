@@ -15,9 +15,12 @@
       <guid>https://ccqstark.github.io/p/dubbo_nacos_rpc/</guid>
       <description>RESTful 与 RPC 的区别 在微服务定义中提道，每个小服务运行在自己的进程中，并以轻量级的机制进行通信。这里并没有明确给出具体的通信方式，只是要求以轻量级的机制进行通信，虽然作者推荐使用 RESTful 作为首选方案，但微服务间通信本身还有另一个轻量级的选择：以 Dubbo 为代表的 RPC通信方式。
 RPC 是远程过程调用（Remote Procedure Call）的缩写形式，RPC 与 RESTful 最大的不同是，RPC 采用客户端（Client) - 服务端（Server） 的架构方式实现跨进程通信，实现的通信协议也没有统一的标准，具体实现依托于研发厂商的设计。
+ 
 目前开源市场上 RPC 框架有很多，例如 GoogleRPC、Alibaba Dubbo、Facebook Thrift，每一种产品都有自己的设计与实现方案。
 那 RESTful 与 RPC 有什么区别呢？通过一个表格进行说明：
+ 
 Apache Dubbo Dubbo 是阿里巴巴开源的高性能、轻量级的开源 Java 框架，目前被 Apache收录，官网是： http://dubbo.apache.org/
+ 
 Dubbo 是典型的 RPC 框架的代表，通过客户端/服务端结构实现跨进程应用的高效二进制通信。
 Apache Dubbo 提供了六大核心能力：
 面向接口代理的高性能 RPC 调用；
@@ -27,8 +30,8 @@ Apache Dubbo 提供了六大核心能力：
 运行期流量调度；
 可视化的服务治理与运维。
 下图引用 Dubbo 的官方架构图，讲解 ApacheDubbo 的组成。
-Dubbo 架构中，包含 5 种角色。
- Provider：RPC服务提供者，Provider 是消息的最终处理者。 Container：容器，用于启动、停止 Provider 服务。这里的容器并非 Tomcat、Jetty 等 Web 容器，Dubbo 也并不强制要求 Provider 必须具备 Web 能力。Dubbo 的容器是指对象容器，例如 Dubbo 内置的 SpringContainer 容器就提供了利用 Spring IOC 容器管理 Provider 对象的职能。 Consumer：消费者，调用的发起者。Consumer 需要在客户端持有 Provider 的通信接口才能完成通信过程。 Registry：注册中心，Dubbo 架构中注册中心与微服务架构中的注册中心职责类似，提供了 Dubbo Provider 的注册与发现职能，Consumer通过 Registry 可以获取Provider 可用的节点实例的 IP、端口等，并产生直接通信。需要注意的是，前面我们讲解的 Alibaba Nacos 除了可以作为微服务架构中的注册中心外，同样对自家的 Dubbo 提供了 RPC 调用注册发现的职责，这是其他 Spring Cloud 注册中心所不具备的功能。 Monitor：监控器，监控器提供了Dubbo的监控职责。在 Dubbo 产生通信时，Monitor 进行收集、统计，并通过可视化 UI 界面帮助运维人员了解系统进程间的通信状况。Dubbo Monitor 主流产品有 Dubbo Admin、Dubbo Ops 等。  项目整合 服务提供者Provider  引入依赖  &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
+ 
+Dubbo 架构中，包含 5 种角色。</description>
     </item>
     
     <item>
@@ -37,11 +40,12 @@ Dubbo 架构中，包含 5 种角色。
       <pubDate>Thu, 22 Jul 2021 02:03:53 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/p/rocketmq_startup/</guid>
-      <description>理论知识 RocketMQ 天然采用集群模式，常见的 RocketMQ 集群有三种形式：多 Master 模式、多 Master 多 Slave- 异步复制模式、多 Master 多 Slave- 同步双写模式，这三种模式各自的优缺点如下。
- 多 Master 模式是配置最简单的模式，同时也是使用最多的形式。优点是单个 Master 宕机或重启维护对应用无影响，在磁盘配置为 RAID10 时，即使机器宕机不可恢复情况下，由于 RAID10 磁盘非常可靠，同步刷盘消息也不会丢失，性能也是最高的；缺点是单台机器宕机期间，这台机器上未被消费的消息在机器恢复之前不可订阅，消息实时性会受到影响。 多 Master 多 Slave 异步复制模式。每个 Master 配置一个 Slave，有多对 Master-Slave，HA 采用异步复制方式，主备有短暂消息毫秒级延迟，即使磁盘损坏只会丢失少量消息，且消息实时性不会受影响。同时 Master 宕机后，消费者仍然可以从 Slave 消费，而且此过程对应用透明，不需要人工干预，性能同多 Master 模式几乎一样；缺点是 Master 宕机，磁盘损坏情况下会丢失少量消息。 多 Master 多 Slave 同步双写模式，HA 采用同步双写方式，即只有主备都写成功，才向应用返回成功，该模式数据与服务都无单点故障，Master 宕机情况下，消息无延迟，服务可用性与数据可用性都非常高；缺点是性能比异步复制模式低 10% 左右，发送单个消息的执行时间会略高，且目前版本在主节点宕机后，备机不能自动切换为主机。  部署 部署 NameServer 集群 直接wget下载
+      <description>理论知识  
+RocketMQ 天然采用集群模式，常见的 RocketMQ 集群有三种形式：多 Master 模式、多 Master 多 Slave- 异步复制模式、多 Master 多 Slave- 同步双写模式，这三种模式各自的优缺点如下。
+ 多 Master 模式是配置最简单的模式，同时也是使用最多的形式。优点是单个 Master 宕机或重启维护对应用无影响，在磁盘配置为 RAID10 时，即使机器宕机不可恢复情况下，由于 RAID10 磁盘非常可靠，同步刷盘消息也不会丢失，性能也是最高的；缺点是单台机器宕机期间，这台机器上未被消费的消息在机器恢复之前不可订阅，消息实时性会受到影响。 多 Master 多 Slave 异步复制模式。每个 Master 配置一个 Slave，有多对 Master-Slave，HA 采用异步复制方式，主备有短暂消息毫秒级延迟，即使磁盘损坏只会丢失少量消息，且消息实时性不会受影响。同时 Master 宕机后，消费者仍然可以从 Slave 消费，而且此过程对应用透明，不需要人工干预，性能同多 Master 模式几乎一样；缺点是 Master 宕机，磁盘损坏情况下会丢失少量消息。 多 Master 多 Slave 同步双写模式，HA 采用同步双写方式，即只有主备都写成功，才向应用返回成功，该模式数据与服务都无单点故障，Master 宕机情况下，消息无延迟，服务可用性与数据可用性都非常高；缺点是性能比异步复制模式低 10% 左右，发送单个消息的执行时间会略高，且目前版本在主节点宕机后，备机不能自动切换为主机。   
+部署 部署 NameServer 集群 直接wget下载
 wget https://mirror-hk.koddos.net/apache/rocketmq/4.8.0/rocketmq-all-4.8.0-bin-release.zip unzip 解压后，我们进入bin目录修改runserver.sh文件的虚拟机内存配置（因为默认的太大了吃不消），根据自己服务器实际情况更改
-JAVA_OPT=&amp;#34;${JAVA_OPT}-server -Xms128m -Xmx128m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&amp;#34; 后台启动一下NameServer服务
-nohup sh mqnamesrv &amp;amp; NameServer 将占用 9876 端口提供服务，不要忘记在防火墙设置放行，另一台服务器也同样方式操作一波。</description>
+JAVA_OPT=&amp;#34;${JAVA_OPT}-server -Xms128m -Xmx128m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&amp;#34; 后台启动一下NameServer服务</description>
     </item>
     
     <item>
@@ -57,6 +61,7 @@ https://zipkin.io/pages/quickstart.html
 docker run -d -p 9411:9411 openzipkin/zipkin 使用 之后调用的链路就可以在下面链接看到了
 http://49.234.82.226:9411/zipkin
 需要刷新和筛选一下
+ 
 点进去可以看到具体信息</description>
     </item>
     
@@ -67,6 +72,7 @@ http://49.234.82.226:9411/zipkin
       
       <guid>https://ccqstark.github.io/p/nacos_config_startup/</guid>
       <description>建立数据库 建立个用于存放配置的数据库名为nacos-config，nacos/conf下有一个nacos-mysql.sql，运行一下便可获得存放配置信息的表
+ 
 配置数据源 修改nacos/conf/application.properties
 ### If use MySQL as datasource: spring.datasource.platform=mysql ### Count of DB: db.num=1 ### Connect URL of DB: db.url.0=jdbc:mysql://xxxxxxx:3306/nacos_config?characterEncoding=utf8&amp;amp;connectTimeout=1000&amp;amp;socketTimeout=3000&amp;amp;autoReconnect=true&amp;amp;useUnicode=true&amp;amp;useSSL=false&amp;amp;serverTimezone=UTC db.user=root db.password=xxxxxxx 记得重启
 应用接入配置中心 依赖
@@ -75,11 +81,10 @@ http://49.234.82.226:9411/zipkin
 spring:application:name:order-service#微服务idprofiles:active:dev#环境名cloud:nacos:config:#Nacos配置中心配置file-extension:yml#文件扩展名server-addr:192.168.31.10:8848username:nacospassword:nacoslogging:#开启debug日志，仅为学习时使用level:root:debug定义一份配置文件是用微服务id-环境名.文件扩展名 三部分组合为有效的 data id，比如上面的就是order-service-dev.yml
 然后去Nacos把原来的那些应用配置给存到云端
 点击➕ 号新建配置
+ 
 注意data id 就是上面说的微服务id-环境名.文件扩展名 ，然后选择yaml格式，把我们以前写在本地的配置文件写到下面的配置内容中
-此时新建的配置信息其实就是用我们之前配置的MySQL存的，你会发现这些配置信息存在config-info表中了
-配置热加载技术 当我们突然修改配置文件后，为了生效我们必须重启一下应用，就有点麻烦，为了解决这个问题，我们用到了配置热加载技术
-为了支持热加载，服务的程序针对热加载需要作出如下变动：
-第一，配置数据必须被封装到单独的配置 Bean 中；</description>
+ 
+此时新建的配置信息其实就是用我们之前配置的MySQL存的，你会发现这些配置信息存在config-info表中了</description>
     </item>
     
     <item>
@@ -104,12 +109,14 @@ spring:application:name:order-service#微服务idprofiles:active:dev#环境名cl
 服务端负载均衡顾名思义，在架构中会提供专用的负载均衡器，由负载均衡器持有后端节点的信息，服务消费者发来的请求经由专用的负载均衡器分发给服务提供者，进而实现负载均衡的作用。目前常用的负载均衡器软硬件有：F5、Nginx、HaProxy 等。
 客户端负载均衡是指，在架构中不再部署额外的负载均衡器，在每个服务消费者内部持有客户端负载均衡器，由内置的负载均衡策略决定向哪个服务提供者发起请求。通俗来讲，就是客户端在发送请求之前就通过某种策略选定了要请求的服务提供者，而不是让一个中间件来帮忙决定。
 Ribbon Netfilx Ribbon 是 Netflix 公司开源的一个负载均衡组件，是属于客户端负载均衡器。目前Ribbon 已被 Spring Cloud 官方技术生态整合，运行时以 SDK 形式内嵌到每一个微服务实例中，为微服务间通信提供负载均衡与高可用支持。
+ 
 过程如下：
  订单服务（order-service）与商品服务（goods-service）实例在启动时向 Nacos 注册； 订单服务向商品服务发起通信前，Ribbon 向 Nacos 查询商品服务的可用实例列表； Ribbon 根据设置的负载策略从商品服务可用实例列表中选择实例； 订单服务实例向商品服务实例发起请求，完成 RESTful 通信；  下面用一个实例来演示：
 创建服务生产者 创建springboot项目模块，引入web和nacos客户端依赖
 配置文件 spring:application:name:provider-service#应用/微服务名字cloud:nacos:discovery:server-addr:49.234.82.226:8848#nacos服务器地址username:nacos#用户名密码password:nacosserver:port:8081创建示例服务 @RestController public class ProviderController { @GetMapping(&amp;#34;/provider/msg&amp;#34;) public String sendMessage(){ return &amp;#34;This is the message from provider service one!&amp;#34;; } } 连续创建3个provider，注意配置文件中的应用/微服务名要一致，代表同一种服务，为了直接了当地识别服务来自不同的微服务示例，可以在返回的字符串中添加自己的标示。启动后可以在nacos中看到健康示例数为3:
+ 
 创建服务消费者 引入web和nacos客户端依赖之外，还要引入ribbon
-&amp;lt;!-- Ribbon --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-netflix-ribbon&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${spring-cloud-alibaba.version}&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件和服务提供者只有应用名和端口的区别。</description>
+&amp;lt;!-- Ribbon --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
     </item>
     
     <item>

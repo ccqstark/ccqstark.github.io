@@ -19,7 +19,8 @@
 这里推荐排序+双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i+1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
 如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
 动画如下：
-代码 // 排序+双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i++) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i + 1; int right = nums.</description>
+ 
+代码 // 排序+双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.</description>
     </item>
     
     <item>
@@ -46,6 +47,7 @@ public class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) 
       
       <guid>https://ccqstark.github.io/p/generate_matrix/</guid>
       <description>题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+ 
 示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
 我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
@@ -205,8 +207,7 @@ dp[i] = max{ dp[j]+1, dp[i] }
 就是每次划分为2部分，整体最优解=左部分最优解+右部分的最优解+两者相乘所需乘法数
 矩阵i的行数为p[i-1]，列数为p[i]
  
-我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
-代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.</description>
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。</description>
     </item>
     
   </channel>

@@ -13,11 +13,12 @@
       <pubDate>Thu, 22 Jul 2021 02:03:53 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/p/rocketmq_startup/</guid>
-      <description>理论知识 RocketMQ 天然采用集群模式，常见的 RocketMQ 集群有三种形式：多 Master 模式、多 Master 多 Slave- 异步复制模式、多 Master 多 Slave- 同步双写模式，这三种模式各自的优缺点如下。
- 多 Master 模式是配置最简单的模式，同时也是使用最多的形式。优点是单个 Master 宕机或重启维护对应用无影响，在磁盘配置为 RAID10 时，即使机器宕机不可恢复情况下，由于 RAID10 磁盘非常可靠，同步刷盘消息也不会丢失，性能也是最高的；缺点是单台机器宕机期间，这台机器上未被消费的消息在机器恢复之前不可订阅，消息实时性会受到影响。 多 Master 多 Slave 异步复制模式。每个 Master 配置一个 Slave，有多对 Master-Slave，HA 采用异步复制方式，主备有短暂消息毫秒级延迟，即使磁盘损坏只会丢失少量消息，且消息实时性不会受影响。同时 Master 宕机后，消费者仍然可以从 Slave 消费，而且此过程对应用透明，不需要人工干预，性能同多 Master 模式几乎一样；缺点是 Master 宕机，磁盘损坏情况下会丢失少量消息。 多 Master 多 Slave 同步双写模式，HA 采用同步双写方式，即只有主备都写成功，才向应用返回成功，该模式数据与服务都无单点故障，Master 宕机情况下，消息无延迟，服务可用性与数据可用性都非常高；缺点是性能比异步复制模式低 10% 左右，发送单个消息的执行时间会略高，且目前版本在主节点宕机后，备机不能自动切换为主机。  部署 部署 NameServer 集群 直接wget下载
+      <description>理论知识  
+RocketMQ 天然采用集群模式，常见的 RocketMQ 集群有三种形式：多 Master 模式、多 Master 多 Slave- 异步复制模式、多 Master 多 Slave- 同步双写模式，这三种模式各自的优缺点如下。
+ 多 Master 模式是配置最简单的模式，同时也是使用最多的形式。优点是单个 Master 宕机或重启维护对应用无影响，在磁盘配置为 RAID10 时，即使机器宕机不可恢复情况下，由于 RAID10 磁盘非常可靠，同步刷盘消息也不会丢失，性能也是最高的；缺点是单台机器宕机期间，这台机器上未被消费的消息在机器恢复之前不可订阅，消息实时性会受到影响。 多 Master 多 Slave 异步复制模式。每个 Master 配置一个 Slave，有多对 Master-Slave，HA 采用异步复制方式，主备有短暂消息毫秒级延迟，即使磁盘损坏只会丢失少量消息，且消息实时性不会受影响。同时 Master 宕机后，消费者仍然可以从 Slave 消费，而且此过程对应用透明，不需要人工干预，性能同多 Master 模式几乎一样；缺点是 Master 宕机，磁盘损坏情况下会丢失少量消息。 多 Master 多 Slave 同步双写模式，HA 采用同步双写方式，即只有主备都写成功，才向应用返回成功，该模式数据与服务都无单点故障，Master 宕机情况下，消息无延迟，服务可用性与数据可用性都非常高；缺点是性能比异步复制模式低 10% 左右，发送单个消息的执行时间会略高，且目前版本在主节点宕机后，备机不能自动切换为主机。   
+部署 部署 NameServer 集群 直接wget下载
 wget https://mirror-hk.koddos.net/apache/rocketmq/4.8.0/rocketmq-all-4.8.0-bin-release.zip unzip 解压后，我们进入bin目录修改runserver.sh文件的虚拟机内存配置（因为默认的太大了吃不消），根据自己服务器实际情况更改
-JAVA_OPT=&amp;#34;${JAVA_OPT}-server -Xms128m -Xmx128m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&amp;#34; 后台启动一下NameServer服务
-nohup sh mqnamesrv &amp;amp; NameServer 将占用 9876 端口提供服务，不要忘记在防火墙设置放行，另一台服务器也同样方式操作一波。</description>
+JAVA_OPT=&amp;#34;${JAVA_OPT}-server -Xms128m -Xmx128m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&amp;#34; 后台启动一下NameServer服务</description>
     </item>
     
   </channel>

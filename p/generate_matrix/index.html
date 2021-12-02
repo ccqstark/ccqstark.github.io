@@ -2,6 +2,7 @@
 <html lang="en-us">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+ 
 示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
 我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
@@ -14,6 +15,7 @@
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[leetcode]59.螺旋矩阵II'>
 <meta property='og:description' content='题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+ 
 示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
 我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
@@ -27,6 +29,7 @@
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[leetcode]59.螺旋矩阵II">
 <meta name="twitter:description" content="题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+ 
 示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
 我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
@@ -37,16 +40,14 @@
     <meta name="twitter:image" content='https://ccqstark.github.io/p/generate_matrix/leetcode.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -83,7 +84,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -100,8 +101,8 @@ if (!doNotTrack) {
     <header class="article-header">
         <div class="article-image">
             <a href="/p/generate_matrix/">
-                <img src="/p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_800x0_resize_box_2.png"
-                        srcset="/p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_800x0_resize_box_2.png 800w, /p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_1600x0_resize_box_2.png 1600w"
+                <img src="/p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_800x0_resize_box_3.png"
+                        srcset="/p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_800x0_resize_box_3.png 800w, /p/generate_matrix/leetcode_hua465350402cd0ec3eacd50007e571132_103033_1600x0_resize_box_3.png 1600w"
                         width="800" 
                         height="244" 
                         loading="lazy"
@@ -126,8 +127,28 @@ if (!doNotTrack) {
         <a href="/p/generate_matrix/">[leetcode]59.螺旋矩阵II</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Apr 07, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -135,15 +156,32 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Apr 07, 2021</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
     <h2 id="题目">题目</h2>
 <p>给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/6461626841649_.pic.jpg" alt=""  /></p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nl">示例1:</span>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/6461626841649_.pic.jpg" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/6461626841649_.pic.jpg"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nl">示例1:</span>
 <span class="nl">输入:</span><span class="n">n</span> <span class="o">=</span> <span class="n">3</span>
 <span class="nl">输出:</span><span class="o">[[</span><span class="n">1</span><span class="o">,</span><span class="n">2</span><span class="o">,</span><span class="n">3</span><span class="o">],[</span><span class="n">8</span><span class="o">,</span><span class="n">9</span><span class="o">,</span><span class="n">4</span><span class="o">],[</span><span class="n">7</span><span class="o">,</span><span class="n">6</span><span class="o">,</span><span class="n">5</span><span class="o">]]</span>
 <span class="nl">
@@ -156,28 +194,42 @@ if (!doNotTrack) {
 <p>当然每次循环还需要注意，每行/列都遵循的是<code>左闭右开</code>的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。</p>
 <p>还有一点是每次循环之后，每行/列需要填充的个数就要少2，看下下面的图就可以很直观的理解了。</p>
 <p>下面就是n=5和n=4的例子：</p>
-<p><figure style="flex-grow: 102; flex-basis: 246px">
-		<a href="/p/generate_matrix/Untitled.png" data-size="636x620"><img src="/p/generate_matrix/Untitled.png"
-				srcset="/p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_480x0_resize_box_2.png 480w, /p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_1024x0_resize_box_2.png 1024w"
-				width="636"
-				height="620"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure>
-<figure style="flex-grow: 94; flex-basis: 226px">
-		<a href="/p/generate_matrix/Untitled1.png" data-size="512x543"><img src="/p/generate_matrix/Untitled1.png"
-				srcset="/p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_480x0_resize_box_2.png 480w, /p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_1024x0_resize_box_2.png 1024w"
-				width="512"
-				height="543"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 102; 
+			flex-basis: 246px"
+	>
+	<a href="/p/generate_matrix/Untitled.png" data-size="636x620">
+		<img src="/p/generate_matrix/Untitled.png"
+			width="636"
+			height="620"
+			srcset="/p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_480x0_resize_box_3.png 480w, /p/generate_matrix/Untitled_hu98b09275e5d13d5f288f6bad5d731a42_31797_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure>
+<figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 94; 
+			flex-basis: 226px"
+	>
+	<a href="/p/generate_matrix/Untitled1.png" data-size="512x543">
+		<img src="/p/generate_matrix/Untitled1.png"
+			width="512"
+			height="543"
+			srcset="/p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_480x0_resize_box_3.png 480w, /p/generate_matrix/Untitled1_hu016711899306377f75e219f590629de7_18013_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="代码">代码</h2>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="kt">int</span><span class="o">[][]</span> <span class="nf">generateMatrix</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// 矩阵本体
 </span><span class="c1"></span>        <span class="kt">int</span><span class="o">[][]</span> <span class="n">matrix</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="n">n</span><span class="o">][</span><span class="n">n</span><span class="o">];</span>
@@ -266,6 +318,7 @@ if (!doNotTrack) {
     </section>
     </footer>
 
+
     
 </article>
 
@@ -282,7 +335,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/three_sum/cover.33dd6c414f4a115d6aaa313112588b51_huf957eb7cc0803733802fcc4099cfd7cb_35766_250x150_fill_box_smart1_2.png" 
+                <img src="/p/three_sum/cover.33dd6c414f4a115d6aaa313112588b51_huf957eb7cc0803733802fcc4099cfd7cb_35766_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -304,7 +357,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/remove_elements/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/remove_elements/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -326,7 +379,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/min_sub_array_len/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/min_sub_array_len/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -348,7 +401,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/remove_element/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/remove_element/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -370,7 +423,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/search_insert/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_2.png" 
+                <img src="/p/search_insert/leetcode.3ec5d1f19535d0603a700f822d4755dc_hua465350402cd0ec3eacd50007e571132_103033_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -392,7 +445,7 @@ if (!doNotTrack) {
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -448,10 +501,13 @@ if (!doNotTrack) {
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

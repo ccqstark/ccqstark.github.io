@@ -3,9 +3,12 @@
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='RESTful 与 RPC 的区别 在微服务定义中提道，每个小服务运行在自己的进程中，并以轻量级的机制进行通信。这里并没有明确给出具体的通信方式，只是要求以轻量级的机制进行通信，虽然作者推荐使用 RESTful 作为首选方案，但微服务间通信本身还有另一个轻量级的选择：以 Dubbo 为代表的 RPC通信方式。
 RPC 是远程过程调用（Remote Procedure Call）的缩写形式，RPC 与 RESTful 最大的不同是，RPC 采用客户端（Client) - 服务端（Server） 的架构方式实现跨进程通信，实现的通信协议也没有统一的标准，具体实现依托于研发厂商的设计。
+ 
 目前开源市场上 RPC 框架有很多，例如 GoogleRPC、Alibaba Dubbo、Facebook Thrift，每一种产品都有自己的设计与实现方案。
 那 RESTful 与 RPC 有什么区别呢？通过一个表格进行说明：
+ 
 Apache Dubbo Dubbo 是阿里巴巴开源的高性能、轻量级的开源 Java 框架，目前被 Apache收录，官网是： http://dubbo.apache.org/
+ 
 Dubbo 是典型的 RPC 框架的代表，通过客户端/服务端结构实现跨进程应用的高效二进制通信。
 Apache Dubbo 提供了六大核心能力：
 面向接口代理的高性能 RPC 调用；
@@ -15,17 +18,20 @@ Apache Dubbo 提供了六大核心能力：
 运行期流量调度；
 可视化的服务治理与运维。
 下图引用 Dubbo 的官方架构图，讲解 ApacheDubbo 的组成。
-Dubbo 架构中，包含 5 种角色。
- Provider：RPC服务提供者，Provider 是消息的最终处理者。 Container：容器，用于启动、停止 Provider 服务。这里的容器并非 Tomcat、Jetty 等 Web 容器，Dubbo 也并不强制要求 Provider 必须具备 Web 能力。Dubbo 的容器是指对象容器，例如 Dubbo 内置的 SpringContainer 容器就提供了利用 Spring IOC 容器管理 Provider 对象的职能。 Consumer：消费者，调用的发起者。Consumer 需要在客户端持有 Provider 的通信接口才能完成通信过程。 Registry：注册中心，Dubbo 架构中注册中心与微服务架构中的注册中心职责类似，提供了 Dubbo Provider 的注册与发现职能，Consumer通过 Registry 可以获取Provider 可用的节点实例的 IP、端口等，并产生直接通信。需要注意的是，前面我们讲解的 Alibaba Nacos 除了可以作为微服务架构中的注册中心外，同样对自家的 Dubbo 提供了 RPC 调用注册发现的职责，这是其他 Spring Cloud 注册中心所不具备的功能。 Monitor：监控器，监控器提供了Dubbo的监控职责。在 Dubbo 产生通信时，Monitor 进行收集、统计，并通过可视化 UI 界面帮助运维人员了解系统进程间的通信状况。Dubbo Monitor 主流产品有 Dubbo Admin、Dubbo Ops 等。  项目整合 服务提供者Provider  引入依赖  &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.'><title>Dubbo&#43;Nacos实现RPC</title>
+ 
+Dubbo 架构中，包含 5 种角色。'><title>Dubbo&#43;Nacos实现RPC</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/dubbo_nacos_rpc/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Dubbo&#43;Nacos实现RPC'>
 <meta property='og:description' content='RESTful 与 RPC 的区别 在微服务定义中提道，每个小服务运行在自己的进程中，并以轻量级的机制进行通信。这里并没有明确给出具体的通信方式，只是要求以轻量级的机制进行通信，虽然作者推荐使用 RESTful 作为首选方案，但微服务间通信本身还有另一个轻量级的选择：以 Dubbo 为代表的 RPC通信方式。
 RPC 是远程过程调用（Remote Procedure Call）的缩写形式，RPC 与 RESTful 最大的不同是，RPC 采用客户端（Client) - 服务端（Server） 的架构方式实现跨进程通信，实现的通信协议也没有统一的标准，具体实现依托于研发厂商的设计。
+ 
 目前开源市场上 RPC 框架有很多，例如 GoogleRPC、Alibaba Dubbo、Facebook Thrift，每一种产品都有自己的设计与实现方案。
 那 RESTful 与 RPC 有什么区别呢？通过一个表格进行说明：
+ 
 Apache Dubbo Dubbo 是阿里巴巴开源的高性能、轻量级的开源 Java 框架，目前被 Apache收录，官网是： http://dubbo.apache.org/
+ 
 Dubbo 是典型的 RPC 框架的代表，通过客户端/服务端结构实现跨进程应用的高效二进制通信。
 Apache Dubbo 提供了六大核心能力：
 面向接口代理的高性能 RPC 调用；
@@ -35,8 +41,8 @@ Apache Dubbo 提供了六大核心能力：
 运行期流量调度；
 可视化的服务治理与运维。
 下图引用 Dubbo 的官方架构图，讲解 ApacheDubbo 的组成。
-Dubbo 架构中，包含 5 种角色。
- Provider：RPC服务提供者，Provider 是消息的最终处理者。 Container：容器，用于启动、停止 Provider 服务。这里的容器并非 Tomcat、Jetty 等 Web 容器，Dubbo 也并不强制要求 Provider 必须具备 Web 能力。Dubbo 的容器是指对象容器，例如 Dubbo 内置的 SpringContainer 容器就提供了利用 Spring IOC 容器管理 Provider 对象的职能。 Consumer：消费者，调用的发起者。Consumer 需要在客户端持有 Provider 的通信接口才能完成通信过程。 Registry：注册中心，Dubbo 架构中注册中心与微服务架构中的注册中心职责类似，提供了 Dubbo Provider 的注册与发现职能，Consumer通过 Registry 可以获取Provider 可用的节点实例的 IP、端口等，并产生直接通信。需要注意的是，前面我们讲解的 Alibaba Nacos 除了可以作为微服务架构中的注册中心外，同样对自家的 Dubbo 提供了 RPC 调用注册发现的职责，这是其他 Spring Cloud 注册中心所不具备的功能。 Monitor：监控器，监控器提供了Dubbo的监控职责。在 Dubbo 产生通信时，Monitor 进行收集、统计，并通过可视化 UI 界面帮助运维人员了解系统进程间的通信状况。Dubbo Monitor 主流产品有 Dubbo Admin、Dubbo Ops 等。  项目整合 服务提供者Provider  引入依赖  &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.'>
+ 
+Dubbo 架构中，包含 5 种角色。'>
 <meta property='og:url' content='https://ccqstark.github.io/p/dubbo_nacos_rpc/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Dubbo' /><meta property='article:tag' content='Nacos' /><meta property='article:tag' content='RPC' /><meta property='article:published_time' content='2021-07-22T02:26:29&#43;08:00'/><meta property='article:modified_time' content='2021-07-22T02:26:29&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/dubbo_nacos_rpc/cover.png' />
@@ -44,9 +50,12 @@ Dubbo 架构中，包含 5 种角色。
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Dubbo&#43;Nacos实现RPC">
 <meta name="twitter:description" content="RESTful 与 RPC 的区别 在微服务定义中提道，每个小服务运行在自己的进程中，并以轻量级的机制进行通信。这里并没有明确给出具体的通信方式，只是要求以轻量级的机制进行通信，虽然作者推荐使用 RESTful 作为首选方案，但微服务间通信本身还有另一个轻量级的选择：以 Dubbo 为代表的 RPC通信方式。
 RPC 是远程过程调用（Remote Procedure Call）的缩写形式，RPC 与 RESTful 最大的不同是，RPC 采用客户端（Client) - 服务端（Server） 的架构方式实现跨进程通信，实现的通信协议也没有统一的标准，具体实现依托于研发厂商的设计。
+ 
 目前开源市场上 RPC 框架有很多，例如 GoogleRPC、Alibaba Dubbo、Facebook Thrift，每一种产品都有自己的设计与实现方案。
 那 RESTful 与 RPC 有什么区别呢？通过一个表格进行说明：
+ 
 Apache Dubbo Dubbo 是阿里巴巴开源的高性能、轻量级的开源 Java 框架，目前被 Apache收录，官网是： http://dubbo.apache.org/
+ 
 Dubbo 是典型的 RPC 框架的代表，通过客户端/服务端结构实现跨进程应用的高效二进制通信。
 Apache Dubbo 提供了六大核心能力：
 面向接口代理的高性能 RPC 调用；
@@ -56,21 +65,19 @@ Apache Dubbo 提供了六大核心能力：
 运行期流量调度；
 可视化的服务治理与运维。
 下图引用 Dubbo 的官方架构图，讲解 ApacheDubbo 的组成。
-Dubbo 架构中，包含 5 种角色。
- Provider：RPC服务提供者，Provider 是消息的最终处理者。 Container：容器，用于启动、停止 Provider 服务。这里的容器并非 Tomcat、Jetty 等 Web 容器，Dubbo 也并不强制要求 Provider 必须具备 Web 能力。Dubbo 的容器是指对象容器，例如 Dubbo 内置的 SpringContainer 容器就提供了利用 Spring IOC 容器管理 Provider 对象的职能。 Consumer：消费者，调用的发起者。Consumer 需要在客户端持有 Provider 的通信接口才能完成通信过程。 Registry：注册中心，Dubbo 架构中注册中心与微服务架构中的注册中心职责类似，提供了 Dubbo Provider 的注册与发现职能，Consumer通过 Registry 可以获取Provider 可用的节点实例的 IP、端口等，并产生直接通信。需要注意的是，前面我们讲解的 Alibaba Nacos 除了可以作为微服务架构中的注册中心外，同样对自家的 Dubbo 提供了 RPC 调用注册发现的职责，这是其他 Spring Cloud 注册中心所不具备的功能。 Monitor：监控器，监控器提供了Dubbo的监控职责。在 Dubbo 产生通信时，Monitor 进行收集、统计，并通过可视化 UI 界面帮助运维人员了解系统进程间的通信状况。Dubbo Monitor 主流产品有 Dubbo Admin、Dubbo Ops 等。  项目整合 服务提供者Provider  引入依赖  &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org."><meta name="twitter:card" content="summary_large_image">
+ 
+Dubbo 架构中，包含 5 种角色。"><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/dubbo_nacos_rpc/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -107,7 +114,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -124,8 +131,8 @@ if (!doNotTrack) {
     <header class="article-header">
         <div class="article-image">
             <a href="/p/dubbo_nacos_rpc/">
-                <img src="/p/dubbo_nacos_rpc/cover_hu148189a32dd9592e6629114cd574d267_71263_800x0_resize_box_2.png"
-                        srcset="/p/dubbo_nacos_rpc/cover_hu148189a32dd9592e6629114cd574d267_71263_800x0_resize_box_2.png 800w, /p/dubbo_nacos_rpc/cover_hu148189a32dd9592e6629114cd574d267_71263_1600x0_resize_box_2.png 1600w"
+                <img src="/p/dubbo_nacos_rpc/cover_hu148189a32dd9592e6629114cd574d267_71263_800x0_resize_box_3.png"
+                        srcset="/p/dubbo_nacos_rpc/cover_hu148189a32dd9592e6629114cd574d267_71263_800x0_resize_box_3.png 800w, /p/dubbo_nacos_rpc/cover_hu148189a32dd9592e6629114cd574d267_71263_1600x0_resize_box_3.png 1600w"
                         width="800" 
                         height="311" 
                         loading="lazy"
@@ -150,8 +157,28 @@ if (!doNotTrack) {
         <a href="/p/dubbo_nacos_rpc/">Dubbo&#43;Nacos实现RPC</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 22, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -159,23 +186,62 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Jul 22, 2021</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
     <h2 id="restful-与-rpc-的区别">RESTful 与 RPC 的区别</h2>
 <p>在微服务定义中提道，每个小服务运行在自己的进程中，并以轻量级的机制进行通信。这里并没有明确给出具体的通信方式，只是要求以轻量级的机制进行通信，虽然作者推荐使用 RESTful 作为首选方案，但微服务间通信本身还有另一个轻量级的选择：以 Dubbo 为代表的 RPC通信方式。</p>
 <p>RPC 是远程过程调用（Remote Procedure Call）的缩写形式，RPC 与 RESTful 最大的不同是，RPC 采用客户端（Client) - 服务端（Server） 的架构方式实现跨进程通信，实现的通信协议也没有统一的标准，具体实现依托于研发厂商的设计。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021203.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021203.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021203.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>目前开源市场上 RPC 框架有很多，例如 GoogleRPC、Alibaba Dubbo、Facebook Thrift，每一种产品都有自己的设计与实现方案。</p>
 <p>那 RESTful 与 RPC 有什么区别呢？通过一个表格进行说明：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021230.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021230.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021230.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="apache-dubbo">Apache Dubbo</h2>
 <p>Dubbo 是阿里巴巴开源的高性能、轻量级的开源 Java 框架，目前被 Apache收录，官网是：
 <a class="link" href="http://dubbo.apache.org/"  target="_blank" rel="noopener"
     >http://dubbo.apache.org/</a></p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021248.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021248.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021248.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>Dubbo 是典型的 RPC 框架的代表，通过客户端/服务端结构实现跨进程应用的高效二进制通信。</p>
 <p>Apache Dubbo 提供了六大核心能力：</p>
 <p>面向接口代理的高性能 RPC 调用；</p>
@@ -185,7 +251,18 @@ if (!doNotTrack) {
 <p>运行期流量调度；</p>
 <p>可视化的服务治理与运维。</p>
 <p>下图引用 Dubbo 的官方架构图，讲解 ApacheDubbo 的组成。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021336.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021336.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021336.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>Dubbo 架构中，包含 5 种角色。</p>
 <ul>
 <li><code>Provider</code>：RPC服务提供者，Provider 是消息的最终处理者。</li>
@@ -199,7 +276,7 @@ if (!doNotTrack) {
 <ul>
 <li>引入依赖</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.apache.dubbo<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>dubbo-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
     <span class="nt">&lt;version&gt;</span>2.7.8<span class="nt">&lt;/version&gt;</span>
@@ -212,7 +289,7 @@ if (!doNotTrack) {
 <ul>
 <li>配置文件</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">server</span><span class="p">:</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">server</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="c">#服务端口</span><span class="w">
 </span><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">application</span><span class="p">:</span><span class="w">
@@ -234,20 +311,31 @@ if (!doNotTrack) {
 </span><span class="w">  </span><span class="nt">scan</span><span class="p">:</span><span class="w"> 
 </span><span class="w">    </span><span class="nt">base-packages</span><span class="p">:</span><span class="w"> </span><span class="l">com.lagou.warehouseservice.dubbo</span><span class="w">
 </span></code></pre></div><p>Dubbo 需要依托 Container（容器）对外暴露服务，而这个容器配置与微服务配置是分开的，需要额外占用一个网络端口20880提供服务。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021359.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021359.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021359.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p><code>dubbo.scan.base-packages</code> 代表在 Dubbo 容器启动时自动扫描 com.lagou.warehouseservice.dubbo 包下的接口与实现类，并将这些接口信息在Nacos 进行登记，因此 Dubbo 对外暴露的接口必须放在该包下。</p>
 <ul>
 <li>开发服务</li>
 </ul>
 <p>实体类dto这里不做示例了</p>
 <p>下面是<code>com.lagou.warehouseservice.dubbo</code>包下创建的服务接口，包名要与 dubbo.scan.base-packages 保持一致</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">//Provider接口
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">//Provider接口
 </span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">WarehouseService</span> <span class="o">{</span>
     <span class="c1">//查询库存
 </span><span class="c1"></span>    <span class="kd">public</span> <span class="n">Stock</span> <span class="nf">getStock</span><span class="o">(</span><span class="n">Long</span> <span class="n">skuId</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre></div><p>在 <code>com.lagou.warehouseservice.dubbo.impl</code>包下创建实现类</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@DubboService</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nd">@DubboService</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">WarehouseServiceImpl</span> <span class="kd">implements</span> <span class="n">WarehouseService</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="n">Stock</span> <span class="nf">getStock</span><span class="o">(</span><span class="n">Long</span> <span class="n">skuId</span><span class="o">){</span>
         <span class="cm">/*
@@ -262,7 +350,7 @@ if (!doNotTrack) {
 <li>引入依赖和服务提供者一样</li>
 <li>配置文件</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">spring</span><span class="p">:</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">spring</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">application</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">order-service</span><span class="w">
 </span><span class="w">  </span><span class="nt">cloud</span><span class="p">:</span><span class="w">
@@ -281,12 +369,23 @@ if (!doNotTrack) {
 </span></code></pre></div><ul>
 <li>将处于服务提供方的服务接口和相关实体类复制到调用方</li>
 </ul>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021421.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021421.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021421.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>接口就行，接口的实现类不用。相当于声明了通信接口，注意要求包名、类名及代码保持完全一致。上面是在与原项目同级目录新建了一个和服务提供方一样的包路径。</p>
 <ul>
 <li>消费者调用服务</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderController</span> <span class="o">{</span>
     
 		<span class="nd">@DubboReference</span>
@@ -304,16 +403,38 @@ if (!doNotTrack) {
     <span class="o">}</span>
 <span class="o">}</span>
 </code></pre></div><p>关键点是 <code>@DubboReference</code> 注解。该注解用在 Consumer 端，Spring 会自动生成远程服务的接口的代理实现类，并隐藏远程通信细节。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021502.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021502.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021502.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>微服务启动后，在nacos的服务列表界面可以看到微服务和Dubbo的服务，表示注册成功了。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021520.png" alt=""  /></p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021520.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed@master/images/20210722021520.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p><strong>小坑</strong></p>
 <p>引入了<code>spring-boot-starter-actuator</code> 会与ShardingSphere检查数据库连接时产生冲突，抛出错误</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">InvalidDataAccessApiUsageException</span><span class="o">:</span> <span class="n">ConnectionCallback</span><span class="o">;</span> <span class="n">isValid</span><span class="o">;</span> 
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="n">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">InvalidDataAccessApiUsageException</span><span class="o">:</span> <span class="n">ConnectionCallback</span><span class="o">;</span> <span class="n">isValid</span><span class="o">;</span> 
 <span class="n">nested</span> <span class="n">exception</span> <span class="n">is</span> <span class="n">java</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">SQLFeatureNotSupportedException</span><span class="o">:</span> <span class="n">isValid</span>
 </code></pre></div><p>解决办法：</p>
 <p>配置文件加上</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">management</span><span class="p">:</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">management</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">health</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w">
 </span><span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
@@ -348,6 +469,7 @@ if (!doNotTrack) {
     </section>
     </footer>
 
+
     
 </article>
 
@@ -364,7 +486,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/nacos_config_startup/cover.66c8e25056186a53e8835feb8b9a4c3b_hu2f85b5acfdf02eef7b8f3b3a65f67b73_18437_250x150_fill_box_smart1_2.png" 
+                <img src="/p/nacos_config_startup/cover.66c8e25056186a53e8835feb8b9a4c3b_hu2f85b5acfdf02eef7b8f3b3a65f67b73_18437_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -386,7 +508,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/nacos_startup/cover.77d602d0991bd6a55855a7239a736f41_hu3dcfa387b55d54e5becd295f3f353ebe_40548_250x150_fill_box_smart1_2.png" 
+                <img src="/p/nacos_startup/cover.77d602d0991bd6a55855a7239a736f41_hu3dcfa387b55d54e5becd295f3f353ebe_40548_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -408,7 +530,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/rocketmq_startup/cover.7de7e0772582c1e83b8e346e84bd815c_hu9145d0cb10e9c56d586699b94d669fc3_38014_250x150_fill_box_smart1_2.png" 
+                <img src="/p/rocketmq_startup/cover.7de7e0772582c1e83b8e346e84bd815c_hu9145d0cb10e9c56d586699b94d669fc3_38014_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -430,7 +552,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/zipkin_startup/cover.e56bc29475bf03658a9af731d1a94d51_hu6ef3ef375e80ecb9108b60353e3afbae_90400_250x150_fill_box_smart1_2.png" 
+                <img src="/p/zipkin_startup/cover.e56bc29475bf03658a9af731d1a94d51_hu6ef3ef375e80ecb9108b60353e3afbae_90400_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -452,7 +574,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/openfeign_startup/cover.840d6ba9c10efde6c0ce01794614eac6_hu74c9fdd8cb819657fbdd849b196b87b5_65974_250x150_fill_box_smart1_2.png" 
+                <img src="/p/openfeign_startup/cover.840d6ba9c10efde6c0ce01794614eac6_hu74c9fdd8cb819657fbdd849b196b87b5_65974_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -474,7 +596,7 @@ if (!doNotTrack) {
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -530,10 +652,13 @@ if (!doNotTrack) {
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

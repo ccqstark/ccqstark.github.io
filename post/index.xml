@@ -32,7 +32,8 @@ Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt
       
       <guid>https://ccqstark.github.io/p/bloom_filter/</guid>
       <description>什么是布隆过滤器 简介 布隆过滤器（Bloom Filter）是 1970 年由布隆提出的。它实际上是一个很长的二进制向量和一系列随机映射函数。布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都比一般的算法要好的多，缺点是有一定的误识别率和删除困难。
-具体实现原理 如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。
+具体实现原理  
+如上图所示，布隆过滤器的原理就是通过几个哈希函数把要存储的数据映射到一个二进制的数组里，映射到的对应位标为1，如上图就为（2，5，9）。后续有元素加入时，若该位本就为1，则不对该位再做处理。
 当要判断一个元素是否在过滤器中，也是先进行Hash计算出对应的位，判断二进制数组中所有对应的位是否都为1，是的话表示元素在其中；反之不在。
 存在的问题 布隆过滤器存在误判率，也是可能会把一个不存在的元素判定为存在的。因为在加入大量元素后，二进制数组中可能大部分位都被置为1了，所以一个新的数据Hash出来对应的位就很可能也都置为1了。
 解决办法就是增加二进制数组的长度，使得二进制数组不那么快饱和，就可以容纳更多的元素，降低误判概率；或者增加Hash次数，使得数据更加分散。
@@ -46,7 +47,7 @@ Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt
 # 去这个github仓库看看最新版本 wget https://github.com/RedisLabsModules/rebloom/archive/v2.2.4.tar.gz # 解压 tar zxvf v2.2.4.tar.gz # 编译 cd RedisBloom-2.2.4 make 以上执行完之后在目录下多了一个rebloom.so文件，将其移动到一个合适的位置
 然后在redis的配置文件里增加以下一行（最好添加在MODULES区域，规范点，redis配置文件所在路径可以在redis-cli中用info 命令查看）
 # 后面为rebloom.so文件所在的目录 loadmodule /xxx/xxx/xxx/rebloom.so 重启redis后进入redis-cli尝试以下命令
-bf.add test 1 bf.add test 2 bf.</description>
+bf.add test 1 bf.</description>
     </item>
     
     <item>
@@ -61,7 +62,8 @@ bf.add test 1 bf.add test 2 bf.</description>
 集群(cluster)：将同一种服务的多个节点放在一起共同对系统提供服务，称为集群
 分布式(distribute system)：有多个不同服务集群功能对系统提供服务，这个系统称之为分布式系统
 所以两者虽然都是多个服务器节点，区别就在多个节点中，集群侧重的是同一种服务，而分布式侧重的是不同的服务，而且分布式还是建立在集群的基础之上的。
-缓存发挥的作用 由图中可以看出，缓存是作为存储层和客户端之间的中间层，当客户端的请求过来时，首先请求缓存中的内容，如果查到（hit）则直接返回，不再去查找存储层；如果没有（miss），则去存储层中查找并将结果写入缓存（write cache）再返回，以便之后相同的请求可以去缓存中获取。
+缓存发挥的作用  
+由图中可以看出，缓存是作为存储层和客户端之间的中间层，当客户端的请求过来时，首先请求缓存中的内容，如果查到（hit）则直接返回，不再去查找存储层；如果没有（miss），则去存储层中查找并将结果写入缓存（write cache）再返回，以便之后相同的请求可以去缓存中获取。
 之所以加入缓存层是因为存储层一般是需要读写磁盘的，而缓存层在内存中，两者的读写速度完全不是一个量级，内存快的多。而大部分应用的请求都有一个特点——读多写少，所以将总是需要查到的数据放在缓存层中可以大大提高应用的响应速度，减少存储层的压力。
 一般Web应用中，存储层就是我们用的关系型数据库，MySQL、Oracle、SQLServer等，而缓存层分类上面已经提到，常用的有Redis，Memcached等。
 MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。
@@ -69,6 +71,7 @@ MyBatis开启二级缓存 MyBatis一级缓存中，其最大的共享范围就�
 在业务的mapper.xml文件中添加
 &amp;lt;cache/&amp;gt; 二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
 当开启缓存后，数据的查询执行的流程就是 二级缓存 -&amp;gt; 一级缓存 -&amp;gt; 数据库。
+ 
 这样开启的是本地二级缓存，这样有个缺点就是应用重新启动后，JVM重新分配内存，这样的话之前的缓存就都没了，所以我们得用分布式缓存来解决。
 使用Redis作为Mybatis的二级缓存 MyBatis的缓存实现类默认是PerpetualCache，它继承类Cache接口，除此之外还有其他实现类。
 原理就是维护一个HashMap，将查询的SQL以及Mapper的namespace作为Key，然后查询的结果作为Value，通过键值对的方式来实现缓存查询过的sql语句的结果，所以要用redis替换也还是十分合适的。
@@ -77,9 +80,7 @@ getId ：这个方法其实是获取了执行的sql对应的namespace，可以�
 putObject ：此方法就是用来将数据放入缓存的
 getObject ：用以根据key获取缓存的值
 removeObject ：删除某一缓存项目，MyBatis暂未实现与启用此方法，所以暂时无用
-clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存
-getSize ：获取缓存大小，暂时用处不大
-getReadWriteLock ：获取读写锁，这是用来拿到互斥锁解决缓存击穿问题的</description>
+clear ：每次执行update/delete/insert语句都会调用此方法进行清除原有的缓存</description>
     </item>
     
     <item>
@@ -90,6 +91,7 @@ getReadWriteLock ：获取读写锁，这是用来拿到互斥锁解决缓存击
       <guid>https://ccqstark.github.io/p/compile_jdk/</guid>
       <description>前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
 环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
+ 
 Xcode下载 一些C/C++相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
 xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
 还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
@@ -109,7 +111,8 @@ xip文件在解压时需要用系统自带的解压工具，不要用第三方�
 这里推荐排序+双指针法 来解决。先对数组进行排序，然后用一个指针i对所有元素进行遍历，每一次遍历我们都有两个指针叫left和right，left一开始指向i+1，right一开始指向数组最后一位，然后开始判断此时三个指针之和sum是否为0。
 如果不是又分为两种情况，sum大于0，则让right左移一位，让sum减小；如果sum小于0，则让left右移一位，让sum增加。如果是找到了的话，就两边同时收缩。整个过程就是通过调整left和right指针来毕竟让sum逼近0，再注意一下去除重复情况即可。
 动画如下：
-代码 // 排序+双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.length; i++) { // 首位大于0的直接返回  if (nums[i] &amp;gt; 0) { return result; } // i的去重  if (i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i - 1]) { continue; } int left = i + 1; int right = nums.</description>
+ 
+代码 // 排序+双指针法（较优） public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; threeSum(int[] nums) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;&amp;gt;(); // 排序  Arrays.sort(nums); for (int i = 0; i &amp;lt; nums.</description>
     </item>
     
     <item>
@@ -126,6 +129,7 @@ xip文件在解压时需要用系统自带的解压工具，不要用第三方�
 可以用于修饰方法，属性，类，表示不鼓励程序猿使用，但是还是可以使用的，只是使用它可能有危险或者存在更好的选择。
 @SuppressWarnings
 用来抑制编译时的警告信息，需要添加一个参数
+ 
 元注解 @Target
 用于描述注解的使用范围
 @Target(value = {ElementType.METHOD, ElementType.TYPE}) @Retention
@@ -149,9 +153,12 @@ xip文件在解压时需要用系统自带的解压工具，不要用第三方�
       <guid>https://ccqstark.github.io/p/dubbo_nacos_rpc/</guid>
       <description>RESTful 与 RPC 的区别 在微服务定义中提道，每个小服务运行在自己的进程中，并以轻量级的机制进行通信。这里并没有明确给出具体的通信方式，只是要求以轻量级的机制进行通信，虽然作者推荐使用 RESTful 作为首选方案，但微服务间通信本身还有另一个轻量级的选择：以 Dubbo 为代表的 RPC通信方式。
 RPC 是远程过程调用（Remote Procedure Call）的缩写形式，RPC 与 RESTful 最大的不同是，RPC 采用客户端（Client) - 服务端（Server） 的架构方式实现跨进程通信，实现的通信协议也没有统一的标准，具体实现依托于研发厂商的设计。
+ 
 目前开源市场上 RPC 框架有很多，例如 GoogleRPC、Alibaba Dubbo、Facebook Thrift，每一种产品都有自己的设计与实现方案。
 那 RESTful 与 RPC 有什么区别呢？通过一个表格进行说明：
+ 
 Apache Dubbo Dubbo 是阿里巴巴开源的高性能、轻量级的开源 Java 框架，目前被 Apache收录，官网是： http://dubbo.apache.org/
+ 
 Dubbo 是典型的 RPC 框架的代表，通过客户端/服务端结构实现跨进程应用的高效二进制通信。
 Apache Dubbo 提供了六大核心能力：
 面向接口代理的高性能 RPC 调用；
@@ -161,8 +168,8 @@ Apache Dubbo 提供了六大核心能力：
 运行期流量调度；
 可视化的服务治理与运维。
 下图引用 Dubbo 的官方架构图，讲解 ApacheDubbo 的组成。
-Dubbo 架构中，包含 5 种角色。
- Provider：RPC服务提供者，Provider 是消息的最终处理者。 Container：容器，用于启动、停止 Provider 服务。这里的容器并非 Tomcat、Jetty 等 Web 容器，Dubbo 也并不强制要求 Provider 必须具备 Web 能力。Dubbo 的容器是指对象容器，例如 Dubbo 内置的 SpringContainer 容器就提供了利用 Spring IOC 容器管理 Provider 对象的职能。 Consumer：消费者，调用的发起者。Consumer 需要在客户端持有 Provider 的通信接口才能完成通信过程。 Registry：注册中心，Dubbo 架构中注册中心与微服务架构中的注册中心职责类似，提供了 Dubbo Provider 的注册与发现职能，Consumer通过 Registry 可以获取Provider 可用的节点实例的 IP、端口等，并产生直接通信。需要注意的是，前面我们讲解的 Alibaba Nacos 除了可以作为微服务架构中的注册中心外，同样对自家的 Dubbo 提供了 RPC 调用注册发现的职责，这是其他 Spring Cloud 注册中心所不具备的功能。 Monitor：监控器，监控器提供了Dubbo的监控职责。在 Dubbo 产生通信时，Monitor 进行收集、统计，并通过可视化 UI 界面帮助运维人员了解系统进程间的通信状况。Dubbo Monitor 主流产品有 Dubbo Admin、Dubbo Ops 等。  项目整合 服务提供者Provider  引入依赖  &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
+ 
+Dubbo 架构中，包含 5 种角色。</description>
     </item>
     
     <item>
@@ -171,11 +178,12 @@ Dubbo 架构中，包含 5 种角色。
       <pubDate>Thu, 22 Jul 2021 02:03:53 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/p/rocketmq_startup/</guid>
-      <description>理论知识 RocketMQ 天然采用集群模式，常见的 RocketMQ 集群有三种形式：多 Master 模式、多 Master 多 Slave- 异步复制模式、多 Master 多 Slave- 同步双写模式，这三种模式各自的优缺点如下。
- 多 Master 模式是配置最简单的模式，同时也是使用最多的形式。优点是单个 Master 宕机或重启维护对应用无影响，在磁盘配置为 RAID10 时，即使机器宕机不可恢复情况下，由于 RAID10 磁盘非常可靠，同步刷盘消息也不会丢失，性能也是最高的；缺点是单台机器宕机期间，这台机器上未被消费的消息在机器恢复之前不可订阅，消息实时性会受到影响。 多 Master 多 Slave 异步复制模式。每个 Master 配置一个 Slave，有多对 Master-Slave，HA 采用异步复制方式，主备有短暂消息毫秒级延迟，即使磁盘损坏只会丢失少量消息，且消息实时性不会受影响。同时 Master 宕机后，消费者仍然可以从 Slave 消费，而且此过程对应用透明，不需要人工干预，性能同多 Master 模式几乎一样；缺点是 Master 宕机，磁盘损坏情况下会丢失少量消息。 多 Master 多 Slave 同步双写模式，HA 采用同步双写方式，即只有主备都写成功，才向应用返回成功，该模式数据与服务都无单点故障，Master 宕机情况下，消息无延迟，服务可用性与数据可用性都非常高；缺点是性能比异步复制模式低 10% 左右，发送单个消息的执行时间会略高，且目前版本在主节点宕机后，备机不能自动切换为主机。  部署 部署 NameServer 集群 直接wget下载
+      <description>理论知识  
+RocketMQ 天然采用集群模式，常见的 RocketMQ 集群有三种形式：多 Master 模式、多 Master 多 Slave- 异步复制模式、多 Master 多 Slave- 同步双写模式，这三种模式各自的优缺点如下。
+ 多 Master 模式是配置最简单的模式，同时也是使用最多的形式。优点是单个 Master 宕机或重启维护对应用无影响，在磁盘配置为 RAID10 时，即使机器宕机不可恢复情况下，由于 RAID10 磁盘非常可靠，同步刷盘消息也不会丢失，性能也是最高的；缺点是单台机器宕机期间，这台机器上未被消费的消息在机器恢复之前不可订阅，消息实时性会受到影响。 多 Master 多 Slave 异步复制模式。每个 Master 配置一个 Slave，有多对 Master-Slave，HA 采用异步复制方式，主备有短暂消息毫秒级延迟，即使磁盘损坏只会丢失少量消息，且消息实时性不会受影响。同时 Master 宕机后，消费者仍然可以从 Slave 消费，而且此过程对应用透明，不需要人工干预，性能同多 Master 模式几乎一样；缺点是 Master 宕机，磁盘损坏情况下会丢失少量消息。 多 Master 多 Slave 同步双写模式，HA 采用同步双写方式，即只有主备都写成功，才向应用返回成功，该模式数据与服务都无单点故障，Master 宕机情况下，消息无延迟，服务可用性与数据可用性都非常高；缺点是性能比异步复制模式低 10% 左右，发送单个消息的执行时间会略高，且目前版本在主节点宕机后，备机不能自动切换为主机。   
+部署 部署 NameServer 集群 直接wget下载
 wget https://mirror-hk.koddos.net/apache/rocketmq/4.8.0/rocketmq-all-4.8.0-bin-release.zip unzip 解压后，我们进入bin目录修改runserver.sh文件的虚拟机内存配置（因为默认的太大了吃不消），根据自己服务器实际情况更改
-JAVA_OPT=&amp;#34;${JAVA_OPT}-server -Xms128m -Xmx128m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&amp;#34; 后台启动一下NameServer服务
-nohup sh mqnamesrv &amp;amp; NameServer 将占用 9876 端口提供服务，不要忘记在防火墙设置放行，另一台服务器也同样方式操作一波。</description>
+JAVA_OPT=&amp;#34;${JAVA_OPT}-server -Xms128m -Xmx128m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&amp;#34; 后台启动一下NameServer服务</description>
     </item>
     
     <item>
@@ -191,6 +199,7 @@ https://zipkin.io/pages/quickstart.html
 docker run -d -p 9411:9411 openzipkin/zipkin 使用 之后调用的链路就可以在下面链接看到了
 http://49.234.82.226:9411/zipkin
 需要刷新和筛选一下
+ 
 点进去可以看到具体信息</description>
     </item>
     
@@ -201,6 +210,7 @@ http://49.234.82.226:9411/zipkin
       
       <guid>https://ccqstark.github.io/p/nacos_config_startup/</guid>
       <description>建立数据库 建立个用于存放配置的数据库名为nacos-config，nacos/conf下有一个nacos-mysql.sql，运行一下便可获得存放配置信息的表
+ 
 配置数据源 修改nacos/conf/application.properties
 ### If use MySQL as datasource: spring.datasource.platform=mysql ### Count of DB: db.num=1 ### Connect URL of DB: db.url.0=jdbc:mysql://xxxxxxx:3306/nacos_config?characterEncoding=utf8&amp;amp;connectTimeout=1000&amp;amp;socketTimeout=3000&amp;amp;autoReconnect=true&amp;amp;useUnicode=true&amp;amp;useSSL=false&amp;amp;serverTimezone=UTC db.user=root db.password=xxxxxxx 记得重启
 应用接入配置中心 依赖
@@ -209,11 +219,10 @@ http://49.234.82.226:9411/zipkin
 spring:application:name:order-service#微服务idprofiles:active:dev#环境名cloud:nacos:config:#Nacos配置中心配置file-extension:yml#文件扩展名server-addr:192.168.31.10:8848username:nacospassword:nacoslogging:#开启debug日志，仅为学习时使用level:root:debug定义一份配置文件是用微服务id-环境名.文件扩展名 三部分组合为有效的 data id，比如上面的就是order-service-dev.yml
 然后去Nacos把原来的那些应用配置给存到云端
 点击➕ 号新建配置
+ 
 注意data id 就是上面说的微服务id-环境名.文件扩展名 ，然后选择yaml格式，把我们以前写在本地的配置文件写到下面的配置内容中
-此时新建的配置信息其实就是用我们之前配置的MySQL存的，你会发现这些配置信息存在config-info表中了
-配置热加载技术 当我们突然修改配置文件后，为了生效我们必须重启一下应用，就有点麻烦，为了解决这个问题，我们用到了配置热加载技术
-为了支持热加载，服务的程序针对热加载需要作出如下变动：
-第一，配置数据必须被封装到单独的配置 Bean 中；</description>
+ 
+此时新建的配置信息其实就是用我们之前配置的MySQL存的，你会发现这些配置信息存在config-info表中了</description>
     </item>
     
     <item>
@@ -238,12 +247,14 @@ spring:application:name:order-service#微服务idprofiles:active:dev#环境名cl
 服务端负载均衡顾名思义，在架构中会提供专用的负载均衡器，由负载均衡器持有后端节点的信息，服务消费者发来的请求经由专用的负载均衡器分发给服务提供者，进而实现负载均衡的作用。目前常用的负载均衡器软硬件有：F5、Nginx、HaProxy 等。
 客户端负载均衡是指，在架构中不再部署额外的负载均衡器，在每个服务消费者内部持有客户端负载均衡器，由内置的负载均衡策略决定向哪个服务提供者发起请求。通俗来讲，就是客户端在发送请求之前就通过某种策略选定了要请求的服务提供者，而不是让一个中间件来帮忙决定。
 Ribbon Netfilx Ribbon 是 Netflix 公司开源的一个负载均衡组件，是属于客户端负载均衡器。目前Ribbon 已被 Spring Cloud 官方技术生态整合，运行时以 SDK 形式内嵌到每一个微服务实例中，为微服务间通信提供负载均衡与高可用支持。
+ 
 过程如下：
  订单服务（order-service）与商品服务（goods-service）实例在启动时向 Nacos 注册； 订单服务向商品服务发起通信前，Ribbon 向 Nacos 查询商品服务的可用实例列表； Ribbon 根据设置的负载策略从商品服务可用实例列表中选择实例； 订单服务实例向商品服务实例发起请求，完成 RESTful 通信；  下面用一个实例来演示：
 创建服务生产者 创建springboot项目模块，引入web和nacos客户端依赖
 配置文件 spring:application:name:provider-service#应用/微服务名字cloud:nacos:discovery:server-addr:49.234.82.226:8848#nacos服务器地址username:nacos#用户名密码password:nacosserver:port:8081创建示例服务 @RestController public class ProviderController { @GetMapping(&amp;#34;/provider/msg&amp;#34;) public String sendMessage(){ return &amp;#34;This is the message from provider service one!&amp;#34;; } } 连续创建3个provider，注意配置文件中的应用/微服务名要一致，代表同一种服务，为了直接了当地识别服务来自不同的微服务示例，可以在返回的字符串中添加自己的标示。启动后可以在nacos中看到健康示例数为3:
+ 
 创建服务消费者 引入web和nacos客户端依赖之外，还要引入ribbon
-&amp;lt;!-- Ribbon --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-netflix-ribbon&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${spring-cloud-alibaba.version}&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件和服务提供者只有应用名和端口的区别。</description>
+&amp;lt;!-- Ribbon --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
     </item>
     
     <item>
@@ -300,6 +311,7 @@ public class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) 
       
       <guid>https://ccqstark.github.io/p/generate_matrix/</guid>
       <description>题目 给你一个正整数 n ，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+ 
 示例1: 输入:n = 3 输出:[[1,2,3],[8,9,4],[7,6,5]] 示例2: 输入: n = 1 输出: [[1]] 分析 第一次看到这道题感觉很懵很难，其实这道题也不涉及什么经典算法，就是考验你用代码复现这个过程道能力。
 我们可以把按照题目给的图的按顺序去填充矩阵中的值，从第一个位置开始先从左到右➡️ ，再从上到下⬇️ ，再从右到左⬅️ ，再从下到上⬆️ 。如此循环，直到填充完毕，当然如果n为奇数的话就要考虑中间那一格需要最后去单独填充，偶数的话就没有这个问题。
 当然每次循环还需要注意，每行/列都遵循的是左闭右开的原则，也就是说从头填到倒数第二个，最后一个就是下一行/列的，才能保证行/列填充行为的统一性。
@@ -322,7 +334,7 @@ String a = &amp;#34;ok&amp;#34;; String b = new String(&amp;#34;ok&amp;#3
 第二种就是创建String类的对象，因为String本来就是一个类，而不是像int和double那样的基本数据类型。
 Java的字符串采用了缓冲池的技术，我们新建一个字符串的时候会去缓冲池寻找是否有已经存在的相同的字符串，如果有的话直接指向它即可；没有的话再创建，缓冲池是在堆里面的。
 如下图，是下面代码的结果：
-// one和two内容相同，指向同一String对象 String one = &amp;#34;someString&amp;#34;; String two = &amp;#34;someString&amp;#34;; 关于更深入的创建对象和之间的比较可以看下面这篇：
+// one和two内容相同，指向同一String对象 String one = &amp;#34;someString&amp;#34;; String two = &amp;#34;someString&amp;#34;;   关于更深入的创建对象和之间的比较可以看下面这篇：
 java 字符串缓冲池 String缓冲池_天天的专栏-CSDN博客
 哪里不可变？ 那为什么说String不可变呢？我们明明可以通过给字符串变量赋一个新值来改变它的内容。
 String str = &amp;#34;aaaaaaa&amp;#34;; System.out.println(str); str = &amp;#34;bbbbbbbbb&amp;#34;; System.out.println(str); // 输出 //aaaaaaa //bbbbbbbbb 实际上，当我们给字符串重新赋值的时候，它并不是去改变这个String对象中的字符数组char[] value的值（下面会讲到），而是去缓冲池里寻找有没有已经存在这个值的String对象，有的话就直接指向它，没有的话创建一个对象再指向它。
@@ -749,14 +761,16 @@ docker run \ -d \ -p 3310:3306 \ -v /home/mysql/conf:/etc/mysql/conf.d \ -v /hom
       <pubDate>Wed, 06 Jan 2021 02:07:00 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/p/mac_terminal/</guid>
-      <description>终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？ 准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
+      <description>终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？  1 
+准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
 iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
 zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
 下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
 oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
 安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+ 2 
 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
-下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .. rm -rf fonts 配置 vim ~/.</description>
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts .</description>
     </item>
     
     <item>
@@ -978,8 +992,7 @@ package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import o
 就是每次划分为2部分，整体最优解=左部分最优解+右部分的最优解+两者相乘所需乘法数
 矩阵i的行数为p[i-1]，列数为p[i]
  
-我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。
-代码 // 矩阵链相乘问题 #include &amp;lt;iostream&amp;gt;#include &amp;lt;string.</description>
+我们用一个二维矩阵来存储各阶段结果，数据就一步步往右上角填上去，最终答案就在最右上角。</description>
     </item>
     
     <item>

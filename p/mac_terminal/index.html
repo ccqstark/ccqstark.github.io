@@ -1,52 +1,56 @@
 <!DOCTYPE html>
 <html lang="en-us">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？ 准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？  1 
+准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
 iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
 zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
 下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
 oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
 安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+ 2 
 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
-下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .. rm -rf fonts 配置 vim ~/.'><title>MacOS终端美化指北</title>
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts .'><title>MacOS终端美化指北</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/mac_terminal/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='MacOS终端美化指北'>
-<meta property='og:description' content='终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？ 准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
+<meta property='og:description' content='终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？  1 
+准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
 iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
 zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
 下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
 oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
 安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+ 2 
 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
-下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .. rm -rf fonts 配置 vim ~/.'>
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts .'>
 <meta property='og:url' content='https://ccqstark.github.io/p/mac_terminal/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='MacOS' /><meta property='article:published_time' content='2021-01-06T02:07:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-06T02:07:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/mac_terminal/Mojave-desktop.jpg' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="MacOS终端美化指北">
-<meta name="twitter:description" content="终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？ 准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
+<meta name="twitter:description" content="终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？  1 
+准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
 iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
 zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
 下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
 oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
 安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+ 2 
 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
-下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ./install.sh # 删除刚刚下载的 cd .. rm -rf fonts 配置 vim ~/."><meta name="twitter:card" content="summary_large_image">
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts ."><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/mac_terminal/Mojave-desktop.jpg' />
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -83,7 +87,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -126,8 +130,28 @@ if (!doNotTrack) {
         <a href="/p/mac_terminal/">MacOS终端美化指北</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 06, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -135,14 +159,33 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Jan 06, 2021</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
     <p>终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。
 先看下我，还可以吧？
-<img src="https://static01.imgkr.com/temp/c0757b90608b4f89ac43921f28ecedd5.jpg" alt="1"  /></p>
+<figure 
+	>
+	<a href="https://static01.imgkr.com/temp/c0757b90608b4f89ac43921f28ecedd5.jpg" >
+		<img src="https://static01.imgkr.com/temp/c0757b90608b4f89ac43921f28ecedd5.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="1">
+	</a>
+	
+	<figcaption>1</figcaption>
+	
+</figure></p>
 <h2 id="准备工作">准备工作</h2>
 <p>先保证自己下载<code>homebrew</code>和<code>wget</code>，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。<a class="link" href="https://zhuanlan.zhihu.com/p/90508170"  target="_blank" rel="noopener"
     >下载方法</a>网上也很多的，建议先下homebrew再用它下wget。</p>
@@ -153,9 +196,9 @@ if (!doNotTrack) {
 <h2 id="zsh">zsh</h2>
 <p><code>zsh</code>是shell的一种，mac默认的shell是<code>bash</code>，一般来说我们也是用zsh比较多，因为命令更多更好用。</p>
 <h3 id="下载zsh">下载zsh</h3>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">brew install zsh
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">brew install zsh
 </code></pre></div><h3 id="切换shell为zsh">切换shell为zsh</h3>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 查看当前使用的shell</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 查看当前使用的shell</span>
 <span class="nb">echo</span> <span class="nv">$SHELL</span>
 <span class="c1"># 切换为zsh</span>
 chsh -s /bin/zsh
@@ -163,17 +206,30 @@ chsh -s /bin/zsh
 <h2 id="oh-my-zsh">oh-my-zsh</h2>
 <p><code>oh-my-zsh</code>用于美化终端，可以让你拥有很多好看的主题。</p>
 <h3 id="安装">安装</h3>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - <span class="p">|</span> sh
-</code></pre></div><pre><code>sh install.sh
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - <span class="p">|</span> sh
+</code></pre></div><pre tabindex="0"><code>sh install.sh
 </code></pre><p>运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面<br>
-<img src="https://static01.imgkr.com/temp/f72289ad7de9432aa9e9a583ac9fe56c.jpg" alt="2"  /></p>
+<figure 
+	>
+	<a href="https://static01.imgkr.com/temp/f72289ad7de9432aa9e9a583ac9fe56c.jpg" >
+		<img src="https://static01.imgkr.com/temp/f72289ad7de9432aa9e9a583ac9fe56c.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="2">
+	</a>
+	
+	<figcaption>2</figcaption>
+	
+</figure></p>
 <h2 id="更换主题">更换主题</h2>
 <p>oh-my-zsh有很多默认的主题，可以在<code>~/.zshrc</code>中修改<code>ZSH_THEME</code>来切换不同主题。
 这里我推荐<code>powerlever10k</code>，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲<code>powerlevel10k</code>的安装方法。</p>
 <h3 id="下载">下载</h3>
-<pre><code>git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+<pre tabindex="0"><code>git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 </code></pre><h3 id="安装所需字体">安装所需字体</h3>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 安装 nerd-font 字体</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 安装 nerd-font 字体</span>
 brew tap homebrew/cask-fonts
 
 <span class="c1"># 其他所需字体</span>
@@ -188,32 +244,84 @@ git clone https://github.com/powerline/fonts.git --depth<span class="o">=</span>
 <span class="nb">cd</span> ..
 rm -rf fonts
 </code></pre></div><h3 id="配置">配置</h3>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">vim ~/.zshrc
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">vim ~/.zshrc
 </code></pre></div><p>进入zsh配置文件中修改并增加</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="nv">ZSH_THEME</span> <span class="o">=</span> <span class="s2">&#34;powerlevel10k/powerlevel10k&#34;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="nv">ZSH_THEME</span> <span class="o">=</span> <span class="s2">&#34;powerlevel10k/powerlevel10k&#34;</span>
 <span class="o">[[</span> ! -f ~/.p10k.zsh <span class="o">]]</span> <span class="o">||</span> <span class="nb">source</span> ~/.p10k.zsh
 </code></pre></div><p>之后启动向导</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">p10k configure
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">p10k configure
 </code></pre></div><p>可以用下面命令查看颜色代号</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="k">for</span> i in <span class="o">{</span>0..255<span class="o">}</span><span class="p">;</span> <span class="k">do</span> print -Pn <span class="s2">&#34;%K{</span><span class="nv">$i</span><span class="s2">}  %k%F{</span><span class="nv">$i</span><span class="s2">}</span><span class="si">${</span><span class="p">(l:</span><span class="nv">3</span><span class="p">::</span><span class="nv">0</span><span class="p">:)i</span><span class="si">}</span><span class="s2">%f &#34;</span> <span class="si">${${</span><span class="p">(M)</span><span class="k">$((</span>i%6<span class="k">))</span><span class="p">:#3</span><span class="si">}</span><span class="p">:+</span><span class="s1">$&#39;\n&#39;</span><span class="si">}</span><span class="p">;</span> <span class="k">done</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="k">for</span> i in <span class="o">{</span>0..255<span class="o">}</span><span class="p">;</span> <span class="k">do</span> print -Pn <span class="s2">&#34;%K{</span><span class="nv">$i</span><span class="s2">}  %k%F{</span><span class="nv">$i</span><span class="s2">}</span><span class="si">${</span><span class="p">(l:</span><span class="nv">3</span><span class="p">::</span><span class="nv">0</span><span class="p">:)i</span><span class="si">}</span><span class="s2">%f &#34;</span> <span class="si">${${</span><span class="p">(M)</span><span class="k">$((</span>i%6<span class="k">))</span><span class="p">:#3</span><span class="si">}</span><span class="p">:+</span><span class="s1">$&#39;\n&#39;</span><span class="si">}</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div><p>接下来需要下载一些必要的字体或样式，在此之前需要先改host以正常下载
 下载软件<a class="link" href="https://oldj.github.io/SwitchHosts/"  target="_blank" rel="noopener"
     >SwitchHosts!</a>
 之后如图加上</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">199.232.68.133 raw.githubusercontent.com
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">199.232.68.133 raw.githubusercontent.com
 199.232.68.133 user-images.githubusercontent.com
 199.232.68.133 avatars2.githubusercontent.com
 199.232.68.133 avatars1.githubusercontent.com
-</code></pre></div><p><img src="https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg" alt="3"  /><br>
+</code></pre></div><p><figure 
+	>
+	<a href="https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg" >
+		<img src="https://static01.imgkr.com/temp/6e6268a51173424385b94999d2ce0d89.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="3">
+	</a>
+	
+	<figcaption>3</figcaption>
+	
+</figure><br>
 开启<code>My hosts</code>后重启终端，就会自动提示下载所需字体，耐心等待它下载完（有点慢）后，就可以根据引导一步步自定义属于自己的主题了！从图标到字体颜色风格到显示信息都可以自定义！</p>
 <h2 id="背景透明毛玻璃">背景透明+毛玻璃</h2>
 <p>打开iTerm2的偏好设置按下图即可调节背景透明和毛玻璃，下面还可以设置默认窗口大小。<br>
-<img src="https://static01.imgkr.com/temp/4499e7e7658a44b1bbe30990cd612e5b.jpg" alt="4"  /></p>
+<figure 
+	>
+	<a href="https://static01.imgkr.com/temp/4499e7e7658a44b1bbe30990cd612e5b.jpg" >
+		<img src="https://static01.imgkr.com/temp/4499e7e7658a44b1bbe30990cd612e5b.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="4">
+	</a>
+	
+	<figcaption>4</figcaption>
+	
+</figure></p>
 <h2 id="快捷键唤醒">快捷键唤醒</h2>
 <p>如何让切出终端更快捷？可以设置<code>Hotkey</code>
 按下图操作<br>
-<img src="https://static01.imgkr.com/temp/25d34480ffb441d68d227195a335d59f.jpg" alt="5"  />
-<img src="https://static01.imgkr.com/temp/ce75a9da5d4a4c369990af537139598e.jpg" alt="6"  /></p>
+<figure 
+	>
+	<a href="https://static01.imgkr.com/temp/25d34480ffb441d68d227195a335d59f.jpg" >
+		<img src="https://static01.imgkr.com/temp/25d34480ffb441d68d227195a335d59f.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="5">
+	</a>
+	
+	<figcaption>5</figcaption>
+	
+</figure>
+<figure 
+	>
+	<a href="https://static01.imgkr.com/temp/ce75a9da5d4a4c369990af537139598e.jpg" >
+		<img src="https://static01.imgkr.com/temp/ce75a9da5d4a4c369990af537139598e.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="6">
+	</a>
+	
+	<figcaption>6</figcaption>
+	
+</figure></p>
 <h2 id="尾声">尾声</h2>
 <p>至此，一个好用又好看的mac终端基本配置完毕啦<br>
 其他有趣的可以看下<a class="link" href="https://sspai.com/post/59666"  target="_blank" rel="noopener"
@@ -245,6 +353,7 @@ rm -rf fonts
     </section>
     </footer>
 
+
     
 </article>
 
@@ -261,7 +370,7 @@ rm -rf fonts
         
         
             <div class="article-image">
-                <img src="/p/alfred_iterm/ssh.3ce5409a5975ec3894f1a84f91e3282e_hu16ae618dcf0f79ca9c769a7fb0762a5e_66847_250x150_fill_box_smart1_2.png" 
+                <img src="/p/alfred_iterm/ssh.3ce5409a5975ec3894f1a84f91e3282e_hu16ae618dcf0f79ca9c769a7fb0762a5e_66847_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -283,7 +392,7 @@ rm -rf fonts
         
         
             <div class="article-image">
-                <img src="/p/compile_jdk/cover.3839d0283560f656bf4a64287993b5ec_hucf54841c06fdf75c53fe986b35c09dc3_55691_250x150_fill_box_smart1_2.png" 
+                <img src="/p/compile_jdk/cover.3839d0283560f656bf4a64287993b5ec_hucf54841c06fdf75c53fe986b35c09dc3_55691_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -305,7 +414,7 @@ rm -rf fonts
         
         
             <div class="article-image">
-                <img src="/p/vim/vim.0882332af3fa94ead27d5a8d66d4e63b_hu721b1231aff42422e86b1dd0b5ea6e91_94583_250x150_fill_box_smart1_2.png" 
+                <img src="/p/vim/vim.0882332af3fa94ead27d5a8d66d4e63b_hu721b1231aff42422e86b1dd0b5ea6e91_94583_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -327,7 +436,7 @@ rm -rf fonts
         
         
             <div class="article-image">
-                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.c21ba899c77312de9895762f5d2f27b8_hu8b6407a07803ab5ecf8133363f04b00e_28892_250x150_fill_box_smart1_2.png" 
+                <img src="/p/%E4%BD%BF%E7%94%A8hugo-github/gitee%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hugo.c21ba899c77312de9895762f5d2f27b8_hu8b6407a07803ab5ecf8133363f04b00e_28892_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -349,7 +458,7 @@ rm -rf fonts
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -405,10 +514,13 @@ rm -rf fonts
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

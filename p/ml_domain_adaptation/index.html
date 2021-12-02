@@ -78,16 +78,14 @@ Faster-RCNN由下面几部分组成：
   然后把经过RPN输出的rois映射到ROIpooling的feature map上进行bbox回归和分类。">
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -124,7 +122,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -155,8 +153,28 @@ if (!doNotTrack) {
         <a href="/p/ml_domain_adaptation/">[机器学习论文]Domain Adaptive Faster R-CNN for Object Detection in the Wild</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 22, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -164,8 +182,14 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Nov 22, 2020</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
@@ -192,26 +216,40 @@ if (!doNotTrack) {
 <p>在机器学习中，我们常常需要用一个分布Q去逼近一个目标分布P，我们希望能够找到一个目标函数D ( Q , P ) D( Q,P)<em>D</em>(<em>Q</em>,<em>P</em>)，计算Q到P的距离。而这一个目标函数，正是Divergence(散度)，比如常见的KL-Divergence，JS-Divergence等等。通过这个散度的计算我们就能不断地去优化我们的Q，寻找一个最优的参数去逼近真实的分布P。</p>
 <h3 id="faster-r-cnn">Faster R-CNN</h3>
 <p>Faster R-CNN是何凯明等大神在2015年提出目标检测算法，该算法在2015年的ILSVRV和COCO竞赛中获得多项第一。该算法在Fast R-CNN基础上提出了RPN候选框生成算法，使得目标检测速度大大提高。</p>
-<p><figure style="flex-grow: 105; flex-basis: 252px">
-		<a href="/p/ml_domain_adaptation/1.png" data-size="487x462"><img src="/p/ml_domain_adaptation/1.png"
-				srcset="/p/ml_domain_adaptation/1_hu33a443bcffd997b11ce9d834be4f9687_44898_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/1_hu33a443bcffd997b11ce9d834be4f9687_44898_1024x0_resize_box_2.png 1024w"
-				width="487"
-				height="462"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
-<p><figure style="flex-grow: 204; flex-basis: 491px">
-		<a href="/p/ml_domain_adaptation/2.png" data-size="971x474"><img src="/p/ml_domain_adaptation/2.png"
-				srcset="/p/ml_domain_adaptation/2_hu1a52a0641a479d2424bf5b4475087417_257767_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/2_hu1a52a0641a479d2424bf5b4475087417_257767_1024x0_resize_box_2.png 1024w"
-				width="971"
-				height="474"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 105; 
+			flex-basis: 252px"
+	>
+	<a href="/p/ml_domain_adaptation/1.png" data-size="487x462">
+		<img src="/p/ml_domain_adaptation/1.png"
+			width="487"
+			height="462"
+			srcset="/p/ml_domain_adaptation/1_hu33a443bcffd997b11ce9d834be4f9687_44898_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/1_hu33a443bcffd997b11ce9d834be4f9687_44898_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 204; 
+			flex-basis: 491px"
+	>
+	<a href="/p/ml_domain_adaptation/2.png" data-size="971x474">
+		<img src="/p/ml_domain_adaptation/2.png"
+			width="971"
+			height="474"
+			srcset="/p/ml_domain_adaptation/2_hu1a52a0641a479d2424bf5b4475087417_257767_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/2_hu1a52a0641a479d2424bf5b4475087417_257767_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p><strong>Faster-RCNN由下面几部分组成：</strong></p>
 <ol>
 <li>
@@ -233,16 +271,23 @@ if (!doNotTrack) {
 <h3 id="梯度下降--gradient-descent">梯度下降  gradient descent</h3>
 <p>在机器学习算法中，在最小化损失函数时，可以通过梯度下降法来一步步的迭代求解，得到最小化的损失函数，和模型参数值。</p>
 <p>梯度下降在机器学习中应用十分的广泛，不论是在线性回归还是Logistic回归中，它的主要目的是通过迭代找到目标函数的最小值，或者收敛到最小值。</p>
-<p><figure style="flex-grow: 200; flex-basis: 480px">
-		<a href="/p/ml_domain_adaptation/3.png" data-size="709x354"><img src="/p/ml_domain_adaptation/3.png"
-				srcset="/p/ml_domain_adaptation/3_hu081a3a22a727a44532d2575115c871b3_94091_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/3_hu081a3a22a727a44532d2575115c871b3_94091_1024x0_resize_box_2.png 1024w"
-				width="709"
-				height="354"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 200; 
+			flex-basis: 480px"
+	>
+	<a href="/p/ml_domain_adaptation/3.png" data-size="709x354">
+		<img src="/p/ml_domain_adaptation/3.png"
+			width="709"
+			height="354"
+			srcset="/p/ml_domain_adaptation/3_hu081a3a22a727a44532d2575115c871b3_94091_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/3_hu081a3a22a727a44532d2575115c871b3_94091_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="基本思路">基本思路</h2>
 <p>论文中为了解决域偏移问题，在Faster R-CNN模型中加入了图像级和实例级的两个域适应组件，从而来最小化两个域之间的h散度。在每个组件中，训练一个领域分类器，并使用对抗性训练策略来学习领域不变量的鲁棒特征。并且进一步整合不同层次的域分类器之间的一致性规则，在Faster R-CNN模型中学习一个域不变区域建议网络(RPN)。</p>
 <h2 id="研究成果">研究成果</h2>
@@ -270,70 +315,105 @@ if (!doNotTrack) {
 <li>由于使用了高分辨率的输入，对于训练一个目标检测网络来说，批处理的大小通常非常小。这种基于块的设计有助于增加训练领域分类器的训练样本的数量。</li>
 </ol>
 <p>用Di表示第i个训练图像的定义域标签，源域的Di= 0，目标域的Di= 1。将经过基卷积层后的第i幅图像的feature map位于(u,  v)处的激活表示为φu,v(Ii)。将域分类器的输出表示为pi(u,v)，利用交叉熵损失，图像级自适应损失可表示为:</p>
-<p><figure style="flex-grow: 714; flex-basis: 1714px">
-		<a href="/p/ml_domain_adaptation/4.png" data-size="543x76"><img src="/p/ml_domain_adaptation/4.png"
-				srcset="/p/ml_domain_adaptation/4_hu4613d02ef3c66758f779ea2f362b3860_6628_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/4_hu4613d02ef3c66758f779ea2f362b3860_6628_1024x0_resize_box_2.png 1024w"
-				width="543"
-				height="76"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 714; 
+			flex-basis: 1714px"
+	>
+	<a href="/p/ml_domain_adaptation/4.png" data-size="543x76">
+		<img src="/p/ml_domain_adaptation/4.png"
+			width="543"
+			height="76"
+			srcset="/p/ml_domain_adaptation/4_hu4613d02ef3c66758f779ea2f362b3860_6628_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/4_hu4613d02ef3c66758f779ea2f362b3860_6628_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h3 id="实例级适应--instance-level-adaptation">实例级适应  Instance-Level Adaptation</h3>
 <p>实例级表示是指在输入到最终的类别分类器之前基于ROI的特征向量</p>
 <p>对齐实例级表示有助于减少本地实例差异，如对象外观、大小、视点等。与图像级自适应相似，研究者训练了一个针对特征向量的领域分类器来对齐实例级分布。</p>
 <p>将第i幅图像中第j个区域建议的实例级域分类器的输出表示为pi,j。实例级适应损失现在可以写成:</p>
-<p><figure style="flex-grow: 649; flex-basis: 1558px">
-		<a href="/p/ml_domain_adaptation/5.png" data-size="500x77"><img src="/p/ml_domain_adaptation/5.png"
-				srcset="/p/ml_domain_adaptation/5_hud7a7df2f1f78306e9a2374a6a4afcd3f_5841_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/5_hud7a7df2f1f78306e9a2374a6a4afcd3f_5841_1024x0_resize_box_2.png 1024w"
-				width="500"
-				height="77"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 649; 
+			flex-basis: 1558px"
+	>
+	<a href="/p/ml_domain_adaptation/5.png" data-size="500x77">
+		<img src="/p/ml_domain_adaptation/5.png"
+			width="500"
+			height="77"
+			srcset="/p/ml_domain_adaptation/5_hud7a7df2f1f78306e9a2374a6a4afcd3f_5841_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/5_hud7a7df2f1f78306e9a2374a6a4afcd3f_5841_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h3 id="一致性正规化--consistency-regularization">一致性正规化  Consistency Regularization</h3>
 <p>加强不同层次的域分类器之间的一致性有助于学习边界盒预测器(即Faster R-CNN模型中的RPN)的跨域鲁棒性。因此，研究者进一步设置了一个一致性规则。由于图像级域分类器会为图像级表示的每次激活生成一个输出，因此取图像中所有激活的平均值作为其图像级概率。一致性调节器可以写成:</p>
-<p><figure style="flex-grow: 436; flex-basis: 1047px">
-		<a href="/p/ml_domain_adaptation/7.png" data-size="349x80"><img src="/p/ml_domain_adaptation/7.png"
-				srcset="/p/ml_domain_adaptation/7_hu1b1d63d3bd8eaa863a9f8f314ffb8b72_4910_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/7_hu1b1d63d3bd8eaa863a9f8f314ffb8b72_4910_1024x0_resize_box_2.png 1024w"
-				width="349"
-				height="80"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 436; 
+			flex-basis: 1047px"
+	>
+	<a href="/p/ml_domain_adaptation/7.png" data-size="349x80">
+		<img src="/p/ml_domain_adaptation/7.png"
+			width="349"
+			height="80"
+			srcset="/p/ml_domain_adaptation/7_hu1b1d63d3bd8eaa863a9f8f314ffb8b72_4910_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/7_hu1b1d63d3bd8eaa863a9f8f314ffb8b72_4910_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="网络概述">网络概述</h2>
 <p><strong>Faster R-CNN与2个组件之间的整合关系如下图：</strong></p>
-<p><figure style="flex-grow: 314; flex-basis: 754px">
-		<a href="/p/ml_domain_adaptation/6.png" data-size="1091x347"><img src="/p/ml_domain_adaptation/6.png"
-				srcset="/p/ml_domain_adaptation/6_hubebef51bf1a27fa9831be48f477f416e_89742_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/6_hubebef51bf1a27fa9831be48f477f416e_89742_1024x0_resize_box_2.png 1024w"
-				width="1091"
-				height="347"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 314; 
+			flex-basis: 754px"
+	>
+	<a href="/p/ml_domain_adaptation/6.png" data-size="1091x347">
+		<img src="/p/ml_domain_adaptation/6.png"
+			width="1091"
+			height="347"
+			srcset="/p/ml_domain_adaptation/6_hubebef51bf1a27fa9831be48f477f416e_89742_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/6_hubebef51bf1a27fa9831be48f477f416e_89742_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>在每一层上构建一个领域分类器，以一种对抗性的训练方式进行训练。在这两个分类器中加入了一致性规则器，以学习用于Faster R-CNN模型的领域不变RPN。</p>
 <p>左边部分是原始的Faster R-CNN模型。底层的卷积层在所有组件之间共享。然后在其上构建RPN和ROI池化层，然后构建两个完全连接的层来提取实例级特征。</p>
 <h2 id="从合成数据中学习">从合成数据中学习</h2>
 <p>随着计算机图形技术的发展，利用合成数据训练CNN变得越来越流行。尽管如此，合成的数据与真实世界的图像仍然有明显的视觉差异，并且通常与在真实数据上训练的模型存在性能差距。研究者用不同于真实世界的合成数据进行试验。</p>
 <p>数据集:是SIM 10k由10000张由侠盗猎车手(GTA5)渲染的图像组成，在SIM 10k中，10000张训练图像中提供了58,701辆车的包围框。所有的图像都在训练中使用。Cityscapes数据集是一个城市场景数据集为驾驶场景。这些图像是由车载摄像机拍摄的。2975图像训练集,500图像验证集。使用的标记图像训练集作为目标域适应我们的检测器, 并报告结果验证集。</p>
 <p><strong>结果</strong>：不同方法的结果如下表所示。具体来说，与Faster R-CNN相比，仅使用图像级自适应组件获得+2.9%的性能提升，而仅使用实例级对齐组件获得+5.6%的性能提升。这表明，图像级适应和实例级适应组件可以有效地减少各层次上的域漂移。将这两个部分结合在一起可以得到7.7%的改进，这验证了关于减少两层域移位的必要性的猜想。通过进一步应用一致性正则化，域自适应Faster R-CNN模型将更快的R-CNN模型提高了+8.8%。</p>
-<p><figure style="flex-grow: 231; flex-basis: 556px">
-		<a href="/p/ml_domain_adaptation/8.png" data-size="450x194"><img src="/p/ml_domain_adaptation/8.png"
-				srcset="/p/ml_domain_adaptation/8_hufda95fe315aa74ef2284fe5c58365f7e_14131_480x0_resize_box_2.png 480w, /p/ml_domain_adaptation/8_hufda95fe315aa74ef2284fe5c58365f7e_14131_1024x0_resize_box_2.png 1024w"
-				width="450"
-				height="194"
-				loading="lazy"
-				>
-		</a>
-		
-	</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 231; 
+			flex-basis: 556px"
+	>
+	<a href="/p/ml_domain_adaptation/8.png" data-size="450x194">
+		<img src="/p/ml_domain_adaptation/8.png"
+			width="450"
+			height="194"
+			srcset="/p/ml_domain_adaptation/8_hufda95fe315aa74ef2284fe5c58365f7e_14131_480x0_resize_box_3.png 480w, /p/ml_domain_adaptation/8_hufda95fe315aa74ef2284fe5c58365f7e_14131_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h2 id="其它">其它</h2>
 <p>为了验证模型的效果，研究者还通过恶劣天气中收集的图像数据、不同摄像机拍摄出来的图像数据对算法进行测试，结果都显示出不错的结果</p>
 <p>还进一步分析了图像级和实例级适应的影响，做了有关于图像级和实例级对齐的实验，验证了模型可以从更高分辨率的图像输入中获得更好的性能结果。实验结论是从200像素增加到1000像素。</p>
@@ -365,6 +445,7 @@ if (!doNotTrack) {
     </section>
     </footer>
 
+
     
 </article>
 
@@ -374,7 +455,7 @@ if (!doNotTrack) {
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -430,10 +511,13 @@ if (!doNotTrack) {
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

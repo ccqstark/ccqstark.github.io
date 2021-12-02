@@ -24,16 +24,14 @@ package com.ccqstark.springbootquick.pojo; import lombok.AllArgsConstructor; imp
 package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**">
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -70,7 +68,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -101,8 +99,28 @@ if (!doNotTrack) {
         <a href="/p/springboot_mybatis/">[SpringBoot]整合Mybatis</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 17, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -110,27 +128,33 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Oct 17, 2020</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
     <p>以我的项目目录结构为例: <code>com.ccqstark.springbootquick</code></p>
 <h3 id="导入依赖">导入依赖</h3>
-<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="c">&lt;!-- springboot的mybatis --&gt;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="c">&lt;!-- springboot的mybatis --&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.mybatis.spring.boot<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>mybatis-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
     <span class="nt">&lt;version&gt;</span>2.1.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div><h3 id="配置">配置</h3>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c">#整合mybatis</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c">#整合mybatis</span><span class="w">
 </span><span class="w"></span><span class="nt">mybatis</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">type-aliases-package</span><span class="p">:</span><span class="w"> </span><span class="l">com.ccqstark.springbootquick.pojo</span><span class="w">
 </span><span class="w">  </span><span class="nt">mapper-locations</span><span class="p">:</span><span class="w"> </span><span class="l">classpath:mybatis/mapper/*.xml</span><span class="w">
 </span></code></pre></div><h3 id="编写pojo用了lombok">编写POJO(用了Lombok)</h3>
 <p>在com.ccqstark.springbootquick下新建目录pojo，然后新建类User.java，用于存储数据的对象（与数据库中的表对应）</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.pojo</span><span class="o">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.pojo</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">lombok.AllArgsConstructor</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">lombok.Data</span><span class="o">;</span>
@@ -147,7 +171,7 @@ if (!doNotTrack) {
 <span class="o">}</span>
 </code></pre></div><h3 id="编写mapper">编写Mapper</h3>
 <p>在com.ccqstark.springbootquick下新建目录mapper，然后新建UserMapper.java，用于写接口，CRUD函数</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.mapper</span><span class="o">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kn">package</span> <span class="nn">com.ccqstark.springbootquick.mapper</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">com.ccqstark.springbootquick.pojo.User</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">org.apache.ibatis.annotations.Mapper</span><span class="o">;</span>
@@ -172,7 +196,7 @@ if (!doNotTrack) {
 <span class="o">}</span>
 
 </code></pre></div><p>如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@SpringBootApplication</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nd">@SpringBootApplication</span>
 <span class="c1">// 也可以用着方式扫描，就不用一个个写@Mapper了
 </span><span class="c1"></span><span class="nd">@MapperScan</span><span class="o">(</span><span class="s">&#34;com.ccqstark.springbootquick.mapper&#34;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">SpringbootQuickApplication</span> <span class="o">{</span>
@@ -184,7 +208,7 @@ if (!doNotTrack) {
 <span class="o">}</span>
 </code></pre></div><h3 id="在xml里编写sql语句">在XML里编写SQL语句</h3>
 <p>在resources目录下新建mybatis/mapper目录，再在下面新建xml文件，如这里的UserMapper.xml，在里面记得配好<strong>namespace</strong>，然后就可以写自定义SQL语句啦</p>
-<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; ?&gt;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; ?&gt;</span>
 <span class="cp">&lt;!DOCTYPE mapper
 </span><span class="cp">        PUBLIC &#34;-//mybatis.org//DTD Mapper 3.0//EN&#34;
 </span><span class="cp">        &#34;http://mybatis.org/dtd/mybatis-3-mapper.dtd&#34;&gt;</span>
@@ -216,7 +240,7 @@ if (!doNotTrack) {
 <span class="nt">&lt;/mapper&gt;</span>
 </code></pre></div><h3 id="调用来进行crud">调用来进行CRUD</h3>
 <p>在Controller或者Service里调用Mybatis进行CRUD，先@Autowired注入一个Mapper，然后利用这个接口类型指向的对象就可以调用接口里面的方法了。这些方法对应的sql语句操作就是在xml中定义的。</p>
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
 <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/mybatis&#34;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserController</span> <span class="o">{</span>
 
@@ -278,6 +302,7 @@ if (!doNotTrack) {
     </section>
     </footer>
 
+
     
 </article>
 
@@ -306,7 +331,7 @@ if (!doNotTrack) {
         
         
             <div class="article-image">
-                <img src="/p/springboot_es/springboot-es.68bd173d94a8eaf642b2ac727cbde179_hu5dbd9828aef42d61c56fd952a73b2be9_64126_250x150_fill_box_smart1_2.png" 
+                <img src="/p/springboot_es/springboot-es.68bd173d94a8eaf642b2ac727cbde179_hu5dbd9828aef42d61c56fd952a73b2be9_64126_250x150_fill_box_smart1_3.png" 
                         width="250" 
                         height="150" 
                         loading="lazy" 
@@ -364,7 +389,7 @@ if (!doNotTrack) {
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -420,10 +445,13 @@ if (!doNotTrack) {
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

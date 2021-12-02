@@ -75,16 +75,14 @@ vim /usr/local/secure_ssh.sh 然后编写脚本
 #! /bin/bash cat /var/log/secure|awk &amp;#39;/Failed/{print $(NF-3)}&amp;#39;|sort|uniq -c|awk &amp;#39;{print $2&amp;#34;=&amp;#34;$1;}&amp;#39; &amp;gt; /usr/local/bin/black.txt for i in `cat /usr/local/bin/black.txt` do IP=`echo $i |awk -F= &amp;#39;{print $1}&amp;#39;` NUM=`echo $i|awk -F= &amp;#39;{print $2}&amp;#39;` result=$(cat /etc/hosts.">
     <link rel="shortcut icon" href="/icon.ico" />
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-PXLPFFZ3XD', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
 }
 </script>
 <a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
@@ -121,7 +119,7 @@ if (!doNotTrack) {
 ">
     
         <div id="article-toolbar">
-            <a href="https://ccqstark.github.io/" class="back-home">
+            <a href="/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />
@@ -152,8 +150,28 @@ if (!doNotTrack) {
         <a href="/p/first_attack/">记一次服务器被攻击</a>
     </h2>
 
+    
+
+    
     <footer class="article-time">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 22, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="12" cy="12" r="9" />
   <polyline points="12 7 12 12 15 15" />
@@ -161,8 +179,14 @@ if (!doNotTrack) {
 
 
 
-        <time class="article-time--published">Nov 22, 2020</time>
-    </footer></div>
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
 </header>
 
     <section class="article-content">
@@ -182,19 +206,19 @@ if (!doNotTrack) {
 <h3 id="查看系统状态命令">查看系统状态命令</h3>
 <p>下面有些命令工具需要额外安装的，直接<code>yum install xxx</code>安装就行</p>
 <h4 id="查看服务器安全日志动态实时centos">查看服务器安全日志(动态实时)(CentOS)</h4>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">tail -f /var/log/secure
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">tail -f /var/log/secure
 </code></pre></div><h4 id="查看cpu等的使用情况按进程">查看CPU等的使用情况(按进程)</h4>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">top
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">top
 </code></pre></div><h4 id="查看内存使用情况">查看内存使用情况</h4>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">free -h
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">free -h
 </code></pre></div><h4 id="查看磁盘使用情况">查看磁盘使用情况</h4>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">df -hl
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">df -hl
 </code></pre></div><h4 id="查看网络带宽占用按ip">查看网络带宽占用(按ip)</h4>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">iftop -i eth0
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">iftop -i eth0
 jnettop
 </code></pre></div><p>按Q退出</p>
 <h4 id="查看网络带宽占用按进程">查看网络带宽占用(按进程)</h4>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">nethogs
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">nethogs
 </code></pre></div><p>还有防火墙工具<strong>iptables</strong>和<strong>firewall-cmd</strong></p>
 <p><a class="link" href="https://wangchujiang.com/linux-command/c/iptables.html"  target="_blank" rel="noopener"
     >https://wangchujiang.com/linux-command/c/iptables.html</a></p>
@@ -203,9 +227,9 @@ jnettop
 <h3 id="编写自动化脚本封禁暴力破解登录的ip">编写自动化脚本封禁暴力破解登录的ip</h3>
 <p>从安全日志中读取记录，把那些多次登录失败的ip写进请求黑名单中（hosts.deny），但是这种办法只是拒绝连接，如果黑客继续攻击还是会占用带宽</p>
 <p>先找个目录，vim建立一个脚本文件</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">vim /usr/local/secure_ssh.sh
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">vim /usr/local/secure_ssh.sh
 </code></pre></div><p>然后编写脚本</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="cp">#! /bin/bash
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="cp">#! /bin/bash
 </span><span class="cp"></span>cat /var/log/secure<span class="p">|</span>awk <span class="s1">&#39;/Failed/{print $(NF-3)}&#39;</span><span class="p">|</span>sort<span class="p">|</span>uniq -c<span class="p">|</span>awk <span class="s1">&#39;{print $2&#34;=&#34;$1;}&#39;</span> &gt; /usr/local/bin/black.txt
 <span class="k">for</span> i in <span class="sb">`</span>cat  /usr/local/bin/black.txt<span class="sb">`</span>
 <span class="k">do</span>
@@ -219,7 +243,7 @@ jnettop
         <span class="k">fi</span>
 <span class="k">done</span>
 </code></pre></div><p>设置定时任务</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1">#首先打开定时任务列表</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1">#首先打开定时任务列表</span>
 crontab -e
 
 <span class="c1">#添加下面这行，表示每十分钟</span>
@@ -230,15 +254,15 @@ service crond restart
 </code></pre></div><h3 id="修改sshd的22端口">修改sshd的22端口</h3>
 <p>这个方法可以完全把对22端口的攻击直接拒之门外，安全日志都没记录破解登录事件，带宽也不会影响，但操作过程要小心一点点</p>
 <p>修改sshd配置文件</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">vim /etc/ssh/sshd_config
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">vim /etc/ssh/sshd_config
 
 <span class="c1">#Port 22     //这行去掉#号，然后在下面增加自己要新开的端口，保证新端口能用再去掉这行</span>
 </code></pre></div><p>下面新增端口</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">Port xxxxx
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">Port xxxxx
 </code></pre></div><p>防火墙开启对应端口，安全组也记得开，或者先把防火墙关了，之后试了新端口能用再开</p>
-<pre><code>firewall-cmd --zone=public --add-port=xxxxx/tcp --permanent
+<pre tabindex="0"><code>firewall-cmd --zone=public --add-port=xxxxx/tcp --permanent
 </code></pre><p>重启sshd</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">/etc/init.d/sshd restart
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">/etc/init.d/sshd restart
 <span class="c1">#或者</span>
 service sshd restart 
 </code></pre></div><p>然后重新连服务器终端试试，没问题之后可以把22直接禁掉，防火墙和安全组也封了22，对新端口放行就行</p>
@@ -275,6 +299,7 @@ service sshd restart
     </section>
     </footer>
 
+
     
 </article>
 
@@ -284,7 +309,7 @@ service sshd restart
 </aside>
 
      
-     
+    
         
     <div class="disqus-container">
     <div id="disqus_thread"></div>
@@ -340,10 +365,13 @@ service sshd restart
     </section>
     
     <section class="powerby">
+        
+            一辈子热爱技术 <br/>
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
+
 
     
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

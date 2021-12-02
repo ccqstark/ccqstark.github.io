@@ -39,6 +39,7 @@ Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt
 可以用于修饰方法，属性，类，表示不鼓励程序猿使用，但是还是可以使用的，只是使用它可能有危险或者存在更好的选择。
 @SuppressWarnings
 用来抑制编译时的警告信息，需要添加一个参数
+ 
 元注解 @Target
 用于描述注解的使用范围
 @Target(value = {ElementType.METHOD, ElementType.TYPE}) @Retention
