@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>网络 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/%E7%BD%91%E7%BB%9C/</link>
+    <description>Recent content in 网络 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 02 Dec 2021 18:31:11 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/%E7%BD%91%E7%BB%9C/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>关于CORS的Access-Control-Allow-Credentials设置问题</title>
+      <link>https://ccqstark.github.io/p/cors_credentials/</link>
+      <pubDate>Thu, 02 Dec 2021 18:31:11 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/cors_credentials/</guid>
+      <description>前言 众所周知，跨域设置CORS的话我们需要设置Access-Control-Allow-Origin、Access-Control-Allow-Methods 等header，但是我们的Access-Control-Allow-Origin 只能设置为三种情况：
+ 星号 * 单域名 none  同时还有一个限制就是设置为星号的时候，Access-Control-Allow-Credentials 不能设置为true，下面来自MDN：
+ 对于附带身份凭证的请求，服务器不得设置 Access-Control-Allow-Origin 的值为“*”。这是因为请求的首部中携带了 Cookie 信息，如果 Access-Control-Allow-Origin 的值为“*”，请求将会失败。
+ 而Access-Control-Allow-Credentials 则一般是服务器用来设置是否允许前端携带Cookies的标志位，withCredentials 是前端用来表示是否给服务器发请求的时候带上Cookies的标志位：
+ 将 [XMLHttpRequest](https://developer.mozilla.org/en-US/DOM/XMLHttpRequest)的 withCredentials 标志设置为 true，从而向服务器发送 Cookies。因为这是一个简单 GET 请求，所以浏览器不会对其发起“预检请求”。但是，如果服务器端的响应中未携带 Access-Control-Allow-Credentials: true ，浏览器将不会把响应内容返回给请求的发送者。
+ 基于以上的规则，如果我们需要发Cookies的话，前端withCredentials 和后端的Access-Control-Allow-Credentials 都要设置为true，同时Access-Control-Allow-Origin 不能设置为星号，只能设置为单域名。
+问题 但是在我看一个开源项目源码的时候，看到它CORS的地方：
+@Override public void addCorsMappings(CorsRegistry registry) { registry.addMapping(&amp;#34;/**&amp;#34;).allowedOrigins(&amp;#34;*&amp;#34;) .allowedMethods(&amp;#34;GET&amp;#34;, &amp;#34;HEAD&amp;#34;, &amp;#34;POST&amp;#34;, &amp;#34;PUT&amp;#34;, &amp;#34;DELETE&amp;#34;, &amp;#34;OPTIONS&amp;#34;) .allowCredentials(true).maxAge(3600); } 出现了疑惑，为什么它同时设为星号同时设置了true但是仍然请求正常呢？
+打开了F12看响应的header，发现Access-Control-Allow-Origin 是前端的地址，不是设置了星号吗，怎么变成单origin了？然后把allowCredentials方法里传个false，发现请求就异常了，开始搞不懂了，因为这个项目其实也没有用到cookies呀，只用了token，token也是放在header里的。
+探究 然后只能猜测是Spring MVC帮我们做了这一切，就去扒源码了，果然扒到了！
+在org.springframework.web.cors 下的CorsConfiguration 类，有这么一个checkOrigin方法：
+@Nullable public String checkOrigin(@Nullable String requestOrigin) { if (!</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -3,21 +3,30 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://ccqstark.github.io/categories/</loc>
-    <lastmod>2021-08-30T12:34:20+08:00</lastmod>
+    <lastmod>2021-12-02T18:31:11+08:00</lastmod>
   </url><url>
     <loc>https://ccqstark.github.io/</loc>
-    <lastmod>2021-08-30T12:34:20+08:00</lastmod>
+    <lastmod>2021-12-02T18:31:11+08:00</lastmod>
+  </url><url>
+    <loc>https://ccqstark.github.io/post/</loc>
+    <lastmod>2021-12-02T18:31:11+08:00</lastmod>
+  </url><url>
+    <loc>https://ccqstark.github.io/tags/</loc>
+    <lastmod>2021-12-02T18:31:11+08:00</lastmod>
+  </url><url>
+    <loc>https://ccqstark.github.io/p/cors_credentials/</loc>
+    <lastmod>2021-12-02T18:31:11+08:00</lastmod>
+  </url><url>
+    <loc>https://ccqstark.github.io/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/</loc>
+    <lastmod>2021-12-02T18:31:11+08:00</lastmod>
+  </url><url>
+    <loc>https://ccqstark.github.io/tags/%E7%BD%91%E7%BB%9C/</loc>
+    <lastmod>2021-12-02T18:31:11+08:00</lastmod>
   </url><url>
     <loc>https://ccqstark.github.io/categories/javaee/</loc>
     <lastmod>2021-08-30T12:34:20+08:00</lastmod>
   </url><url>
     <loc>https://ccqstark.github.io/p/mockito/</loc>
-    <lastmod>2021-08-30T12:34:20+08:00</lastmod>
-  </url><url>
-    <loc>https://ccqstark.github.io/post/</loc>
-    <lastmod>2021-08-30T12:34:20+08:00</lastmod>
-  </url><url>
-    <loc>https://ccqstark.github.io/tags/</loc>
     <lastmod>2021-08-30T12:34:20+08:00</lastmod>
   </url><url>
     <loc>https://ccqstark.github.io/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</loc>
@@ -45,9 +54,6 @@
     <lastmod>2021-07-27T03:44:28+08:00</lastmod>
   </url><url>
     <loc>https://ccqstark.github.io/tags/jdk/</loc>
-    <lastmod>2021-07-27T03:44:28+08:00</lastmod>
-  </url><url>
-    <loc>https://ccqstark.github.io/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/</loc>
     <lastmod>2021-07-27T03:44:28+08:00</lastmod>
   </url><url>
     <loc>https://ccqstark.github.io/p/three_sum/</loc>
