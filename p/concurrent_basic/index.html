@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='什么是进程？什么是线程？ 进程是程序的一次执行过程，是系统运行程序的基本单位，进程是一个系统对一个程序从创建，运行到消亡的过程。
+在Java中，我们启动main函数就是启动了一个JVM的进程，main函数所在线程就是这个进程中的主线程。
+线程是程序的一个更小的执行单位，一个进程在执行过程中可以产生多个线程。不同在与，同类的多个线程可以共享进程的堆和方法区资源，但每个线程有自己的程序计数器、虚拟机栈和本地方法栈，系统在线程之间切换的代价要比进程小得多。
+请简要描述线程与进程的关系,区别及优缺点？ 从JVM的角度说明
+ 
+一个进程中包括多个线程，线程可以共享进程的堆和方法区，但是每个线程都有自己的虚拟机栈，本地方法栈，程序计数器
+线程是进程划分成的更小的运行单位，区别在与进程基本上是各自独立的，而同一进程的不同线程则可能会相互影响。线程开销更小，但是不利于资源的管理和保护；进程则相反。
+程序计数器为什么是私有的？ 程序计数器主要作用：
+ 字节码解释器通过改变程序计数器的位置来读取指令，从而实现代码的流程控制。如：顺序执行、选择、循环、异常处理。 多线程环境下，程序计数器用于记录当前程序的运行到的位置，当从别的线程切换回来的时候才能从上次运行到的位置继续运行。  所以程序计数器私有主要是为了线程切换回来后，能从原来停止的位置正确恢复运行。
+虚拟机栈和本地方法栈为什么是私有的?  虚拟机栈：每个Java方法在执行的同时会创建一个栈帧用于存储局部变量表、函数返回地址和参数、划定栈帧范围的ebp和esp指针等信息。一个方法从被调用到执行完成，就对应着一个栈帧在Java虚拟机中入栈和出栈的过程。 本地方法栈：和虚拟机栈作用差不多，区别在与虚拟机栈为虚拟机执行Java方法（也就是字节码）服务，而本地方法栈则为Native方法用的。在HotSpot虚拟机中两者合二为一。  所以为了保证线程中的局部变量不被别的线程访问到，虚拟机栈和本地方法栈就是线程私有的。
+简单介绍下堆和方法区 堆和方法区都是线程共享的资源。
+堆是进程中最大的一块内存，主要用于存放新创建的对象，几乎所有的对象都在这里分配内存。
+方法区主要用于存放已被加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。
+说说并发和并行的区别？  并行：在单位时间内多个任务同时进程，一般在是多核CPU上出现， 并发：在同一段时间内，多个任务由CPU切换着处理，在某一瞬间是不一定同时处理多个任务的。例外就是当我们CPU使用了因特尔的超线程技术，一个内核被虚拟成2个逻辑内核，当两个任务分别用到CPU的不同运算资源时，比如一个任务计算整数另一个计算浮点数，这个时候就又可能是真的同时进行的。  为什么要使用多线程？ 从总体上说：
+ 从计算机底层的角度，线程是轻量级的进程，是程序执行的最小单位，线程切换的开销要远小于进程的切换，另外多核CPU时代意味着多个线程可以同时运行，再次减少了开销。 从当代互联网的发展趋势角度：现在的系统基本上就动辄百万千万级的并发，多线程技术就是高并发系统的基础，可以大大提高系统整体的性能和并发能力。  从计算机底层来说：
+ 单核时代：如果我们只有一个线程，那请求进程IO就会阻塞我们整个进程，而CPU就会被闲置了，如果由多个线程，那我们可以在一个线程被IO阻塞的时候，用另一个线程继续使用CPU的运算能力，提高系统整体的资源利用效率。 多核时代：如果有多个核心，那多个线程可以映射不同核心上并行执行，在没发生资源争抢的情况下执行效率就会显著提高。  使用多线程可能会带来什么问题？  内存泄漏：ThreadLocal就可能会导致内存泄漏 死锁：两个线程互相占用对方需要的资源并互相等待其释放 线程不安全：多线程访问并修改临界资源  说说线程的生命周期和状态？    状态名称 说明     NEW 初始状态，线程被构建，但是还没有调用start()方法   RUNNABLE 运行状态，Java线程将操作系统中的就绪和运行   BLOCKED 阻塞状态，表示线程阻塞于锁   WAITING 等待状态，表示线程进入等待状态，进入该状态表示当前线程需要等待其它线程作出一些特定动作（通知或中断）   TIME_WAITING 超时等待状态，该状态不同于WAITING，它是可以在指定的时间自行返回的   TERMINATED 终止状态，表示当前线程已经执行完毕    线程随着代码的执行在不同状态之间切换，Java线程状态变迁如下所示：'><title>[并发编程]基础篇</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/concurrent_basic/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[并发编程]基础篇'>
+<meta property='og:description' content='什么是进程？什么是线程？ 进程是程序的一次执行过程，是系统运行程序的基本单位，进程是一个系统对一个程序从创建，运行到消亡的过程。
+在Java中，我们启动main函数就是启动了一个JVM的进程，main函数所在线程就是这个进程中的主线程。
+线程是程序的一个更小的执行单位，一个进程在执行过程中可以产生多个线程。不同在与，同类的多个线程可以共享进程的堆和方法区资源，但每个线程有自己的程序计数器、虚拟机栈和本地方法栈，系统在线程之间切换的代价要比进程小得多。
+请简要描述线程与进程的关系,区别及优缺点？ 从JVM的角度说明
+ 
+一个进程中包括多个线程，线程可以共享进程的堆和方法区，但是每个线程都有自己的虚拟机栈，本地方法栈，程序计数器
+线程是进程划分成的更小的运行单位，区别在与进程基本上是各自独立的，而同一进程的不同线程则可能会相互影响。线程开销更小，但是不利于资源的管理和保护；进程则相反。
+程序计数器为什么是私有的？ 程序计数器主要作用：
+ 字节码解释器通过改变程序计数器的位置来读取指令，从而实现代码的流程控制。如：顺序执行、选择、循环、异常处理。 多线程环境下，程序计数器用于记录当前程序的运行到的位置，当从别的线程切换回来的时候才能从上次运行到的位置继续运行。  所以程序计数器私有主要是为了线程切换回来后，能从原来停止的位置正确恢复运行。
+虚拟机栈和本地方法栈为什么是私有的?  虚拟机栈：每个Java方法在执行的同时会创建一个栈帧用于存储局部变量表、函数返回地址和参数、划定栈帧范围的ebp和esp指针等信息。一个方法从被调用到执行完成，就对应着一个栈帧在Java虚拟机中入栈和出栈的过程。 本地方法栈：和虚拟机栈作用差不多，区别在与虚拟机栈为虚拟机执行Java方法（也就是字节码）服务，而本地方法栈则为Native方法用的。在HotSpot虚拟机中两者合二为一。  所以为了保证线程中的局部变量不被别的线程访问到，虚拟机栈和本地方法栈就是线程私有的。
+简单介绍下堆和方法区 堆和方法区都是线程共享的资源。
+堆是进程中最大的一块内存，主要用于存放新创建的对象，几乎所有的对象都在这里分配内存。
+方法区主要用于存放已被加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。
+说说并发和并行的区别？  并行：在单位时间内多个任务同时进程，一般在是多核CPU上出现， 并发：在同一段时间内，多个任务由CPU切换着处理，在某一瞬间是不一定同时处理多个任务的。例外就是当我们CPU使用了因特尔的超线程技术，一个内核被虚拟成2个逻辑内核，当两个任务分别用到CPU的不同运算资源时，比如一个任务计算整数另一个计算浮点数，这个时候就又可能是真的同时进行的。  为什么要使用多线程？ 从总体上说：
+ 从计算机底层的角度，线程是轻量级的进程，是程序执行的最小单位，线程切换的开销要远小于进程的切换，另外多核CPU时代意味着多个线程可以同时运行，再次减少了开销。 从当代互联网的发展趋势角度：现在的系统基本上就动辄百万千万级的并发，多线程技术就是高并发系统的基础，可以大大提高系统整体的性能和并发能力。  从计算机底层来说：
+ 单核时代：如果我们只有一个线程，那请求进程IO就会阻塞我们整个进程，而CPU就会被闲置了，如果由多个线程，那我们可以在一个线程被IO阻塞的时候，用另一个线程继续使用CPU的运算能力，提高系统整体的资源利用效率。 多核时代：如果有多个核心，那多个线程可以映射不同核心上并行执行，在没发生资源争抢的情况下执行效率就会显著提高。  使用多线程可能会带来什么问题？  内存泄漏：ThreadLocal就可能会导致内存泄漏 死锁：两个线程互相占用对方需要的资源并互相等待其释放 线程不安全：多线程访问并修改临界资源  说说线程的生命周期和状态？    状态名称 说明     NEW 初始状态，线程被构建，但是还没有调用start()方法   RUNNABLE 运行状态，Java线程将操作系统中的就绪和运行   BLOCKED 阻塞状态，表示线程阻塞于锁   WAITING 等待状态，表示线程进入等待状态，进入该状态表示当前线程需要等待其它线程作出一些特定动作（通知或中断）   TIME_WAITING 超时等待状态，该状态不同于WAITING，它是可以在指定的时间自行返回的   TERMINATED 终止状态，表示当前线程已经执行完毕    线程随着代码的执行在不同状态之间切换，Java线程状态变迁如下所示：'>
+<meta property='og:url' content='https://ccqstark.github.io/p/concurrent_basic/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='并发编程' /><meta property='article:tag' content='多线程' /><meta property='article:published_time' content='2021-12-05T20:20:47&#43;08:00'/><meta property='article:modified_time' content='2021-12-05T20:20:47&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/concurrent_basic/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[并发编程]基础篇">
+<meta name="twitter:description" content="什么是进程？什么是线程？ 进程是程序的一次执行过程，是系统运行程序的基本单位，进程是一个系统对一个程序从创建，运行到消亡的过程。
+在Java中，我们启动main函数就是启动了一个JVM的进程，main函数所在线程就是这个进程中的主线程。
+线程是程序的一个更小的执行单位，一个进程在执行过程中可以产生多个线程。不同在与，同类的多个线程可以共享进程的堆和方法区资源，但每个线程有自己的程序计数器、虚拟机栈和本地方法栈，系统在线程之间切换的代价要比进程小得多。
+请简要描述线程与进程的关系,区别及优缺点？ 从JVM的角度说明
+ 
+一个进程中包括多个线程，线程可以共享进程的堆和方法区，但是每个线程都有自己的虚拟机栈，本地方法栈，程序计数器
+线程是进程划分成的更小的运行单位，区别在与进程基本上是各自独立的，而同一进程的不同线程则可能会相互影响。线程开销更小，但是不利于资源的管理和保护；进程则相反。
+程序计数器为什么是私有的？ 程序计数器主要作用：
+ 字节码解释器通过改变程序计数器的位置来读取指令，从而实现代码的流程控制。如：顺序执行、选择、循环、异常处理。 多线程环境下，程序计数器用于记录当前程序的运行到的位置，当从别的线程切换回来的时候才能从上次运行到的位置继续运行。  所以程序计数器私有主要是为了线程切换回来后，能从原来停止的位置正确恢复运行。
+虚拟机栈和本地方法栈为什么是私有的?  虚拟机栈：每个Java方法在执行的同时会创建一个栈帧用于存储局部变量表、函数返回地址和参数、划定栈帧范围的ebp和esp指针等信息。一个方法从被调用到执行完成，就对应着一个栈帧在Java虚拟机中入栈和出栈的过程。 本地方法栈：和虚拟机栈作用差不多，区别在与虚拟机栈为虚拟机执行Java方法（也就是字节码）服务，而本地方法栈则为Native方法用的。在HotSpot虚拟机中两者合二为一。  所以为了保证线程中的局部变量不被别的线程访问到，虚拟机栈和本地方法栈就是线程私有的。
+简单介绍下堆和方法区 堆和方法区都是线程共享的资源。
+堆是进程中最大的一块内存，主要用于存放新创建的对象，几乎所有的对象都在这里分配内存。
+方法区主要用于存放已被加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。
+说说并发和并行的区别？  并行：在单位时间内多个任务同时进程，一般在是多核CPU上出现， 并发：在同一段时间内，多个任务由CPU切换着处理，在某一瞬间是不一定同时处理多个任务的。例外就是当我们CPU使用了因特尔的超线程技术，一个内核被虚拟成2个逻辑内核，当两个任务分别用到CPU的不同运算资源时，比如一个任务计算整数另一个计算浮点数，这个时候就又可能是真的同时进行的。  为什么要使用多线程？ 从总体上说：
+ 从计算机底层的角度，线程是轻量级的进程，是程序执行的最小单位，线程切换的开销要远小于进程的切换，另外多核CPU时代意味着多个线程可以同时运行，再次减少了开销。 从当代互联网的发展趋势角度：现在的系统基本上就动辄百万千万级的并发，多线程技术就是高并发系统的基础，可以大大提高系统整体的性能和并发能力。  从计算机底层来说：
+ 单核时代：如果我们只有一个线程，那请求进程IO就会阻塞我们整个进程，而CPU就会被闲置了，如果由多个线程，那我们可以在一个线程被IO阻塞的时候，用另一个线程继续使用CPU的运算能力，提高系统整体的资源利用效率。 多核时代：如果有多个核心，那多个线程可以映射不同核心上并行执行，在没发生资源争抢的情况下执行效率就会显著提高。  使用多线程可能会带来什么问题？  内存泄漏：ThreadLocal就可能会导致内存泄漏 死锁：两个线程互相占用对方需要的资源并互相等待其释放 线程不安全：多线程访问并修改临界资源  说说线程的生命周期和状态？    状态名称 说明     NEW 初始状态，线程被构建，但是还没有调用start()方法   RUNNABLE 运行状态，Java线程将操作系统中的就绪和运行   BLOCKED 阻塞状态，表示线程阻塞于锁   WAITING 等待状态，表示线程进入等待状态，进入该状态表示当前线程需要等待其它线程作出一些特定动作（通知或中断）   TIME_WAITING 超时等待状态，该状态不同于WAITING，它是可以在指定的时间自行返回的   TERMINATED 终止状态，表示当前线程已经执行完毕    线程随着代码的执行在不同状态之间切换，Java线程状态变迁如下所示："><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/concurrent_basic/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/concurrent_basic/">
+                <img src="/p/concurrent_basic/cover_huf957eb7cc0803733802fcc4099cfd7cb_64471_800x0_resize_box_3.png"
+                        srcset="/p/concurrent_basic/cover_huf957eb7cc0803733802fcc4099cfd7cb_64471_800x0_resize_box_3.png 800w, /p/concurrent_basic/cover_huf957eb7cc0803733802fcc4099cfd7cb_64471_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="448" 
+                        loading="lazy"
+                        alt="Featured image of post [并发编程]基础篇" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/concurrent_basic/">[并发编程]基础篇</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 05, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="什么是进程什么是线程">什么是进程？什么是线程？</h2>
+<p><code>进程</code>是程序的一次执行过程，是系统运行程序的基本单位，进程是一个系统对一个程序从创建，运行到消亡的过程。</p>
+<p>在Java中，我们启动main函数就是启动了一个JVM的进程，main函数所在线程就是这个进程中的主线程。</p>
+<p><code>线程</code>是程序的一个更小的执行单位，一个进程在执行过程中可以产生多个线程。不同在与，同类的多个线程可以共享进程的<code>堆</code>和<code>方法区</code>资源，但每个线程有自己的<code>程序计数器</code>、<code>虚拟机栈</code>和<code>本地方法栈</code>，系统在线程之间切换的代价要比进程小得多。</p>
+<h2 id="请简要描述线程与进程的关系区别及优缺点"><strong>请简要描述线程与进程的关系,区别及优缺点？</strong></h2>
+<p>从JVM的角度说明</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211205174458.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211205174458.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>一个进程中包括多个线程，线程可以共享进程的<strong>堆和方法区</strong>，但是每个线程都有自己的<strong>虚拟机栈，本地方法栈，程序计数器</strong></p>
+<p>线程是进程划分成的更小的运行单位，区别在与进程基本上是各自<strong>独立</strong>的，而同一进程的不同线程则可能会相互影响。线程<strong>开销</strong>更小，但是不利于<strong>资源的管理和保护</strong>；进程则相反。</p>
+<h2 id="程序计数器为什么是私有的">程序计数器为什么是私有的？</h2>
+<p>程序计数器主要作用：</p>
+<ol>
+<li>字节码解释器通过改变程序计数器的位置来读取指令，从而实现代码的流程控制。如：顺序执行、选择、循环、异常处理。</li>
+<li>多线程环境下，程序计数器用于记录当前程序的运行到的位置，当从别的线程切换回来的时候才能从上次运行到的位置继续运行。</li>
+</ol>
+<p>所以程序计数器私有主要是为了线程切换回来后，能从原来停止的位置正确恢复运行。</p>
+<h2 id="虚拟机栈和本地方法栈为什么是私有的"><strong>虚拟机栈和本地方法栈为什么是私有的?</strong></h2>
+<ul>
+<li><code>虚拟机栈</code>：每个Java方法在执行的同时会创建一个栈帧用于存储局部变量表、函数返回地址和参数、划定栈帧范围的ebp和esp指针等信息。一个方法从被调用到执行完成，就对应着一个栈帧在Java虚拟机中入栈和出栈的过程。</li>
+<li><code>本地方法栈</code>：和虚拟机栈作用差不多，区别在与虚拟机栈为虚拟机执行Java方法（也就是字节码）服务，而本地方法栈则为Native方法用的。在HotSpot虚拟机中两者合二为一。</li>
+</ul>
+<p>所以为了保证线程中的局部变量不被别的线程访问到，虚拟机栈和本地方法栈就是线程私有的。</p>
+<h2 id="简单介绍下堆和方法区">简单介绍下堆和方法区</h2>
+<p>堆和方法区都是线程共享的资源。</p>
+<p><code>堆</code>是进程中最大的一块内存，主要用于存放新创建的对象，几乎所有的对象都在这里分配内存。</p>
+<p><code>方法区</code>主要用于存放已被加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。</p>
+<h2 id="说说并发和并行的区别">说说并发和并行的区别？</h2>
+<ul>
+<li>并行：在单位时间内多个任务同时进程，一般在是多核CPU上出现，</li>
+<li>并发：在同一段时间内，多个任务由CPU切换着处理，在某一瞬间是不一定同时处理多个任务的。例外就是当我们CPU使用了因特尔的超线程技术，一个内核被虚拟成2个逻辑内核，当两个任务分别用到CPU的不同运算资源时，比如一个任务计算整数另一个计算浮点数，这个时候就又可能是真的同时进行的。</li>
+</ul>
+<h2 id="为什么要使用多线程">为什么要使用多线程？</h2>
+<p>从总体上说：</p>
+<ul>
+<li>从计算机底层的角度，线程是轻量级的进程，是程序执行的最小单位，线程切换的开销要远小于进程的切换，另外多核CPU时代意味着多个线程可以同时运行，再次减少了开销。</li>
+<li>从当代互联网的发展趋势角度：现在的系统基本上就动辄百万千万级的并发，多线程技术就是高并发系统的基础，可以大大提高系统整体的性能和并发能力。</li>
+</ul>
+<p>从计算机底层来说：</p>
+<ul>
+<li>单核时代：如果我们只有一个线程，那请求进程IO就会阻塞我们整个进程，而CPU就会被闲置了，如果由多个线程，那我们可以在一个线程被IO阻塞的时候，用另一个线程继续使用CPU的运算能力，提高系统整体的资源利用效率。</li>
+<li>多核时代：如果有多个核心，那多个线程可以映射不同核心上并行执行，在没发生资源争抢的情况下执行效率就会显著提高。</li>
+</ul>
+<h2 id="使用多线程可能会带来什么问题">使用多线程可能会带来什么问题？</h2>
+<ul>
+<li>内存泄漏：ThreadLocal就可能会导致内存泄漏</li>
+<li>死锁：两个线程互相占用对方需要的资源并互相等待其释放</li>
+<li>线程不安全：多线程访问并修改临界资源</li>
+</ul>
+<h2 id="说说线程的生命周期和状态">说说线程的生命周期和状态？</h2>
+<table>
+<thead>
+<tr>
+<th>状态名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NEW</td>
+<td>初始状态，线程被构建，但是还没有调用start()方法</td>
+</tr>
+<tr>
+<td>RUNNABLE</td>
+<td>运行状态，Java线程将操作系统中的就绪和运行</td>
+</tr>
+<tr>
+<td>BLOCKED</td>
+<td>阻塞状态，表示线程阻塞于锁</td>
+</tr>
+<tr>
+<td>WAITING</td>
+<td>等待状态，表示线程进入等待状态，进入该状态表示当前线程需要等待其它线程作出一些特定动作（通知或中断）</td>
+</tr>
+<tr>
+<td>TIME_WAITING</td>
+<td>超时等待状态，该状态不同于WAITING，它是可以在指定的时间自行返回的</td>
+</tr>
+<tr>
+<td>TERMINATED</td>
+<td>终止状态，表示当前线程已经执行完毕</td>
+</tr>
+</tbody>
+</table>
+<p>线程随着代码的执行在不同状态之间切换，Java线程状态变迁如下所示：</p>
+<p>（文字描述省略，要用自己的话能描述出下面这副图）</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211205192437.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211205192437.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h2 id="什么是上下文切换">什么是上下文切换？</h2>
+<p>线程在执行过程中有自己的运行条件和状态（也成上下文），比如程序计数器，栈帧的一些信息，出现如下情况的时候，线程会从占用CPU状态中退出：</p>
+<ul>
+<li>调用了<code>sleep()</code>, <code>wait()</code>，主动让出CPU</li>
+<li>时间片用完 ，操作系统要防止一个线程或者进程长时间占用CPU导致其它线程饿死</li>
+<li>调用了阻塞类的系统中断，比如请求IO，线程被阻塞</li>
+<li>被终止或结束运行</li>
+</ul>
+<p>前三种都会发生线程切换，这意味这要保存线程的上下文，留着线程下次占用CPU的时候恢复现场，并加载下一个要占用CPU的线程上下文。</p>
+<h2 id="什么是线程死锁如何避免死锁">什么是线程死锁？如何避免死锁？</h2>
+<h3 id="认识线程死锁">认识线程死锁</h3>
+<p>死锁就是多个线程同时被阻塞，他们中的一个或者全部都在等待某个资源被释放，而资源却又同时被对方占用锁住，此时线程就会无限期等待，程序就无法正常终止。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211205194352.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211205194352.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>死锁的代码例子（代码来源于《并发编程之美》）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DeadLockDemo</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Object</span> <span class="n">resource1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span><span class="c1">//资源 1
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Object</span> <span class="n">resource2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span><span class="c1">//资源 2
+</span><span class="c1"></span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">resource1</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;get resource1&#34;</span><span class="o">);</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">1000</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+                <span class="o">}</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;waiting get resource2&#34;</span><span class="o">);</span>
+                <span class="kd">synchronized</span> <span class="o">(</span><span class="n">resource2</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;get resource2&#34;</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">},</span> <span class="s">&#34;线程 1&#34;</span><span class="o">).</span><span class="na">start</span><span class="o">();</span>
+
+        <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">resource2</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;get resource2&#34;</span><span class="o">);</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">1000</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+                <span class="o">}</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;waiting get resource1&#34;</span><span class="o">);</span>
+                <span class="kd">synchronized</span> <span class="o">(</span><span class="n">resource1</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;get resource1&#34;</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">},</span> <span class="s">&#34;线程 2&#34;</span><span class="o">).</span><span class="na">start</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>代码中先让线程A获取资源1的锁，如何sleep1秒让系统切换运行线程B，线程B获取资源2的锁，然后线程A和线程B都在尝试获取被对方占用着的资源，陷入互相等待的状态，因此也造成了死锁。</p>
+<h3 id="造成死锁的四个必要条件">造成死锁的四个必要条件</h3>
+<ol>
+<li>互斥条件：该资源任意一个时刻只由一个线程占用。</li>
+<li>请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。</li>
+<li>不剥夺条件：线程已获得的资源在未使用完之前不能被其他线程强行剥夺，只有自己使用完毕后才释放资源。</li>
+<li>循环等待条件：若干进程之间形成一种头尾相接的循环等待资源关系。</li>
+</ol>
+<h3 id="如何预防死锁">如何预防死锁？</h3>
+<p>破坏死锁产生的必要条件即可</p>
+<ol>
+<li>一次性申请所有资源</li>
+<li>破环不剥夺条件：占用部分资源的线程进一步申请其它资源时，如果申请不到，可以主动释放资源。</li>
+<li>靠按序申请资源来预防。按某一顺序申请资源，释放资源则反序释放。破坏循环等待条件条件。</li>
+</ol>
+<h3 id="如果避免死锁">如果避免死锁？</h3>
+<p>避免死锁就是在资源分配时，借助算法（比如银行家算法）对资源分配进行计算评估，使其进入安全状态。</p>
+<p><strong>安全状态</strong>指的是系统能够按照某种进程推进顺序（P1、P2、P3&hellip;..Pn）来为每个进程分配所需资源，直到满足每个进程对资源的最大需求，使每个进程都可顺利完成。称&lt;P1、P2、P3&hellip;..Pn&gt;序列为安全序列。
+上述代码线程B的获取资源顺序改为资源1→资源2就可以解决死锁，因为线程A首先获取了资源1，线程B再去获取就得不到了，就阻塞在这里，然后资源2也不会被它获取，而是被线程A顺利获取。线程A使用完后释放资源1和2线程B也可以正常获取，这就破坏了循环等待的条件，避免了死锁。</p>
+<h2 id="说说sleep方法和wait方法区别和共同点">说说sleep()方法和wait()方法区别和共同点？</h2>
+<p>共同点：两者都可以用于暂停线程的执行。</p>
+<p>两者的主要区别在于：</p>
+<ul>
+<li><code>sleep()</code>方法不会释放锁，而<code>wait()</code>方法释放了锁。</li>
+<li><code>wait()</code>方法通常用于线程间交互/通信，<code>sleep()</code>主要用于暂停线程的执行</li>
+<li><code>wait()</code>方法被调用后，线程不会自动苏醒，需要别的线程调用同一个对象上的<code>notify()</code>或者<code>notifyAll()</code>方法。sleep()方法执行完成之后线程会自动苏醒。或者可以用<code>wait(long timeout)</code>超时后线程会自动苏醒.</li>
+</ul>
+<h2 id="为什么我们调用-start-方法时会执行-run-方法为什么我们不能直接调用-run-方法"><strong>为什么我们调用 start() 方法时会执行 run() 方法，为什么我们不能直接调用 run() 方法？</strong></h2>
+<p>new一个Thread进入新建状态，然后调用<code>start()</code> 方法就会启动这个线程进入就绪状态，当分配到时间片就可以开始执行了。start()会执行线程的一些准备工作，然后就会自动执行run()方法中的内容，这就是真正的多线程工作。</p>
+<p>但是如果直接执行run()方法，会把run()当成main线程下的一个普通方法进行执行，而不会在一个新的线程中去执行它，所以这并不是多线程工作。</p>
+<h2 id="参考">参考</h2>
+<p><a class="link" href="https://javaguide.cn/java/concurrent/java%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98%E6%80%BB%E7%BB%93/#%E4%B8%80%E5%8F%A5%E8%AF%9D%E7%AE%80%E5%8D%95%E4%BA%86%E8%A7%A3%E5%A0%86%E5%92%8C%E6%96%B9%E6%B3%95%E5%8C%BA"  target="_blank" rel="noopener"
+    >Java 并发常见知识点&amp;面试题总结（基础篇）</a></p>
+<p><a class="link" href="https://juejin.cn/post/6844903616524845063"  target="_blank" rel="noopener"
+    >栈帧(Stack Frame) - 掘金</a></p>
+<p><a class="link" href="https://www.zhihu.com/question/20277695"  target="_blank" rel="noopener"
+    >超线程技术在线程这个层面是否是真正的空间并行？</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
+        
+            <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/mockito/">
+        
+        
+            <div class="article-image">
+                <img src="/p/mockito/cover.a03382c8fdf8574dc162aa28b9a16ee9_hu0fac036fa1f4a6a5daf062f2a604284c_100124_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="mockito" 
+                        data-hash="md5-oDOCyP34V03BYqoouaFu6Q==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java单元测试利器——Mockito</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/java_annotaion_reflection/">
+        
+        
+            <div class="article-image">
+                <img src="/p/java_annotaion_reflection/cover.ed2667aacf6a9ce4441c3a9ec506edf0_hud3682ca23d8f51585d79a941911fa5ce_24013_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="java_annotaion_reflection" 
+                        data-hash="md5-7SZnqs9qnOREHDqexQbt8A==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java注解和反射</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/log_catch_error/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]日志与异常捕获</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_principle/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_principle/es.94df52b03b9215a4dc212e1f3acd4cfb_hu709c9dbb1dd93df65cfe69a9e6744979_88514_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_principle" 
+                        data-hash="md5-lN9SsDuSFaTcIS4fOs1M&#43;w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]ElasticSearch入门与原理浅析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/springboot_es/">
+        
+        
+            <div class="article-image">
+                <img src="/p/springboot_es/springboot-es.68bd173d94a8eaf642b2ac727cbde179_hu5dbd9828aef42d61c56fd952a73b2be9_64126_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_es" 
+                        data-hash="md5-aL0XPZSo6vZCsqxyfL3heQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]整合ElasticSearch</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#什么是进程什么是线程">什么是进程？什么是线程？</a></li>
+    <li><a href="#请简要描述线程与进程的关系区别及优缺点"><strong>请简要描述线程与进程的关系,区别及优缺点？</strong></a></li>
+    <li><a href="#程序计数器为什么是私有的">程序计数器为什么是私有的？</a></li>
+    <li><a href="#虚拟机栈和本地方法栈为什么是私有的"><strong>虚拟机栈和本地方法栈为什么是私有的?</strong></a></li>
+    <li><a href="#简单介绍下堆和方法区">简单介绍下堆和方法区</a></li>
+    <li><a href="#说说并发和并行的区别">说说并发和并行的区别？</a></li>
+    <li><a href="#为什么要使用多线程">为什么要使用多线程？</a></li>
+    <li><a href="#使用多线程可能会带来什么问题">使用多线程可能会带来什么问题？</a></li>
+    <li><a href="#说说线程的生命周期和状态">说说线程的生命周期和状态？</a></li>
+    <li><a href="#什么是上下文切换">什么是上下文切换？</a></li>
+    <li><a href="#什么是线程死锁如何避免死锁">什么是线程死锁？如何避免死锁？</a>
+      <ol>
+        <li><a href="#认识线程死锁">认识线程死锁</a></li>
+        <li><a href="#造成死锁的四个必要条件">造成死锁的四个必要条件</a></li>
+        <li><a href="#如何预防死锁">如何预防死锁？</a></li>
+        <li><a href="#如果避免死锁">如果避免死锁？</a></li>
+      </ol>
+    </li>
+    <li><a href="#说说sleep方法和wait方法区别和共同点">说说sleep()方法和wait()方法区别和共同点？</a></li>
+    <li><a href="#为什么我们调用-start-方法时会执行-run-方法为什么我们不能直接调用-run-方法"><strong>为什么我们调用 start() 方法时会执行 run() 方法，为什么我们不能直接调用 run() 方法？</strong></a></li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
