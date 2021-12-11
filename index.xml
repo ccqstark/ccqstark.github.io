@@ -436,7 +436,7 @@ Owner：获得锁的线程称为Owner
 &lt;h2 id=&#34;说说-jdk16-之后的-synchronized-关键字底层做了哪些优化可以详细介绍一下这些优化吗&#34;&gt;&lt;strong&gt;说说 JDK1.6 之后的 synchronized 关键字底层做了哪些优化，可以详细介绍一下这些优化吗？&lt;/strong&gt;&lt;/h2&gt;
 &lt;p&gt;JDK1.6 对锁的实现引入了大量的优化，如&lt;code&gt;偏向锁&lt;/code&gt;、&lt;code&gt;轻量级锁&lt;/code&gt;、&lt;code&gt;自旋锁&lt;/code&gt;、&lt;code&gt;适应性自旋锁&lt;/code&gt;、&lt;code&gt;锁消除&lt;/code&gt;、&lt;code&gt;锁粗化&lt;/code&gt;等技术来减少锁操作的开销。&lt;/p&gt;
 &lt;p&gt;锁主要存在四种状态，依次是：&lt;code&gt;无锁状态&lt;/code&gt;、&lt;code&gt;偏向锁状态&lt;/code&gt;、&lt;code&gt;轻量级锁状态&lt;/code&gt;、&lt;code&gt;重量级锁状态&lt;/code&gt;，他们会随着竞争的激烈而逐渐升级。注意锁可以升级不可降级，这种策略是为了提高获得锁和释放锁的效率。&lt;/p&gt;
-&lt;p&gt;关于具体的优化和Java中各种锁的介绍，在&lt;a class=&#34;link&#34; href=&#34;https://ccqstark.github.io/concurrent_synchronized_optimization&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;p&gt;关于具体的优化和Java中各种锁的介绍，在&lt;a class=&#34;link&#34; href=&#34;https://ccqstark.github.io/p/concurrent_synchronized_optimization/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Synchronized优化篇——Java中的各种锁&lt;/a&gt;中介绍。&lt;/p&gt;
 &lt;h2 id=&#34;谈谈-synchronized-和-reentrantlock-的区别&#34;&gt;谈谈 synchronized 和 ReentrantLock 的区别？&lt;/h2&gt;
 &lt;h3 id=&#34;相同点&#34;&gt;相同点：&lt;/h3&gt;
@@ -460,7 +460,7 @@ Owner：获得锁的线程称为Owner
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;可以指定是&lt;strong&gt;公平锁&lt;/strong&gt;还是&lt;strong&gt;非公平锁&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;具体在&lt;a class=&#34;link&#34; href=&#34;https://ccqstark.github.io/concurrent_reentrantlock&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;p&gt;具体在&lt;a class=&#34;link&#34; href=&#34;https://ccqstark.github.io/p/concurrent_reentrantlock/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;RreentrantLock篇&lt;/a&gt;中介绍&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;

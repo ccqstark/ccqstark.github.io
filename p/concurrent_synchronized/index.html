@@ -215,7 +215,7 @@ if (!doNotTrack) {
 <h2 id="说说-jdk16-之后的-synchronized-关键字底层做了哪些优化可以详细介绍一下这些优化吗"><strong>说说 JDK1.6 之后的 synchronized 关键字底层做了哪些优化，可以详细介绍一下这些优化吗？</strong></h2>
 <p>JDK1.6 对锁的实现引入了大量的优化，如<code>偏向锁</code>、<code>轻量级锁</code>、<code>自旋锁</code>、<code>适应性自旋锁</code>、<code>锁消除</code>、<code>锁粗化</code>等技术来减少锁操作的开销。</p>
 <p>锁主要存在四种状态，依次是：<code>无锁状态</code>、<code>偏向锁状态</code>、<code>轻量级锁状态</code>、<code>重量级锁状态</code>，他们会随着竞争的激烈而逐渐升级。注意锁可以升级不可降级，这种策略是为了提高获得锁和释放锁的效率。</p>
-<p>关于具体的优化和Java中各种锁的介绍，在<a class="link" href="https://ccqstark.github.io/concurrent_synchronized_optimization"  target="_blank" rel="noopener"
+<p>关于具体的优化和Java中各种锁的介绍，在<a class="link" href="https://ccqstark.github.io/p/concurrent_synchronized_optimization/"  target="_blank" rel="noopener"
     >Synchronized优化篇——Java中的各种锁</a>中介绍。</p>
 <h2 id="谈谈-synchronized-和-reentrantlock-的区别">谈谈 synchronized 和 ReentrantLock 的区别？</h2>
 <h3 id="相同点">相同点：</h3>
@@ -239,7 +239,7 @@ if (!doNotTrack) {
 </li>
 <li>
 <p>可以指定是<strong>公平锁</strong>还是<strong>非公平锁</strong></p>
-<p>具体在<a class="link" href="https://ccqstark.github.io/concurrent_reentrantlock"  target="_blank" rel="noopener"
+<p>具体在<a class="link" href="https://ccqstark.github.io/p/concurrent_reentrantlock/"  target="_blank" rel="noopener"
     >RreentrantLock篇</a>中介绍</p>
 </li>
 <li>
