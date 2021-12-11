@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='说一说你对synchronized的理解？ synchronized关键字用于解决多个线程访问临界资源的同步问题，它可以保证同一时刻只有一个线程在操作一个临界资源。
+在Java的早期版本synchronized属于重量级锁，效率低下。因为监视器锁（monitor）是以来于操作系统底层的Mutex Lock来实现的，Java的线程映射到操作系统的原生线程上，要挂起或者唤醒一个线程实现线程的切换，都需要涉及到操作系统的用户态和内核态的转换，开销比较大。
+但是在Java6之后，Java官方在JVM层面对synchronized进行来优化，JDK1.6实现来自旋锁、自适应自旋锁、锁消除、锁粗化、偏向锁、轻量级锁等减少来锁的开销。
+说说synchronized怎么使用的？  加在实例方法上，获取的是当前对象实例的锁 加在静态方法上，获取的是class的锁，不会与实例对象上的锁冲突 加载某一代码块上，可以this来表示要获得当前对象的锁，也可以写类.class表示获取类的锁  使用synchronized实现双重检验锁方法写的单例模式 保证了线程安全
+// 单例：双重校验锁 public class Singleton { private volatile static Singleton instance; private Singleton() { } public static Singleton getUniqueInstance() { if (instance == null) { synchronized (Singleton.class) { if (instance == null) { instance = new Singleton(); } } } return instance; } } 为什么要加双重锁呢，因为instance = new Singleton(); 这段代码其实是分三步执行的：
+ 为instance分配空间 初始化instance 将instance指向分配的内存地址  但是由于JVM有指令重排的特性，执行循序又可能变成1→3→2，多线程环境下有可能导致一个线程获得一个还没有初始化的实例。比如线程A执行了1和3，此时线程B调用getUniqueInstance()后发现instance不为空，但是得到的instance此时还未被初始化。
+使用 volatile 可以禁止 JVM 的指令重排，保证在多线程环境下也能正常运行。'><title>[并发编程]synchronized篇</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/concurrent_synchronized/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[并发编程]synchronized篇'>
+<meta property='og:description' content='说一说你对synchronized的理解？ synchronized关键字用于解决多个线程访问临界资源的同步问题，它可以保证同一时刻只有一个线程在操作一个临界资源。
+在Java的早期版本synchronized属于重量级锁，效率低下。因为监视器锁（monitor）是以来于操作系统底层的Mutex Lock来实现的，Java的线程映射到操作系统的原生线程上，要挂起或者唤醒一个线程实现线程的切换，都需要涉及到操作系统的用户态和内核态的转换，开销比较大。
+但是在Java6之后，Java官方在JVM层面对synchronized进行来优化，JDK1.6实现来自旋锁、自适应自旋锁、锁消除、锁粗化、偏向锁、轻量级锁等减少来锁的开销。
+说说synchronized怎么使用的？  加在实例方法上，获取的是当前对象实例的锁 加在静态方法上，获取的是class的锁，不会与实例对象上的锁冲突 加载某一代码块上，可以this来表示要获得当前对象的锁，也可以写类.class表示获取类的锁  使用synchronized实现双重检验锁方法写的单例模式 保证了线程安全
+// 单例：双重校验锁 public class Singleton { private volatile static Singleton instance; private Singleton() { } public static Singleton getUniqueInstance() { if (instance == null) { synchronized (Singleton.class) { if (instance == null) { instance = new Singleton(); } } } return instance; } } 为什么要加双重锁呢，因为instance = new Singleton(); 这段代码其实是分三步执行的：
+ 为instance分配空间 初始化instance 将instance指向分配的内存地址  但是由于JVM有指令重排的特性，执行循序又可能变成1→3→2，多线程环境下有可能导致一个线程获得一个还没有初始化的实例。比如线程A执行了1和3，此时线程B调用getUniqueInstance()后发现instance不为空，但是得到的instance此时还未被初始化。
+使用 volatile 可以禁止 JVM 的指令重排，保证在多线程环境下也能正常运行。'>
+<meta property='og:url' content='https://ccqstark.github.io/p/concurrent_synchronized/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='并发编程' /><meta property='article:tag' content='多线程' /><meta property='article:tag' content='synchronized' /><meta property='article:published_time' content='2021-12-11T16:56:15&#43;08:00'/><meta property='article:modified_time' content='2021-12-11T16:56:15&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/concurrent_synchronized/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[并发编程]synchronized篇">
+<meta name="twitter:description" content="说一说你对synchronized的理解？ synchronized关键字用于解决多个线程访问临界资源的同步问题，它可以保证同一时刻只有一个线程在操作一个临界资源。
+在Java的早期版本synchronized属于重量级锁，效率低下。因为监视器锁（monitor）是以来于操作系统底层的Mutex Lock来实现的，Java的线程映射到操作系统的原生线程上，要挂起或者唤醒一个线程实现线程的切换，都需要涉及到操作系统的用户态和内核态的转换，开销比较大。
+但是在Java6之后，Java官方在JVM层面对synchronized进行来优化，JDK1.6实现来自旋锁、自适应自旋锁、锁消除、锁粗化、偏向锁、轻量级锁等减少来锁的开销。
+说说synchronized怎么使用的？  加在实例方法上，获取的是当前对象实例的锁 加在静态方法上，获取的是class的锁，不会与实例对象上的锁冲突 加载某一代码块上，可以this来表示要获得当前对象的锁，也可以写类.class表示获取类的锁  使用synchronized实现双重检验锁方法写的单例模式 保证了线程安全
+// 单例：双重校验锁 public class Singleton { private volatile static Singleton instance; private Singleton() { } public static Singleton getUniqueInstance() { if (instance == null) { synchronized (Singleton.class) { if (instance == null) { instance = new Singleton(); } } } return instance; } } 为什么要加双重锁呢，因为instance = new Singleton(); 这段代码其实是分三步执行的：
+ 为instance分配空间 初始化instance 将instance指向分配的内存地址  但是由于JVM有指令重排的特性，执行循序又可能变成1→3→2，多线程环境下有可能导致一个线程获得一个还没有初始化的实例。比如线程A执行了1和3，此时线程B调用getUniqueInstance()后发现instance不为空，但是得到的instance此时还未被初始化。
+使用 volatile 可以禁止 JVM 的指令重排，保证在多线程环境下也能正常运行。"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/concurrent_synchronized/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/concurrent_synchronized/">
+                <img src="/p/concurrent_synchronized/cover_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_800x0_resize_box_3.png"
+                        srcset="/p/concurrent_synchronized/cover_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_800x0_resize_box_3.png 800w, /p/concurrent_synchronized/cover_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="376" 
+                        loading="lazy"
+                        alt="Featured image of post [并发编程]synchronized篇" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/concurrent_synchronized/">[并发编程]synchronized篇</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 11, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="说一说你对synchronized的理解">说一说你对synchronized的理解？</h2>
+<p>synchronized关键字用于解决多个线程访问临界资源的同步问题，它可以保证同一时刻只有一个线程在操作一个临界资源。</p>
+<p>在Java的早期版本synchronized属于重量级锁，效率低下。因为监视器锁（monitor）是以来于操作系统底层的<code>Mutex Lock</code>来实现的，Java的线程映射到操作系统的原生线程上，要挂起或者唤醒一个线程实现线程的切换，都需要涉及到操作系统的用户态和内核态的转换，开销比较大。</p>
+<p>但是在Java6之后，Java官方在JVM层面对synchronized进行来优化，JDK1.6实现来自旋锁、自适应自旋锁、锁消除、锁粗化、偏向锁、轻量级锁等减少来锁的开销。</p>
+<h2 id="说说synchronized怎么使用的">说说synchronized怎么使用的？</h2>
+<ol>
+<li>加在实例方法上，获取的是当前对象实例的锁</li>
+<li>加在静态方法上，获取的是class的锁，不会与实例对象上的锁冲突</li>
+<li>加载某一代码块上，可以this来表示要获得当前对象的锁，也可以写类.class表示获取类的锁</li>
+</ol>
+<h2 id="使用synchronized实现双重检验锁方法写的单例模式">使用synchronized实现双重检验锁方法写的单例模式</h2>
+<p>保证了线程安全</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 单例：双重校验锁
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Singleton</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">volatile</span> <span class="kd">static</span> <span class="n">Singleton</span> <span class="n">instance</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="nf">Singleton</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Singleton</span> <span class="nf">getUniqueInstance</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">instance</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">Singleton</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">instance</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">instance</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Singleton</span><span class="o">();</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div><p>为什么要加双重锁呢，因为<code>instance = new Singleton();</code> 这段代码其实是分三步执行的：</p>
+<ol>
+<li>为instance分配空间</li>
+<li>初始化instance</li>
+<li>将instance指向分配的内存地址</li>
+</ol>
+<p>但是由于JVM有指令重排的特性，执行循序又可能变成1→3→2，多线程环境下有可能导致一个线程获得一个还没有初始化的实例。比如线程A执行了1和3，此时线程B调用getUniqueInstance()后发现instance不为空，但是得到的instance此时还未被初始化。</p>
+<p>使用 <code>volatile</code> 可以禁止 JVM 的指令重排，保证在多线程环境下也能正常运行。</p>
+<h2 id="构造方法可以使用synchronized关键字修饰吗">构造方法可以使用synchronized关键字修饰吗？</h2>
+<p>构造方法不能用synchronized关键字修饰，因为构造方法本身就是线程安全的，不存在同步的构造方法一说。</p>
+<h2 id="讲一下synchronized关键字的底层原理">讲一下synchronized关键字的底层原理？</h2>
+<h3 id="同步代码块">同步代码块</h3>
+<p>查看使用了synchronized关键字的代码的字节码，会发现<strong>同步语块</strong>使用的是<code>monitorenter</code>和<code>montorexit</code> 指令，<code>monitorenter</code> 指令指向同步代码块的开始位置，<code>monitorexit</code> 指令表示同步代码块的结束位置。</p>
+<p>当执行 <code>monitorenter</code> 指令时，线程试图获取锁也就是获取 <strong>对象监视器 <code>monitor</code></strong> 的持有权。</p>
+<p>在执行<code>monitorenter</code>时，会尝试获取对象的锁，如果锁的计数器为 0 则表示锁可以被获取，获取后将锁计数器设为 1 也就是加 1。如果获取对象锁失败，那当前线程就要阻塞等待，直到锁被另外一个线程释放为止。</p>
+<p>在执行 <code>monitorexit</code> 指令后，将锁计数器设为 0，表明锁被释放。</p>
+<h3 id="同步方法">同步方法</h3>
+<p><code>synchronized</code> 修饰的方法并没有 <code>monitorenter</code> 指令和 <code>monitorexit</code> 指令，取得代之的确实是 <code>ACC_SYNCHRONIZED</code> 标识，该标识指明了该方法是一个同步方法。JVM 通过该 <code>ACC_SYNCHRONIZED</code> 访问标志来辨别一个方法是否声明为同步方法，从而执行相应的同步调用。</p>
+<p>不过两者的本质都是对对象监视器monitor的获取</p>
+<h2 id="说说-jdk16-之后的-synchronized-关键字底层做了哪些优化可以详细介绍一下这些优化吗"><strong>说说 JDK1.6 之后的 synchronized 关键字底层做了哪些优化，可以详细介绍一下这些优化吗？</strong></h2>
+<p>JDK1.6 对锁的实现引入了大量的优化，如<code>偏向锁</code>、<code>轻量级锁</code>、<code>自旋锁</code>、<code>适应性自旋锁</code>、<code>锁消除</code>、<code>锁粗化</code>等技术来减少锁操作的开销。</p>
+<p>锁主要存在四种状态，依次是：<code>无锁状态</code>、<code>偏向锁状态</code>、<code>轻量级锁状态</code>、<code>重量级锁状态</code>，他们会随着竞争的激烈而逐渐升级。注意锁可以升级不可降级，这种策略是为了提高获得锁和释放锁的效率。</p>
+<p>关于具体的优化和Java中各种锁的介绍，在<a class="link" href="https://ccqstark.github.io/concurrent_synchronized_optimization"  target="_blank" rel="noopener"
+    >Synchronized优化篇——Java中的各种锁</a>中介绍。</p>
+<h2 id="谈谈-synchronized-和-reentrantlock-的区别">谈谈 synchronized 和 ReentrantLock 的区别？</h2>
+<h3 id="相同点">相同点：</h3>
+<ul>
+<li>两者都是可重入锁</li>
+</ul>
+<p>“可重入锁”指的是可以再次获取自己已经获得的锁。如果锁不可重入的话就会导致死锁。同一个线程获取锁，锁的计数器会自增1，所以要等到锁的计数器下降为0时才能释放锁。</p>
+<h3 id="不同点">不同点：</h3>
+<ul>
+<li>synchronized依赖于JVM而ReentrantLock依赖于API</li>
+</ul>
+<p>synchronized是依赖于JVM实现的，包括之前说的Java官方在JDK1.6做的很多优化也是在虚拟机层面去实现的，没有直接暴露给我们。</p>
+<p>ReentrantLock是JDK层面实现的，可以直接查看到源码看他是怎么实现的，调用lock()和unlock()方法时也要配合try，catch去完成。</p>
+<ul>
+<li>ReentrantLock比synchronized增加来一些高级功能</li>
+</ul>
+<ol>
+<li>
+<p><strong>等待可中断</strong></p>
+<p>提供了<code>lockInterruptibly()</code>方法实现了等待可中断机制，就是当前线程在等待锁的过程中，可以中断来放弃等待，不去获取锁了。不过只有该线程执行了<code>interrupt()</code>方法之后，<code>lockInterruptibly()</code>才起作用。</p>
+</li>
+<li>
+<p>可以指定是<strong>公平锁</strong>还是<strong>非公平锁</strong></p>
+<p>具体在<a class="link" href="https://ccqstark.github.io/concurrent_reentrantlock"  target="_blank" rel="noopener"
+    >RreentrantLock篇</a>中介绍</p>
+</li>
+<li>
+<p>可实现<strong>选择性通知</strong></p>
+<p>原本我们的<code>notify()</code> 是由JVM进行随机唤醒一条线程的，但是用了<code>Condition</code>我们可以进行指定唤醒，线程对象可以注册在指定的<code>Condition</code>上，实现“选择性通知”。</p>
+<p>而 <code>notifyAll()</code>方法的话就会通知所有处于等待状态的线程，造成很大的效率问题，而<code>Condition</code>实例的<code>signalAll()</code>方法只会唤醒注册在该<code>Condition</code>实例中的所有等待线程。</p>
+</li>
+</ol>
+<h2 id="什么是虚假唤醒如何避免">什么是虚假唤醒？如何避免？</h2>
+<p>虚假唤醒就是比如一个消费者和生产者的场景，商品只有一个，生产者也只有一个，但是消费者有很多个。如果生产者生产了一个商品后<code>notifyAll()</code> ，那很多个消费者线程都会被唤醒，但是只能有一个获得锁并进行消费，其他人都还获取不到，就是<code>虚假唤醒</code>；但是其他人都在这第一个消费者之后获取了锁还继续执行了消费的操作，导致商品数量变为负数，这个时候就出现问题了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">consume</span><span class="o">()</span> <span class="o">{</span> 
+		<span class="c1">// if换成while来解决 
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">num</span> <span class="o">&lt;=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;库存已空，无法消费&#34;</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+						<span class="c1">// 等待生产者生产
+</span><span class="c1"></span>            <span class="k">this</span><span class="o">.</span><span class="na">wait</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+		
+    <span class="n">num</span><span class="o">--;</span> <span class="c1">// 进行消费
+</span><span class="c1"></span>    <span class="k">this</span><span class="o">.</span><span class="na">notifyAll</span><span class="o">();</span> <span class="c1">// 唤醒其他所有线程
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><p>因为多个消费者线程被同时唤醒后进行资源争抢，但是他们获取锁之后就不再判断当前资源是否还有剩余，或者说满足消费操作的条件就直接继续执行后面的消费操作了，这样就会导致资源超卖变成负数。</p>
+<p>解决办法当然是让他们在从<code>wait()</code>返回获取锁之后，仍然还要再次判断资源是否满足条件，避免前面已经有别的消费者已经消费了。而让他们再次判断资源是否满足条件那就把<code>if</code>换成<code>while</code>就可以了，这也是JDK官方建议的做法。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
+        
+            <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+        
+            <a href="/tags/synchronized/">synchronized</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_basic/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_basic/cover.2787cbf2d8333547efb3b6189939f028_huf957eb7cc0803733802fcc4099cfd7cb_64471_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_basic" 
+                        data-hash="md5-J4fL8tgzNUfvs7YYmTnwKA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]基础篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/mockito/">
+        
+        
+            <div class="article-image">
+                <img src="/p/mockito/cover.a03382c8fdf8574dc162aa28b9a16ee9_hu0fac036fa1f4a6a5daf062f2a604284c_100124_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="mockito" 
+                        data-hash="md5-oDOCyP34V03BYqoouaFu6Q==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java单元测试利器——Mockito</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/java_annotaion_reflection/">
+        
+        
+            <div class="article-image">
+                <img src="/p/java_annotaion_reflection/cover.ed2667aacf6a9ce4441c3a9ec506edf0_hud3682ca23d8f51585d79a941911fa5ce_24013_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="java_annotaion_reflection" 
+                        data-hash="md5-7SZnqs9qnOREHDqexQbt8A==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java注解和反射</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/log_catch_error/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[SpringBoot]日志与异常捕获</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/es_principle/">
+        
+        
+            <div class="article-image">
+                <img src="/p/es_principle/es.94df52b03b9215a4dc212e1f3acd4cfb_hu709c9dbb1dd93df65cfe69a9e6744979_88514_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="es_principle" 
+                        data-hash="md5-lN9SsDuSFaTcIS4fOs1M&#43;w==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[ElasticSearch]ElasticSearch入门与原理浅析</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#说一说你对synchronized的理解">说一说你对synchronized的理解？</a></li>
+    <li><a href="#说说synchronized怎么使用的">说说synchronized怎么使用的？</a></li>
+    <li><a href="#使用synchronized实现双重检验锁方法写的单例模式">使用synchronized实现双重检验锁方法写的单例模式</a></li>
+    <li><a href="#构造方法可以使用synchronized关键字修饰吗">构造方法可以使用synchronized关键字修饰吗？</a></li>
+    <li><a href="#讲一下synchronized关键字的底层原理">讲一下synchronized关键字的底层原理？</a>
+      <ol>
+        <li><a href="#同步代码块">同步代码块</a></li>
+        <li><a href="#同步方法">同步方法</a></li>
+      </ol>
+    </li>
+    <li><a href="#说说-jdk16-之后的-synchronized-关键字底层做了哪些优化可以详细介绍一下这些优化吗"><strong>说说 JDK1.6 之后的 synchronized 关键字底层做了哪些优化，可以详细介绍一下这些优化吗？</strong></a></li>
+    <li><a href="#谈谈-synchronized-和-reentrantlock-的区别">谈谈 synchronized 和 ReentrantLock 的区别？</a>
+      <ol>
+        <li><a href="#相同点">相同点：</a></li>
+        <li><a href="#不同点">不同点：</a></li>
+      </ol>
+    </li>
+    <li><a href="#什么是虚假唤醒如何避免">什么是虚假唤醒？如何避免？</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

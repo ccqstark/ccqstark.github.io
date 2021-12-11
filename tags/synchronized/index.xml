@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>synchronized on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/synchronized/</link>
+    <description>Recent content in synchronized on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 11 Dec 2021 16:56:15 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/synchronized/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[并发编程]synchronized篇</title>
+      <link>https://ccqstark.github.io/p/concurrent_synchronized/</link>
+      <pubDate>Sat, 11 Dec 2021 16:56:15 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/concurrent_synchronized/</guid>
+      <description>说一说你对synchronized的理解？ synchronized关键字用于解决多个线程访问临界资源的同步问题，它可以保证同一时刻只有一个线程在操作一个临界资源。
+在Java的早期版本synchronized属于重量级锁，效率低下。因为监视器锁（monitor）是以来于操作系统底层的Mutex Lock来实现的，Java的线程映射到操作系统的原生线程上，要挂起或者唤醒一个线程实现线程的切换，都需要涉及到操作系统的用户态和内核态的转换，开销比较大。
+但是在Java6之后，Java官方在JVM层面对synchronized进行来优化，JDK1.6实现来自旋锁、自适应自旋锁、锁消除、锁粗化、偏向锁、轻量级锁等减少来锁的开销。
+说说synchronized怎么使用的？  加在实例方法上，获取的是当前对象实例的锁 加在静态方法上，获取的是class的锁，不会与实例对象上的锁冲突 加载某一代码块上，可以this来表示要获得当前对象的锁，也可以写类.class表示获取类的锁  使用synchronized实现双重检验锁方法写的单例模式 保证了线程安全
+// 单例：双重校验锁 public class Singleton { private volatile static Singleton instance; private Singleton() { } public static Singleton getUniqueInstance() { if (instance == null) { synchronized (Singleton.class) { if (instance == null) { instance = new Singleton(); } } } return instance; } } 为什么要加双重锁呢，因为instance = new Singleton(); 这段代码其实是分三步执行的：
+ 为instance分配空间 初始化instance 将instance指向分配的内存地址  但是由于JVM有指令重排的特性，执行循序又可能变成1→3→2，多线程环境下有可能导致一个线程获得一个还没有初始化的实例。比如线程A执行了1和3，此时线程B调用getUniqueInstance()后发现instance不为空，但是得到的instance此时还未被初始化。
+使用 volatile 可以禁止 JVM 的指令重排，保证在多线程环境下也能正常运行。</description>
+    </item>
+    
+  </channel>
+</rss>
