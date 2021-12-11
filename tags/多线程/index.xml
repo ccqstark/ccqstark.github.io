@@ -6,7 +6,19 @@
     <description>Recent content in 多线程 on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 11 Dec 2021 16:56:15 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 11 Dec 2021 17:05:58 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[并发编程]ReentrantLock篇</title>
+      <link>https://ccqstark.github.io/p/concurrent_reentrantlock/</link>
+      <pubDate>Sat, 11 Dec 2021 17:05:58 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/concurrent_reentrantlock/</guid>
+      <description>基本介绍 对于ReentrantLock（重入锁），是常用的Lock接口的一个实现，最主要的是了解他的重入性和公平锁/非公平锁，还有用他于synchronized机械能对比，下面进行具体介绍。
+重入性实现原理 重入性有2个基本特点：
+ 在线程获取锁的时候，如果锁已经存在且锁还是当前线程的，那可以直接再次获取成功 由于锁可以被同一线程获取n次，在释放时同样要释放n次才能把锁完全释放开。  许多同步组件都是通过重写AQS的方法来实现自己的同步功能的，下面以ReentrantLock的非公平锁的源码来解析其重入的实现。核心方法nonfairTryAcquire ：
+final boolean nonfairTryAcquire(int acquires) { final Thread current = Thread.currentThread(); int c = getState(); //1. 如果该锁未被任何线程占有，该锁能被当前线程获取 	if (c == 0) { if (compareAndSetState(0, acquires)) { setExclusiveOwnerThread(current); return true; } } //2.若被占有，检查占有线程是否是当前线程  else if (current == getExclusiveOwnerThread()) { // 3. 再次获取，计数加一  int nextc = c + acquires; if (nextc &amp;lt; 0) // overflow  throw new Error(&amp;#34;Maximum lock count exceeded&amp;#34;); setState(nextc); return true; } return false; } 首先是判断当前是否存在锁，如果不存在，那自然可以获取。</description>
+    </item>
+    
     <item>
       <title>[并发编程]synchronized篇</title>
       <link>https://ccqstark.github.io/p/concurrent_synchronized/</link>
