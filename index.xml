@@ -6,7 +6,276 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 11 Dec 2021 17:05:58 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 11 Dec 2021 17:09:24 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[并发编程]Synchronized优化篇——Java中的各种锁</title>
+        <link>https://ccqstark.github.io/p/concurrent_synchronized_optimization/</link>
+        <pubDate>Sat, 11 Dec 2021 17:09:24 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/concurrent_synchronized_optimization/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/concurrent_synchronized_optimization/cover.png" alt="Featured image of post [并发编程]Synchronized优化篇——Java中的各种锁" /&gt;&lt;p&gt;synchronized在JDK1.6之后官方对其进行优化，先要了解CAS和Java对象头，再去学习锁的四种状态：&lt;code&gt;无锁&lt;/code&gt;、&lt;code&gt;偏向锁&lt;/code&gt;、&lt;code&gt;轻量级锁&lt;/code&gt;、&lt;code&gt;重量级锁&lt;/code&gt;。这篇文章参考了多方资料，算是总结得比较全面，希望可以帮到你。&lt;/p&gt;
+&lt;h2 id=&#34;cas&#34;&gt;CAS&lt;/h2&gt;
+&lt;p&gt;CAS操作（又称为&lt;strong&gt;无锁&lt;/strong&gt;操作）是一种&lt;strong&gt;乐观锁&lt;/strong&gt;策略，它假设所有线程访问共享资源的时候不会出现冲突。CAS就是&lt;code&gt;compare and swap&lt;/code&gt; ，通过比较内存中当前的值等不等于预期值，如果等于就可以赋值成功，如果不等于说明这个值被修改过了不再是预期的旧值。&lt;/p&gt;
+&lt;p&gt;当多个线程使用CAS操作一个变量的时候，只有一个线程会成功，其他的会因为冲突失败，失败后一般就会自旋重试，多次失败后选择挂起线程。&lt;/p&gt;
+&lt;p&gt;CAS实现需要硬件指令集的支撑，在JDK1.5后虚拟机才可以使用处理器提供的&lt;code&gt;CMPXCHG&lt;/code&gt; 指令实现。&lt;/p&gt;
+&lt;h3 id=&#34;synchronized和cas的区别&#34;&gt;synchronized和CAS的区别&lt;/h3&gt;
+&lt;p&gt;未优化的Synchronized最主要的问题是：当存在线程竞争的情况下会出现线程阻塞和唤醒带来的开销问题，这是一种阻塞同步（互斥同步）。而CAS不是直接就把线程挂起，在CAS操作失败后会进行一定的重试，而非直接进行耗时的挂起和唤醒等操作，因此叫做非阻塞同步。&lt;/p&gt;
+&lt;h3 id=&#34;cas存在的问题&#34;&gt;CAS存在的问题&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;ABA问题&lt;/p&gt;
+&lt;p&gt;因为CAS会检测旧的值有没有发生变化，但是假如一个值从A变成了B，然后又变成了A，刚好CAS在检查的时候发现旧值A没有发生变化，但是实际上是发生了变化的。解决办法是添加一个版本号，Java在1.5后的atomic包中提供了AtomicStampedReference来解决ABA问题，思路也是这样的。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;自旋时间过长&lt;/p&gt;
+&lt;p&gt;CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果自旋时间过长的话对性能又很大影响。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;只能保证一个共享变量的原子操作&lt;/p&gt;
+&lt;p&gt;当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;java对象头&#34;&gt;Java对象头&lt;/h2&gt;
+&lt;p&gt;Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。&lt;/p&gt;
+&lt;p&gt;1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;长度&lt;/th&gt;
+&lt;th&gt;内容&lt;/th&gt;
+&lt;th&gt;说明&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;1字宽&lt;/td&gt;
+&lt;td&gt;Mark Word&lt;/td&gt;
+&lt;td&gt;存储对象的hashCode、分代信息、锁信息等&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1字宽&lt;/td&gt;
+&lt;td&gt;Class Metadata Address&lt;/td&gt;
+&lt;td&gt;存储到对象类型数据的指针&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1字宽&lt;/td&gt;
+&lt;td&gt;Array length&lt;/td&gt;
+&lt;td&gt;数组的长度（如果是数组）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Mark Word的格式：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;锁状态&lt;/th&gt;
+&lt;th&gt;29 bit 或 61 bit&lt;/th&gt;
+&lt;th&gt;1 bit 是否是偏向锁？&lt;/th&gt;
+&lt;th&gt;2 bit 锁标志位&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;无锁&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;01&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;偏向锁&lt;/td&gt;
+&lt;td&gt;线程ID&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;01&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;轻量级锁&lt;/td&gt;
+&lt;td&gt;指向栈中锁记录的指针&lt;/td&gt;
+&lt;td&gt;此时这一位不用于标识偏向锁&lt;/td&gt;
+&lt;td&gt;00&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;重量级锁&lt;/td&gt;
+&lt;td&gt;指向互斥量（重量级锁）的指针&lt;/td&gt;
+&lt;td&gt;此时这一位不用于标识偏向锁&lt;/td&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GC标记&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;此时这一位不用于标识偏向锁&lt;/td&gt;
+&lt;td&gt;11&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;当对象状态为偏向锁时，&lt;code&gt;Mark Word&lt;/code&gt;存储的是偏向的线程ID；&lt;/p&gt;
+&lt;p&gt;当状态为轻量级锁时，&lt;code&gt;Mark Word&lt;/code&gt;存储的是指向线程栈中&lt;code&gt;Lock Record&lt;/code&gt;的指针；&lt;/p&gt;
+&lt;p&gt;当状态为重量级锁时，&lt;code&gt;Mark Word&lt;/code&gt;为指向堆中的&lt;code&gt;monitor&lt;/code&gt;对象的指针。&lt;/p&gt;
+&lt;h2 id=&#34;无锁&#34;&gt;无锁&lt;/h2&gt;
+&lt;p&gt;上面介绍的CAS原理及应用即是无锁的实现。&lt;/p&gt;
+&lt;p&gt;无锁没有对资源进行锁定，所有的线程都能访问并修改同一个资源，但同时只有一个线程能修改成功。&lt;/p&gt;
+&lt;p&gt;无锁的特点就是修改操作在循环内进行，线程会不断的尝试修改共享资源。如果没有冲突就修改成功并退出，否则就会继续循环尝试。&lt;/p&gt;
+&lt;h2 id=&#34;偏向锁&#34;&gt;偏向锁&lt;/h2&gt;
+&lt;p&gt;HotSpot的作者研究发现，大多数情况下锁都不存在多线程竞争，一般总是由同一个线程多次获得，为了让线程获得锁的代价更低，引入了偏向锁。&lt;/p&gt;
+&lt;h3 id=&#34;偏向锁的获取&#34;&gt;偏向锁的获取&lt;/h3&gt;
+&lt;p&gt;一个线程在第一次进入同步块时，会在&lt;strong&gt;对象头和栈帧中的锁记录&lt;/strong&gt;里存储锁的偏向的线程ID。当下次该线程进入这个同步块时，会去检查锁的Mark Word里面是不是放的自己的线程ID。&lt;/p&gt;
+&lt;p&gt;如果是，直接表明该线程已经获得了锁，以后该线程在进入和退出同步块时不需要花费CAS操作来加锁和解锁 ；如果不是，就代表有另一个线程来竞争这个偏向锁。这个时候会尝试使用CAS来替换Mark Word里面的线程ID为新线程的ID，这个时候要分两种情况：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;成功，表示之前的线程不存在了， Mark Word里面的线程ID为新线程的ID，锁不会升级，仍然为偏向锁；&lt;/li&gt;
+&lt;li&gt;失败，表示之前的线程仍然存在，那么暂停之前的线程，进行&lt;strong&gt;偏向锁的撤销&lt;/strong&gt;（下面介绍），设置偏向锁标识为0，并设置锁标志位为00，升级为轻量级锁，会按照轻量级锁的方式进行竞争锁。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;偏向锁的撤销&#34;&gt;偏向锁的撤销&lt;/h3&gt;
+&lt;p&gt;偏向锁使用了一种&lt;strong&gt;等到竞争出现才释放锁的机制&lt;/strong&gt;，所以当其他线程尝试竞争偏向锁时， 持有偏向锁的线程才会释放锁。&lt;/p&gt;
+&lt;p&gt;偏向锁升级成轻量级锁时，会暂停拥有偏向锁的线程，重置偏向锁标识，过程如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在一个全局安全点（没有字节码在执行）停止拥有锁的线程。&lt;/li&gt;
+&lt;li&gt;遍历线程栈，如果存在锁记录的话，需要将锁记录和Mark Word改为无锁状态。&lt;/li&gt;
+&lt;li&gt;唤醒被停止的线程，将当前锁升级成轻量级锁。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;如果程序中的锁通常处于竞争状态，那么偏向锁就起不到提高性能的作用，我们可以用参数把偏向锁关闭：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;XX&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;UseBiasedLocking&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;下面有个经典的图总结了偏向锁的获得和撤销：&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png&#34; &gt;
+		&lt;img src=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;h2 id=&#34;轻量级锁&#34;&gt;轻量级锁&lt;/h2&gt;
+&lt;p&gt;多个线程在不同时段获取同一把锁，即不存在锁竞争的情况，也就没有线程阻塞。针对这种情况，JVM采用轻量级锁来避免线程的阻塞与唤醒。&lt;/p&gt;
+&lt;h3 id=&#34;轻量级锁的获取&#34;&gt;轻量级锁的获取&lt;/h3&gt;
+&lt;p&gt;JVM会为每个线程在当前线程的栈帧中创建用于存储锁记录的空间&lt;code&gt;Lock Record&lt;/code&gt; , 包含两部分：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;识别哪个对象被锁的所必需的元数据&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Displaced Mark Word&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;**如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word复制到自己的Displaced Mark Word里面。**然后线程尝试用CAS将锁的Mark Word替换为指向&lt;code&gt;Lock Record&lt;/code&gt;的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用&lt;code&gt;自旋&lt;/code&gt;来获取锁。&lt;/p&gt;
+&lt;p&gt;如下图，如果Mark Word成功更新为指向了某一线程栈帧中的Lock Record则证明此线程获得锁成功：&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png&#34; &gt;
+		&lt;img src=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;h3 id=&#34;适应性自旋&#34;&gt;适应性自旋&lt;/h3&gt;
+&lt;p&gt;自旋过多也会造成CPU较大的开销，JDK采用的是更好的&lt;code&gt;适应性自旋&lt;/code&gt; 。&lt;/p&gt;
+&lt;p&gt;自适应意味着自旋的时间（次数）不再固定，而是由&lt;strong&gt;前一次在同一个锁上的自旋时间&lt;/strong&gt;及&lt;strong&gt;锁的拥有者的状态&lt;/strong&gt;来决定。如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也是很有可能再次成功，进而它将允许自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那在以后尝试获取这个锁时将可能就会减少自选的次数或者省略掉自旋过程，直接阻塞线程，避免浪费处理器资源。&lt;/p&gt;
+&lt;p&gt;自旋也不是一直进行下去的，如果自旋到一定程度（和JVM、操作系统相关），依然没有获取到锁，称为自旋失败，那么这个线程会阻塞。同时这个锁就会&lt;strong&gt;升级成重量级锁&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3 id=&#34;轻量级锁的释放&#34;&gt;轻量级锁的释放&lt;/h3&gt;
+&lt;p&gt;在释放锁时，当前线程会使用CAS操作将&lt;code&gt;Displaced Mark Word&lt;/code&gt;的内容复制回锁的&lt;code&gt;Mark Word&lt;/code&gt;里面。如果没有发生竞争，那么这个复制的操作会成功。如果有其他线程因为自旋多次导致轻量级锁升级成了重量级锁，那么CAS操作会失败，此时会释放锁并唤醒被阻塞的线程。&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211152118.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211152118.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;h2 id=&#34;重量级锁&#34;&gt;重量级锁&lt;/h2&gt;
+&lt;p&gt;重量级锁依赖于操作系统的互斥量（&lt;code&gt;mutex&lt;/code&gt;） 实现的，而操作系统中线程间状态的转换需要相对比较长的时间，所以重量级锁效率很低，但被阻塞的线程不会消耗CPU。&lt;/p&gt;
+&lt;p&gt;在 Java 中每个对象都有一个 &lt;code&gt;monitor&lt;/code&gt; 对象与之对应，在重量级锁的状态下，对象的&lt;code&gt;Mark Word&lt;/code&gt;存放的是一个指针，指向了与之对应的 monitor 对象。这个 monitor 对象就是实现重量锁的关键。&lt;/p&gt;
+&lt;p&gt;一个 monitor 对象包括这么几个关键字段：&lt;strong&gt;ContentionList，EntryList ，WaitSet，owner&lt;/strong&gt;。其中 ContentionList、EntryList 、WaitSet 都是由 ObjectWaiter 的链表结构，owner 指向持有锁的线程。&lt;/p&gt;
+&lt;p&gt;每一个对象都可以当做一个锁，当多个线程同时请求某个对象锁时，对象锁会设置几种状态用来区分请求的线程：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;Contention List：所有请求锁的线程将被首先放置到该竞争队列
+Entry List：Contention List中那些有资格成为候选人的线程被移到Entry List
+Wait Set：那些调用wait方法被阻塞的线程被放置到Wait Set
+OnDeck：任何时刻最多只能有一个线程正在竞争锁，该线程称为OnDeck
+Owner：获得锁的线程称为Owner
+!Owner：释放锁的线程
+&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
+&lt;li&gt;JVM 每次从队列的尾部取出一个数据用于锁竞争候选者(&lt;code&gt;OnDeck&lt;/code&gt;)，但是并发情况下，ContentionList 会被大量的并发线程进行 CAS 访问，为了降低对尾部元素的竞争，JVM 会将一部分线程移动到 EntryList 中作为候选竞争线程。&lt;/li&gt;
+&lt;li&gt;Owner 线程会在 unlock 时，将 ContentionList 中的部分线程迁移到 EntryList 中，并指定EntryList 中的某个线程为 OnDeck 线程(一般是最先进去的那个线程)，被选中的线程叫做&lt;code&gt;Heir presumptive&lt;/code&gt; ，即假定继承人。&lt;/li&gt;
+&lt;li&gt;Owner 线程并不直接把锁传递给 OnDeck 线程，而是把锁竞争的权利交给 OnDeck。&lt;/li&gt;
+&lt;li&gt;OnDeck 需要重新竞争锁。这样虽然牺牲了一些公平性，但是能极大的提升系统的吞吐量，在JVM 中，也把这种选择行为称之为“竞争切换”。&lt;/li&gt;
+&lt;li&gt;OnDeck 线程获取到锁资源后会变为 Owner 线程，而没有得到锁资源的仍然停留在 EntryList中。如果 Owner 线程被 wait 方法阻塞，则转移到 WaitSet 队列中，直到某个时刻通过 notify或者 notifyAll 唤醒，会重新进去 EntryList 中。处于 ContentionList、EntryList、WaitSet 中的线程都处于阻塞状态，该阻塞是由操作系统来完成的(Linux 内核下采用 pthread_mutex_lock 内核函数实现的)。&lt;/li&gt;
+&lt;li&gt;Synchronized 是&lt;strong&gt;非公平锁&lt;/strong&gt;。 Synchronized 在线程进入 ContentionList 时，等待的线程会先尝试自旋获取锁，如果获取不到就进入 ContentionList，这明显对于已经进入队列的线程是不公平的，还有一个不公平的事情就是自旋获取锁的线程还可能直接抢占 OnDeck 线程的锁资源。&lt;/li&gt;
+&lt;li&gt;每个对象都有个 &lt;code&gt;monitor&lt;/code&gt; 对象，加锁就是在竞争 monitor 对象，代码块加锁是在前后分别加上 &lt;code&gt;monitorenter&lt;/code&gt; 和 &lt;code&gt;monitorexit&lt;/code&gt; 指令来实现的，方法加锁是通过一个标记位&lt;code&gt;ACC_SYNCHRONIZED&lt;/code&gt;来判断的（在synchronized篇讲过了）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;转换关系如下图：&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211160234.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211160234.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;h2 id=&#34;总结锁的升级流程&#34;&gt;总结锁的升级流程&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;每一个线程在准备获取共享资源时，第一步，检查Mark Word里面是不是放的自己的Thread ID，如果是，表示当前线程获取了该资源的&lt;code&gt;偏向锁&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;如果Mark Word不是自己的Thread ID，这时候用CAS来尝试替换，成功的话就仍然为偏向锁，失败的话就会锁升级，新线程根据Mark Word里面现有的Thread ID通知之前的线程暂停，这个之前的线程进行偏向锁的撤销操作，同时锁升级为&lt;code&gt;轻量级锁&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;此时为轻量级锁来竞争资源，两个线程都把锁对象的Hash Code复制到自己新建的用于存储锁的记录空间Lock Record，接着通过CAS，把锁对象的Mark Word内容修改为指向自己Lock Record的地址的方式来竞争锁。&lt;/li&gt;
+&lt;li&gt;第三步中的CAS成功的就拿到来锁，失败的就自旋。&lt;/li&gt;
+&lt;li&gt;自旋线程在自旋过程中，如果之前先拿到锁的线程释放了锁让它可以获得资源，就仍然保持在轻量级锁，如果自选失败就会膨胀为重量级锁。&lt;/li&gt;
+&lt;li&gt;进入&lt;code&gt;重量级锁&lt;/code&gt;后，原本自旋的线程就只能进入阻塞状态，等锁被释放后再让别的线程来唤醒自己。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;关于锁是否可以降级&#34;&gt;关于锁是否可以降级&lt;/h2&gt;
+&lt;p&gt;大多数文章写的都是锁只能升级而不能降级，其实不然：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;HotSpot JVM、JRockit JVM是支持锁降级的&lt;/li&gt;
+&lt;li&gt;HotSpot JVM、JRockit JVM是偏向锁是可以重偏向的&lt;/li&gt;
+&lt;li&gt;重量级锁降级发生于STW阶段，降级对象为仅仅能被VMThread访问而没有其他JavaThread访问的对象&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;各种锁的优缺点对比&#34;&gt;各种锁的优缺点对比&lt;/h2&gt;
+&lt;p&gt;下表来自《Java并发编程的艺术》：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;锁&lt;/th&gt;
+&lt;th&gt;优点&lt;/th&gt;
+&lt;th&gt;缺点&lt;/th&gt;
+&lt;th&gt;适用场景&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;偏向锁&lt;/td&gt;
+&lt;td&gt;加锁和解锁不需要额外的消耗，和执行非同步方法比仅存在纳秒级的差距。&lt;/td&gt;
+&lt;td&gt;如果线程间存在锁竞争，会带来额外的锁撤销的消耗。&lt;/td&gt;
+&lt;td&gt;适用于只有一个线程访问同步块场景。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;轻量级锁&lt;/td&gt;
+&lt;td&gt;竞争的线程不会阻塞，提高了程序的响应速度。&lt;/td&gt;
+&lt;td&gt;如果始终得不到锁竞争的线程使用自旋会消耗CPU。&lt;/td&gt;
+&lt;td&gt;追求响应时间。同步块执行速度非常快。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;重量级锁&lt;/td&gt;
+&lt;td&gt;线程竞争不使用自旋，不会消耗CPU。&lt;/td&gt;
+&lt;td&gt;线程阻塞，响应时间缓慢。&lt;/td&gt;
+&lt;td&gt;追求吞吐量(非公平锁)。同步块执行时间较长。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;参考&#34;&gt;参考&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;http://concurrent.redspider.group/article/02/9.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;9 synchronized与锁&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://tech.meituan.com/2018/11/15/java-lock.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;不可不说的Java&amp;quot;锁&amp;quot;事&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.liangzl.com/get-article-detail-184610.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Synchronized的实现丶Java教程网-IT开发者们的技术天堂&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[并发编程]ReentrantLock篇</title>
         <link>https://ccqstark.github.io/p/concurrent_reentrantlock/</link>
         <pubDate>Sat, 11 Dec 2021 17:05:58 +0800</pubDate>

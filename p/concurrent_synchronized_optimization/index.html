@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='synchronized在JDK1.6之后官方对其进行优化，先要了解CAS和Java对象头，再去学习锁的四种状态：无锁、偏向锁、轻量级锁、重量级锁。这篇文章参考了多方资料，算是总结得比较全面，希望可以帮到你。
+CAS CAS操作（又称为无锁操作）是一种乐观锁策略，它假设所有线程访问共享资源的时候不会出现冲突。CAS就是compare and swap ，通过比较内存中当前的值等不等于预期值，如果等于就可以赋值成功，如果不等于说明这个值被修改过了不再是预期的旧值。
+当多个线程使用CAS操作一个变量的时候，只有一个线程会成功，其他的会因为冲突失败，失败后一般就会自旋重试，多次失败后选择挂起线程。
+CAS实现需要硬件指令集的支撑，在JDK1.5后虚拟机才可以使用处理器提供的CMPXCHG 指令实现。
+synchronized和CAS的区别 未优化的Synchronized最主要的问题是：当存在线程竞争的情况下会出现线程阻塞和唤醒带来的开销问题，这是一种阻塞同步（互斥同步）。而CAS不是直接就把线程挂起，在CAS操作失败后会进行一定的重试，而非直接进行耗时的挂起和唤醒等操作，因此叫做非阻塞同步。
+CAS存在的问题   ABA问题
+因为CAS会检测旧的值有没有发生变化，但是假如一个值从A变成了B，然后又变成了A，刚好CAS在检查的时候发现旧值A没有发生变化，但是实际上是发生了变化的。解决办法是添加一个版本号，Java在1.5后的atomic包中提供了AtomicStampedReference来解决ABA问题，思路也是这样的。
+  自旋时间过长
+CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果自旋时间过长的话对性能又很大影响。
+  只能保证一个共享变量的原子操作
+当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
+  Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
+1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
+   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；'><title>[并发编程]Synchronized优化篇——Java中的各种锁</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/concurrent_synchronized_optimization/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[并发编程]Synchronized优化篇——Java中的各种锁'>
+<meta property='og:description' content='synchronized在JDK1.6之后官方对其进行优化，先要了解CAS和Java对象头，再去学习锁的四种状态：无锁、偏向锁、轻量级锁、重量级锁。这篇文章参考了多方资料，算是总结得比较全面，希望可以帮到你。
+CAS CAS操作（又称为无锁操作）是一种乐观锁策略，它假设所有线程访问共享资源的时候不会出现冲突。CAS就是compare and swap ，通过比较内存中当前的值等不等于预期值，如果等于就可以赋值成功，如果不等于说明这个值被修改过了不再是预期的旧值。
+当多个线程使用CAS操作一个变量的时候，只有一个线程会成功，其他的会因为冲突失败，失败后一般就会自旋重试，多次失败后选择挂起线程。
+CAS实现需要硬件指令集的支撑，在JDK1.5后虚拟机才可以使用处理器提供的CMPXCHG 指令实现。
+synchronized和CAS的区别 未优化的Synchronized最主要的问题是：当存在线程竞争的情况下会出现线程阻塞和唤醒带来的开销问题，这是一种阻塞同步（互斥同步）。而CAS不是直接就把线程挂起，在CAS操作失败后会进行一定的重试，而非直接进行耗时的挂起和唤醒等操作，因此叫做非阻塞同步。
+CAS存在的问题   ABA问题
+因为CAS会检测旧的值有没有发生变化，但是假如一个值从A变成了B，然后又变成了A，刚好CAS在检查的时候发现旧值A没有发生变化，但是实际上是发生了变化的。解决办法是添加一个版本号，Java在1.5后的atomic包中提供了AtomicStampedReference来解决ABA问题，思路也是这样的。
+  自旋时间过长
+CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果自旋时间过长的话对性能又很大影响。
+  只能保证一个共享变量的原子操作
+当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
+  Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
+1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
+   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；'>
+<meta property='og:url' content='https://ccqstark.github.io/p/concurrent_synchronized_optimization/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='并发编程' /><meta property='article:tag' content='多线程' /><meta property='article:published_time' content='2021-12-11T17:09:24&#43;08:00'/><meta property='article:modified_time' content='2021-12-11T17:09:24&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/concurrent_synchronized_optimization/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[并发编程]Synchronized优化篇——Java中的各种锁">
+<meta name="twitter:description" content="synchronized在JDK1.6之后官方对其进行优化，先要了解CAS和Java对象头，再去学习锁的四种状态：无锁、偏向锁、轻量级锁、重量级锁。这篇文章参考了多方资料，算是总结得比较全面，希望可以帮到你。
+CAS CAS操作（又称为无锁操作）是一种乐观锁策略，它假设所有线程访问共享资源的时候不会出现冲突。CAS就是compare and swap ，通过比较内存中当前的值等不等于预期值，如果等于就可以赋值成功，如果不等于说明这个值被修改过了不再是预期的旧值。
+当多个线程使用CAS操作一个变量的时候，只有一个线程会成功，其他的会因为冲突失败，失败后一般就会自旋重试，多次失败后选择挂起线程。
+CAS实现需要硬件指令集的支撑，在JDK1.5后虚拟机才可以使用处理器提供的CMPXCHG 指令实现。
+synchronized和CAS的区别 未优化的Synchronized最主要的问题是：当存在线程竞争的情况下会出现线程阻塞和唤醒带来的开销问题，这是一种阻塞同步（互斥同步）。而CAS不是直接就把线程挂起，在CAS操作失败后会进行一定的重试，而非直接进行耗时的挂起和唤醒等操作，因此叫做非阻塞同步。
+CAS存在的问题   ABA问题
+因为CAS会检测旧的值有没有发生变化，但是假如一个值从A变成了B，然后又变成了A，刚好CAS在检查的时候发现旧值A没有发生变化，但是实际上是发生了变化的。解决办法是添加一个版本号，Java在1.5后的atomic包中提供了AtomicStampedReference来解决ABA问题，思路也是这样的。
+  自旋时间过长
+CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果自旋时间过长的话对性能又很大影响。
+  只能保证一个共享变量的原子操作
+当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
+  Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
+1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
+   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/concurrent_synchronized_optimization/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/concurrent_synchronized_optimization/">
+                <img src="/p/concurrent_synchronized_optimization/cover_hu4d840036f83d7884a510888303887b86_1060410_800x0_resize_box_3.png"
+                        srcset="/p/concurrent_synchronized_optimization/cover_hu4d840036f83d7884a510888303887b86_1060410_800x0_resize_box_3.png 800w, /p/concurrent_synchronized_optimization/cover_hu4d840036f83d7884a510888303887b86_1060410_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="369" 
+                        loading="lazy"
+                        alt="Featured image of post [并发编程]Synchronized优化篇——Java中的各种锁" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javaee/" >
+                JavaEE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/concurrent_synchronized_optimization/">[并发编程]Synchronized优化篇——Java中的各种锁</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 11, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>synchronized在JDK1.6之后官方对其进行优化，先要了解CAS和Java对象头，再去学习锁的四种状态：<code>无锁</code>、<code>偏向锁</code>、<code>轻量级锁</code>、<code>重量级锁</code>。这篇文章参考了多方资料，算是总结得比较全面，希望可以帮到你。</p>
+<h2 id="cas">CAS</h2>
+<p>CAS操作（又称为<strong>无锁</strong>操作）是一种<strong>乐观锁</strong>策略，它假设所有线程访问共享资源的时候不会出现冲突。CAS就是<code>compare and swap</code> ，通过比较内存中当前的值等不等于预期值，如果等于就可以赋值成功，如果不等于说明这个值被修改过了不再是预期的旧值。</p>
+<p>当多个线程使用CAS操作一个变量的时候，只有一个线程会成功，其他的会因为冲突失败，失败后一般就会自旋重试，多次失败后选择挂起线程。</p>
+<p>CAS实现需要硬件指令集的支撑，在JDK1.5后虚拟机才可以使用处理器提供的<code>CMPXCHG</code> 指令实现。</p>
+<h3 id="synchronized和cas的区别">synchronized和CAS的区别</h3>
+<p>未优化的Synchronized最主要的问题是：当存在线程竞争的情况下会出现线程阻塞和唤醒带来的开销问题，这是一种阻塞同步（互斥同步）。而CAS不是直接就把线程挂起，在CAS操作失败后会进行一定的重试，而非直接进行耗时的挂起和唤醒等操作，因此叫做非阻塞同步。</p>
+<h3 id="cas存在的问题">CAS存在的问题</h3>
+<ol>
+<li>
+<p>ABA问题</p>
+<p>因为CAS会检测旧的值有没有发生变化，但是假如一个值从A变成了B，然后又变成了A，刚好CAS在检查的时候发现旧值A没有发生变化，但是实际上是发生了变化的。解决办法是添加一个版本号，Java在1.5后的atomic包中提供了AtomicStampedReference来解决ABA问题，思路也是这样的。</p>
+</li>
+<li>
+<p>自旋时间过长</p>
+<p>CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果自旋时间过长的话对性能又很大影响。</p>
+</li>
+<li>
+<p>只能保证一个共享变量的原子操作</p>
+<p>当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。</p>
+</li>
+</ol>
+<h2 id="java对象头">Java对象头</h2>
+<p>Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。</p>
+<p>1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。</p>
+<table>
+<thead>
+<tr>
+<th>长度</th>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1字宽</td>
+<td>Mark Word</td>
+<td>存储对象的hashCode、分代信息、锁信息等</td>
+</tr>
+<tr>
+<td>1字宽</td>
+<td>Class Metadata Address</td>
+<td>存储到对象类型数据的指针</td>
+</tr>
+<tr>
+<td>1字宽</td>
+<td>Array length</td>
+<td>数组的长度（如果是数组）</td>
+</tr>
+</tbody>
+</table>
+<p>Mark Word的格式：</p>
+<table>
+<thead>
+<tr>
+<th>锁状态</th>
+<th>29 bit 或 61 bit</th>
+<th>1 bit 是否是偏向锁？</th>
+<th>2 bit 锁标志位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无锁</td>
+<td></td>
+<td>0</td>
+<td>01</td>
+</tr>
+<tr>
+<td>偏向锁</td>
+<td>线程ID</td>
+<td>1</td>
+<td>01</td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>指向栈中锁记录的指针</td>
+<td>此时这一位不用于标识偏向锁</td>
+<td>00</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>指向互斥量（重量级锁）的指针</td>
+<td>此时这一位不用于标识偏向锁</td>
+<td>10</td>
+</tr>
+<tr>
+<td>GC标记</td>
+<td></td>
+<td>此时这一位不用于标识偏向锁</td>
+<td>11</td>
+</tr>
+</tbody>
+</table>
+<p>当对象状态为偏向锁时，<code>Mark Word</code>存储的是偏向的线程ID；</p>
+<p>当状态为轻量级锁时，<code>Mark Word</code>存储的是指向线程栈中<code>Lock Record</code>的指针；</p>
+<p>当状态为重量级锁时，<code>Mark Word</code>为指向堆中的<code>monitor</code>对象的指针。</p>
+<h2 id="无锁">无锁</h2>
+<p>上面介绍的CAS原理及应用即是无锁的实现。</p>
+<p>无锁没有对资源进行锁定，所有的线程都能访问并修改同一个资源，但同时只有一个线程能修改成功。</p>
+<p>无锁的特点就是修改操作在循环内进行，线程会不断的尝试修改共享资源。如果没有冲突就修改成功并退出，否则就会继续循环尝试。</p>
+<h2 id="偏向锁">偏向锁</h2>
+<p>HotSpot的作者研究发现，大多数情况下锁都不存在多线程竞争，一般总是由同一个线程多次获得，为了让线程获得锁的代价更低，引入了偏向锁。</p>
+<h3 id="偏向锁的获取">偏向锁的获取</h3>
+<p>一个线程在第一次进入同步块时，会在<strong>对象头和栈帧中的锁记录</strong>里存储锁的偏向的线程ID。当下次该线程进入这个同步块时，会去检查锁的Mark Word里面是不是放的自己的线程ID。</p>
+<p>如果是，直接表明该线程已经获得了锁，以后该线程在进入和退出同步块时不需要花费CAS操作来加锁和解锁 ；如果不是，就代表有另一个线程来竞争这个偏向锁。这个时候会尝试使用CAS来替换Mark Word里面的线程ID为新线程的ID，这个时候要分两种情况：</p>
+<ul>
+<li>成功，表示之前的线程不存在了， Mark Word里面的线程ID为新线程的ID，锁不会升级，仍然为偏向锁；</li>
+<li>失败，表示之前的线程仍然存在，那么暂停之前的线程，进行<strong>偏向锁的撤销</strong>（下面介绍），设置偏向锁标识为0，并设置锁标志位为00，升级为轻量级锁，会按照轻量级锁的方式进行竞争锁。</li>
+</ul>
+<h3 id="偏向锁的撤销">偏向锁的撤销</h3>
+<p>偏向锁使用了一种<strong>等到竞争出现才释放锁的机制</strong>，所以当其他线程尝试竞争偏向锁时， 持有偏向锁的线程才会释放锁。</p>
+<p>偏向锁升级成轻量级锁时，会暂停拥有偏向锁的线程，重置偏向锁标识，过程如下：</p>
+<ol>
+<li>在一个全局安全点（没有字节码在执行）停止拥有锁的线程。</li>
+<li>遍历线程栈，如果存在锁记录的话，需要将锁记录和Mark Word改为无锁状态。</li>
+<li>唤醒被停止的线程，将当前锁升级成轻量级锁。</li>
+</ol>
+<p>如果程序中的锁通常处于竞争状态，那么偏向锁就起不到提高性能的作用，我们可以用参数把偏向锁关闭：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="o">-</span><span class="n">XX</span><span class="o">:</span><span class="n">UseBiasedLocking</span><span class="o">=</span><span class="kc">false</span>
+</code></pre></div><p>下面有个经典的图总结了偏向锁的获得和撤销：</p>
+<p><figure 
+	>
+	<a href="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png" >
+		<img src="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h2 id="轻量级锁">轻量级锁</h2>
+<p>多个线程在不同时段获取同一把锁，即不存在锁竞争的情况，也就没有线程阻塞。针对这种情况，JVM采用轻量级锁来避免线程的阻塞与唤醒。</p>
+<h3 id="轻量级锁的获取">轻量级锁的获取</h3>
+<p>JVM会为每个线程在当前线程的栈帧中创建用于存储锁记录的空间<code>Lock Record</code> , 包含两部分：</p>
+<ol>
+<li>识别哪个对象被锁的所必需的元数据</li>
+<li><code>Displaced Mark Word</code></li>
+</ol>
+<p>**如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word复制到自己的Displaced Mark Word里面。**然后线程尝试用CAS将锁的Mark Word替换为指向<code>Lock Record</code>的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用<code>自旋</code>来获取锁。</p>
+<p>如下图，如果Mark Word成功更新为指向了某一线程栈帧中的Lock Record则证明此线程获得锁成功：</p>
+<p><figure 
+	>
+	<a href="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png" >
+		<img src="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h3 id="适应性自旋">适应性自旋</h3>
+<p>自旋过多也会造成CPU较大的开销，JDK采用的是更好的<code>适应性自旋</code> 。</p>
+<p>自适应意味着自旋的时间（次数）不再固定，而是由<strong>前一次在同一个锁上的自旋时间</strong>及<strong>锁的拥有者的状态</strong>来决定。如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也是很有可能再次成功，进而它将允许自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那在以后尝试获取这个锁时将可能就会减少自选的次数或者省略掉自旋过程，直接阻塞线程，避免浪费处理器资源。</p>
+<p>自旋也不是一直进行下去的，如果自旋到一定程度（和JVM、操作系统相关），依然没有获取到锁，称为自旋失败，那么这个线程会阻塞。同时这个锁就会<strong>升级成重量级锁</strong>。</p>
+<h3 id="轻量级锁的释放">轻量级锁的释放</h3>
+<p>在释放锁时，当前线程会使用CAS操作将<code>Displaced Mark Word</code>的内容复制回锁的<code>Mark Word</code>里面。如果没有发生竞争，那么这个复制的操作会成功。如果有其他线程因为自旋多次导致轻量级锁升级成了重量级锁，那么CAS操作会失败，此时会释放锁并唤醒被阻塞的线程。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211152118.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211152118.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h2 id="重量级锁">重量级锁</h2>
+<p>重量级锁依赖于操作系统的互斥量（<code>mutex</code>） 实现的，而操作系统中线程间状态的转换需要相对比较长的时间，所以重量级锁效率很低，但被阻塞的线程不会消耗CPU。</p>
+<p>在 Java 中每个对象都有一个 <code>monitor</code> 对象与之对应，在重量级锁的状态下，对象的<code>Mark Word</code>存放的是一个指针，指向了与之对应的 monitor 对象。这个 monitor 对象就是实现重量锁的关键。</p>
+<p>一个 monitor 对象包括这么几个关键字段：<strong>ContentionList，EntryList ，WaitSet，owner</strong>。其中 ContentionList、EntryList 、WaitSet 都是由 ObjectWaiter 的链表结构，owner 指向持有锁的线程。</p>
+<p>每一个对象都可以当做一个锁，当多个线程同时请求某个对象锁时，对象锁会设置几种状态用来区分请求的线程：</p>
+<pre tabindex="0"><code>Contention List：所有请求锁的线程将被首先放置到该竞争队列
+Entry List：Contention List中那些有资格成为候选人的线程被移到Entry List
+Wait Set：那些调用wait方法被阻塞的线程被放置到Wait Set
+OnDeck：任何时刻最多只能有一个线程正在竞争锁，该线程称为OnDeck
+Owner：获得锁的线程称为Owner
+!Owner：释放锁的线程
+</code></pre><ol>
+<li>JVM 每次从队列的尾部取出一个数据用于锁竞争候选者(<code>OnDeck</code>)，但是并发情况下，ContentionList 会被大量的并发线程进行 CAS 访问，为了降低对尾部元素的竞争，JVM 会将一部分线程移动到 EntryList 中作为候选竞争线程。</li>
+<li>Owner 线程会在 unlock 时，将 ContentionList 中的部分线程迁移到 EntryList 中，并指定EntryList 中的某个线程为 OnDeck 线程(一般是最先进去的那个线程)，被选中的线程叫做<code>Heir presumptive</code> ，即假定继承人。</li>
+<li>Owner 线程并不直接把锁传递给 OnDeck 线程，而是把锁竞争的权利交给 OnDeck。</li>
+<li>OnDeck 需要重新竞争锁。这样虽然牺牲了一些公平性，但是能极大的提升系统的吞吐量，在JVM 中，也把这种选择行为称之为“竞争切换”。</li>
+<li>OnDeck 线程获取到锁资源后会变为 Owner 线程，而没有得到锁资源的仍然停留在 EntryList中。如果 Owner 线程被 wait 方法阻塞，则转移到 WaitSet 队列中，直到某个时刻通过 notify或者 notifyAll 唤醒，会重新进去 EntryList 中。处于 ContentionList、EntryList、WaitSet 中的线程都处于阻塞状态，该阻塞是由操作系统来完成的(Linux 内核下采用 pthread_mutex_lock 内核函数实现的)。</li>
+<li>Synchronized 是<strong>非公平锁</strong>。 Synchronized 在线程进入 ContentionList 时，等待的线程会先尝试自旋获取锁，如果获取不到就进入 ContentionList，这明显对于已经进入队列的线程是不公平的，还有一个不公平的事情就是自旋获取锁的线程还可能直接抢占 OnDeck 线程的锁资源。</li>
+<li>每个对象都有个 <code>monitor</code> 对象，加锁就是在竞争 monitor 对象，代码块加锁是在前后分别加上 <code>monitorenter</code> 和 <code>monitorexit</code> 指令来实现的，方法加锁是通过一个标记位<code>ACC_SYNCHRONIZED</code>来判断的（在synchronized篇讲过了）</li>
+</ol>
+<p>转换关系如下图：</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211160234.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/20211211160234.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h2 id="总结锁的升级流程">总结锁的升级流程</h2>
+<ol>
+<li>每一个线程在准备获取共享资源时，第一步，检查Mark Word里面是不是放的自己的Thread ID，如果是，表示当前线程获取了该资源的<code>偏向锁</code>。</li>
+<li>如果Mark Word不是自己的Thread ID，这时候用CAS来尝试替换，成功的话就仍然为偏向锁，失败的话就会锁升级，新线程根据Mark Word里面现有的Thread ID通知之前的线程暂停，这个之前的线程进行偏向锁的撤销操作，同时锁升级为<code>轻量级锁</code>。</li>
+<li>此时为轻量级锁来竞争资源，两个线程都把锁对象的Hash Code复制到自己新建的用于存储锁的记录空间Lock Record，接着通过CAS，把锁对象的Mark Word内容修改为指向自己Lock Record的地址的方式来竞争锁。</li>
+<li>第三步中的CAS成功的就拿到来锁，失败的就自旋。</li>
+<li>自旋线程在自旋过程中，如果之前先拿到锁的线程释放了锁让它可以获得资源，就仍然保持在轻量级锁，如果自选失败就会膨胀为重量级锁。</li>
+<li>进入<code>重量级锁</code>后，原本自旋的线程就只能进入阻塞状态，等锁被释放后再让别的线程来唤醒自己。</li>
+</ol>
+<h2 id="关于锁是否可以降级">关于锁是否可以降级</h2>
+<p>大多数文章写的都是锁只能升级而不能降级，其实不然：</p>
+<ol>
+<li>HotSpot JVM、JRockit JVM是支持锁降级的</li>
+<li>HotSpot JVM、JRockit JVM是偏向锁是可以重偏向的</li>
+<li>重量级锁降级发生于STW阶段，降级对象为仅仅能被VMThread访问而没有其他JavaThread访问的对象</li>
+</ol>
+<h2 id="各种锁的优缺点对比">各种锁的优缺点对比</h2>
+<p>下表来自《Java并发编程的艺术》：</p>
+<table>
+<thead>
+<tr>
+<th>锁</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>偏向锁</td>
+<td>加锁和解锁不需要额外的消耗，和执行非同步方法比仅存在纳秒级的差距。</td>
+<td>如果线程间存在锁竞争，会带来额外的锁撤销的消耗。</td>
+<td>适用于只有一个线程访问同步块场景。</td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>竞争的线程不会阻塞，提高了程序的响应速度。</td>
+<td>如果始终得不到锁竞争的线程使用自旋会消耗CPU。</td>
+<td>追求响应时间。同步块执行速度非常快。</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>线程竞争不使用自旋，不会消耗CPU。</td>
+<td>线程阻塞，响应时间缓慢。</td>
+<td>追求吞吐量(非公平锁)。同步块执行时间较长。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="参考">参考</h2>
+<p><a class="link" href="http://concurrent.redspider.group/article/02/9.html"  target="_blank" rel="noopener"
+    >9 synchronized与锁</a></p>
+<p><a class="link" href="https://tech.meituan.com/2018/11/15/java-lock.html"  target="_blank" rel="noopener"
+    >不可不说的Java&quot;锁&quot;事</a></p>
+<p><a class="link" href="https://www.liangzl.com/get-article-detail-184610.html"  target="_blank" rel="noopener"
+    >Synchronized的实现丶Java教程网-IT开发者们的技术天堂</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
+        
+            <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_reentrantlock/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_reentrantlock/cover.863c8908ba19abe122f188d57cbb4190_huceae91d367533a91416a74330952ccc4_41335_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_reentrantlock" 
+                        data-hash="md5-hjyJCLoZq&#43;Ei8YjVfLtBkA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]ReentrantLock篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized/cover.0fec37ffa5d7b5f5c3963f9caa306d29_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized" 
+                        data-hash="md5-D&#43;w3/6XXtfXDlj&#43;cqjBtKQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]synchronized篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_basic/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_basic/cover.2787cbf2d8333547efb3b6189939f028_huf957eb7cc0803733802fcc4099cfd7cb_64471_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_basic" 
+                        data-hash="md5-J4fL8tgzNUfvs7YYmTnwKA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]基础篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/mockito/">
+        
+        
+            <div class="article-image">
+                <img src="/p/mockito/cover.a03382c8fdf8574dc162aa28b9a16ee9_hu0fac036fa1f4a6a5daf062f2a604284c_100124_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="mockito" 
+                        data-hash="md5-oDOCyP34V03BYqoouaFu6Q==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java单元测试利器——Mockito</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/java_annotaion_reflection/">
+        
+        
+            <div class="article-image">
+                <img src="/p/java_annotaion_reflection/cover.ed2667aacf6a9ce4441c3a9ec506edf0_hud3682ca23d8f51585d79a941911fa5ce_24013_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="java_annotaion_reflection" 
+                        data-hash="md5-7SZnqs9qnOREHDqexQbt8A==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java注解和反射</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#cas">CAS</a>
+      <ol>
+        <li><a href="#synchronized和cas的区别">synchronized和CAS的区别</a></li>
+        <li><a href="#cas存在的问题">CAS存在的问题</a></li>
+      </ol>
+    </li>
+    <li><a href="#java对象头">Java对象头</a></li>
+    <li><a href="#无锁">无锁</a></li>
+    <li><a href="#偏向锁">偏向锁</a>
+      <ol>
+        <li><a href="#偏向锁的获取">偏向锁的获取</a></li>
+        <li><a href="#偏向锁的撤销">偏向锁的撤销</a></li>
+      </ol>
+    </li>
+    <li><a href="#轻量级锁">轻量级锁</a>
+      <ol>
+        <li><a href="#轻量级锁的获取">轻量级锁的获取</a></li>
+        <li><a href="#适应性自旋">适应性自旋</a></li>
+        <li><a href="#轻量级锁的释放">轻量级锁的释放</a></li>
+      </ol>
+    </li>
+    <li><a href="#重量级锁">重量级锁</a></li>
+    <li><a href="#总结锁的升级流程">总结锁的升级流程</a></li>
+    <li><a href="#关于锁是否可以降级">关于锁是否可以降级</a></li>
+    <li><a href="#各种锁的优缺点对比">各种锁的优缺点对比</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

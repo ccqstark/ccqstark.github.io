@@ -6,7 +6,30 @@
     <description>Recent content in 并发编程 on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 11 Dec 2021 17:05:58 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 11 Dec 2021 17:09:24 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[并发编程]Synchronized优化篇——Java中的各种锁</title>
+      <link>https://ccqstark.github.io/p/concurrent_synchronized_optimization/</link>
+      <pubDate>Sat, 11 Dec 2021 17:09:24 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/concurrent_synchronized_optimization/</guid>
+      <description>synchronized在JDK1.6之后官方对其进行优化，先要了解CAS和Java对象头，再去学习锁的四种状态：无锁、偏向锁、轻量级锁、重量级锁。这篇文章参考了多方资料，算是总结得比较全面，希望可以帮到你。
+CAS CAS操作（又称为无锁操作）是一种乐观锁策略，它假设所有线程访问共享资源的时候不会出现冲突。CAS就是compare and swap ，通过比较内存中当前的值等不等于预期值，如果等于就可以赋值成功，如果不等于说明这个值被修改过了不再是预期的旧值。
+当多个线程使用CAS操作一个变量的时候，只有一个线程会成功，其他的会因为冲突失败，失败后一般就会自旋重试，多次失败后选择挂起线程。
+CAS实现需要硬件指令集的支撑，在JDK1.5后虚拟机才可以使用处理器提供的CMPXCHG 指令实现。
+synchronized和CAS的区别 未优化的Synchronized最主要的问题是：当存在线程竞争的情况下会出现线程阻塞和唤醒带来的开销问题，这是一种阻塞同步（互斥同步）。而CAS不是直接就把线程挂起，在CAS操作失败后会进行一定的重试，而非直接进行耗时的挂起和唤醒等操作，因此叫做非阻塞同步。
+CAS存在的问题   ABA问题
+因为CAS会检测旧的值有没有发生变化，但是假如一个值从A变成了B，然后又变成了A，刚好CAS在检查的时候发现旧值A没有发生变化，但是实际上是发生了变化的。解决办法是添加一个版本号，Java在1.5后的atomic包中提供了AtomicStampedReference来解决ABA问题，思路也是这样的。
+  自旋时间过长
+CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果自旋时间过长的话对性能又很大影响。
+  只能保证一个共享变量的原子操作
+当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
+  Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
+1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
+   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；</description>
+    </item>
+    
     <item>
       <title>[并发编程]ReentrantLock篇</title>
       <link>https://ccqstark.github.io/p/concurrent_reentrantlock/</link>
