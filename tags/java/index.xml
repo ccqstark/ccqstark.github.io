@@ -37,28 +37,5 @@
 @Target({ElementType.TYPE, ElementType.METHOD}) @Retention(RetentionPolicy.RUNTIME) @interface MyAnnotation2 { // 方法名为参数名  String name() default &amp;#34;&amp;#34;; int age() default 0; int id() default -1; // 如果默认值为-1, 代表不存在  String[] schools() default {&amp;#34;西部开源&amp;#34;, &amp;#34;东部闭源&amp;#34;}; } 反射 概述 Java不是动态语言，但是可以通过反射机制获得类似动态语言的特性。</description>
     </item>
     
-    <item>
-      <title>一次理解String的不可变性</title>
-      <link>https://ccqstark.github.io/p/string/</link>
-      <pubDate>Tue, 06 Apr 2021 21:07:00 +0800</pubDate>
-      
-      <guid>https://ccqstark.github.io/p/string/</guid>
-      <description>今天在看有关StringBuilder和StringBuffer的文章的时候看到里面提及了有关String中的final字段和不可变的性质，发现这个知识点不是很熟悉，去查了很多文章之后整理出这篇。
-新建字符串与缓冲池 新建一个String我们一般有下面2种方式：
-String a = &amp;#34;ok&amp;#34;; String b = new String(&amp;#34;ok&amp;#34;); 这两种写法都可以创建一个String对象。
-第一种用赋值运算符进行字符串初始化时，JVM自动为每个字符串生成一个String类的实例。
-第二种就是创建String类的对象，因为String本来就是一个类，而不是像int和double那样的基本数据类型。
-Java的字符串采用了缓冲池的技术，我们新建一个字符串的时候会去缓冲池寻找是否有已经存在的相同的字符串，如果有的话直接指向它即可；没有的话再创建，缓冲池是在堆里面的。
-如下图，是下面代码的结果：
-// one和two内容相同，指向同一String对象 String one = &amp;#34;someString&amp;#34;; String two = &amp;#34;someString&amp;#34;;   关于更深入的创建对象和之间的比较可以看下面这篇：
-java 字符串缓冲池 String缓冲池_天天的专栏-CSDN博客
-哪里不可变？ 那为什么说String不可变呢？我们明明可以通过给字符串变量赋一个新值来改变它的内容。
-String str = &amp;#34;aaaaaaa&amp;#34;; System.out.println(str); str = &amp;#34;bbbbbbbbb&amp;#34;; System.out.println(str); // 输出 //aaaaaaa //bbbbbbbbb 实际上，当我们给字符串重新赋值的时候，它并不是去改变这个String对象中的字符数组char[] value的值（下面会讲到），而是去缓冲池里寻找有没有已经存在这个值的String对象，有的话就直接指向它，没有的话创建一个对象再指向它。
-  str只是一个引用，指向的String对象是在堆中的。改变字符串的值其实只是改变整个对象的引用。
-而原来的String对象还是在那里没有被改变，之后要是有别的变量赋这个值可以继续指向它。
-为什么不可变？ 我们看下String的部分源码：
-public final class String implements java.io.Serializable, Comparable&amp;lt;String&amp;gt;, CharSequence { /** The value is used for character storage.</description>
-    </item>
-    
   </channel>
 </rss>

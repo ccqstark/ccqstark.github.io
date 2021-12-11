@@ -28,22 +28,6 @@
     </item>
     
     <item>
-      <title>[实战]自己动手编译JDK实录</title>
-      <link>https://ccqstark.github.io/p/compile_jdk/</link>
-      <pubDate>Tue, 27 Jul 2021 03:44:28 +0800</pubDate>
-      
-      <guid>https://ccqstark.github.io/p/compile_jdk/</guid>
-      <description>前言 最近在看周志明老师的经典《深入理解Java虚拟机》，第1章最后是一个自己编译JDK的实战，想到羊哥之前也出过这样一期视频，觉得做一做也蛮有成就感的，还可以加深下对Java的理解，所以边做边写下此篇博文。
-环境准备 系统环境 我的环境是macOS10.14.6(黑苹果)，问题相对Windows应该会少很多，推荐大家也是用Linux或者macOS来进行编译。
- 
-Xcode下载 一些C/C++相关的工具链一般是用Xcode带的，所以去官网下载就行。但是如果像我一样是黑苹果，系统不是最新的，官网的版本很可能不适配（目前最新Xcode 13要求macOS 11以上），所以只能翻到以前百度云里存的Xcode11.xip下载解压并安装就可以了。
-xip文件在解压时需要用系统自带的解压工具，不要用第三方的，不然解压出来不是一个.app文件。
-还有就是解压时可能会遇到系统验证问题，通过以下两步解决：
- 运行以下命令行  # 最后是xip文件的位置 xattr -d com.apple.quarantine Xcode_11.xip 在系统设置中修改系统的时间约为2018年7月，然后允许任何来源的软件安装。  所有软件环境基础 以下都是编译中需要用到的软件环境，确保都已经安装
-# 有一个已经可用的jdk，版本至少是要编译的版本-1 java -version # 输出 openjdk version &amp;#34;11.0.9&amp;#34; 2020-10-20 OpenJDK Runtime Environment (build 11.0.9+11) OpenJDK 64-Bit Server VM (build 11.0.9+11, mixed mode) # C的编译器 clang --version # 输出 Apple clang version 11.0.0 (clang-1100.0.33.8) Target: x86_64-apple-darwin18.7.0 Thread model: posix InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin # C++的编译器 clang++ --version # 输出 Apple clang version 11.</description>
-    </item>
-    
-    <item>
       <title>我的vim入门配置折腾</title>
       <link>https://ccqstark.github.io/p/vim/</link>
       <pubDate>Sun, 31 Jan 2021 21:26:00 +0800</pubDate>
@@ -106,21 +90,21 @@ https://github.com/vitorgalvao/custom-alfred-iterm-scripts
     </item>
     
     <item>
-      <title>MacOS终端美化指北</title>
+      <title>macOS终端美化指北</title>
       <link>https://ccqstark.github.io/p/mac_terminal/</link>
       <pubDate>Wed, 06 Jan 2021 02:07:00 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/p/mac_terminal/</guid>
-      <description>终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？  1 
+      <description>终于从Windows转到心心念念的macOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。 先看下我，还可以吧？  1 
 准备工作 先保证自己下载homebrew和wget，安装软件或下载包很多情况下要用到它们，特别homebrew是mac下最好用的包管理器一定要有。下载方法网上也很多的，建议先下homebrew再用它下wget。
 iTerm2 首先是下载第三方终端iTerm2，mac自带的终端用的比较少，大家用的最多还是这个。 官网下载
 zsh zsh是shell的一种，mac默认的shell是bash，一般来说我们也是用zsh比较多，因为命令更多更好用。
 下载zsh brew install zsh 切换shell为zsh # 查看当前使用的shell echo $SHELL # 切换为zsh chsh -s /bin/zsh 运行完上面命令后重启一下即可
 oh-my-zsh oh-my-zsh用于美化终端，可以让你拥有很多好看的主题。
-安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh 运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
+安装 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh sh install.sh运行上面的命令来下载安装脚本并运行脚本，成功后会有如下画面
  2 
 更换主题 oh-my-zsh有很多默认的主题，可以在~/.zshrc中修改ZSH_THEME来切换不同主题。 这里我推荐powerlever10k，它集合了很多不同主题风格的样式，支持自定义，如果默认主题中没有你满意的那推荐就用它。下面就讲powerlevel10k的安装方法。
-下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k 安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts .</description>
+下载 git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k安装所需字体 # 安装 nerd-font 字体 brew tap homebrew/cask-fonts # 其他所需字体 cd ~ git clone https://github.com/powerline/fonts.git --depth=1 # 到目录下执行安装脚本 cd fonts .</description>
     </item>
     
     <item>
@@ -137,7 +121,7 @@ Windows下载完要设置环境变量
 在指定路径下创建博客站点目录，目录最后是博客站点名
 找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行设置
 https://themes.gohugo.io/
-本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts &amp;lt;theme&amp;gt;的位置填写主题的名称
+本地预览 hugo server -t hugo-theme-stack --buildDrafts &amp;lt;theme&amp;gt;的位置填写主题的名称
 创建博客 hugo new post/blog.md 博客的markdown文件一开始都是放在\content\post目录下
 创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
 Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务

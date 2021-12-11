@@ -5632,7 +5632,7 @@ str只是一个引用，指向的String对象是在堆中的。&lt;strong&gt;改
         <pubDate>Thu, 18 Mar 2021 23:01:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/log_catch_error/</guid>
-        <description>&lt;p&gt;项目中用到了之前说的日志门面slf4j+log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。&lt;/p&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/log_catch_error/cover.png" alt="Featured image of post [SpringBoot]日志与异常捕获" /&gt;&lt;p&gt;项目中用到了之前说的日志门面slf4j+log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。&lt;/p&gt;
 &lt;h3 id=&#34;slf4j与log4j&#34;&gt;slf4j与log4j&lt;/h3&gt;
 &lt;p&gt;之前有一篇文章介绍了slf4j怎么整合进Springboot，slf4j是一个日志门面，和我们所用的logback、log4j这些日志框架不同，它是为这些日志框架统一调用的API，通过api来调用具体的日志实现，简化了日志的配置与使用。slf4j要与具体的日志框架搭配，我用的是log4j。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;c&#34;&gt;&amp;lt;!-- SLF4j - log4j --&amp;gt;&lt;/span&gt;
@@ -7909,7 +7909,7 @@ bin/elasticsearch-plugin install https://github.91chifun.workers.dev//https://gi
         <pubDate>Thu, 21 Jan 2021 23:01:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/cap/</guid>
-        <description>&lt;p&gt;随着移动互联网发展，用户和数据量越来越多，对应用系统提出了更高的要求，系统必须支持高并发访问和海量数据处理。&lt;/p&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/cap/cover.png" alt="Featured image of post 什么是CAP理论？" /&gt;&lt;p&gt;随着移动互联网发展，用户和数据量越来越多，对应用系统提出了更高的要求，系统必须支持高并发访问和海量数据处理。&lt;/p&gt;
 &lt;p&gt;分布式系统技术就是用来解决集中式架构的性能瓶颈问题。一般来说，分布式系统是建立在网络之上的硬件或者软件系统，彼此之间通过消息等方式进行通信和协调。&lt;/p&gt;
 &lt;p&gt;分布式系统的核心是&lt;strong&gt;可扩展性&lt;/strong&gt;，通过对服务、存储的扩展，来提高系统的处理能力，通过对多台服务器协同工作，来完成单台服务器无法处理的任务，尤其是高并发或者大数据量的任务。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;单点故障&lt;/code&gt;（Single Point Failure）是指在系统中某个组件一旦失效，这会让整个系统无法工作。而分布式系统的设计就是为了避免出现单点故障问题，为了实现一个节点的失效不影响整个系统的运行。&lt;/p&gt;
@@ -9118,12 +9118,12 @@ docker run -d -P --name nginx02 -v ccq-nginx:/etc/nginx:rw nginx
 </description>
         </item>
         <item>
-        <title>MacOS终端美化指北</title>
+        <title>macOS终端美化指北</title>
         <link>https://ccqstark.github.io/p/mac_terminal/</link>
         <pubDate>Wed, 06 Jan 2021 02:07:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/mac_terminal/</guid>
-        <description>&lt;img src="https://ccqstark.github.io/p/mac_terminal/Mojave-desktop.jpg" alt="Featured image of post MacOS终端美化指北" /&gt;&lt;p&gt;终于从Windows转到心心念念的MacOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。
+        <description>&lt;img src="https://ccqstark.github.io/p/mac_terminal/Mojave-desktop.jpg" alt="Featured image of post macOS终端美化指北" /&gt;&lt;p&gt;终于从Windows转到心心念念的macOS上进行开发，虽然是黑苹果但是软件层面上没有太大的区别，程序员还是得用mac啊这终端上真的比windows好用无数倍，那终端到手后还是要折腾美化的，那就开始吧。
 先看下我，还可以吧？
 &lt;figure 
 	&gt;
@@ -9287,7 +9287,7 @@ rm -rf fonts
         <pubDate>Sun, 22 Nov 2020 22:10:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/first_attack/</guid>
-        <description>&lt;h3 id=&#34;事情经过&#34;&gt;事情经过&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/first_attack/cover.png" alt="Featured image of post 记一次服务器被攻击" /&gt;&lt;h3 id=&#34;事情经过&#34;&gt;事情经过&lt;/h3&gt;
 &lt;p&gt;11月17号这天早上上着课，突然有用户反馈应用卡顿，使用不了。我感觉上去看了果然是这样，有时数据加载很慢甚至加载不出来，我感到焦虑与害怕，害怕数据库和别人一样被黑了然后删光要钱，课都没心情听了。然后手机下了个Termius，先把服务关了。&lt;/p&gt;
 &lt;p&gt;中午回到宿舍后看了数据库发现数据完好无损，赶紧备份了一波，然后寻找问题。&lt;/p&gt;
 &lt;p&gt;内存和CPU和磁盘都挺正常，看了服务器的安全日志，那登录记录刷刷的，有人在暴力破解我的&lt;strong&gt;root密码&lt;/strong&gt;！&lt;/p&gt;
@@ -9377,7 +9377,7 @@ service sshd restart
         <pubDate>Sun, 22 Nov 2020 22:07:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/ml_domain_adaptation/</guid>
-        <description>&lt;h2 id=&#34;问题引入与研究目标&#34;&gt;问题引入与研究目标&lt;/h2&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/ml_domain_adaptation/cover.png" alt="Featured image of post [机器学习论文]Domain Adaptive Faster R-CNN for Object Detection in the Wild" /&gt;&lt;h2 id=&#34;问题引入与研究目标&#34;&gt;问题引入与研究目标&lt;/h2&gt;
 &lt;p&gt;目标检测的数据集的收集往往是在现实场景中进行的，因此数据中目标的外观、背景、光照、图像质量等方面的巨大差异会导致训练数据和测试数据之间出现巨大的领域偏移。比如汽车在不同天气条件下驾驶收集到的数据，或者是相机的类型和设置的不同也会导致数据的领域偏移。这样的偏移会导致性能显著下降，尽管收集尽可能多的数据集可以降低这种影响，但是注释边界框也是一个费时费力的过程，因此开发一个新的算法来应对跨领域目标检测问题就尤为重要。&lt;/p&gt;
 &lt;p&gt;论文中方法适用于无监督场景，在源域有完整的监督，而在目标域没有监督。这样就可以不增加人工标注成本的前提下减少跨域对目标检测效率的影响。&lt;/p&gt;
 &lt;h2 id=&#34;关键术语介绍&#34;&gt;关键术语介绍&lt;/h2&gt;
@@ -9610,7 +9610,7 @@ service sshd restart
         <pubDate>Sat, 31 Oct 2020 17:03:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/dp_edit_distance/</guid>
-        <description>&lt;h3 id=&#34;问题&#34;&gt;问题&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/dp_edit_distance/cover.png" alt="Featured image of post DP动态规划——编辑距离问题" /&gt;&lt;h3 id=&#34;问题&#34;&gt;问题&lt;/h3&gt;
 &lt;p&gt;设A和B是2个字符串。要用最少的字符操作将字符串A转换为字符串B。这里所说的字符操作包括 (1)删除一个字符； (2)插入一个字符； (3)将一个字符改为另一个字符。 将字符串A变换为字符串B所用的最少字符操作数称为字符串A到 B的编辑距离，记为d(A,B)。 对于给定的字符串A和字符串B，计算其编辑距离 d(A,B)。&lt;/p&gt;
 &lt;h3 id=&#34;输入格式&#34;&gt;输入格式:&lt;/h3&gt;
 &lt;p&gt;第一行是字符串A，文件的第二行是字符串B。&lt;/p&gt;
@@ -9701,7 +9701,7 @@ xwrs
         <pubDate>Sat, 31 Oct 2020 09:45:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/greedy_activity/</guid>
-        <description>&lt;h3 id=&#34;题目&#34;&gt;题目&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/greedy_activity/cover.png" alt="Featured image of post 贪心算法——会场安排问题" /&gt;&lt;h3 id=&#34;题目&#34;&gt;题目&lt;/h3&gt;
 &lt;p&gt;假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）&lt;/p&gt;
 &lt;h3 id=&#34;输入格式&#34;&gt;输入格式:&lt;/h3&gt;
 &lt;p&gt;第一行有 1 个正整数k，表示有 k个待安排的活动。 接下来的 k行中，每行有 2个正整数，分别表示 k个待安排的活动开始时间和结束时间。时间 以 0 点开始的分钟计。&lt;/p&gt;
@@ -9893,7 +9893,7 @@ xwrs
         <pubDate>Thu, 22 Oct 2020 01:05:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/dp_digmines/</guid>
-        <description>&lt;h3 id=&#34;题目&#34;&gt;题目&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/dp_digmines/cover.png" alt="Featured image of post DP动态规划——挖地雷" /&gt;&lt;h3 id=&#34;题目&#34;&gt;题目&lt;/h3&gt;
 &lt;p&gt;在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。&lt;/p&gt;
 &lt;h4 id=&#34;输入格式&#34;&gt;输入格式:&lt;/h4&gt;
 &lt;p&gt;第一行：地窖的个数；&lt;/p&gt;
@@ -10012,7 +10012,7 @@ xwrs
         <pubDate>Wed, 21 Oct 2020 21:07:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/dp_increasing/</guid>
-        <description>&lt;h3 id=&#34;题目&#34;&gt;题目&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/dp_increasing/cover.png" alt="Featured image of post DP动态规划——单调递增最长子序列" /&gt;&lt;h3 id=&#34;题目&#34;&gt;题目&lt;/h3&gt;
 &lt;p&gt;设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。&lt;/p&gt;
 &lt;h4 id=&#34;输入格式&#34;&gt;输入格式:&lt;/h4&gt;
 &lt;p&gt;输入有两行： 第一行：n，代表要输入的数列的个数 第二行：n个数，数字之间用空格格开&lt;/p&gt;
@@ -10082,7 +10082,7 @@ xwrs
         <pubDate>Sat, 17 Oct 2020 16:52:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/springboot_shiro_jwt/</guid>
-        <description>&lt;h3 id=&#34;添加依赖&#34;&gt;添加依赖&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/springboot_shiro_jwt/cover.png" alt="Featured image of post [SpringBoot]整合shiro&#43;JWT做鉴权" /&gt;&lt;h3 id=&#34;添加依赖&#34;&gt;添加依赖&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;c&#34;&gt;&amp;lt;!-- shiro --&amp;gt;&lt;/span&gt;
 &lt;span class=&#34;nt&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
     &lt;span class=&#34;nt&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.apache.shiro&lt;span class=&#34;nt&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
@@ -10528,7 +10528,7 @@ xwrs
         <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/springboot_oss/</guid>
-        <description>&lt;h3 id=&#34;开通服务&#34;&gt;开通服务&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/springboot_oss/cover.png" alt="Featured image of post [SpringBoot]使用阿里云OSS上传文件" /&gt;&lt;h3 id=&#34;开通服务&#34;&gt;开通服务&lt;/h3&gt;
 &lt;p&gt;登录阿里云，开通OSS服务，默认按量计费，为了业务稳定可以购买包月包年的资源包。&lt;/p&gt;
 &lt;h3 id=&#34;准备工作&#34;&gt;准备工作&lt;/h3&gt;
 &lt;p&gt;创建Bucket，如果是为了作为网站的静态资源存储供用户访问的话把权限设为&lt;code&gt;公共读&lt;/code&gt;，填写信息后创建成功，可以在Bucket下新建目录什么的。&lt;/p&gt;
@@ -10804,7 +10804,7 @@ xwrs
         <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/springboot_druid/</guid>
-        <description>&lt;h3 id=&#34;添加依赖&#34;&gt;添加依赖&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/springboot_druid/cover.png" alt="Featured image of post [SpringBoot]整合Druid数据源" /&gt;&lt;h3 id=&#34;添加依赖&#34;&gt;添加依赖&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;c&#34;&gt;&amp;lt;!-- druid数据库连接池 --&amp;gt;&lt;/span&gt;
 &lt;span class=&#34;nt&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
     &lt;span class=&#34;nt&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;com.alibaba&lt;span class=&#34;nt&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
@@ -10942,7 +10942,7 @@ DEBUG [main] - {conn-10005} pool-recycle
         <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/springboot_mybatis/</guid>
-        <description>&lt;p&gt;以我的项目目录结构为例: &lt;code&gt;com.ccqstark.springbootquick&lt;/code&gt;&lt;/p&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/springboot_mybatis/cover.png" alt="Featured image of post [SpringBoot]整合Mybatis" /&gt;&lt;p&gt;以我的项目目录结构为例: &lt;code&gt;com.ccqstark.springbootquick&lt;/code&gt;&lt;/p&gt;
 &lt;h3 id=&#34;导入依赖&#34;&gt;导入依赖&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;c&#34;&gt;&amp;lt;!-- springboot的mybatis --&amp;gt;&lt;/span&gt;
 &lt;span class=&#34;nt&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
@@ -11086,7 +11086,7 @@ DEBUG [main] - {conn-10005} pool-recycle
         <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/springboot_slf4j-log4j/</guid>
-        <description>&lt;h3 id=&#34;导入依赖&#34;&gt;导入依赖&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/springboot_slf4j-log4j/cover.png" alt="Featured image of post [SpringBoot]整合SLF4J-log4j" /&gt;&lt;h3 id=&#34;导入依赖&#34;&gt;导入依赖&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;c&#34;&gt;&amp;lt;!-- SLF4j - log4j --&amp;gt;&lt;/span&gt;
 &lt;span class=&#34;nt&#34;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
     &lt;span class=&#34;nt&#34;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.slf4j&lt;span class=&#34;nt&#34;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
@@ -11154,7 +11154,7 @@ log4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n
         <pubDate>Mon, 12 Oct 2020 21:07:00 +0800</pubDate>
         
         <guid>https://ccqstark.github.io/p/dp_matrix/</guid>
-        <description>&lt;h3 id=&#34;问题引入&#34;&gt;问题引入&lt;/h3&gt;
+        <description>&lt;img src="https://ccqstark.github.io/p/dp_matrix/cover.png" alt="Featured image of post DP动态规划——矩阵链相乘问题" /&gt;&lt;h3 id=&#34;问题引入&#34;&gt;问题引入&lt;/h3&gt;
 &lt;p&gt;学过线性代数都知道矩阵的乘法，比如说矩阵A×B，就是A的每一行上的元素分别和B的每一列上对应位置的元素相乘再总体相加，每次得到一个位置上的元素的值。&lt;/p&gt;
 &lt;p&gt;假设A是&lt;code&gt;p × q&lt;/code&gt;，B是&lt;code&gt;q × r&lt;/code&gt;，那结果矩阵就是&lt;code&gt;p × r&lt;/code&gt;，当然，能够相乘的条件是A的列数等于B的行数。&lt;/p&gt;
 &lt;p&gt;而A×B总共需要做的乘法数是&lt;code&gt;p × q × r&lt;/code&gt;，由矩阵乘法的过程可知。&lt;/p&gt;
@@ -11654,7 +11654,7 @@ log4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://themes.gohugo.io/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://themes.gohugo.io/&lt;/a&gt;&lt;/p&gt;
 &lt;h4 id=&#34;本地预览&#34;&gt;本地预览&lt;/h4&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;hugo server -t &amp;lt;theme&amp;gt; --buildDrafts
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;hugo server -t hugo-theme-stack --buildDrafts
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&amp;lt;theme&amp;gt;的位置填写主题的名称&lt;/p&gt;
 &lt;h4 id=&#34;创建博客&#34;&gt;创建博客&lt;/h4&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;hugo new post/blog.md

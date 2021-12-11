@@ -37,7 +37,7 @@ String str = &amp;#34;aaaaaaa&amp;#34;; System.out.println(str); str = &amp;#34;
 public final class String implements java.io.Serializable, Comparable&amp;lt;String&amp;gt;, CharSequence { /** The value is used for character storage.'>
 <meta property='og:url' content='https://ccqstark.github.io/p/string/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Java' /><meta property='article:published_time' content='2021-04-06T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2021-04-06T21:07:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/string/java.png' />
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-04-06T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2021-04-06T21:07:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/string/java.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="一次理解String的不可变性">
 <meta name="twitter:description" content="今天在看有关StringBuilder和StringBuffer的文章的时候看到里面提及了有关String中的final字段和不可变的性质，发现这个知识点不是很熟悉，去查了很多文章之后整理出这篇。
@@ -131,6 +131,14 @@ if (!doNotTrack) {
     
 
     <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javase/" >
+                JavaSE
+            </a>
+        
+    </header>
     
 
     <h2 class="article-title">
@@ -276,12 +284,6 @@ str只是一个引用，指向的String对象是在堆中的。<strong>改变字
 
     <footer class="article-footer">
     
-    <section class="article-tags">
-        
-            <a href="/tags/java/">Java</a>
-        
-    </section>
-
 
     
     <section class="article-copyright">
@@ -303,6 +305,123 @@ str只是一个引用，指向的String对象是在堆中的。<strong>改变字
 
     <aside class="related-contents--wrapper">
     
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized_optimization/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized_optimization/cover.c3ae00288d98394524bc6ead85ec211d_hu4d840036f83d7884a510888303887b86_1060410_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized_optimization" 
+                        data-hash="md5-w64AKI2YOUUkvG6thewhHQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]Synchronized优化篇——Java中的各种锁</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_reentrantlock/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_reentrantlock/cover.863c8908ba19abe122f188d57cbb4190_huceae91d367533a91416a74330952ccc4_41335_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_reentrantlock" 
+                        data-hash="md5-hjyJCLoZq&#43;Ei8YjVfLtBkA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]ReentrantLock篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized/cover.0fec37ffa5d7b5f5c3963f9caa306d29_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized" 
+                        data-hash="md5-D&#43;w3/6XXtfXDlj&#43;cqjBtKQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]synchronized篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_basic/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_basic/cover.2787cbf2d8333547efb3b6189939f028_huf957eb7cc0803733802fcc4099cfd7cb_64471_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_basic" 
+                        data-hash="md5-J4fL8tgzNUfvs7YYmTnwKA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]基础篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/compile_jdk/">
+        
+        
+            <div class="article-image">
+                <img src="/p/compile_jdk/cover.3839d0283560f656bf4a64287993b5ec_hucf54841c06fdf75c53fe986b35c09dc3_55691_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="compile_jdk" 
+                        data-hash="md5-ODnQKDVg9la/SmQoeZO17A==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[实战]自己动手编译JDK实录</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
     
 </aside>
 

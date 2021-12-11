@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>框架与中间件 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/categories/%E6%A1%86%E6%9E%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/</link>
+    <description>Recent content in 框架与中间件 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 30 Aug 2021 12:34:20 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/%E6%A1%86%E6%9E%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Java单元测试利器——Mockito</title>
+      <link>https://ccqstark.github.io/p/mockito/</link>
+      <pubDate>Mon, 30 Aug 2021 12:34:20 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/mockito/</guid>
+      <description>Mock介绍 基本介绍 为了提高代码质量，除了做静态代码测试，动态的单元测试也少不了。而在单元测试过程中，Mock是少不了的技术。
+Mock是允许用模拟对象替换测试中的系统部件，并断言它们是如何被使用的一项技术。
+Mock的作用如下  解决依赖问题：当测试一个接口或者功能模块的时候，如果这个接口或者功能模块依赖其他接口或其他模块，那么如果所依赖的接口或功能模块未开发完毕，那么我们就可以使用Mock模拟被依赖接口，完成目标接口的测试。 单元测试：如果某个功能未开发完成，又要进行测试用例的代码编写，也可以先模拟这个功能进行测试。 模拟复杂业务的接口：实际工作中如果我们在测试一个接口功能时，如果这个接口依赖一个非常复杂的接口业务或者来源于第三方接口（如第三方支付接口），那么我们完全可以使用Mock来模拟这个复杂的业务接口，其实这个和解决接口依赖是一样的原理。 前后端联调：进行前后端分离编程时，如果进行一个前端页面开发，需要根据后合返回的状态展示不同的页面，那么就需要调用后合的接口，但是后合接口还未开发完成，完全可以借助mock来模拟后台这个接口返回想要的数据。  Mock与Stub(桩)  桩代码(Stub)：用来代替真实代码的临时代码，主要作用是使被测代码能够独立编译、 链接，并独立运行 Mock代码：也是用来代替真实代码的临时代码，起到隔离和补齐的作用，但是它还可深入的模拟对象之间的交互方式，可以对结果进行验证  Mockito测试框架 Mockito是Java单元测试中使用率最高的Mock框架之一，同时也是SpringBoot默认引入的mock框架(spring-boot-starter-test包括JUnit, Hamcrest 和 Mockito)
+Maven依赖 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mockito&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mockito-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.12.4&amp;lt;/version&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; 验证某些行为是否被调用 Mockito可以验证某些行为：一旦mock对象被创建了，mock对象会记住所有的交互
+使用方法verify() 判断方法是否被调用过
+@Test void verifyTest(){ Person mockPerson = Mockito.mock(Person.class); mockPerson.setId(1); Mockito.verify(mockPerson).setId(1); Mockito.verify(mockPerson).setName(&amp;#34;cc&amp;#34;); // 此方法没有调用过，所以会报错 } 测试桩Stub Mockito可以做一些测试桩（Stub），做测试桩的目的是为了在某些方法还没有开发出来，但我们测试时却需要调用它的时候，给这个方法模拟一个假的返回值供我们测试用。
+默认情况下，所有函数都有返回值。mock函数默认返回的是null，一个空的集合或者一个被对象类型包装的内置类型。
+当我们要指定某的函数的返回值时，可以使用when() 和 ThenReturn() 、ThenThrow() 方法
+之后调用这些函数时，就会返回我们上面指定的值（注意返回类型也要正确）
+@Test void stubTest(){ Person mockPerson = Mockito.mock(Person.class); Mockito.when(mockPerson.getId()).thenReturn(1); Mockito.when(mockPerson.getName()).thenThrow(new NoSuchMethodError()); System.out.println(mockPerson.getId()); // 返回1  System.out.println(mockPerson.getName()); // 抛出异常NoSuchMethodError } 一个方法可能多次调用，想要每次调用都设置对应返回值也是可以的</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]日志与异常捕获</title>
+      <link>https://ccqstark.github.io/p/log_catch_error/</link>
+      <pubDate>Thu, 18 Mar 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/log_catch_error/</guid>
+      <description>项目中用到了之前说的日志门面slf4j+log4j，但是之后遇到了一些问题。比如程序报错没有记录在日志，记录的时间也和服务器的不一致（服务器是东八区时间），或者记录一些不需要的信息，此篇就来解决这些问题。
+slf4j与log4j 之前有一篇文章介绍了slf4j怎么整合进Springboot，slf4j是一个日志门面，和我们所用的logback、log4j这些日志框架不同，它是为这些日志框架统一调用的API，通过api来调用具体的日志实现，简化了日志的配置与使用。slf4j要与具体的日志框架搭配，我用的是log4j。
+&amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 使用时只要用注解@Slf4j ，然后直接用log.info() 方法就可以记录日志了。
+日志等级 日志分为以下几个等级：
+OFF：最高等级的，用于关闭所有日志记录。
+FATAL：会导致应用程序推出的严重错误。
+ERROR：虽然发生错误事件，但仍然不影响系统的继续运行，一般也是程序的各种Exception，但要注意的是并不是所有异常都会导致Error，这就是下面的要说的异常捕获。打印错误和异常信息，如果不想输出太多的日志，可以使用这个级别。
+WARN：警告，表明会出现潜在错误的情形，有些信息不是错误信息，只是一些提示。
+INFO：消息在粗粒度级别上突出强调应用程序的运行过程。打印一些你感兴趣的或者重要的信息，这个可以用于生产环境中输出程序运行的一些重要信息，但是不能滥用，避免打印过多的日志。
+DEBUG：主要用于开发过程中打印一些运行信息。但是打印但信息量过多，项目上线后不要用。
+TRACE：跟踪日志，日志消息的粒度太细，很低的日志级别，一般不会使用。
+ALL：最低等级的，用于打开所有日志记录。
+通过修改日志配置文件log4j.properties来改变日志等级：
+log4j.rootLogger = ERROR,stdout,log //第一个参数是日志等级 错误捕获 在SpringBoot我们希望有统一的操作来捕获系统运行过程中参数的所有错误，对未预测到对错误设置友好的返回值给用户，避免返回500状态码。甚至可以将系统产生的报错通过邮件发送给开发者，让生产环境中的错误能得到快速直接的监测和解决。
+我们用到@RestControllerAdvice和@ExceptionHandler 这两个注解
+@Slf4j @RestControllerAdvice // 用于拦截异常的注解 public class ExceptionProcesser extends ResponseEntityExceptionHandler { @Autowired private MailService mailService; /** * 全局异常捕获入日志 */ // 此注解用来标示处理哪个类的异常 	@ExceptionHandler(value = Exception.class) // 表示所有的异常都会处理 	public CommonResult&amp;lt;String&amp;gt; defaultErrorHandler(Exception e) { // slf4j下的日志用法，简洁易用 	log.</description>
+    </item>
+    
+    <item>
+      <title>[ElasticSearch]ElasticSearch入门与原理浅析</title>
+      <link>https://ccqstark.github.io/p/es_principle/</link>
+      <pubDate>Sat, 13 Mar 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/es_principle/</guid>
+      <description>简介 引入 对于搜索功能，大家以前都是怎么做的呢？我相信很多人一开始也是用SQL的LIKE关键字加上%来匹配关键字的吧，为了实现更好的模糊效果就再加一个分词器来拆分关键词。但是，一旦被搜索的数据量一大，这种方式就显得效率低下。为了实现更好的效果，我们可以使用当前最流行的分布式搜索引擎——ElasticSearch 。
+基本介绍 Elasticsearch 是一个分布式的免费开源搜索和分析引擎，适用于包括文本、数字、地理空间、结构化和非结构化数据等在内的所有类型的数据，基于著名的Lucene库进行开发，并以简单的RESTful风格的API进行调用，支持Java、JavaScript(Node)、Go、 C#(.NET)、PHP、Python、Ruby等多种语言。ElasticSearch已经成为非常流行的搜索引擎，一些著名厂商例如京东、滴滴、携程、Stack Overflow、GitHub等都在使用。
+官网地址：https://www.elastic.co/cn/elasticsearch/
+ 
+应用场景  应用程序搜索 网站搜索 企业搜索 日志处理和分析 基础设施指标和容器监测 应用程序性能监测 地理空间数据分析和可视化 安全分析 业务分析  ELK ELK，即ElasticSearch + logstash + Kibana ，是一套开源的日志收集与分析解决方案。利用ElasticSearch对数据进行快速的复杂条件检索，用logstash则作为数据管道从多个来源进行数据的采集、转换和传输，Kibana则通过生成多种可视化报表方便用户进行日志监控。
+一般小型系统我们分析日志可以直接在用grep、awk等命令进行过滤与检索，或者拉到本地用LogViewer等专门的日志工具打开查看。但是当系统体量一大，采用的是分布式架构，集群中的日志管理就成为一个难题。ELK目的就是为了解决大型系统中的日志收集、存储与分析问题，方便将节点中的日志统一管理从而提高效率。
+ 
+概念介绍 基本概念 ElasticSearch（简称es）搜索的时候不是去数据库里拿数据，它有自己的一套存储与索引体系。数据库中的数据需要同步到es中，通过索引的形式来存储数据才能实现高效检索。
+es索引体系的基本概念和关系型数据库中的有些类似，我们可以对比着来看
+   Index 索引 Database 数据库     Type 文档类型 Table 表   Document 文档 Row 记录   Field 字段 Column 属性   Mapping 映射 Schema 模型   Query DSL SQL    es的层次组织结构类似于MySQL这样的关系型数据库，index就像database那样存储着不同的type，也就是数据库中的table；再下一级就是document，类似于数据库中的一条条记录；每条记录的字段field就对应表中的column；mapping就如schema那样表示着库表的架构；es中的查询语言Query DSL则对标我们熟悉的SQL。通过类比可以更快地认识es的结构组成。</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合ElasticSearch</title>
+      <link>https://ccqstark.github.io/p/springboot_es/</link>
+      <pubDate>Thu, 04 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_es/</guid>
+      <description>导入依赖 我们使用springboot操作es要用到对应的data相关starter
+&amp;lt;!-- elasticsearch的starter依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-data-elasticsearch&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- 将对象转为json传入source时要用 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.75&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;  ⚠️ 各springboot的版本对应特定的elasticsearch版本，引入上面的依赖时会自动下载对应版本的rest-high-level-client，使用时尽量使得版本对应，避免潜在问题。
+ 版本对应表如下：
+  我使用的这里用Springboot2.4.1，所以对应的elasticsearch是7.9.3版本
+配置类 config目录下新建es的配置类ElasticSearchClientConfig.java
+@Configuration public class ElasticSearchClientConfig { @Bean public RestHighLevelClient restHighLevelClient() { final CredentialsProvider credentialsProvider = new BasicCredentialsProvider(); credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(&amp;#34;elastic&amp;#34;, &amp;#34;[密码]&amp;#34;)); RestHighLevelClient client = new RestHighLevelClient( RestClient.builder( new HttpHost(&amp;#34;[ip]&amp;#34;, 9200, &amp;#34;http&amp;#34;)) .setHttpClientConfigCallback(httpClientBuilder -&amp;gt; { httpClientBuilder.disableAuthCaching(); return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider); })); return client; } } 这里有用到x-pack基础安全功能，所以配置了用户和密码。如果没有用户和密码，参照官方文档连接代码如下：
+RestHighLevelClient client = new RestHighLevelClient( RestClient.</description>
+    </item>
+    
+    <item>
+      <title>[ElasticSearch]REST风格操作</title>
+      <link>https://ccqstark.github.io/p/es_rest/</link>
+      <pubDate>Wed, 03 Feb 2021 23:01:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/es_rest/</guid>
+      <description>基本的rest命令    method url 功能     PUT localhost:9200/索引名称/类型名称/文档id 创建文档（指定文档id)   POST localhost:9200/索引名称/类型名称 创建文档（随机文档id）   POST localhost:9200/索引名称/类型名称/文档id/_update 修改文档   DELETE localhost:9200/索引名称/类型名称/文档id 删除文档   GET localhost:9200/索引名称/类型名称/文档id 查询文档，通过文档id   POST localhost:9200/索引名称/类型名称/_search 查询所有数据     ⚠️ 自定义类型将在以后的版本中弃用，规范起见一律使用_doc 类型
+ 文档字段的数据类型   字符串类型
+text keyword
+  数值类型
+long integer short byte double float half float scaled float
+  日期类型
+date</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合shiro&#43;JWT做鉴权</title>
+      <link>https://ccqstark.github.io/p/springboot_shiro_jwt/</link>
+      <pubDate>Sat, 17 Oct 2020 16:52:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_shiro_jwt/</guid>
+      <description>添加依赖 &amp;lt;!-- shiro --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.shiro&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;shiro-spring&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.4.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- JWT --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.auth0&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;java-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.11.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.jsonwebtoken&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;jjwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; JWT加密解密验证工具类 package com.ccqstark.springbootquick.util; import com.auth0.jwt.JWT; import com.auth0.jwt.JWTVerifier; import com.auth0.jwt.algorithms.Algorithm; import io.jsonwebtoken.Claims; import io.jsonwebtoken.JwtBuilder; import io.jsonwebtoken.Jwts; import io.jsonwebtoken.SignatureAlgorithm; import org.apache.commons.codec.binary.Base64; import java.util.Date; import java.util.HashMap; import java.util.Map; import java.util.UUID; /* * 总的来说，工具类中有三个方法 * 获取JwtToken，获取JwtToken中封装的信息，判断JwtToken是否存在 * 1. encode()，参数是=签发人，存在时间，一些其他的信息=。返回值是JwtToken对应的字符串 * 2. decode()，参数是=JwtToken=。返回值是荷载部分的键值对 * 3. isVerify()，参数是=JwtToken=。返回值是这个JwtToken是否存在 * */ public class JwtUtil { // 创建默认的秘钥和算法，供无参的构造方法使用  private static final String defaultbase64EncodedSecretKey = &amp;#34;wdnmd&amp;#34;; private static final SignatureAlgorithm defaultsignatureAlgorithm = SignatureAlgorithm.</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]使用阿里云OSS上传文件</title>
+      <link>https://ccqstark.github.io/p/springboot_oss/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_oss/</guid>
+      <description>开通服务 登录阿里云，开通OSS服务，默认按量计费，为了业务稳定可以购买包月包年的资源包。
+准备工作 创建Bucket，如果是为了作为网站的静态资源存储供用户访问的话把权限设为公共读，填写信息后创建成功，可以在Bucket下新建目录什么的。
+单独创建一个RAM子用户用来调用API，选择编程访问，创建成功后一定要把AccessKeyID和AccessKeySecret等重要信息记下来，后面配置文件要用到。
+然后要给这个子用户添加权限AliyunOSSFullAccess
+Maven依赖 &amp;lt;!-- OSS --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.aliyun.oss&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;aliyun-sdk-oss&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.4.2&amp;lt;/version&amp;gt; &amp;lt;exclusions&amp;gt; &amp;lt;exclusion&amp;gt; &amp;lt;groupId&amp;gt;org.apache.httpcomponents&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;httpclient&amp;lt;/artifactId&amp;gt; &amp;lt;/exclusion&amp;gt; &amp;lt;/exclusions&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.httpcomponents&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;httpclient&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;4.4.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置文件 endpoint就是在存储桶的概览里地域节点，填外网访问那个就行
+url填资源访问的URL的前面部分（填到.com/）
+accessKeyId和accessKeySecret就是创建子用户时那个
+bucketName就是存储桶的名字
+# 阿里云ossoss:endpoint:*url:*accessKeyId:*accessKeySecret:*bucketName:*配置类 项目的config目录下新建OSS的配置类
+package com.ccqstark.springbootquick.config; import lombok.Data; import org.springframework.boot.context.properties.ConfigurationProperties; import org.springframework.context.annotation.Configuration; import org.springframework.stereotype.Component; import java.io.Serializable; /** * @Description: 阿里云 OSS 配置信息 * @Author: ccq * @Date: 2020/10/16 */ @Component //注册bean @Data @Configuration @ConfigurationProperties(prefix = &amp;#34;oss&amp;#34;) public class OSSConfig implements Serializable { private String endpoint; private String url; private String accessKeyId; private String accessKeySecret; private String bucketName; } 上传文件工具类 项目的util目录下新建这上传工具类</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合Druid数据源</title>
+      <link>https://ccqstark.github.io/p/springboot_druid/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_druid/</guid>
+      <description>添加依赖 &amp;lt;!-- druid数据库连接池 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;druid&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.1.21&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- MySql数据库驱动 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;mysql&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mysql-connector-java&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!--分页插件 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.github.pagehelper&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;pagehelper-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.0.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- log4j日志 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;log4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;log4j&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.17&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 添加配置 spring:datasource:username:rootpassword:root#serverTimezone=UTC解决时区的报错url:jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&amp;amp;useUnicode=true&amp;amp;characterEncoding=utf-8driver-class-name:com.mysql.cj.jdbc.Drivertype:com.alibaba.druid.pool.DruidDataSource#Spring Boot 默认是不注入这些属性值的，需要自己绑定#druid 数据源专有配置initialSize:5minIdle:5maxActive:20maxWait:60000timeBetweenEvictionRunsMillis:60000minEvictableIdleTimeMillis:300000validationQuery:SELECT 1 FROM DUALtestWhileIdle:truetestOnBorrow:falsetestOnReturn:falsepoolPreparedStatements:true#配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入#如果允许时报错 java.lang.ClassNotFoundException: org.apache.log4j.Priority#则导入 log4j 依赖即可，Maven 地址：https://mvnrepository.com/artifact/log4j/log4jfilters:stat,wall,log4jmaxPoolPreparedStatementPerConnectionSize:20useGlobalDataSourceStat:trueconnectionProperties:druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500测试 编写测试类
+@SpringBootTest class SpringbootQuickApplicationTests { @Autowired DataSource dataSource; @Test void contextLoads() throws SQLException { System.out.println(dataSource.getClass()); Connection connection = dataSource.getConnection(); System.out.println(connection); connection.close(); } } 运行后控制台出现如下druid连接池相关字样说明成功
+2020-10-15 10:40:34.179 INFO 11352 --- [ main] com.</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合Mybatis</title>
+      <link>https://ccqstark.github.io/p/springboot_mybatis/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_mybatis/</guid>
+      <description>以我的项目目录结构为例: com.ccqstark.springbootquick
+导入依赖 &amp;lt;!-- springboot的mybatis --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mybatis.spring.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mybatis-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.1.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置 #整合mybatismybatis:type-aliases-package:com.ccqstark.springbootquick.pojomapper-locations:classpath:mybatis/mapper/*.xml编写POJO(用了Lombok) 在com.ccqstark.springbootquick下新建目录pojo，然后新建类User.java，用于存储数据的对象（与数据库中的表对应）
+package com.ccqstark.springbootquick.pojo; import lombok.AllArgsConstructor; import lombok.Data; import lombok.NoArgsConstructor; @Data @NoArgsConstructor @AllArgsConstructor public class User { private int id; private String name; private String pwd; } 编写Mapper 在com.ccqstark.springbootquick下新建目录mapper，然后新建UserMapper.java，用于写接口，CRUD函数
+package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**</description>
+    </item>
+    
+    <item>
+      <title>[SpringBoot]整合SLF4J-log4j</title>
+      <link>https://ccqstark.github.io/p/springboot_slf4j-log4j/</link>
+      <pubDate>Sat, 17 Oct 2020 10:54:00 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/springboot_slf4j-log4j/</guid>
+      <description>导入依赖 &amp;lt;!-- SLF4j - log4j --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.slf4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;slf4j-log4j12&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.8.0-alpha2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 然后要在IDEA下载插件Maven Helper中把logback相关的包给Exclude，否则会出现冲突
+配置 log4j.properties中配置
+# rootLogger参数分别为：根Logger级别，输出器stdout，输出器loglog4j.rootLogger = info,stdout,log# 输出信息到控制台log4j.appender.stdout = org.apache.log4j.ConsoleAppenderlog4j.appender.stdout.layout = org.apache.log4j.PatternLayoutlog4j.appender.stdout.layout.ConversionPattern = %d [%-5p] %l %rms: %m%n# 输出DEBUG级别以上的日志到D://log/debug.log，这个是日志文件存放的路径，根据时间情况进行设置log4j.appender.log = org.apache.log4j.DailyRollingFileAppenderlog4j.appender.log.DatePattern = &#39;.&#39;yyyy-MM-ddlog4j.appender.log.File = D://log/debug.loglog4j.appender.log.Encoding = UTF-8#log4j.appender.log.Threshold = INFOlog4j.appender.log.layout = org.apache.log4j.PatternLayoutlog4j.appender.log.layout.ConversionPattern = %d [%-5p] (%c.%t): %m%n测试 编写测试类，使用@Slf4j注解之前确保使用了lombok
+package com.ccqstark.springbootquick; import lombok.extern.slf4j.Slf4j; import org.junit.Test; @Slf4j public class LoggerTest { // private static final Logger log = LoggerFactory.</description>
+    </item>
+    
+  </channel>
+</rss>

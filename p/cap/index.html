@@ -37,7 +37,7 @@ CAP 理论说明在架构设计中，不要把精力浪费在如何设计能满�
 🔧 ZooKeeper就是采用了 CP 一致性，ZooKeeper 是一个分布式的服务框架，主要用来解决分布式集群中应用系统的协调和一致性问题。其核心算法是 Zab，所有设计都是为了一致性。在 CAP 模型中，ZooKeeper 是 CP，这意味着面对网络分区时，为了保持一致性，它是不可用的。'>
 <meta property='og:url' content='https://ccqstark.github.io/p/cap/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='CAP' /><meta property='article:published_time' content='2021-01-21T23:01:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-21T23:01:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='CAP' /><meta property='article:published_time' content='2021-01-21T23:01:00&#43;08:00'/><meta property='article:modified_time' content='2021-01-21T23:01:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/cap/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="什么是CAP理论？">
 <meta name="twitter:description" content="随着移动互联网发展，用户和数据量越来越多，对应用系统提出了更高的要求，系统必须支持高并发访问和海量数据处理。
@@ -54,7 +54,8 @@ CAP 理论说明在架构设计中，不要把精力浪费在如何设计能满�
 不同业务对于一致性的要求是不同的。例如，在微博上发表评论和点赞，用户对不一致是不敏感的，可以容忍相对较长时间的不一致，只要做好本地的交互，并不会影响用户体验；而我们在电商购物时，产品价格数据则是要求强一致性的，如果商家更改价格不能实时生效，则会对交易成功率有非常大的影响。
 需要注意的是，CAP 理论中是忽略网络延迟的，也就是当事务提交时，节点间的数据复制一定是需要花费时间的。即使是同一个机房，从节点 A 复制到节点 B，由于现实中网络请求总是需要一定时间的，所以总会有一段时间不一致。
  CP 架构：对于 CP 来说，放弃可用性，追求一致性和分区容错性。
-🔧 ZooKeeper就是采用了 CP 一致性，ZooKeeper 是一个分布式的服务框架，主要用来解决分布式集群中应用系统的协调和一致性问题。其核心算法是 Zab，所有设计都是为了一致性。在 CAP 模型中，ZooKeeper 是 CP，这意味着面对网络分区时，为了保持一致性，它是不可用的。">
+🔧 ZooKeeper就是采用了 CP 一致性，ZooKeeper 是一个分布式的服务框架，主要用来解决分布式集群中应用系统的协调和一致性问题。其核心算法是 Zab，所有设计都是为了一致性。在 CAP 模型中，ZooKeeper 是 CP，这意味着面对网络分区时，为了保持一致性，它是不可用的。"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/cap/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -264,8 +265,20 @@ if (!doNotTrack) {
 
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/cap/">
+                <img src="/p/cap/cover_huf47dfa8462eb5615bceb79738fdfbc2b_351372_800x0_resize_box_3.png"
+                        srcset="/p/cap/cover_huf47dfa8462eb5615bceb79738fdfbc2b_351372_800x0_resize_box_3.png 800w, /p/cap/cover_huf47dfa8462eb5615bceb79738fdfbc2b_351372_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="419" 
+                        loading="lazy"
+                        alt="Featured image of post 什么是CAP理论？" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     

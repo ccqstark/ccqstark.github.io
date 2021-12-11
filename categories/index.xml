@@ -8,11 +8,11 @@
     <language>en-us</language>
     <lastBuildDate>Sat, 11 Dec 2021 17:09:24 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>JavaEE</title>
-      <link>https://ccqstark.github.io/categories/javaee/</link>
+      <title>JavaSE</title>
+      <link>https://ccqstark.github.io/categories/javase/</link>
       <pubDate>Sat, 11 Dec 2021 17:09:24 +0800</pubDate>
       
-      <guid>https://ccqstark.github.io/categories/javaee/</guid>
+      <guid>https://ccqstark.github.io/categories/javase/</guid>
       <description></description>
     </item>
     
@@ -22,6 +22,15 @@
       <pubDate>Thu, 02 Dec 2021 18:31:11 +0800</pubDate>
       
       <guid>https://ccqstark.github.io/categories/%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>框架与中间件</title>
+      <link>https://ccqstark.github.io/categories/%E6%A1%86%E6%9E%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/</link>
+      <pubDate>Mon, 30 Aug 2021 12:34:20 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/categories/%E6%A1%86%E6%9E%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/</guid>
       <description></description>
     </item>
     

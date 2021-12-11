@@ -21,7 +21,7 @@ Windows下载完要设置环境变量
 在指定路径下创建博客站点目录，目录最后是博客站点名
 找到心仪主题 在下面这个网站上找到喜欢的主题，按照各自的文档进行设置
 https://themes.gohugo.io/
-本地预览 hugo server -t &amp;lt;theme&amp;gt; --buildDrafts &amp;lt;theme&amp;gt;的位置填写主题的名称
+本地预览 hugo server -t hugo-theme-stack --buildDrafts &amp;lt;theme&amp;gt;的位置填写主题的名称
 创建博客 hugo new post/blog.md 博客的markdown文件一开始都是放在\content\post目录下
 创建GitHub/Gitee仓库 Github把仓库命名为&amp;lt;name&amp;gt;.github.io即可开启博客托管服务
 Gitee直接命名为自己的用户名，一字不差，同时需要手动开启Gitee Page服务

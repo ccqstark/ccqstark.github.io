@@ -15,13 +15,14 @@ package com.ccqstark.springbootquick.pojo; import lombok.AllArgsConstructor; imp
 package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**'>
 <meta property='og:url' content='https://ccqstark.github.io/p/springboot_mybatis/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2020-10-17T10:54:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-17T10:54:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2020-10-17T10:54:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-17T10:54:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/springboot_mybatis/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[SpringBoot]整合Mybatis">
 <meta name="twitter:description" content="以我的项目目录结构为例: com.ccqstark.springbootquick
 导入依赖 &amp;lt;!-- springboot的mybatis --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.mybatis.spring.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mybatis-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.1.1&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 配置 #整合mybatismybatis:type-aliases-package:com.ccqstark.springbootquick.pojomapper-locations:classpath:mybatis/mapper/*.xml编写POJO(用了Lombok) 在com.ccqstark.springbootquick下新建目录pojo，然后新建类User.java，用于存储数据的对象（与数据库中的表对应）
 package com.ccqstark.springbootquick.pojo; import lombok.AllArgsConstructor; import lombok.Data; import lombok.NoArgsConstructor; @Data @NoArgsConstructor @AllArgsConstructor public class User { private int id; private String name; private String pwd; } 编写Mapper 在com.ccqstark.springbootquick下新建目录mapper，然后新建UserMapper.java，用于写接口，CRUD函数
-package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**">
+package com.ccqstark.springbootquick.mapper; import com.ccqstark.springbootquick.pojo.User; import org.apache.ibatis.annotations.Mapper; import org.springframework.stereotype.Repository; import java.util.List; // Mapper注解说明这是一个mybatis的mapper类 //@Mapper //如果有扫描的话这里可以不用写这个注解了 @Repository public interface UserMapper { List&amp;lt;User&amp;gt; queryUserList(); User queryByUserId(int id); int addUser(User user); int updateUser(User user); int deleteUser(int id); } 如果是以扫描的形式，就是在项目的app启动类加上注解**@MapperScan**"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/springboot_mybatis/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -81,15 +82,27 @@ if (!doNotTrack) {
         </div>
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/springboot_mybatis/">
+                <img src="/p/springboot_mybatis/cover_hud62bf8010474cbdcf139a7fd30aacc5c_25975_800x0_resize_box_3.png"
+                        srcset="/p/springboot_mybatis/cover_hud62bf8010474cbdcf139a7fd30aacc5c_25975_800x0_resize_box_3.png 800w, /p/springboot_mybatis/cover_hud62bf8010474cbdcf139a7fd30aacc5c_25975_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="267" 
+                        loading="lazy"
+                        alt="Featured image of post [SpringBoot]整合Mybatis" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     
     <header class="article-category">
         
-            <a href="/categories/javaee/" >
-                JavaEE
+            <a href="/categories/%E6%A1%86%E6%9E%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/" >
+                框架与中间件
             </a>
         
     </header>
@@ -314,9 +327,19 @@ if (!doNotTrack) {
             <div class="flex article-list--tile">
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/log_catch_error/">
         
+        
+            <div class="article-image">
+                <img src="/p/log_catch_error/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="log_catch_error" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -348,9 +371,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/springboot_shiro_jwt/">
         
+        
+            <div class="article-image">
+                <img src="/p/springboot_shiro_jwt/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_shiro_jwt" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -360,9 +393,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/springboot_oss/">
         
+        
+            <div class="article-image">
+                <img src="/p/springboot_oss/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_oss" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -372,9 +415,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/springboot_druid/">
         
+        
+            <div class="article-image">
+                <img src="/p/springboot_druid/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_druid" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">

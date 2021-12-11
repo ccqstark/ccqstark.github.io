@@ -27,7 +27,7 @@
 代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.'>
 <meta property='og:url' content='https://ccqstark.github.io/p/greedy_activity/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='贪心算法' /><meta property='article:published_time' content='2020-10-31T09:45:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-31T09:45:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='贪心算法' /><meta property='article:published_time' content='2020-10-31T09:45:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-31T09:45:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/greedy_activity/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="贪心算法——会场安排问题">
 <meta name="twitter:description" content="题目 假设要在足够多的会场里安排一批活动，并希望使用尽可能少的会场。设计一个有效的 贪心算法进行安排。（这个问题实际上是著名的图着色问题。若将每一个活动作为图的一个 顶点，不相容活动间用边相连。使相邻顶点着有不同颜色的最小着色数，相应于要找的最小 会场数。）
@@ -39,7 +39,8 @@
 其实原因就在于：会场结束时间无限制，要用最少的会场。
 正确解法有2种：
  把活动按开始时间从小到大排，当开始时间相同则结束时间早的优先。遍历活动再用之前的那种在一个会场安排尽可能多的活动，完了之后开辟一个新的会场继续安排，直到全部活动安排完毕。 把活动按结束时间从小到大排，当结束时间相同则开始时间早的优先。遍历活动，每次再遍历一次所有会场看结束时间是否满足可以安排下，都不能安排下就新开一个会场，然后每次还要对所有已经开辟的会场按结束时间进行从大到小再次排序，这样直到所有活动遍历安排完毕。  所以这道题是要把有限的活动尽量塞在最少的会场中，要从所有会场全局去考虑，而且这道题的特点是单个会场的结束时间没有限制，所以第一种解法是按开始时间排的而不用按结束时间。第二种按结束时间的话就需要每次重新遍历所有会场，每次还重排，保证从全局去考虑。
-代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a.">
+代码 解法1： // 按开始时间排序 #include &amp;lt;iostream&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; #define MAX 666  struct activity { int start; int end; int arrage; } activities[MAX]; int n; bool struct_compare(activity a, activity b) { if (a."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/greedy_activity/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -99,8 +100,20 @@ if (!doNotTrack) {
         </div>
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/greedy_activity/">
+                <img src="/p/greedy_activity/cover_hud37e3ca5fae84e51507ebf04bd20edfb_89681_800x0_resize_box_3.png"
+                        srcset="/p/greedy_activity/cover_hud37e3ca5fae84e51507ebf04bd20edfb_89681_800x0_resize_box_3.png 800w, /p/greedy_activity/cover_hud37e3ca5fae84e51507ebf04bd20edfb_89681_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="450" 
+                        loading="lazy"
+                        alt="Featured image of post 贪心算法——会场安排问题" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     

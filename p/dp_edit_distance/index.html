@@ -31,7 +31,7 @@ fxpimuxwrs 输出样例: 在这里给出相应的输出。例如：
 if (A[i - 1] == B[j - 1]) // dp矩阵以1开始，字符数组是0开始，因此对应的话要-1 	dp[i][j] = dp[i - 1][j - 1]; // 如果对应的位置相同就不用操作，否则要修改所以要&#43;1 else dp[i][j] = dp[i - 1][j - 1] &#43; 1; // 修改 删除 插入 dp[i][j] = min(dp[i][j], min(dp[i - 1][j] &#43; 1, dp[i][j - 1] &#43; 1)); 表的维度：二维'>
 <meta property='og:url' content='https://ccqstark.github.io/p/dp_edit_distance/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-31T17:03:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-31T17:03:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-31T17:03:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-31T17:03:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/dp_edit_distance/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="DP动态规划——编辑距离问题">
 <meta name="twitter:description" content="问题 设A和B是2个字符串。要用最少的字符操作将字符串A转换为字符串B。这里所说的字符操作包括 (1)删除一个字符； (2)插入一个字符； (3)将一个字符改为另一个字符。 将字符串A变换为字符串B所用的最少字符操作数称为字符串A到 B的编辑距离，记为d(A,B)。 对于给定的字符串A和字符串B，计算其编辑距离 d(A,B)。
@@ -45,7 +45,8 @@ fxpimuxwrs 输出样例: 在这里给出相应的输出。例如：
 如果A字符串的第i个字符与B字符串的第j个字符串相同，则这个位置不需要操作，所需的操作等于dp[i-1][j-1]，否则需要进行修改，操作数就要&#43;1
 由于每个位置都可以进行修改、删除、插入三种操作，因此需要把这三种操作中编辑距离最小的作为dp[i][j]的值
 递推公式(代码表示)：
-if (A[i - 1] == B[j - 1]) // dp矩阵以1开始，字符数组是0开始，因此对应的话要-1 	dp[i][j] = dp[i - 1][j - 1]; // 如果对应的位置相同就不用操作，否则要修改所以要&#43;1 else dp[i][j] = dp[i - 1][j - 1] &#43; 1; // 修改 删除 插入 dp[i][j] = min(dp[i][j], min(dp[i - 1][j] &#43; 1, dp[i][j - 1] &#43; 1)); 表的维度：二维">
+if (A[i - 1] == B[j - 1]) // dp矩阵以1开始，字符数组是0开始，因此对应的话要-1 	dp[i][j] = dp[i - 1][j - 1]; // 如果对应的位置相同就不用操作，否则要修改所以要&#43;1 else dp[i][j] = dp[i - 1][j - 1] &#43; 1; // 修改 删除 插入 dp[i][j] = min(dp[i][j], min(dp[i - 1][j] &#43; 1, dp[i][j - 1] &#43; 1)); 表的维度：二维"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/dp_edit_distance/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -105,8 +106,20 @@ if (!doNotTrack) {
         </div>
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/dp_edit_distance/">
+                <img src="/p/dp_edit_distance/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_800x0_resize_box_3.png"
+                        srcset="/p/dp_edit_distance/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_800x0_resize_box_3.png 800w, /p/dp_edit_distance/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="450" 
+                        loading="lazy"
+                        alt="Featured image of post DP动态规划——编辑距离问题" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     
@@ -285,9 +298,19 @@ xwrs
             <div class="flex article-list--tile">
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_digmines/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_digmines/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_digmines" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -297,9 +320,19 @@ xwrs
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_increasing/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_increasing/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_increasing" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -309,9 +342,19 @@ xwrs
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_matrix/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_matrix/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_matrix" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">

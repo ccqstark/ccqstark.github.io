@@ -31,7 +31,7 @@ dp[i] = max{ dp[j]&#43;1, dp[i] }
 代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?'>
 <meta property='og:url' content='https://ccqstark.github.io/p/dp_increasing/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-21T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-21T21:07:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-21T21:07:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-21T21:07:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/dp_increasing/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="DP动态规划——单调递增最长子序列">
 <meta name="twitter:description" content="题目 设计一个O(n2)时间的算法，找出由n个数组成的序列的最长单调递增子序列。
@@ -45,7 +45,8 @@ dp[i] = max{ dp[j]&#43;1, dp[i] }
 dp[i] = max{ dp[j]&#43;1, dp[i] }
 由于每次重头又遍历了一次，并每次都分析最优解，避免了1 2 3 9 6 7 这样在最大数后面还有2个较小的数可以产生更长递增子序列的情况可能犯的错误。
 这也说明这个算法的时间复杂度只能是O(n2)
-代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?">
+代码 // 单调递增最长子序列 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 666 int arr[MAX]; int dp[MAX]; int n; int longest_increasing(){ // 初始化第一个  dp[0] = 1; // 双重遍历  for (int i = 0;i&amp;lt;n;i&#43;&#43;){ for (int j = 0;j&amp;lt;i;j&#43;&#43;){ // 利用子问题最优解  if(arr[i]&amp;gt;arr[j]){ dp[i] = (dp[j]&#43;1&amp;gt;dp[i])?"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/dp_increasing/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -105,8 +106,20 @@ if (!doNotTrack) {
         </div>
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/dp_increasing/">
+                <img src="/p/dp_increasing/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_800x0_resize_box_3.png"
+                        srcset="/p/dp_increasing/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_800x0_resize_box_3.png 800w, /p/dp_increasing/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="450" 
+                        loading="lazy"
+                        alt="Featured image of post DP动态规划——单调递增最长子序列" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     
@@ -264,9 +277,19 @@ if (!doNotTrack) {
             <div class="flex article-list--tile">
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_edit_distance/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_edit_distance/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_edit_distance" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -276,9 +299,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_digmines/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_digmines/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_digmines" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -288,9 +321,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_matrix/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_matrix/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_matrix" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">

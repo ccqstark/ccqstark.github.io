@@ -27,7 +27,7 @@ bucketName就是存储桶的名字
 package com.ccqstark.springbootquick.config; import lombok.Data; import org.springframework.boot.context.properties.ConfigurationProperties; import org.springframework.context.annotation.Configuration; import org.springframework.stereotype.Component; import java.io.Serializable; /** * @Description: 阿里云 OSS 配置信息 * @Author: ccq * @Date: 2020/10/16 */ @Component //注册bean @Data @Configuration @ConfigurationProperties(prefix = &amp;#34;oss&amp;#34;) public class OSSConfig implements Serializable { private String endpoint; private String url; private String accessKeyId; private String accessKeySecret; private String bucketName; } 上传文件工具类 项目的util目录下新建这上传工具类'>
 <meta property='og:url' content='https://ccqstark.github.io/p/springboot_oss/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2020-10-17T10:54:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-17T10:54:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2020-10-17T10:54:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-17T10:54:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/springboot_oss/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[SpringBoot]使用阿里云OSS上传文件">
 <meta name="twitter:description" content="开通服务 登录阿里云，开通OSS服务，默认按量计费，为了业务稳定可以购买包月包年的资源包。
@@ -39,7 +39,8 @@ url填资源访问的URL的前面部分（填到.com/）
 accessKeyId和accessKeySecret就是创建子用户时那个
 bucketName就是存储桶的名字
 # 阿里云ossoss:endpoint:*url:*accessKeyId:*accessKeySecret:*bucketName:*配置类 项目的config目录下新建OSS的配置类
-package com.ccqstark.springbootquick.config; import lombok.Data; import org.springframework.boot.context.properties.ConfigurationProperties; import org.springframework.context.annotation.Configuration; import org.springframework.stereotype.Component; import java.io.Serializable; /** * @Description: 阿里云 OSS 配置信息 * @Author: ccq * @Date: 2020/10/16 */ @Component //注册bean @Data @Configuration @ConfigurationProperties(prefix = &amp;#34;oss&amp;#34;) public class OSSConfig implements Serializable { private String endpoint; private String url; private String accessKeyId; private String accessKeySecret; private String bucketName; } 上传文件工具类 项目的util目录下新建这上传工具类">
+package com.ccqstark.springbootquick.config; import lombok.Data; import org.springframework.boot.context.properties.ConfigurationProperties; import org.springframework.context.annotation.Configuration; import org.springframework.stereotype.Component; import java.io.Serializable; /** * @Description: 阿里云 OSS 配置信息 * @Author: ccq * @Date: 2020/10/16 */ @Component //注册bean @Data @Configuration @ConfigurationProperties(prefix = &amp;#34;oss&amp;#34;) public class OSSConfig implements Serializable { private String endpoint; private String url; private String accessKeyId; private String accessKeySecret; private String bucketName; } 上传文件工具类 项目的util目录下新建这上传工具类"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/springboot_oss/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -99,15 +100,27 @@ if (!doNotTrack) {
         </div>
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/springboot_oss/">
+                <img src="/p/springboot_oss/cover_hud62bf8010474cbdcf139a7fd30aacc5c_25975_800x0_resize_box_3.png"
+                        srcset="/p/springboot_oss/cover_hud62bf8010474cbdcf139a7fd30aacc5c_25975_800x0_resize_box_3.png 800w, /p/springboot_oss/cover_hud62bf8010474cbdcf139a7fd30aacc5c_25975_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="267" 
+                        loading="lazy"
+                        alt="Featured image of post [SpringBoot]使用阿里云OSS上传文件" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     
     <header class="article-category">
         
-            <a href="/categories/javaee/" >
-                JavaEE
+            <a href="/categories/%E6%A1%86%E6%9E%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/" >
+                框架与中间件
             </a>
         
     </header>
@@ -464,9 +477,19 @@ if (!doNotTrack) {
             <div class="flex article-list--tile">
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/log_catch_error/">
         
+        
+            <div class="article-image">
+                <img src="/p/log_catch_error/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="log_catch_error" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -498,9 +521,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/springboot_shiro_jwt/">
         
+        
+            <div class="article-image">
+                <img src="/p/springboot_shiro_jwt/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_shiro_jwt" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -510,9 +543,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/springboot_druid/">
         
+        
+            <div class="article-image">
+                <img src="/p/springboot_druid/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_druid" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -522,9 +565,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/springboot_mybatis/">
         
+        
+            <div class="article-image">
+                <img src="/p/springboot_mybatis/cover.cab0e6f37d264c579b250f03ed20b20b_hud62bf8010474cbdcf139a7fd30aacc5c_25975_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="springboot_mybatis" 
+                        data-hash="md5-yrDm830mTFebJQ8D7SCyCw==">
+                
+            </div>
         
 
         <div class="article-details">

@@ -51,7 +51,7 @@ Faster-RCNN由下面几部分组成：
   然后把经过RPN输出的rois映射到ROIpooling的feature map上进行bbox回归和分类。'>
 <meta property='og:url' content='https://ccqstark.github.io/p/ml_domain_adaptation/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Domain Adaptation' /><meta property='article:published_time' content='2020-11-22T22:07:00&#43;08:00'/><meta property='article:modified_time' content='2020-11-22T22:07:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Domain Adaptation' /><meta property='article:published_time' content='2020-11-22T22:07:00&#43;08:00'/><meta property='article:modified_time' content='2020-11-22T22:07:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/ml_domain_adaptation/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[机器学习论文]Domain Adaptive Faster R-CNN for Object Detection in the Wild">
 <meta name="twitter:description" content="问题引入与研究目标 目标检测的数据集的收集往往是在现实场景中进行的，因此数据中目标的外观、背景、光照、图像质量等方面的巨大差异会导致训练数据和测试数据之间出现巨大的领域偏移。比如汽车在不同天气条件下驾驶收集到的数据，或者是相机的类型和设置的不同也会导致数据的领域偏移。这样的偏移会导致性能显著下降，尽管收集尽可能多的数据集可以降低这种影响，但是注释边界框也是一个费时费力的过程，因此开发一个新的算法来应对跨领域目标检测问题就尤为重要。
@@ -75,7 +75,8 @@ Faster-RCNN由下面几部分组成：
   数据集，image input
   卷积层CNN等基础网络，提取特征得到feature map
   RPN层，再在经过卷积层提取到的feature map上用一个3x3的slide window，去遍历整个feature map,在遍历过程中每个window中心按rate，scale（1:2,1:1,2:1）生成9个anchors，然后再利用全连接对每个anchors做二分类（是前景还是背景）和初步bbox regression，最后输出比较精确的300个ROIs。 把经过卷积层feature map用ROI pooling固定全连接层的输入维度。
-  然后把经过RPN输出的rois映射到ROIpooling的feature map上进行bbox回归和分类。">
+  然后把经过RPN输出的rois映射到ROIpooling的feature map上进行bbox回归和分类。"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/ml_domain_adaptation/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -135,8 +136,20 @@ if (!doNotTrack) {
         </div>
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/ml_domain_adaptation/">
+                <img src="/p/ml_domain_adaptation/cover_hu1c6885273cd613b163ce1e850e631c7c_545173_800x0_resize_box_3.png"
+                        srcset="/p/ml_domain_adaptation/cover_hu1c6885273cd613b163ce1e850e631c7c_545173_800x0_resize_box_3.png 800w, /p/ml_domain_adaptation/cover_hu1c6885273cd613b163ce1e850e631c7c_545173_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="447" 
+                        loading="lazy"
+                        alt="Featured image of post [机器学习论文]Domain Adaptive Faster R-CNN for Object Detection in the Wild" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     

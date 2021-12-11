@@ -23,7 +23,7 @@ xi yi //表示从xi可到yi，xi&amp;lt;yi。
 输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k&#43;&#43;) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j&#43;&#43;) { // max_last &#43; 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last &#43; mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } '>
 <meta property='og:url' content='https://ccqstark.github.io/p/dp_digmines/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-22T01:05:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-22T01:05:00&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='动态规划' /><meta property='article:published_time' content='2020-10-22T01:05:00&#43;08:00'/><meta property='article:modified_time' content='2020-10-22T01:05:00&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/dp_digmines/cover.png' />
 <meta name="twitter:site" content="@ccqstark">
     <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="DP动态规划——挖地雷">
 <meta name="twitter:description" content="题目 在一个地图上有n个地窖（n≤200）,每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径，并规定路径都是单向的,且保证都是小序号地窖指向大序号地窖，也不存在可以从一个地窖出发经过若干地窖后又回到原来地窖的路径。某人可以从任意一处开始挖地雷，然后沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使他能挖到最多的地雷。
@@ -33,7 +33,8 @@ xi yi //表示从xi可到yi，xi&amp;lt;yi。
 xi yi //表示从xi可到yi，xi&amp;lt;yi。
 最后一行为&amp;quot;0 0&amp;quot;表示结束。
 输出格式: k1-k2−…−kv //挖地雷的顺序 挖到最多的雷。
-输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k&#43;&#43;) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j&#43;&#43;) { // max_last &#43; 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last &#43; mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } ">
+输入样例: 65 10 20 5 4 51 21 42 43 44 54 65 60 0输出样例: 3-4-5-634代码 #include &amp;lt;iostream&amp;gt;using namespace std; #define MAX 203 int matrix[MAX][MAX]; // 存放通路情况 int mines[MAX]; // 存放各坑地雷数 int dp_mat[MAX][MAX]; // 存放子问题最优解 int path[MAX]; // 存放路径 int n, ans, last_update; // last_update是最后一个更新最大值的点  void dig() { // 一行行扫  for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { // max_last是此点之前所有点可以挖到的最大地雷数  int max_last = 0; for (int k = 1; k &amp;lt;= i - 1; k&#43;&#43;) { // 判断之前所有可以通向现在的点中，可以挖到最大的地雷数的路径的最后一点  if (matrix[k][i] == 1) { // 按列方向扫，可以通向本点的点  if (dp_mat[k][i] &amp;gt; max_last) { max_last = dp_mat[k][i]; path[i] = k; // 路径是所连接的上一点  } } } for (int j = i; j &amp;lt;= n; j&#43;&#43;) { // max_last &#43; 本点地雷数 = 以本点作为路径末点可以挖到的最大地雷数  dp_mat[i][j] = max_last &#43; mines[i]; if (dp_mat[i][j] &amp;gt; ans) { // 更新最终答案的最大地雷数  ans = dp_mat[i][j]; // 记录最后更新最终答案的那个点，作为答案路径的末尾点，用数组回溯可以打印出完整路径  last_update = i; } } } } // 递归回溯打印完整路径 void print_path(int point) { if (point == 0) return; print_path(path[point]); if (point == last_update) { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; endl; } else { cout &amp;lt;&amp;lt; point &amp;lt;&amp;lt; &amp;#34;-&amp;#34;; } } int main() { cin &amp;gt;&amp;gt; n; for (int i = 1; i &amp;lt;= n; i&#43;&#43;) { cin &amp;gt;&amp;gt; mines[i]; } int a, b; while (cin &amp;gt;&amp;gt; a &amp;gt;&amp;gt; b) { if (a == 0 &amp;amp;&amp;amp; b == 0) break; matrix[a][b] = 1; } dig(); print_path(last_update); cout &amp;lt;&amp;lt; ans; } "><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/dp_digmines/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
@@ -93,8 +94,20 @@ if (!doNotTrack) {
         </div>
     
 <main class="main full-width">
-    <article class="main-article">
+    <article class="has-image main-article">
     <header class="article-header">
+        <div class="article-image">
+            <a href="/p/dp_digmines/">
+                <img src="/p/dp_digmines/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_800x0_resize_box_3.png"
+                        srcset="/p/dp_digmines/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_800x0_resize_box_3.png 800w, /p/dp_digmines/cover_hua1161b2ae5e85a208ecc4f734dd7884a_242133_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="450" 
+                        loading="lazy"
+                        alt="Featured image of post DP动态规划——挖地雷" />
+                
+            </a>
+        </div>
+    
 
     <div class="article-details">
     
@@ -301,9 +314,19 @@ if (!doNotTrack) {
             <div class="flex article-list--tile">
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_edit_distance/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_edit_distance/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_edit_distance" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -313,9 +336,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_increasing/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_increasing/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_increasing" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">
@@ -325,9 +358,19 @@ if (!doNotTrack) {
 </article>
                 
                     
-<article class="">
+<article class="has-image">
     <a href="/p/dp_matrix/">
         
+        
+            <div class="article-image">
+                <img src="/p/dp_matrix/cover.8bdd2b6e6bfc74824fb18c0520495d8a_hua1161b2ae5e85a208ecc4f734dd7884a_242133_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="dp_matrix" 
+                        data-hash="md5-i90rbmv8dIJPsYwFIEldig==">
+                
+            </div>
         
 
         <div class="article-details">
