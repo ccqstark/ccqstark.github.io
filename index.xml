@@ -6,7 +6,93 @@
         <description>Recent content on ccq&#39;s blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 11 Dec 2021 17:09:24 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 12 Dec 2021 22:38:19 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[并发编程]volatile篇</title>
+        <link>https://ccqstark.github.io/p/concurrent_volatile/</link>
+        <pubDate>Sun, 12 Dec 2021 22:38:19 +0800</pubDate>
+        
+        <guid>https://ccqstark.github.io/p/concurrent_volatile/</guid>
+        <description>&lt;img src="https://ccqstark.github.io/p/concurrent_volatile/cover.png" alt="Featured image of post [并发编程]volatile篇" /&gt;&lt;h2 id=&#34;volatile简介&#34;&gt;volatile简介&lt;/h2&gt;
+&lt;p&gt;synchronized在锁竞争激烈的情况下会升级为重量级锁，而volatile是Java虚拟机提供的另一种轻量的同步机制。它会将共享变量从主内存中拷贝到线程自己的工作内存中，然后基于工作内存中的数据进行操作处理。而被volatile修饰的变量经过Java虚拟机的特殊约定，&lt;strong&gt;使一个线程对其的修改会立刻被其他线程所感知&lt;/strong&gt;，就不会出现脏读的现象，从而保证数据的“可见性”。&lt;/p&gt;
+&lt;h2 id=&#34;相关概念&#34;&gt;相关概念&lt;/h2&gt;
+&lt;h3 id=&#34;内存可见性&#34;&gt;内存可见性&lt;/h3&gt;
+&lt;p&gt;由于JMM（Java内存模型）是让线程在工作时把共享变量的副本拷贝到线程的本地内存，而不是直接在主存中进行读写。这就可能造成一个线程在主存中修改了一个变量的值，而另外一个线程还继续使用它自己的拷贝副本值，造成&lt;strong&gt;数据的不一致&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112121929753.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112121929753.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;内存可见性&lt;/code&gt;，指的是线程之间的可见性，当一个线程修改了共享变量时，另一个线程可以读取到这个修改后的值。&lt;/p&gt;
+&lt;h3 id=&#34;重排序&#34;&gt;重排序&lt;/h3&gt;
+&lt;p&gt;为了优化程序的性能，对原有的指令顺序进行重新排序。也就是说在指令层面，执行不一定是按原本顺序一条条执行的。重排序可能发生在多个阶段，比如编译重排序、CPU重排序等。&lt;/p&gt;
+&lt;h3 id=&#34;happens-before规则&#34;&gt;&lt;strong&gt;happens-before规则&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;happens-before规则是JVM对程序员作出的一个承诺，它保证指令在多线程之间的顺序性符合程序员的预期，但是实际的代码执行顺序可能是经过重排序的，也就是说JVM保证结果的正确性，实际优化实现则对程序员透明。&lt;/p&gt;
+&lt;h2 id=&#34;volatile的两个主要功能&#34;&gt;volatile的两个主要功能&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;保证变量的&lt;strong&gt;内存可见性&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;禁止volatile变量与普通变量&lt;strong&gt;重排序&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;保证可见性的原理内存语义&#34;&gt;保证可见性的原理（内存语义）&lt;/h2&gt;
+&lt;p&gt;上面说到线程会把共享变量复制一份到自己线程的工作内存进行计算操作，之后再在某个时机写回主内存中，而volatile保证的可见性就是通过通知另外的线程说它拷贝的值是旧的，需要去主内存中去重新读最新的，具体操作如下：&lt;/p&gt;
+&lt;p&gt;在生成汇编代码时会在volatile修饰的共享变量进行写操作的时候会多出&lt;strong&gt;Lock前缀的指令&lt;/strong&gt;，这个Lock前缀的指令在多核处理器下主要有两方面影响：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;将当前处理器缓存（即CPU缓存，如L1，L2）的数据写回系统内存&lt;/li&gt;
+&lt;li&gt;这个写回内存的操作回使得其他CPU里缓存来该内存地址的数据无效&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在多处理器下，为了保证各个处理器的缓存是一致的，就会实现&lt;strong&gt;缓存一致性&lt;/strong&gt;协议，&lt;strong&gt;每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期&lt;/strong&gt;了，当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，之后需要对此变量进行操作的时候需要去主存中读取最新值。&lt;/p&gt;
+&lt;p&gt;所以volatile可以保证被修饰的变量可以让每个线程都获取它的最新值，也就是保证了可见性。&lt;/p&gt;
+&lt;h2 id=&#34;阻止重排序的原理&#34;&gt;阻止重排序的原理&lt;/h2&gt;
+&lt;p&gt;阻止重排序主要靠的是&lt;code&gt;内存屏障&lt;/code&gt; 的策略：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在每个volatile写操作前插入一个StoreStore屏障；&lt;/li&gt;
+&lt;li&gt;在每个volatile写操作后插入一个StoreLoad屏障；&lt;/li&gt;
+&lt;li&gt;在每个volatile读操作后插入一个LoadLoad屏障；&lt;/li&gt;
+&lt;li&gt;在每个volatile读操作后再插入一个LoadStore屏障。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112122138029.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112122138029.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;volatile与普通变量的重排序规则:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;如果第一个操作是volatile读，那无论第二个操作是什么，都不能重排序；&lt;/li&gt;
+&lt;li&gt;如果第二个操作是volatile写，那无论第一个操作是什么，都不能重排序；&lt;/li&gt;
+&lt;li&gt;如果第一个操作是volatile写，第二个操作是volatile读，那不能重排序。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;理解：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;volatile读就是让当前缓存行的数据失效，重新去主存中读取变量&lt;/li&gt;
+&lt;li&gt;volatile写就是把当前线程缓存行的变量刷到主存中让别的线程可以读到这个最新的，保证可见性&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+&lt;li&gt;如果第一个操作是volatile 读，第二个是另外一种操作还进行重排序的话，那肯定不行，因为先volatile读就是为了保证后面的操作拿到的数值是最新的。&lt;/li&gt;
+&lt;li&gt;如果第二个操作是volatile写，第一个是另外一种操作还进行重排序的话，那肯定也不行，因为我们要保证valatile写更新到主存中的数据是最新的。&lt;/li&gt;
+&lt;li&gt;第三个很好理解，先把最新数据更新到主存，再去主存中读才能读到最新的。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;并发编程的三个重要特性&#34;&gt;并发编程的三个重要特性&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;原子性&lt;/strong&gt; : 一个的操作或者多次操作，要么所有的操作全部都得到执行并且不会收到任何因素的干扰而中断，要么都不执行。&lt;code&gt;synchronized&lt;/code&gt; 可以保证代码片段的原子性。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;可见性&lt;/strong&gt; ：当一个线程对共享变量进行了修改，那么另外的线程都是立即可以看到修改后的最新值。&lt;code&gt;volatile&lt;/code&gt; 关键字可以保证共享变量的可见性。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;有序性&lt;/strong&gt; ：代码在执行的过程中的先后顺序，Java 在编译器以及运行期间的优化，代码的执行顺序未必就是编写代码时候的顺序。&lt;code&gt;volatile&lt;/code&gt; 关键字可以禁止指令进行重排序优化。&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
         <title>[并发编程]Synchronized优化篇——Java中的各种锁</title>
         <link>https://ccqstark.github.io/p/concurrent_synchronized_optimization/</link>
         <pubDate>Sat, 11 Dec 2021 17:09:24 +0800</pubDate>
@@ -294,15 +380,15 @@ Owner：获得锁的线程称为Owner
     &lt;span class=&#34;kd&#34;&gt;final&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Thread&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;current&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Thread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;currentThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
     &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getState&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
     &lt;span class=&#34;c1&#34;&gt;//1. 如果该锁未被任何线程占有，该锁能被当前线程获取
-&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
         &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;compareAndSetState&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;acquires&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
             &lt;span class=&#34;n&#34;&gt;setExclusiveOwnerThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;current&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
             &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
         &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
     &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;//2.若被占有，检查占有线程是否是当前线程
+    &lt;span class=&#34;c1&#34;&gt;//2.若被占有，检查占有线程是否是当前线程
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;current&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getExclusiveOwnerThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;())&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-		&lt;span class=&#34;c1&#34;&gt;// 3. 再次获取，计数加一
+        &lt;span class=&#34;c1&#34;&gt;// 3. 再次获取，计数加一
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nextc&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;acquires&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
         &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;nextc&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// overflow
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Error&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Maximum lock count exceeded&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
@@ -315,17 +401,17 @@ Owner：获得锁的线程称为Owner
 &lt;p&gt;如果存在，而且占有锁的还是当前这个线程，那就可以重入，同步状态（锁的计数器）+1。&lt;/p&gt;
 &lt;p&gt;对于释放，也是同样的道理，核心方法&lt;code&gt;tryRelease&lt;/code&gt; ：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;protected&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;final&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;boolean&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;tryRelease&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;releases&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;//1. 同步状态减1
+    &lt;span class=&#34;c1&#34;&gt;//1. 同步状态减1
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getState&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;releases&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
     &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Thread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;currentThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getExclusiveOwnerThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;())&lt;/span&gt;
         &lt;span class=&#34;k&#34;&gt;throw&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;IllegalMonitorStateException&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
     &lt;span class=&#34;kt&#34;&gt;boolean&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;free&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
     &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-		&lt;span class=&#34;c1&#34;&gt;//2. 只有当同步状态为0时，锁成功被释放，返回true
+        &lt;span class=&#34;c1&#34;&gt;//2. 只有当同步状态为0时，锁成功被释放，返回true
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;n&#34;&gt;free&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
         &lt;span class=&#34;n&#34;&gt;setExclusiveOwnerThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
     &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
-	&lt;span class=&#34;c1&#34;&gt;// 3. 锁未被完全释放，返回false
+    &lt;span class=&#34;c1&#34;&gt;// 3. 锁未被完全释放，返回false
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;setState&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;c&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
     &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;free&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
@@ -348,7 +434,7 @@ Owner：获得锁的线程称为Owner
     &lt;span class=&#34;kd&#34;&gt;final&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Thread&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;current&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Thread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;currentThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
     &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;getState&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
     &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-				&lt;span class=&#34;c1&#34;&gt;// 不同点在这里 
+                &lt;span class=&#34;c1&#34;&gt;// 不同点在这里 
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;hasQueuedPredecessors&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt;
             &lt;span class=&#34;n&#34;&gt;compareAndSetState&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;acquires&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
             &lt;span class=&#34;n&#34;&gt;setExclusiveOwnerThread&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;current&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;

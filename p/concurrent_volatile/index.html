@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='volatile简介 synchronized在锁竞争激烈的情况下会升级为重量级锁，而volatile是Java虚拟机提供的另一种轻量的同步机制。它会将共享变量从主内存中拷贝到线程自己的工作内存中，然后基于工作内存中的数据进行操作处理。而被volatile修饰的变量经过Java虚拟机的特殊约定，使一个线程对其的修改会立刻被其他线程所感知，就不会出现脏读的现象，从而保证数据的“可见性”。
+相关概念 内存可见性 由于JMM（Java内存模型）是让线程在工作时把共享变量的副本拷贝到线程的本地内存，而不是直接在主存中进行读写。这就可能造成一个线程在主存中修改了一个变量的值，而另外一个线程还继续使用它自己的拷贝副本值，造成数据的不一致。
+ 
+内存可见性，指的是线程之间的可见性，当一个线程修改了共享变量时，另一个线程可以读取到这个修改后的值。
+重排序 为了优化程序的性能，对原有的指令顺序进行重新排序。也就是说在指令层面，执行不一定是按原本顺序一条条执行的。重排序可能发生在多个阶段，比如编译重排序、CPU重排序等。
+happens-before规则 happens-before规则是JVM对程序员作出的一个承诺，它保证指令在多线程之间的顺序性符合程序员的预期，但是实际的代码执行顺序可能是经过重排序的，也就是说JVM保证结果的正确性，实际优化实现则对程序员透明。
+volatile的两个主要功能  保证变量的内存可见性 禁止volatile变量与普通变量重排序  保证可见性的原理（内存语义） 上面说到线程会把共享变量复制一份到自己线程的工作内存进行计算操作，之后再在某个时机写回主内存中，而volatile保证的可见性就是通过通知另外的线程说它拷贝的值是旧的，需要去主内存中去重新读最新的，具体操作如下：
+在生成汇编代码时会在volatile修饰的共享变量进行写操作的时候会多出Lock前缀的指令，这个Lock前缀的指令在多核处理器下主要有两方面影响：
+ 将当前处理器缓存（即CPU缓存，如L1，L2）的数据写回系统内存 这个写回内存的操作回使得其他CPU里缓存来该内存地址的数据无效  在多处理器下，为了保证各个处理器的缓存是一致的，就会实现缓存一致性协议，每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期了，当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，之后需要对此变量进行操作的时候需要去主存中读取最新值。
+所以volatile可以保证被修饰的变量可以让每个线程都获取它的最新值，也就是保证了可见性。
+阻止重排序的原理 阻止重排序主要靠的是内存屏障 的策略：
+ 在每个volatile写操作前插入一个StoreStore屏障； 在每个volatile写操作后插入一个StoreLoad屏障； 在每个volatile读操作后插入一个LoadLoad屏障； 在每个volatile读操作后再插入一个LoadStore屏障。   
+volatile与普通变量的重排序规则:
+ 如果第一个操作是volatile读，那无论第二个操作是什么，都不能重排序； 如果第二个操作是volatile写，那无论第一个操作是什么，都不能重排序； 如果第一个操作是volatile写，第二个操作是volatile读，那不能重排序。  理解：
+ volatile读就是让当前缓存行的数据失效，重新去主存中读取变量 volatile写就是把当前线程缓存行的变量刷到主存中让别的线程可以读到这个最新的，保证可见性   如果第一个操作是volatile 读，第二个是另外一种操作还进行重排序的话，那肯定不行，因为先volatile读就是为了保证后面的操作拿到的数值是最新的。 如果第二个操作是volatile写，第一个是另外一种操作还进行重排序的话，那肯定也不行，因为我们要保证valatile写更新到主存中的数据是最新的。 第三个很好理解，先把最新数据更新到主存，再去主存中读才能读到最新的。  并发编程的三个重要特性  原子性 : 一个的操作或者多次操作，要么所有的操作全部都得到执行并且不会收到任何因素的干扰而中断，要么都不执行。synchronized 可以保证代码片段的原子性。 可见性 ：当一个线程对共享变量进行了修改，那么另外的线程都是立即可以看到修改后的最新值。volatile 关键字可以保证共享变量的可见性。 有序性 ：代码在执行的过程中的先后顺序，Java 在编译器以及运行期间的优化，代码的执行顺序未必就是编写代码时候的顺序。volatile 关键字可以禁止指令进行重排序优化。  '><title>[并发编程]volatile篇</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/concurrent_volatile/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[并发编程]volatile篇'>
+<meta property='og:description' content='volatile简介 synchronized在锁竞争激烈的情况下会升级为重量级锁，而volatile是Java虚拟机提供的另一种轻量的同步机制。它会将共享变量从主内存中拷贝到线程自己的工作内存中，然后基于工作内存中的数据进行操作处理。而被volatile修饰的变量经过Java虚拟机的特殊约定，使一个线程对其的修改会立刻被其他线程所感知，就不会出现脏读的现象，从而保证数据的“可见性”。
+相关概念 内存可见性 由于JMM（Java内存模型）是让线程在工作时把共享变量的副本拷贝到线程的本地内存，而不是直接在主存中进行读写。这就可能造成一个线程在主存中修改了一个变量的值，而另外一个线程还继续使用它自己的拷贝副本值，造成数据的不一致。
+ 
+内存可见性，指的是线程之间的可见性，当一个线程修改了共享变量时，另一个线程可以读取到这个修改后的值。
+重排序 为了优化程序的性能，对原有的指令顺序进行重新排序。也就是说在指令层面，执行不一定是按原本顺序一条条执行的。重排序可能发生在多个阶段，比如编译重排序、CPU重排序等。
+happens-before规则 happens-before规则是JVM对程序员作出的一个承诺，它保证指令在多线程之间的顺序性符合程序员的预期，但是实际的代码执行顺序可能是经过重排序的，也就是说JVM保证结果的正确性，实际优化实现则对程序员透明。
+volatile的两个主要功能  保证变量的内存可见性 禁止volatile变量与普通变量重排序  保证可见性的原理（内存语义） 上面说到线程会把共享变量复制一份到自己线程的工作内存进行计算操作，之后再在某个时机写回主内存中，而volatile保证的可见性就是通过通知另外的线程说它拷贝的值是旧的，需要去主内存中去重新读最新的，具体操作如下：
+在生成汇编代码时会在volatile修饰的共享变量进行写操作的时候会多出Lock前缀的指令，这个Lock前缀的指令在多核处理器下主要有两方面影响：
+ 将当前处理器缓存（即CPU缓存，如L1，L2）的数据写回系统内存 这个写回内存的操作回使得其他CPU里缓存来该内存地址的数据无效  在多处理器下，为了保证各个处理器的缓存是一致的，就会实现缓存一致性协议，每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期了，当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，之后需要对此变量进行操作的时候需要去主存中读取最新值。
+所以volatile可以保证被修饰的变量可以让每个线程都获取它的最新值，也就是保证了可见性。
+阻止重排序的原理 阻止重排序主要靠的是内存屏障 的策略：
+ 在每个volatile写操作前插入一个StoreStore屏障； 在每个volatile写操作后插入一个StoreLoad屏障； 在每个volatile读操作后插入一个LoadLoad屏障； 在每个volatile读操作后再插入一个LoadStore屏障。   
+volatile与普通变量的重排序规则:
+ 如果第一个操作是volatile读，那无论第二个操作是什么，都不能重排序； 如果第二个操作是volatile写，那无论第一个操作是什么，都不能重排序； 如果第一个操作是volatile写，第二个操作是volatile读，那不能重排序。  理解：
+ volatile读就是让当前缓存行的数据失效，重新去主存中读取变量 volatile写就是把当前线程缓存行的变量刷到主存中让别的线程可以读到这个最新的，保证可见性   如果第一个操作是volatile 读，第二个是另外一种操作还进行重排序的话，那肯定不行，因为先volatile读就是为了保证后面的操作拿到的数值是最新的。 如果第二个操作是volatile写，第一个是另外一种操作还进行重排序的话，那肯定也不行，因为我们要保证valatile写更新到主存中的数据是最新的。 第三个很好理解，先把最新数据更新到主存，再去主存中读才能读到最新的。  并发编程的三个重要特性  原子性 : 一个的操作或者多次操作，要么所有的操作全部都得到执行并且不会收到任何因素的干扰而中断，要么都不执行。synchronized 可以保证代码片段的原子性。 可见性 ：当一个线程对共享变量进行了修改，那么另外的线程都是立即可以看到修改后的最新值。volatile 关键字可以保证共享变量的可见性。 有序性 ：代码在执行的过程中的先后顺序，Java 在编译器以及运行期间的优化，代码的执行顺序未必就是编写代码时候的顺序。volatile 关键字可以禁止指令进行重排序优化。  '>
+<meta property='og:url' content='https://ccqstark.github.io/p/concurrent_volatile/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='并发编程volatile' /><meta property='article:published_time' content='2021-12-12T22:38:19&#43;08:00'/><meta property='article:modified_time' content='2021-12-12T22:38:19&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/concurrent_volatile/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[并发编程]volatile篇">
+<meta name="twitter:description" content="volatile简介 synchronized在锁竞争激烈的情况下会升级为重量级锁，而volatile是Java虚拟机提供的另一种轻量的同步机制。它会将共享变量从主内存中拷贝到线程自己的工作内存中，然后基于工作内存中的数据进行操作处理。而被volatile修饰的变量经过Java虚拟机的特殊约定，使一个线程对其的修改会立刻被其他线程所感知，就不会出现脏读的现象，从而保证数据的“可见性”。
+相关概念 内存可见性 由于JMM（Java内存模型）是让线程在工作时把共享变量的副本拷贝到线程的本地内存，而不是直接在主存中进行读写。这就可能造成一个线程在主存中修改了一个变量的值，而另外一个线程还继续使用它自己的拷贝副本值，造成数据的不一致。
+ 
+内存可见性，指的是线程之间的可见性，当一个线程修改了共享变量时，另一个线程可以读取到这个修改后的值。
+重排序 为了优化程序的性能，对原有的指令顺序进行重新排序。也就是说在指令层面，执行不一定是按原本顺序一条条执行的。重排序可能发生在多个阶段，比如编译重排序、CPU重排序等。
+happens-before规则 happens-before规则是JVM对程序员作出的一个承诺，它保证指令在多线程之间的顺序性符合程序员的预期，但是实际的代码执行顺序可能是经过重排序的，也就是说JVM保证结果的正确性，实际优化实现则对程序员透明。
+volatile的两个主要功能  保证变量的内存可见性 禁止volatile变量与普通变量重排序  保证可见性的原理（内存语义） 上面说到线程会把共享变量复制一份到自己线程的工作内存进行计算操作，之后再在某个时机写回主内存中，而volatile保证的可见性就是通过通知另外的线程说它拷贝的值是旧的，需要去主内存中去重新读最新的，具体操作如下：
+在生成汇编代码时会在volatile修饰的共享变量进行写操作的时候会多出Lock前缀的指令，这个Lock前缀的指令在多核处理器下主要有两方面影响：
+ 将当前处理器缓存（即CPU缓存，如L1，L2）的数据写回系统内存 这个写回内存的操作回使得其他CPU里缓存来该内存地址的数据无效  在多处理器下，为了保证各个处理器的缓存是一致的，就会实现缓存一致性协议，每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期了，当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，之后需要对此变量进行操作的时候需要去主存中读取最新值。
+所以volatile可以保证被修饰的变量可以让每个线程都获取它的最新值，也就是保证了可见性。
+阻止重排序的原理 阻止重排序主要靠的是内存屏障 的策略：
+ 在每个volatile写操作前插入一个StoreStore屏障； 在每个volatile写操作后插入一个StoreLoad屏障； 在每个volatile读操作后插入一个LoadLoad屏障； 在每个volatile读操作后再插入一个LoadStore屏障。   
+volatile与普通变量的重排序规则:
+ 如果第一个操作是volatile读，那无论第二个操作是什么，都不能重排序； 如果第二个操作是volatile写，那无论第一个操作是什么，都不能重排序； 如果第一个操作是volatile写，第二个操作是volatile读，那不能重排序。  理解：
+ volatile读就是让当前缓存行的数据失效，重新去主存中读取变量 volatile写就是把当前线程缓存行的变量刷到主存中让别的线程可以读到这个最新的，保证可见性   如果第一个操作是volatile 读，第二个是另外一种操作还进行重排序的话，那肯定不行，因为先volatile读就是为了保证后面的操作拿到的数值是最新的。 如果第二个操作是volatile写，第一个是另外一种操作还进行重排序的话，那肯定也不行，因为我们要保证valatile写更新到主存中的数据是最新的。 第三个很好理解，先把最新数据更新到主存，再去主存中读才能读到最新的。  并发编程的三个重要特性  原子性 : 一个的操作或者多次操作，要么所有的操作全部都得到执行并且不会收到任何因素的干扰而中断，要么都不执行。synchronized 可以保证代码片段的原子性。 可见性 ：当一个线程对共享变量进行了修改，那么另外的线程都是立即可以看到修改后的最新值。volatile 关键字可以保证共享变量的可见性。 有序性 ：代码在执行的过程中的先后顺序，Java 在编译器以及运行期间的优化，代码的执行顺序未必就是编写代码时候的顺序。volatile 关键字可以禁止指令进行重排序优化。  "><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/concurrent_volatile/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/concurrent_volatile/">
+                <img src="/p/concurrent_volatile/cover_hu7fad456951eb20fdb97374db4ac4bdd8_54974_800x0_resize_box_3.png"
+                        srcset="/p/concurrent_volatile/cover_hu7fad456951eb20fdb97374db4ac4bdd8_54974_800x0_resize_box_3.png 800w, /p/concurrent_volatile/cover_hu7fad456951eb20fdb97374db4ac4bdd8_54974_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="450" 
+                        loading="lazy"
+                        alt="Featured image of post [并发编程]volatile篇" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javase/" >
+                JavaSE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/concurrent_volatile/">[并发编程]volatile篇</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 12, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="volatile简介">volatile简介</h2>
+<p>synchronized在锁竞争激烈的情况下会升级为重量级锁，而volatile是Java虚拟机提供的另一种轻量的同步机制。它会将共享变量从主内存中拷贝到线程自己的工作内存中，然后基于工作内存中的数据进行操作处理。而被volatile修饰的变量经过Java虚拟机的特殊约定，<strong>使一个线程对其的修改会立刻被其他线程所感知</strong>，就不会出现脏读的现象，从而保证数据的“可见性”。</p>
+<h2 id="相关概念">相关概念</h2>
+<h3 id="内存可见性">内存可见性</h3>
+<p>由于JMM（Java内存模型）是让线程在工作时把共享变量的副本拷贝到线程的本地内存，而不是直接在主存中进行读写。这就可能造成一个线程在主存中修改了一个变量的值，而另外一个线程还继续使用它自己的拷贝副本值，造成<strong>数据的不一致</strong>。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112121929753.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112121929753.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>内存可见性</code>，指的是线程之间的可见性，当一个线程修改了共享变量时，另一个线程可以读取到这个修改后的值。</p>
+<h3 id="重排序">重排序</h3>
+<p>为了优化程序的性能，对原有的指令顺序进行重新排序。也就是说在指令层面，执行不一定是按原本顺序一条条执行的。重排序可能发生在多个阶段，比如编译重排序、CPU重排序等。</p>
+<h3 id="happens-before规则"><strong>happens-before规则</strong></h3>
+<p>happens-before规则是JVM对程序员作出的一个承诺，它保证指令在多线程之间的顺序性符合程序员的预期，但是实际的代码执行顺序可能是经过重排序的，也就是说JVM保证结果的正确性，实际优化实现则对程序员透明。</p>
+<h2 id="volatile的两个主要功能">volatile的两个主要功能</h2>
+<ul>
+<li>保证变量的<strong>内存可见性</strong></li>
+<li>禁止volatile变量与普通变量<strong>重排序</strong></li>
+</ul>
+<h2 id="保证可见性的原理内存语义">保证可见性的原理（内存语义）</h2>
+<p>上面说到线程会把共享变量复制一份到自己线程的工作内存进行计算操作，之后再在某个时机写回主内存中，而volatile保证的可见性就是通过通知另外的线程说它拷贝的值是旧的，需要去主内存中去重新读最新的，具体操作如下：</p>
+<p>在生成汇编代码时会在volatile修饰的共享变量进行写操作的时候会多出<strong>Lock前缀的指令</strong>，这个Lock前缀的指令在多核处理器下主要有两方面影响：</p>
+<ol>
+<li>将当前处理器缓存（即CPU缓存，如L1，L2）的数据写回系统内存</li>
+<li>这个写回内存的操作回使得其他CPU里缓存来该内存地址的数据无效</li>
+</ol>
+<p>在多处理器下，为了保证各个处理器的缓存是一致的，就会实现<strong>缓存一致性</strong>协议，<strong>每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期</strong>了，当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，之后需要对此变量进行操作的时候需要去主存中读取最新值。</p>
+<p>所以volatile可以保证被修饰的变量可以让每个线程都获取它的最新值，也就是保证了可见性。</p>
+<h2 id="阻止重排序的原理">阻止重排序的原理</h2>
+<p>阻止重排序主要靠的是<code>内存屏障</code> 的策略：</p>
+<ul>
+<li>在每个volatile写操作前插入一个StoreStore屏障；</li>
+<li>在每个volatile写操作后插入一个StoreLoad屏障；</li>
+<li>在每个volatile读操作后插入一个LoadLoad屏障；</li>
+<li>在每个volatile读操作后再插入一个LoadStore屏障。</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112122138029.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112122138029.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>volatile与普通变量的重排序规则:</p>
+<ol>
+<li>如果第一个操作是volatile读，那无论第二个操作是什么，都不能重排序；</li>
+<li>如果第二个操作是volatile写，那无论第一个操作是什么，都不能重排序；</li>
+<li>如果第一个操作是volatile写，第二个操作是volatile读，那不能重排序。</li>
+</ol>
+<p>理解：</p>
+<ul>
+<li>volatile读就是让当前缓存行的数据失效，重新去主存中读取变量</li>
+<li>volatile写就是把当前线程缓存行的变量刷到主存中让别的线程可以读到这个最新的，保证可见性</li>
+</ul>
+<ol>
+<li>如果第一个操作是volatile 读，第二个是另外一种操作还进行重排序的话，那肯定不行，因为先volatile读就是为了保证后面的操作拿到的数值是最新的。</li>
+<li>如果第二个操作是volatile写，第一个是另外一种操作还进行重排序的话，那肯定也不行，因为我们要保证valatile写更新到主存中的数据是最新的。</li>
+<li>第三个很好理解，先把最新数据更新到主存，再去主存中读才能读到最新的。</li>
+</ol>
+<h2 id="并发编程的三个重要特性">并发编程的三个重要特性</h2>
+<ol>
+<li><strong>原子性</strong> : 一个的操作或者多次操作，要么所有的操作全部都得到执行并且不会收到任何因素的干扰而中断，要么都不执行。<code>synchronized</code> 可以保证代码片段的原子性。</li>
+<li><strong>可见性</strong> ：当一个线程对共享变量进行了修改，那么另外的线程都是立即可以看到修改后的最新值。<code>volatile</code> 关键字可以保证共享变量的可见性。</li>
+<li><strong>有序性</strong> ：代码在执行的过程中的先后顺序，Java 在编译器以及运行期间的优化，代码的执行顺序未必就是编写代码时候的顺序。<code>volatile</code> 关键字可以禁止指令进行重排序优化。</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8Bvolatile/">并发编程volatile</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized_optimization/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized_optimization/cover.c3ae00288d98394524bc6ead85ec211d_hu4d840036f83d7884a510888303887b86_1060410_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized_optimization" 
+                        data-hash="md5-w64AKI2YOUUkvG6thewhHQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]Synchronized优化篇——Java中的各种锁</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_reentrantlock/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_reentrantlock/cover.863c8908ba19abe122f188d57cbb4190_huceae91d367533a91416a74330952ccc4_41335_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_reentrantlock" 
+                        data-hash="md5-hjyJCLoZq&#43;Ei8YjVfLtBkA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]ReentrantLock篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized/cover.0fec37ffa5d7b5f5c3963f9caa306d29_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized" 
+                        data-hash="md5-D&#43;w3/6XXtfXDlj&#43;cqjBtKQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]synchronized篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_basic/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_basic/cover.2787cbf2d8333547efb3b6189939f028_huf957eb7cc0803733802fcc4099cfd7cb_64471_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_basic" 
+                        data-hash="md5-J4fL8tgzNUfvs7YYmTnwKA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]基础篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/compile_jdk/">
+        
+        
+            <div class="article-image">
+                <img src="/p/compile_jdk/cover.3839d0283560f656bf4a64287993b5ec_hucf54841c06fdf75c53fe986b35c09dc3_55691_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="compile_jdk" 
+                        data-hash="md5-ODnQKDVg9la/SmQoeZO17A==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[实战]自己动手编译JDK实录</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#volatile简介">volatile简介</a></li>
+    <li><a href="#相关概念">相关概念</a>
+      <ol>
+        <li><a href="#内存可见性">内存可见性</a></li>
+        <li><a href="#重排序">重排序</a></li>
+        <li><a href="#happens-before规则"><strong>happens-before规则</strong></a></li>
+      </ol>
+    </li>
+    <li><a href="#volatile的两个主要功能">volatile的两个主要功能</a></li>
+    <li><a href="#保证可见性的原理内存语义">保证可见性的原理（内存语义）</a></li>
+    <li><a href="#阻止重排序的原理">阻止重排序的原理</a></li>
+    <li><a href="#并发编程的三个重要特性">并发编程的三个重要特性</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
