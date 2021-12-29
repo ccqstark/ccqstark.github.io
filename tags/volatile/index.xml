@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>volatile on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/volatile/</link>
+    <description>Recent content in volatile on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 12 Dec 2021 22:38:19 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/volatile/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[并发编程]volatile篇</title>
+      <link>https://ccqstark.github.io/p/concurrent_volatile/</link>
+      <pubDate>Sun, 12 Dec 2021 22:38:19 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/concurrent_volatile/</guid>
+      <description>volatile简介 synchronized在锁竞争激烈的情况下会升级为重量级锁，而volatile是Java虚拟机提供的另一种轻量的同步机制。它会将共享变量从主内存中拷贝到线程自己的工作内存中，然后基于工作内存中的数据进行操作处理。而被volatile修饰的变量经过Java虚拟机的特殊约定，使一个线程对其的修改会立刻被其他线程所感知，就不会出现脏读的现象，从而保证数据的“可见性”。
+相关概念 内存可见性 由于JMM（Java内存模型）是让线程在工作时把共享变量的副本拷贝到线程的本地内存，而不是直接在主存中进行读写。这就可能造成一个线程在主存中修改了一个变量的值，而另外一个线程还继续使用它自己的拷贝副本值，造成数据的不一致。
+ 
+内存可见性，指的是线程之间的可见性，当一个线程修改了共享变量时，另一个线程可以读取到这个修改后的值。
+重排序 为了优化程序的性能，对原有的指令顺序进行重新排序。也就是说在指令层面，执行不一定是按原本顺序一条条执行的。重排序可能发生在多个阶段，比如编译重排序、CPU重排序等。
+happens-before规则 happens-before规则是JVM对程序员作出的一个承诺，它保证指令在多线程之间的顺序性符合程序员的预期，但是实际的代码执行顺序可能是经过重排序的，也就是说JVM保证结果的正确性，实际优化实现则对程序员透明。
+volatile的两个主要功能  保证变量的内存可见性 禁止volatile变量与普通变量重排序  保证可见性的原理（内存语义） 上面说到线程会把共享变量复制一份到自己线程的工作内存进行计算操作，之后再在某个时机写回主内存中，而volatile保证的可见性就是通过通知另外的线程说它拷贝的值是旧的，需要去主内存中去重新读最新的，具体操作如下：
+在生成汇编代码时会在volatile修饰的共享变量进行写操作的时候会多出Lock前缀的指令，这个Lock前缀的指令在多核处理器下主要有两方面影响：
+ 将当前处理器缓存（即CPU缓存，如L1，L2）的数据写回系统内存 这个写回内存的操作回使得其他CPU里缓存来该内存地址的数据无效  在多处理器下，为了保证各个处理器的缓存是一致的，就会实现缓存一致性协议，每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期了，当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，之后需要对此变量进行操作的时候需要去主存中读取最新值。
+所以volatile可以保证被修饰的变量可以让每个线程都获取它的最新值，也就是保证了可见性。
+阻止重排序的原理 阻止重排序主要靠的是内存屏障 的策略：
+ 在每个volatile写操作前插入一个StoreStore屏障； 在每个volatile写操作后插入一个StoreLoad屏障； 在每个volatile读操作后插入一个LoadLoad屏障； 在每个volatile读操作后再插入一个LoadStore屏障。   
+volatile与普通变量的重排序规则:
+ 如果第一个操作是volatile读，那无论第二个操作是什么，都不能重排序； 如果第二个操作是volatile写，那无论第一个操作是什么，都不能重排序； 如果第一个操作是volatile写，第二个操作是volatile读，那不能重排序。  理解：
+ volatile读就是让当前缓存行的数据失效，重新去主存中读取变量 volatile写就是把当前线程缓存行的变量刷到主存中让别的线程可以读到这个最新的，保证可见性   如果第一个操作是volatile 读，第二个是另外一种操作还进行重排序的话，那肯定不行，因为先volatile读就是为了保证后面的操作拿到的数值是最新的。 如果第二个操作是volatile写，第一个是另外一种操作还进行重排序的话，那肯定也不行，因为我们要保证valatile写更新到主存中的数据是最新的。 第三个很好理解，先把最新数据更新到主存，再去主存中读才能读到最新的。  并发编程的三个重要特性  原子性 : 一个的操作或者多次操作，要么所有的操作全部都得到执行并且不会收到任何因素的干扰而中断，要么都不执行。synchronized 可以保证代码片段的原子性。 可见性 ：当一个线程对共享变量进行了修改，那么另外的线程都是立即可以看到修改后的最新值。volatile 关键字可以保证共享变量的可见性。 有序性 ：代码在执行的过程中的先后顺序，Java 在编译器以及运行期间的优化，代码的执行顺序未必就是编写代码时候的顺序。volatile 关键字可以禁止指令进行重排序优化。  </description>
+    </item>
+    
+  </channel>
+</rss>

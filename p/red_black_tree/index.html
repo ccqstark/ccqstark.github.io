@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 由于最近在看Java的容器，看到HashMap，发现它底层有用到红黑树，想起了一些段子以及很久之前曾经挑战过学习它但是没有成功，于是这次打算再次挑战一波，并写成博客。
+应用场景  JDK的HashMap、TreeMap和TreeSet Linux内核的虚拟内存管理 Nginx的Timer管理 C&#43;&#43;的STL  可以看到在实际工程场景中还是用得很多的一种数据结构的。
+五大基本性质 首先红黑树是一颗二叉搜索树，然后再加上下面五大性质：
+ 节点有红色和黑色两种 根节点一定是黑色的 叶子节点（nil节点）都是黑色的 不能有连续的红色节点 任意节点到叶子节点所经过的黑色节点数相同   第5点就是红黑树维持平衡的重要条件，我们常说的达到黑色平衡或者红黑树达到平衡主要说的就是达到这个条件。
+ 如果精力充足的话建议可以再去了解一下2-3-4树，红黑树就是对概念模型2-3-4树的一种实现，这里推荐我当时看的敖丙写的一篇文章，介绍了2-3-4树的概念及其与红黑树的转化，最后介绍了红黑树的简化版——左倾红黑树的插入与删除。
+本质与意义 这一部分要说的就是面试经常问的：为什么有了二查找查找树/平衡树还需要红黑树？
+二叉查找树的缺点 二叉查找树大家应该很熟悉，特点就是左子树的节点都比父节点小，而右子树的节点值都比父节点大。基于这个特点，我们在二叉查找树查找某一个值时，采用类似二分查找的思想，时间复杂度只用O(logn)。
+但是这是正常情况下，因为二叉查找树有可能出现一种极端，就是所有节点都同一方向上（如下图），这个时候二叉搜索树以及近似退化为一条链表了，查找的时间复杂度也顿时变成了O(n) ，那这样的话二叉搜索树也就失去了原本的意义——让搜索变得更快。
+ 
+为了解决这个问题，出现了平衡二叉搜索树（也就是我们常说的AVL树）。
+AVL树 为了解决二叉搜索树可能退化为链表的问题而生，有以下特点：
+ 拥有二叉树的全部特性 每个节点的左子树和右子树的高度差不超过1  由于第二点的约束使得AVL树不会出现大量节点一边倒的情况，但是在AVL树构建的过程中就需要很多额外的操作来保证其符合这个特性，使得其最坏情况下查找的时间复杂度也还是为O(logn)
+为什么有了AVL树还要红黑树？ 虽然AVL树解决了二叉搜索树退化了近似链表的缺点，但是由于每个节点的左子树和右子树的高度差不超过1这个要求实在是太严苛了，导致每次插入和删除节点的时候很容易就破坏了这条规则，之后就需要左大量的左旋和右旋来进行调整时期再次符合AVL树的要求。
+所以如果在插入和删除很频繁的场景中，AVL树需要很频繁地进行调整，这样的话效率就大大降低了，为了解决这个问题所以出现了红黑树。（如果在面试中接下来这里就可以说出红黑树的那5个特点）。
+正由于红黑树的这些特点，使其最坏情况下不仅还能维持用O(logn)的时间复杂度找到某个节点，而且与AVL树相比，优势就在于不会那么频繁地破坏红黑树的规则，从而不用那么频繁地进行调整，这就是我们大多数情况下使用红黑树的原因。
+所以红黑树是一种相对AVL树来说不那么严格的平衡树，也就是一种折中的方案，介于普通的二叉搜索树和AVL树之间。极端情况下左右子树的节点数（也就是深度）相差一倍，也就是左边都有黑节点，右边都是红黑相间，右子树的节点数或者说深度就也是左子树的2倍，这个要求就比AVL树的相差最多只能为1宽松多了，因此调整也就更少，效率也就更高。
+为什么红黑树查找的时间复杂度还能维持在O(logn)？ 我们对最坏情况下的时间复杂度进行计算。
+最坏情况下就是上面说的红黑相间，总节点数=红节点数&#43;黑节点数，红黑节点数一致。
+$$n = n_r &#43; n_b$$
+所以时间复杂度就是
+$$O(2* \log n_b ) = O(2 * \log \frac{n}{2})$$
+常数2直接去掉
+$$O(\log \frac{n}{2}) = O(\log n - 1)$$'><title>红黑树，这次终于拿下了</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/red_black_tree/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='红黑树，这次终于拿下了'>
+<meta property='og:description' content='前言 由于最近在看Java的容器，看到HashMap，发现它底层有用到红黑树，想起了一些段子以及很久之前曾经挑战过学习它但是没有成功，于是这次打算再次挑战一波，并写成博客。
+应用场景  JDK的HashMap、TreeMap和TreeSet Linux内核的虚拟内存管理 Nginx的Timer管理 C&#43;&#43;的STL  可以看到在实际工程场景中还是用得很多的一种数据结构的。
+五大基本性质 首先红黑树是一颗二叉搜索树，然后再加上下面五大性质：
+ 节点有红色和黑色两种 根节点一定是黑色的 叶子节点（nil节点）都是黑色的 不能有连续的红色节点 任意节点到叶子节点所经过的黑色节点数相同   第5点就是红黑树维持平衡的重要条件，我们常说的达到黑色平衡或者红黑树达到平衡主要说的就是达到这个条件。
+ 如果精力充足的话建议可以再去了解一下2-3-4树，红黑树就是对概念模型2-3-4树的一种实现，这里推荐我当时看的敖丙写的一篇文章，介绍了2-3-4树的概念及其与红黑树的转化，最后介绍了红黑树的简化版——左倾红黑树的插入与删除。
+本质与意义 这一部分要说的就是面试经常问的：为什么有了二查找查找树/平衡树还需要红黑树？
+二叉查找树的缺点 二叉查找树大家应该很熟悉，特点就是左子树的节点都比父节点小，而右子树的节点值都比父节点大。基于这个特点，我们在二叉查找树查找某一个值时，采用类似二分查找的思想，时间复杂度只用O(logn)。
+但是这是正常情况下，因为二叉查找树有可能出现一种极端，就是所有节点都同一方向上（如下图），这个时候二叉搜索树以及近似退化为一条链表了，查找的时间复杂度也顿时变成了O(n) ，那这样的话二叉搜索树也就失去了原本的意义——让搜索变得更快。
+ 
+为了解决这个问题，出现了平衡二叉搜索树（也就是我们常说的AVL树）。
+AVL树 为了解决二叉搜索树可能退化为链表的问题而生，有以下特点：
+ 拥有二叉树的全部特性 每个节点的左子树和右子树的高度差不超过1  由于第二点的约束使得AVL树不会出现大量节点一边倒的情况，但是在AVL树构建的过程中就需要很多额外的操作来保证其符合这个特性，使得其最坏情况下查找的时间复杂度也还是为O(logn)
+为什么有了AVL树还要红黑树？ 虽然AVL树解决了二叉搜索树退化了近似链表的缺点，但是由于每个节点的左子树和右子树的高度差不超过1这个要求实在是太严苛了，导致每次插入和删除节点的时候很容易就破坏了这条规则，之后就需要左大量的左旋和右旋来进行调整时期再次符合AVL树的要求。
+所以如果在插入和删除很频繁的场景中，AVL树需要很频繁地进行调整，这样的话效率就大大降低了，为了解决这个问题所以出现了红黑树。（如果在面试中接下来这里就可以说出红黑树的那5个特点）。
+正由于红黑树的这些特点，使其最坏情况下不仅还能维持用O(logn)的时间复杂度找到某个节点，而且与AVL树相比，优势就在于不会那么频繁地破坏红黑树的规则，从而不用那么频繁地进行调整，这就是我们大多数情况下使用红黑树的原因。
+所以红黑树是一种相对AVL树来说不那么严格的平衡树，也就是一种折中的方案，介于普通的二叉搜索树和AVL树之间。极端情况下左右子树的节点数（也就是深度）相差一倍，也就是左边都有黑节点，右边都是红黑相间，右子树的节点数或者说深度就也是左子树的2倍，这个要求就比AVL树的相差最多只能为1宽松多了，因此调整也就更少，效率也就更高。
+为什么红黑树查找的时间复杂度还能维持在O(logn)？ 我们对最坏情况下的时间复杂度进行计算。
+最坏情况下就是上面说的红黑相间，总节点数=红节点数&#43;黑节点数，红黑节点数一致。
+$$n = n_r &#43; n_b$$
+所以时间复杂度就是
+$$O(2* \log n_b ) = O(2 * \log \frac{n}{2})$$
+常数2直接去掉
+$$O(\log \frac{n}{2}) = O(\log n - 1)$$'>
+<meta property='og:url' content='https://ccqstark.github.io/p/red_black_tree/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='红黑树' /><meta property='article:published_time' content='2021-12-30T00:52:42&#43;08:00'/><meta property='article:modified_time' content='2021-12-30T00:52:42&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/red_black_tree/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="红黑树，这次终于拿下了">
+<meta name="twitter:description" content="前言 由于最近在看Java的容器，看到HashMap，发现它底层有用到红黑树，想起了一些段子以及很久之前曾经挑战过学习它但是没有成功，于是这次打算再次挑战一波，并写成博客。
+应用场景  JDK的HashMap、TreeMap和TreeSet Linux内核的虚拟内存管理 Nginx的Timer管理 C&#43;&#43;的STL  可以看到在实际工程场景中还是用得很多的一种数据结构的。
+五大基本性质 首先红黑树是一颗二叉搜索树，然后再加上下面五大性质：
+ 节点有红色和黑色两种 根节点一定是黑色的 叶子节点（nil节点）都是黑色的 不能有连续的红色节点 任意节点到叶子节点所经过的黑色节点数相同   第5点就是红黑树维持平衡的重要条件，我们常说的达到黑色平衡或者红黑树达到平衡主要说的就是达到这个条件。
+ 如果精力充足的话建议可以再去了解一下2-3-4树，红黑树就是对概念模型2-3-4树的一种实现，这里推荐我当时看的敖丙写的一篇文章，介绍了2-3-4树的概念及其与红黑树的转化，最后介绍了红黑树的简化版——左倾红黑树的插入与删除。
+本质与意义 这一部分要说的就是面试经常问的：为什么有了二查找查找树/平衡树还需要红黑树？
+二叉查找树的缺点 二叉查找树大家应该很熟悉，特点就是左子树的节点都比父节点小，而右子树的节点值都比父节点大。基于这个特点，我们在二叉查找树查找某一个值时，采用类似二分查找的思想，时间复杂度只用O(logn)。
+但是这是正常情况下，因为二叉查找树有可能出现一种极端，就是所有节点都同一方向上（如下图），这个时候二叉搜索树以及近似退化为一条链表了，查找的时间复杂度也顿时变成了O(n) ，那这样的话二叉搜索树也就失去了原本的意义——让搜索变得更快。
+ 
+为了解决这个问题，出现了平衡二叉搜索树（也就是我们常说的AVL树）。
+AVL树 为了解决二叉搜索树可能退化为链表的问题而生，有以下特点：
+ 拥有二叉树的全部特性 每个节点的左子树和右子树的高度差不超过1  由于第二点的约束使得AVL树不会出现大量节点一边倒的情况，但是在AVL树构建的过程中就需要很多额外的操作来保证其符合这个特性，使得其最坏情况下查找的时间复杂度也还是为O(logn)
+为什么有了AVL树还要红黑树？ 虽然AVL树解决了二叉搜索树退化了近似链表的缺点，但是由于每个节点的左子树和右子树的高度差不超过1这个要求实在是太严苛了，导致每次插入和删除节点的时候很容易就破坏了这条规则，之后就需要左大量的左旋和右旋来进行调整时期再次符合AVL树的要求。
+所以如果在插入和删除很频繁的场景中，AVL树需要很频繁地进行调整，这样的话效率就大大降低了，为了解决这个问题所以出现了红黑树。（如果在面试中接下来这里就可以说出红黑树的那5个特点）。
+正由于红黑树的这些特点，使其最坏情况下不仅还能维持用O(logn)的时间复杂度找到某个节点，而且与AVL树相比，优势就在于不会那么频繁地破坏红黑树的规则，从而不用那么频繁地进行调整，这就是我们大多数情况下使用红黑树的原因。
+所以红黑树是一种相对AVL树来说不那么严格的平衡树，也就是一种折中的方案，介于普通的二叉搜索树和AVL树之间。极端情况下左右子树的节点数（也就是深度）相差一倍，也就是左边都有黑节点，右边都是红黑相间，右子树的节点数或者说深度就也是左子树的2倍，这个要求就比AVL树的相差最多只能为1宽松多了，因此调整也就更少，效率也就更高。
+为什么红黑树查找的时间复杂度还能维持在O(logn)？ 我们对最坏情况下的时间复杂度进行计算。
+最坏情况下就是上面说的红黑相间，总节点数=红节点数&#43;黑节点数，红黑节点数一致。
+$$n = n_r &#43; n_b$$
+所以时间复杂度就是
+$$O(2* \log n_b ) = O(2 * \log \frac{n}{2})$$
+常数2直接去掉
+$$O(\log \frac{n}{2}) = O(\log n - 1)$$"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/red_black_tree/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/red_black_tree/">
+                <img src="/p/red_black_tree/cover_hub9c0e50fdb57d51b987a72e16255d0e2_204381_800x0_resize_box_3.png"
+                        srcset="/p/red_black_tree/cover_hub9c0e50fdb57d51b987a72e16255d0e2_204381_800x0_resize_box_3.png 800w, /p/red_black_tree/cover_hub9c0e50fdb57d51b987a72e16255d0e2_204381_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="399" 
+                        loading="lazy"
+                        alt="Featured image of post 红黑树，这次终于拿下了" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javase/" >
+                JavaSE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/red_black_tree/">红黑树，这次终于拿下了</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 30, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>由于最近在看Java的容器，看到HashMap，发现它底层有用到红黑树，想起了一些段子以及很久之前曾经挑战过学习它但是没有成功，于是这次打算再次挑战一波，并写成博客。</p>
+<h2 id="应用场景">应用场景</h2>
+<ul>
+<li>JDK的HashMap、TreeMap和TreeSet</li>
+<li>Linux内核的虚拟内存管理</li>
+<li>Nginx的Timer管理</li>
+<li>C++的STL</li>
+</ul>
+<p>可以看到在实际工程场景中还是用得很多的一种数据结构的。</p>
+<h2 id="五大基本性质">五大基本性质</h2>
+<p>首先红黑树是一颗二叉搜索树，然后再加上下面五大性质：</p>
+<ol>
+<li>节点有红色和黑色两种</li>
+<li>根节点一定是黑色的</li>
+<li>叶子节点（nil节点）都是黑色的</li>
+<li>不能有连续的红色节点</li>
+<li>任意节点到叶子节点所经过的黑色节点数相同</li>
+</ol>
+<blockquote>
+<p>第5点就是红黑树维持平衡的重要条件，我们常说的达到黑色平衡或者红黑树达到平衡主要说的就是达到这个条件。</p>
+</blockquote>
+<p>如果精力充足的话建议可以再去了解一下2-3-4树，红黑树就是对概念模型2-3-4树的一种实现，这里推荐我当时看的<a class="link" href="https://www.zhihu.com/question/312327402"  target="_blank" rel="noopener"
+    >敖丙写的一篇文章</a>，介绍了2-3-4树的概念及其与红黑树的转化，最后介绍了红黑树的简化版——左倾红黑树的插入与删除。</p>
+<h2 id="本质与意义">本质与意义</h2>
+<p>这一部分要说的就是面试经常问的：<strong>为什么有了二查找查找树/平衡树还需要红黑树？</strong></p>
+<h3 id="二叉查找树的缺点">二叉查找树的缺点</h3>
+<p>二叉查找树大家应该很熟悉，特点就是左子树的节点都比父节点小，而右子树的节点值都比父节点大。基于这个特点，我们在二叉查找树查找某一个值时，采用类似二分查找的思想，时间复杂度只用<code>O(logn)</code>。</p>
+<p>但是这是正常情况下，因为二叉查找树有可能出现一种极端，就是所有节点都同一方向上（如下图），这个时候二叉搜索树以及近似退化为一条链表了，查找的时间复杂度也顿时变成了<code>O(n)</code> ，那这样的话二叉搜索树也就失去了原本的意义——让搜索变得更快。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112292237974.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112292237974.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>为了解决这个问题，出现了平衡二叉搜索树（也就是我们常说的<code>AVL树</code>）。</p>
+<h3 id="avl树">AVL树</h3>
+<p>为了解决二叉搜索树可能退化为链表的问题而生，有以下特点：</p>
+<ol>
+<li>拥有二叉树的全部特性</li>
+<li>每个节点的左子树和右子树的<strong>高度差不超过1</strong></li>
+</ol>
+<p>由于第二点的约束使得AVL树不会出现大量节点一边倒的情况，但是在AVL树构建的过程中就需要很多额外的操作来保证其符合这个特性，使得其最坏情况下查找的时间复杂度也还是为<code>O(logn)</code></p>
+<h3 id="为什么有了avl树还要红黑树"><strong>为什么有了AVL树还要红黑树？</strong></h3>
+<p>虽然AVL树解决了二叉搜索树退化了近似链表的缺点，但是由于每个节点的左子树和右子树的高度差不超过1这个要求实在是太严苛了，导致每次插入和删除节点的时候很容易就破坏了这条规则，之后就需要左大量的<strong>左旋</strong>和<strong>右旋</strong>来进行调整时期再次符合AVL树的要求。</p>
+<p>所以如果在插入和删除很频繁的场景中，AVL树需要很频繁地进行调整，这样的话效率就大大降低了，为了解决这个问题所以出现了红黑树。（如果在面试中接下来这里就可以说出红黑树的那5个特点）。</p>
+<p>正由于红黑树的这些特点，使其最坏情况下不仅还能维持用<code>O(logn)</code>的时间复杂度找到某个节点，而且与AVL树相比，优势就在于不会那么频繁地破坏红黑树的规则，从而不用那么频繁地进行调整，这就是我们大多数情况下使用红黑树的原因。</p>
+<p>所以红黑树是一种相对AVL树来说不那么严格的平衡树，也就是一种折中的方案，介于普通的二叉搜索树和AVL树之间。极端情况下左右子树的节点数（也就是深度）相差一倍，也就是左边都有黑节点，右边都是红黑相间，右子树的节点数或者说深度就也是左子树的2倍，这个要求就比AVL树的相差最多只能为1宽松多了，因此调整也就更少，效率也就更高。</p>
+<h3 id="为什么红黑树查找的时间复杂度还能维持在ologn">为什么红黑树查找的时间复杂度还能维持在O(logn)？</h3>
+<p>我们对最坏情况下的时间复杂度进行计算。</p>
+<p>最坏情况下就是上面说的红黑相间，总节点数=红节点数+黑节点数，红黑节点数一致。</p>
+<p>$$n = n_r + n_b$$</p>
+<p>所以时间复杂度就是</p>
+<p>$$O(2* \log n_b ) = O(2 * \log \frac{n}{2})$$</p>
+<p>常数2直接去掉</p>
+<p>$$O(\log \frac{n}{2}) = O(\log n - 1)$$</p>
+<p>然后因为这里是二分，所以log底数取2，就转换为如上的最终形式，去掉常数-1后可以发现此时最坏情况下的时间复杂度仍然还是<code>O(logn)</code> 。</p>
+<h2 id="红黑树的插入">红黑树的插入</h2>
+<blockquote>
+<p>下面要介绍的插入和删除操作涉及左旋和右旋概念，需要先保证了解这两个基本操作。</p>
+</blockquote>
+<p>插入和删除操作推荐用这个数据结构动画演示网站搭配食用：<a class="link" href="https://www.cs.usfca.edu/~galles/visualization/RedBlack.html"  target="_blank" rel="noopener"
+    >https://www.cs.usfca.edu/~galles/visualization/RedBlack.html</a></p>
+<h3 id="总结表格">总结表格</h3>
+<p>插入操作的话相对删除还是要简单一点的，但是还是分出了几种情况，这里就用b站up <em>free-coder</em>总结的表格：</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291624593.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291624593.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>叔节点</code>：父节点的兄弟节点</p>
+<p><code>祖父节点</code>：父节点和叔节点的父节点，也就是爷爷节点</p>
+<blockquote>
+<p>为了尽可能不去破环平衡，我们插入的新节点都是默认为红色的，插入后再检查是否破坏了红黑树的定义，如果破坏了我们再去进行调整。</p>
+</blockquote>
+<h3 id="具体解析">具体解析</h3>
+<p>表格中一共有6种情况，由于其中有两组是镜像的，所以下面归纳为4中情况：</p>
+<ul>
+<li><code>情况1</code>：<strong>父节点</strong>是黑节点</li>
+</ul>
+<p>由于父节点是黑节点，插入的新节点就一定是红节点（因为不能有连续的红节点），而红节点不影响红黑树的平衡，所以也无需任何调整操作了。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291631517.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291631517.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>如图，父节点是根节点也就是黑的，值为1，插入了一个2为红节点，所以无需任何操作。</p>
+<ul>
+<li><code>情况2</code>：父节点是红节点，<strong>叔节点</strong>是黑节点（“左左”和“右右”类型）</li>
+</ul>
+<p>在<code>情况1</code>的基础上我们插入一个3</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291639443.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291639443.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>可以看到此时3的父节点2是红，叔节点nil节点是黑的，我们先进行一个<code>左旋</code>，发现出现连续的红色，所以再进行一个变色即可。</p>
+<p>这里2和3节点都是它们各自父节点的右子节点，也就是对应上面表格中类型的“右右”，但其实“左左”只是镜像了一下，这里就不再赘述。</p>
+<ul>
+<li><code>情况3</code>：父节点和叔节点都是红</li>
+</ul>
+<p>我们在<code>情况2</code> 的基础上再插入一个4</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291657419.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291657419.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>插入4后父亲节点3和叔节点1都是红的，所以我们把父叔都变黑，祖父变红，然后祖父变为当前节点，向上递归这个逻辑直到根节点，由于根节点一定是黑的所以就把节点2变黑即可。</p>
+<ul>
+<li><code>情况4</code>：父节点是红节点，<strong>叔节点</strong>是黑节点（“左右”和“右左”类型）</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291708679.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291708679.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>这里插入的是11，我们发现插入11后，节点10、12、11形成了一个“右左”类型，形状上就是一个折了一下的类似三角的感觉，这时我们只需要<code>右旋</code>一下，诶就转为“右右”类型了，然后再按“右右”类型去<code>左旋+变色</code>就可以调整完成。</p>
+<p>同样的，“左右”类型和“右左”类型是镜像，这里也不再赘述。</p>
+<h2 id="红黑树的删除">红黑树的删除</h2>
+<p>删除操作是红黑树中最难、情况最多的操作。红黑树的其他方面我感觉还行，就是删除操作我感觉才是红黑树难的精髓之处。</p>
+<h3 id="通过替换来删除">通过替换来删除</h3>
+<p>删除和插入一样，都可能会破坏红黑树原本的性质，所以在删除后我们是需要做一些调整才让树维持红黑树的性质。</p>
+<p>首先从我们直觉上来看，如果删除的节点位于叶子节点处，或者相对来说位置比较低，那删除节点后应该对整棵树的影响会比较小，所需做的调整应该也简单很多甚至不用调整。但是如果被删除的节点位于树的相对中间的位置，而且这个节点还有左右子树，那要做的调整相对来说就会多一点。</p>
+<p>所以，我们一般采用一种方法，就是通过替换去删除，具体来说就是找到被删除节点的左邻节点或者右邻节点，然后把左邻或右邻节点放到被删除节点进行覆盖，然后把左邻右邻节点原来位置上的节点进行删除。</p>
+<p>左邻和右邻是我自己叫的名字，实际上就是在这棵搜索树的所有节点中，排序刚好比被删除节点小一位和大一位的节点，具体在位置：</p>
+<p><code>左邻节点</code>：本节点左子树中的最大节点，即左子树中最右的节点</p>
+<p><code>右邻节点</code>：本节点右子树中的最小节点，即右子树中最左的节点</p>
+<p>示例：</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291640069.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291640069.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>如图，D是被删除节点，R是其右邻节点，我们用R覆盖了D，然后把R原来位置删除，就完成了这个过程。</p>
+<p>然后我们将删除分为三种情况：</p>
+<ul>
+<li>情况一：被删除节点无子节点， 直接删除</li>
+<li>情况二：被删除节点只有一个子节点，用子节点替换要被删除的节点</li>
+<li>情况三：被删除节点有两个子节点，可以用左邻节点或者右邻节点进行替换删除操作</li>
+</ul>
+<p>所以实际上三种情况都可以概括为这样一个过程：找到一个用来替换的节点，覆盖要被删除的节点，最后再删除用于替换的节点原本所在的节点。</p>
+<p>具体到红黑树，可以分为三大场景，9种小情况，其中场景二和三互为镜像，可以结合在一起看。</p>
+<h3 id="删除场景一">删除场景一</h3>
+<p>删除场景一：替换节点是红节点</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291428614.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291428614.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>替换节点如果是红节点，删除之后不影响红黑树的平衡，只需要把让替换节点覆盖后把颜色设置为被删除节点原来的颜色即可。</p>
+<h3 id="删除场景二">删除场景二</h3>
+<blockquote>
+<p>删除场景二：<strong>替换节点</strong>是黑色节点，而且此替换节点是它父节点的左子节点</p>
+</blockquote>
+<p>由于替换节点是黑色节点，删除后势必会破坏红黑树的黑色平衡，所以要进行调整，这里又分出四种小情况。</p>
+<ul>
+<li><code>情况2.1</code>：<strong>替换节点</strong>的兄弟节点是红节点。</li>
+</ul>
+<p>删除替换节点（黑）后，左子树的黑色节点会减少一个，所以我们要进行的操作是用替换节点的兄弟节点来补充一下左子树的黑节点数。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291435107.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291435107.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>具体操作</code>：将替换节点的父节点P设为红色，<strong>兄弟节点</strong>S设置为黑色，然后对节点P<code>左旋</code>操作，转换为<code>情况2.4</code> ，接下来就用<code>情况2.4</code> 的操作继续进行。</p>
+<blockquote>
+<p>注意场景二、三的图例都是还没进行覆盖和删除的时候的R，只是根据其位置和周边节点的特点来讨论和推断它被删除后红黑树平衡被破坏的状态以及之后要采取的自平衡操作。</p>
+</blockquote>
+<ul>
+<li><code>情况2.2</code>：替换节点的<strong>兄弟节点</strong>是黑色，同时兄弟节点的右子节点是红色的，左子节点任意颜色</li>
+</ul>
+<p>这种情况同样要借助兄弟节点来补充左子树的黑节点数，达到平衡。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291453087.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291453087.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<blockquote>
+<p>注意图中的灰色节点表示可以为任意颜色</p>
+</blockquote>
+<p><code>具体操作</code>：将替换节点的兄弟节点S设置为父节点的颜色，<strong>兄弟节点的右子节点</strong>SR设置为黑色，<strong>父节点</strong>P设置为黑色，然后对P进行<code>左旋</code>操作。此时发现同样也是给左子树补了一个黑节点同时右子树黑节点数不变。</p>
+<ul>
+<li><code>情况2.3</code>：替换节点的<strong>兄弟节点</strong>是黑色，且兄弟节点的左子节点是红色，<strong>右子节点</strong>是黑色</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291534907.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291534907.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>具体操作</code> ：将兄弟节点S设置为红色，兄弟节点的左子节点SL设置为黑色，再对节点S进行<code>右旋</code>，这时候就转换为<code>情况2.2</code>了，按2.2的步骤继续操作即可。</p>
+<ul>
+<li><code>情况2.4</code>：替换节点的<strong>兄弟节点的左右子节点</strong>都是黑色</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291534976.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291534976.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>具体操作</code> ：把替换节点当作当前节点，当前节点的兄弟节点S设为红色，然后把父节点P当作当前节点（相当于向上移动当前节点的指针），然后自底向上递归处理。</p>
+<p>可以看到，局部上就把右子树的黑节点数减少了1，达到平衡，可是把S变为红色之后有可能破坏红黑树不能有连续的红节点的规则，所以还需要递归向上处理。</p>
+<h3 id="删除场景三">删除场景三</h3>
+<blockquote>
+<p>删除场景三：<strong>替换节点</strong>是黑色节点，而且此替换节点是它父节点的右子节点</p>
+</blockquote>
+<p>场景三就是场景二的镜像了，所以场景二是左子树少了一个黑节点数需要补，场景三是右子树少了一个黑节点数需要补。看场景三建议结合场景二一起看，这一部分就相对写得简略一点了。</p>
+<ul>
+<li><code>情况3.1</code>：替换节点的兄弟节点是红节点</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291603196.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291603196.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>具体操作</code>：将替换节点的父节点P设置红色，将<strong>兄弟节点</strong>S设置成黑色，再对节点P<code>右旋</code>操作，转换为<code>情况3.4</code>。</p>
+<ul>
+<li><code>情况3.2</code> ：<strong>替换节点的兄弟节点</strong>是黑色，且兄弟节点的左子节点是红色、右子节点是任意颜色</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291604315.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291604315.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>具体操作</code>：替换节点的兄弟节点S设置成父节点P的颜色，<strong>兄弟节点的左子节点</strong>SL设置为黑色，<strong>父节点</strong>P设置为黑色，再对节点P<code>右旋</code>操作。</p>
+<p>相当于给右子树补充了一个黑节点。</p>
+<ul>
+<li><code>情况3.3</code> ：<strong>替换节点的兄弟节点</strong>是黑色且兄弟节点的右子节点是红色、<strong>左子节点</strong>为黑色</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291604861.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291604861.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>具体操作</code>：替换节点的兄弟节点S设置成红色，<strong>兄弟节点的右子节点</strong>SL设置为黑色，再对节点S<code>左旋</code>操作，转换到了<code>情况3.2</code>，再进行<code>情况3.2</code>的操作。</p>
+<ul>
+<li><code>情况3.4</code>：替换节点的兄弟节点的左右子节点都是黑色</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291605007.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112291605007.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p><code>具体操作</code>：把替换节点当作当前节点，当前节点的兄弟节点S设为红色，然后把父节点P当作当前节点（相当于向上移动当前节点的指针），然后自底向上递归处理。</p>
+<h2 id="写在最后">写在最后</h2>
+<p>经过一天多高强度看文章以及视频，算是学得七七八八了。虽然面试不太会经常问到红黑树而且尽管问到一般也不会深入到具体的插入和删除过程，最多性质和意义就得了，所以很多人都说如果面试官让你手写红黑树那证明他不想要你，你就可以直接告辞了😂 。但是我觉得在实际工程中使用这么广泛的数据结构作为一个程序员还是要好好学一下的，所以才肝出了这篇文章。</p>
+<p>所以很多时候为了功利很多知识的学习只是为了应对面试，就比如八股文的学习，但是作为一个程序员这样的身份，还是要有那股我们一直以来最崇尚的求知欲，尽管是八股文的学习，也要学得明白、学得透彻才行。</p>
+<h2 id="参考">参考</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1Pp4y1D7u1"  target="_blank" rel="noopener"
+    >【数据结构】红 黑 树_哔哩哔哩_bilibili</a></p>
+<p><a class="link" href="https://segmentfault.com/a/1190000022278733"  target="_blank" rel="noopener"
+    >通俗易懂的红黑树图解(下)</a></p>
+<p><a class="link" href="https://github.com/iamshuaidi/algo-basic/blob/master/%E5%AD%A6%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E8%85%BE%E8%AE%AF%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9A%E6%9C%89%E4%BA%86%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91%EF%BC%8C%E5%B9%B3%E8%A1%A1%E6%A0%91%E4%B8%BA%E5%95%A5%E8%BF%98%E9%9C%80%E8%A6%81%E7%BA%A2%E9%BB%91%E6%A0%91%EF%BC%9F.md"  target="_blank" rel="noopener"
+    >algo-basic/腾讯面试题：有了二叉查找树，平衡树为啥还需要红黑树？.md at master · iamshuaidi/algo-basic</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E7%BA%A2%E9%BB%91%E6%A0%91/">红黑树</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_volatile/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_volatile/cover.533970812e1dfd0c0f1cf766509ee13d_hu7fad456951eb20fdb97374db4ac4bdd8_54974_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_volatile" 
+                        data-hash="md5-UzlwgS4d/QwPHPdmUJ7hPQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]volatile篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized_optimization/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized_optimization/cover.c3ae00288d98394524bc6ead85ec211d_hu4d840036f83d7884a510888303887b86_1060410_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized_optimization" 
+                        data-hash="md5-w64AKI2YOUUkvG6thewhHQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]Synchronized优化篇——Java中的各种锁</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_reentrantlock/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_reentrantlock/cover.863c8908ba19abe122f188d57cbb4190_huceae91d367533a91416a74330952ccc4_41335_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_reentrantlock" 
+                        data-hash="md5-hjyJCLoZq&#43;Ei8YjVfLtBkA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]ReentrantLock篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized/cover.0fec37ffa5d7b5f5c3963f9caa306d29_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized" 
+                        data-hash="md5-D&#43;w3/6XXtfXDlj&#43;cqjBtKQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]synchronized篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_basic/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_basic/cover.2787cbf2d8333547efb3b6189939f028_huf957eb7cc0803733802fcc4099cfd7cb_64471_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_basic" 
+                        data-hash="md5-J4fL8tgzNUfvs7YYmTnwKA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]基础篇</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#应用场景">应用场景</a></li>
+    <li><a href="#五大基本性质">五大基本性质</a></li>
+    <li><a href="#本质与意义">本质与意义</a>
+      <ol>
+        <li><a href="#二叉查找树的缺点">二叉查找树的缺点</a></li>
+        <li><a href="#avl树">AVL树</a></li>
+        <li><a href="#为什么有了avl树还要红黑树"><strong>为什么有了AVL树还要红黑树？</strong></a></li>
+        <li><a href="#为什么红黑树查找的时间复杂度还能维持在ologn">为什么红黑树查找的时间复杂度还能维持在O(logn)？</a></li>
+      </ol>
+    </li>
+    <li><a href="#红黑树的插入">红黑树的插入</a>
+      <ol>
+        <li><a href="#总结表格">总结表格</a></li>
+        <li><a href="#具体解析">具体解析</a></li>
+      </ol>
+    </li>
+    <li><a href="#红黑树的删除">红黑树的删除</a>
+      <ol>
+        <li><a href="#通过替换来删除">通过替换来删除</a></li>
+        <li><a href="#删除场景一">删除场景一</a></li>
+        <li><a href="#删除场景二">删除场景二</a></li>
+        <li><a href="#删除场景三">删除场景三</a></li>
+      </ol>
+    </li>
+    <li><a href="#写在最后">写在最后</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
