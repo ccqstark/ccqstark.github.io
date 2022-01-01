@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>HashMap on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/hashmap/</link>
+    <description>Recent content in HashMap on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 01 Jan 2022 13:58:40 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/hashmap/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>HashMap源码与扩容机制分析</title>
+      <link>https://ccqstark.github.io/p/hashmap/</link>
+      <pubDate>Sat, 01 Jan 2022 13:58:40 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/hashmap/</guid>
+      <description>本文主要针对JDK1.8进行分析
+ 四个构造方法 // 默认构造函数。 public HashMap() { this.loadFactor = DEFAULT_LOAD_FACTOR; // 其他字段都是默认值 } // 包含另一个“Map”的构造函数 public HashMap(Map&amp;lt;? extends K, ? extends V&amp;gt; m) { this.loadFactor = DEFAULT_LOAD_FACTOR; putMapEntries(m, false); } // 指定“容量大小”的构造函数 public HashMap(int initialCapacity) { this(initialCapacity, DEFAULT_LOAD_FACTOR); } // 指定“容量大小”和“加载因子”的构造函数 public HashMap(int initialCapacity, float loadFactor) { if (initialCapacity &amp;lt; 0) throw new IllegalArgumentException(&amp;#34;Illegal initial capacity: &amp;#34; + initialCapacity); if (initialCapacity &amp;gt; MAXIMUM_CAPACITY) initialCapacity = MAXIMUM_CAPACITY; if (loadFactor &amp;lt;= 0 || Float.</description>
+    </item>
+    
+  </channel>
+</rss>

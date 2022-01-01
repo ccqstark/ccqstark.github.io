@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文主要针对JDK1.8进行分析
+ 四个构造方法 // 默认构造函数。 public HashMap() { this.loadFactor = DEFAULT_LOAD_FACTOR; // 其他字段都是默认值 } // 包含另一个“Map”的构造函数 public HashMap(Map&amp;lt;? extends K, ? extends V&amp;gt; m) { this.loadFactor = DEFAULT_LOAD_FACTOR; putMapEntries(m, false); } // 指定“容量大小”的构造函数 public HashMap(int initialCapacity) { this(initialCapacity, DEFAULT_LOAD_FACTOR); } // 指定“容量大小”和“加载因子”的构造函数 public HashMap(int initialCapacity, float loadFactor) { if (initialCapacity &amp;lt; 0) throw new IllegalArgumentException(&amp;#34;Illegal initial capacity: &amp;#34; &#43; initialCapacity); if (initialCapacity &amp;gt; MAXIMUM_CAPACITY) initialCapacity = MAXIMUM_CAPACITY; if (loadFactor &amp;lt;= 0 || Float.'><title>HashMap源码与扩容机制分析</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/hashmap/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='HashMap源码与扩容机制分析'>
+<meta property='og:description' content='本文主要针对JDK1.8进行分析
+ 四个构造方法 // 默认构造函数。 public HashMap() { this.loadFactor = DEFAULT_LOAD_FACTOR; // 其他字段都是默认值 } // 包含另一个“Map”的构造函数 public HashMap(Map&amp;lt;? extends K, ? extends V&amp;gt; m) { this.loadFactor = DEFAULT_LOAD_FACTOR; putMapEntries(m, false); } // 指定“容量大小”的构造函数 public HashMap(int initialCapacity) { this(initialCapacity, DEFAULT_LOAD_FACTOR); } // 指定“容量大小”和“加载因子”的构造函数 public HashMap(int initialCapacity, float loadFactor) { if (initialCapacity &amp;lt; 0) throw new IllegalArgumentException(&amp;#34;Illegal initial capacity: &amp;#34; &#43; initialCapacity); if (initialCapacity &amp;gt; MAXIMUM_CAPACITY) initialCapacity = MAXIMUM_CAPACITY; if (loadFactor &amp;lt;= 0 || Float.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/hashmap/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='容器' /><meta property='article:tag' content='HashMap' /><meta property='article:published_time' content='2022-01-01T13:58:40&#43;08:00'/><meta property='article:modified_time' content='2022-01-01T13:58:40&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/hashmap/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="HashMap源码与扩容机制分析">
+<meta name="twitter:description" content="本文主要针对JDK1.8进行分析
+ 四个构造方法 // 默认构造函数。 public HashMap() { this.loadFactor = DEFAULT_LOAD_FACTOR; // 其他字段都是默认值 } // 包含另一个“Map”的构造函数 public HashMap(Map&amp;lt;? extends K, ? extends V&amp;gt; m) { this.loadFactor = DEFAULT_LOAD_FACTOR; putMapEntries(m, false); } // 指定“容量大小”的构造函数 public HashMap(int initialCapacity) { this(initialCapacity, DEFAULT_LOAD_FACTOR); } // 指定“容量大小”和“加载因子”的构造函数 public HashMap(int initialCapacity, float loadFactor) { if (initialCapacity &amp;lt; 0) throw new IllegalArgumentException(&amp;#34;Illegal initial capacity: &amp;#34; &#43; initialCapacity); if (initialCapacity &amp;gt; MAXIMUM_CAPACITY) initialCapacity = MAXIMUM_CAPACITY; if (loadFactor &amp;lt;= 0 || Float."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/hashmap/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/hashmap/">
+                <img src="/p/hashmap/cover_hu1511f3a3e5b8bd5321cac5b96fbe8ed4_1324881_800x0_resize_box_3.png"
+                        srcset="/p/hashmap/cover_hu1511f3a3e5b8bd5321cac5b96fbe8ed4_1324881_800x0_resize_box_3.png 800w, /p/hashmap/cover_hu1511f3a3e5b8bd5321cac5b96fbe8ed4_1324881_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="353" 
+                        loading="lazy"
+                        alt="Featured image of post HashMap源码与扩容机制分析" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javase/" >
+                JavaSE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hashmap/">HashMap源码与扩容机制分析</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 01, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>本文主要针对JDK1.8进行分析</p>
+</blockquote>
+<h2 id="四个构造方法">四个构造方法</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 默认构造函数。
+</span><span class="c1"></span><span class="kd">public</span> <span class="nf">HashMap</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">loadFactor</span> <span class="o">=</span> <span class="n">DEFAULT_LOAD_FACTOR</span><span class="o">;</span> <span class="c1">// 其他字段都是默认值
+</span><span class="c1"></span><span class="o">}</span>
+
+<span class="c1">// 包含另一个“Map”的构造函数
+</span><span class="c1"></span><span class="kd">public</span> <span class="nf">HashMap</span><span class="o">(</span><span class="n">Map</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">K</span><span class="o">,</span> <span class="o">?</span> <span class="kd">extends</span> <span class="n">V</span><span class="o">&gt;</span> <span class="n">m</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">loadFactor</span> <span class="o">=</span> <span class="n">DEFAULT_LOAD_FACTOR</span><span class="o">;</span>
+   <span class="n">putMapEntries</span><span class="o">(</span><span class="n">m</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// 指定“容量大小”的构造函数
+</span><span class="c1"></span><span class="kd">public</span> <span class="nf">HashMap</span><span class="o">(</span><span class="kt">int</span> <span class="n">initialCapacity</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">this</span><span class="o">(</span><span class="n">initialCapacity</span><span class="o">,</span> <span class="n">DEFAULT_LOAD_FACTOR</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// 指定“容量大小”和“加载因子”的构造函数
+</span><span class="c1"></span><span class="kd">public</span> <span class="nf">HashMap</span><span class="o">(</span><span class="kt">int</span> <span class="n">initialCapacity</span><span class="o">,</span> <span class="kt">float</span> <span class="n">loadFactor</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">if</span> <span class="o">(</span><span class="n">initialCapacity</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">)</span>
+       <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Illegal initial capacity: &#34;</span> <span class="o">+</span> <span class="n">initialCapacity</span><span class="o">);</span>
+   <span class="k">if</span> <span class="o">(</span><span class="n">initialCapacity</span> <span class="o">&gt;</span> <span class="n">MAXIMUM_CAPACITY</span><span class="o">)</span>
+       <span class="n">initialCapacity</span> <span class="o">=</span> <span class="n">MAXIMUM_CAPACITY</span><span class="o">;</span>
+   <span class="k">if</span> <span class="o">(</span><span class="n">loadFactor</span> <span class="o">&lt;=</span> <span class="n">0</span> <span class="o">||</span> <span class="n">Float</span><span class="o">.</span><span class="na">isNaN</span><span class="o">(</span><span class="n">loadFactor</span><span class="o">))</span>
+       <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;Illegal load factor: &#34;</span> <span class="o">+</span> <span class="n">loadFactor</span><span class="o">);</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">loadFactor</span> <span class="o">=</span> <span class="n">loadFactor</span><span class="o">;</span>
+     <span class="c1">// tableSizeFor方法是返回一个大于等于传入值的一个2的幂的数
+</span><span class="c1"></span>   <span class="c1">// 所以经过这个构造方法的hashmap的threshold是2的幂，在扩容时的某种情况下可以赋给新的容量（详见下面resize分析）
+</span><span class="c1"></span>   <span class="k">this</span><span class="o">.</span><span class="na">threshold</span> <span class="o">=</span> <span class="n">tableSizeFor</span><span class="o">(</span><span class="n">initialCapacity</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="为什么负载因子默认是075f">为什么负载因子默认是0.75f？</h2>
+<p>因为如果负载因子太大，也就是越接近于1，数据就会比较密集，链化会比较严重，查询效率就会比较低；如果负载因子太小，就会导致数组比较松散，数组的空间利用率低。所以默认0.75是官方对空间和时间效率的一个平衡选择。</p>
+<p>给定的默认容量为 16，负载因子为 0.75。Map 在使用过程中不断的往里面存放数据，当数量达到了 16 * 0.75 = 12 就需要将当前 16 的容量进行扩容，而扩容这个过程涉及到 rehash、复制数据等操作，所以非常消耗性能。</p>
+<h2 id="与-hashtable-的比较">与 HashTable 的比较</h2>
+<ol>
+<li>HashMap是Hashtable的轻量级实现，HashMap允许key和value为null，但最多允许一条记录的key为null。而HashTable不允许。</li>
+<li>HashTable中的方法是线程安全的，使用 synchronized 来进行同步，而HashMap不是线程安全的。</li>
+<li>HashMap具有fail-fast机制</li>
+</ol>
+<h2 id="fail-fast机制">fail-fast机制</h2>
+<p>fail-fast 机制是 java 集合(Collection)中的一种错误机制。 当多个线程对同一个集合的内容进行操作时，就可能会产生 fail-fast 事件。</p>
+<p>这一策略在源码中的实现是通过成员变量<code>modCount</code>，表示修改次数，每次对 HashMap 内容（当然不仅仅是 HashMap 才会有，其他例如 ArrayList 也会）的修改都会进行modCount++，那么在迭代器初始化过程中会将这个值赋给迭代器的 <code>expectedModCount</code>。在操作过程中判断 modCount 跟 expectedModCount 是否相等，如果不相等就表示已经有其他线程修改了容器内容，就会抛出<code>ConcurrentModificationException</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="k">if</span> <span class="o">(</span><span class="n">modCount</span> <span class="o">!=</span> <span class="n">expectedModCount</span><span class="o">)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ConcurrentModificationException</span><span class="o">();</span>
+</code></pre></div><p><strong>为什么modCount不用volatile来修饰？</strong></p>
+<p>理论上我们为了各线程都保证对modCount的可见性，但是实际上即使modCount用<code>volatile</code>关键字修饰，还是保证不了多线程下记录正确的modcount，因为valotile是弱同步机制保证不了线程安全，所以也无法保证每次多线程修改都可以触发<code>ConcurrentModificationException</code> ，同时还会增加额外的开销，所以就没有必要用volatile修饰modCount了。</p>
+<h2 id="为什么数组的长度总是2的幂">为什么数组的长度总是2的幂</h2>
+<p>因为我们寻址的话一般就是对hash值进行取模，也就是<code>hash%length</code> ，如果length是2的次方数，那么取模的公式其实是等于<code>hash&amp;(length-1)</code> ，而使用位运算的话CPU计算会快一点，提高了性能。</p>
+<p><code>hash%length</code> == <code>hash&amp;(length-1)</code> 的原因是当length为2的幂时，假如是16，那二进制就为10000，减去1就是01111，任何数与其相与都是保留其低4位，也就是0到15这样一个范围，效果自然就和取模是一样的了。</p>
+<h2 id="hash方法">hash方法</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">hash</span><span class="o">(</span><span class="n">Object</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+     <span class="kt">int</span> <span class="n">h</span><span class="o">;</span>
+     <span class="c1">// h = key.hashCode() 为第一步 取hashCode值
+</span><span class="c1"></span>     <span class="c1">// h ^ (h &gt;&gt;&gt; 16)  为第二步 高位参与运算
+</span><span class="c1"></span>     <span class="k">return</span> <span class="o">(</span><span class="n">key</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="o">(</span><span class="n">h</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="na">hashCode</span><span class="o">())</span> <span class="o">^</span> <span class="o">(</span><span class="n">h</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">16</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>通过hashCode()的高16位异或低16位实现的：(h = k.hashCode()) ^ (h &raquo;&gt; 16)，主要是从速度、功效、质量来考虑的，这么做可以在数组table的length比较小的时候，也能保证考虑到高低Bit都参与到Hash的计算中，同时不会有太大的开销。</p>
+<p>上面代码是JDK1.8的实现，相比1.7减少了扰动次数，优化了一点性能。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201010221331.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201010221331.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h2 id="put方法过程">put方法过程</h2>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112312304507.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112312304507.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>所以put主要有四种情况：</p>
+<ol>
+<li>对应桶位为null就可以直接插入</li>
+<li>对应key已经存在，直接覆盖value</li>
+<li>对应位置已经树化，那就用插入到红黑树中</li>
+<li>对应位置已经链化，进行链表的插入。此时如果链表长度大于8，再判断如果当前数组的长度小于 64，那么会选择先进行数组扩容，而如果数组长度大于64了才转换为红黑树。</li>
+</ol>
+<h2 id="扩容机制">扩容机制</h2>
+<h3 id="为什么需要扩容">为什么需要扩容？</h3>
+<p>为了解决数据量大的情况下哈希冲突严重导致大量节点链化，影响查询的效率（链表查询为O(n)），扩容可以缓解该问题。</p>
+<h3 id="扩容时机">扩容时机</h3>
+<p>由上面的put方法流程图中可以看出，在一开始table为空或者length为0，或者当size超过threshold的时候会触发resize方法进行扩容，而<code>threshold = 容积 * 负载因子</code>。</p>
+<h3 id="resize方法源码分析">resize方法源码分析</h3>
+<p>这里把resize方法拆成两部分进行分析</p>
+<ul>
+<li>第一部分：主要是为了计算出<code>新数组的长度</code>以及<code>新的扩容阈值</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">final</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="nf">resize</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// oldTab:引用扩容前的哈希表
+</span><span class="c1"></span>    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">oldTab</span> <span class="o">=</span> <span class="n">table</span><span class="o">;</span>
+    <span class="c1">// oldCap:表示扩容之前table数组的长度
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">oldCap</span> <span class="o">=</span> <span class="o">(</span><span class="n">oldTab</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="n">oldTab</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="c1">// oldThr:表示扩容之前的扩容阈值，也就是触发此次扩容的阈值
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">oldThr</span> <span class="o">=</span> <span class="n">threshold</span><span class="o">;</span>
+    <span class="c1">// newCap:扩容之后table数组的长度
+</span><span class="c1"></span>    <span class="c1">// newThr：扩容之后的扩容阈值，也就是下一次触发扩容的条件
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">newCap</span><span class="o">,</span> <span class="n">newThr</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+
+    <span class="c1">// 判断如果hashmap已经初始化过了，这是一次正常的扩容
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">oldCap</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 扩容之前发现table数组大小已经达到了最大容量限制，不扩容，并把阈值设置为int的最大值(非常少数的情况)
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">oldCap</span> <span class="o">&gt;=</span> <span class="n">MAXIMUM_CAPACITY</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">;</span>
+            <span class="k">return</span> <span class="n">oldTab</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="c1">// oldCap左移一位实现数值翻倍（2倍），并赋给newCap，如果newCap小于最大容量限制且oldCap大于等于16
+</span><span class="c1"></span>        <span class="c1">// 则让下一次扩容的阈值等于当前阈值的翻倍
+</span><span class="c1"></span>        <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">newCap</span> <span class="o">=</span> <span class="n">oldCap</span> <span class="o">&lt;&lt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">MAXIMUM_CAPACITY</span> <span class="o">&amp;&amp;</span>
+                <span class="n">oldCap</span> <span class="o">&gt;=</span> <span class="n">DEFAULT_INITIAL_CAPACITY</span><span class="o">)</span>
+            <span class="n">newThr</span> <span class="o">=</span> <span class="n">oldThr</span> <span class="o">&lt;&lt;</span> <span class="n">1</span><span class="o">;</span> <span class="c1">// double threshold
+</span><span class="c1"></span>    <span class="o">}</span>
+
+    <span class="c1">// 此时oldCap==0， 说明hashmap中的散列表为null，就是通过一下三种情况进行初始化的
+</span><span class="c1"></span>    <span class="c1">// 1. new HashMap(initialCapacity, loadFactor);
+</span><span class="c1"></span>    <span class="c1">// 2. new HashMap(initialCapacity);
+</span><span class="c1"></span>    <span class="c1">// 3. new HashMap(map); 通过一个含有数组的map进行初始化
+</span><span class="c1"></span>    <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">oldThr</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="c1">// initial capacity was placed in threshold
+</span><span class="c1"></span>        <span class="c1">// 此时的oldThr也就是threshold一定是2的幂，保证了newCap也是2的次方
+</span><span class="c1"></span>        <span class="c1">// 因为这里都是tableSizeFor()方法设置的threshold
+</span><span class="c1"></span>        <span class="n">newCap</span> <span class="o">=</span> <span class="n">oldThr</span><span class="o">;</span>
+
+    <span class="c1">// 此时oldCap==0 且 oldThr==0
+</span><span class="c1"></span>    <span class="c1">// 也就是无参构造出来的 new HashMap();
+</span><span class="c1"></span>    <span class="k">else</span> <span class="o">{</span>               <span class="c1">// zero initial threshold signifies using defaults
+</span><span class="c1"></span>        <span class="n">newCap</span> <span class="o">=</span> <span class="n">DEFAULT_INITIAL_CAPACITY</span><span class="o">;</span> <span class="c1">// 16
+</span><span class="c1"></span>        <span class="n">newThr</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)(</span><span class="n">DEFAULT_LOAD_FACTOR</span> <span class="o">*</span> <span class="n">DEFAULT_INITIAL_CAPACITY</span><span class="o">);</span> <span class="c1">// 12
+</span><span class="c1"></span>    <span class="o">}</span>
+
+    <span class="c1">// newThr为零，这种情况一般就是初始化时自己指定了一个数组大小且这个值小于默认的16比如为8
+</span><span class="c1"></span>    <span class="c1">// 所以就导致上面的newThr赋值语句都没有执行到
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">newThr</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// newThr = 容量 * 负载因子
+</span><span class="c1"></span>        <span class="kt">float</span> <span class="n">ft</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)</span><span class="n">newCap</span> <span class="o">*</span> <span class="n">loadFactor</span><span class="o">;</span>
+        <span class="n">newThr</span> <span class="o">=</span> <span class="o">(</span><span class="n">newCap</span> <span class="o">&lt;</span> <span class="n">MAXIMUM_CAPACITY</span> <span class="o">&amp;&amp;</span> <span class="n">ft</span> <span class="o">&lt;</span> <span class="o">(</span><span class="kt">float</span><span class="o">)</span><span class="n">MAXIMUM_CAPACITY</span> <span class="o">?</span>
+                <span class="o">(</span><span class="kt">int</span><span class="o">)</span><span class="n">ft</span> <span class="o">:</span> <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// 赋值给成员变量threshold
+</span><span class="c1"></span>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">newThr</span><span class="o">;</span>
+
+    <span class="c1">// === 这是分界线，上面前半段都是为了计算出newCap和newThr ===
+</span></code></pre></div><ul>
+<li>第二部分：<code>rehash</code>过程，主要是把原来的链表拆分成<code>高低位链表</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java">    <span class="c1">// 这里开始是rehash过程
+</span><span class="c1"></span>    <span class="nd">@SuppressWarnings</span><span class="o">({</span><span class="s">&#34;rawtypes&#34;</span><span class="o">,</span><span class="s">&#34;unchecked&#34;</span><span class="o">})</span>
+    <span class="c1">// 用newCap创建了一个更大的数组
+</span><span class="c1"></span>    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">newTab</span> <span class="o">=</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[])</span><span class="k">new</span> <span class="n">Node</span><span class="o">[</span><span class="n">newCap</span><span class="o">];</span>
+    <span class="c1">// 新数组赋给table数组
+</span><span class="c1"></span>    <span class="n">table</span> <span class="o">=</span> <span class="n">newTab</span><span class="o">;</span>
+
+    <span class="c1">// 说明本次扩容之前table数组不为null
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">oldTab</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 去遍历原数组里的元素
+</span><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">oldCap</span><span class="o">;</span> <span class="o">++</span><span class="n">j</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// 当前的node节点
+</span><span class="c1"></span>            <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">;</span>
+            <span class="c1">// 说明当前桶位有数据，具体为单节点还是链表还是红黑树就分情况去处理
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">((</span><span class="n">e</span> <span class="o">=</span> <span class="n">oldTab</span><span class="o">[</span><span class="n">j</span><span class="o">])</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// 置为null方便JVM GC时回收内存
+</span><span class="c1"></span>                <span class="n">oldTab</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+                <span class="c1">// 第一种情况：单节点，也就是从未发生过碰撞
+</span><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                    <span class="c1">// 直接找到新桶位然后赋值进去
+</span><span class="c1"></span>                    <span class="c1">// 这里新桶位也是不会发生冲突的，因为同一个桶位映射到新数组中也是一一对应的
+</span><span class="c1"></span>                    <span class="n">newTab</span><span class="o">[</span><span class="n">e</span><span class="o">.</span><span class="na">hash</span> <span class="o">&amp;</span> <span class="o">(</span><span class="n">newCap</span> <span class="o">-</span> <span class="n">1</span><span class="o">)]</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+
+                <span class="c1">// 第二种情况：当前节点以及树化
+</span><span class="c1"></span>                <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">e</span> <span class="k">instanceof</span> <span class="n">TreeNode</span><span class="o">)</span>
+                    <span class="o">((</span><span class="n">TreeNode</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;)</span><span class="n">e</span><span class="o">).</span><span class="na">split</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">newTab</span><span class="o">,</span> <span class="n">j</span><span class="o">,</span> <span class="n">oldCap</span><span class="o">);</span>
+
+                <span class="c1">// 第三种情况：当前节点已经形成链表
+</span><span class="c1"></span>                <span class="k">else</span> <span class="o">{</span> <span class="c1">// preserve order
+</span><span class="c1"></span>
+                    <span class="c1">// 低位链表：在新数组中的位置与存放在扩容前数组的位置一致
+</span><span class="c1"></span>                    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">loHead</span> <span class="o">=</span> <span class="kc">null</span><span class="o">,</span> <span class="n">loTail</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                    <span class="c1">// 高位链表：存放在新数组的下标 = 原数组下标 + 原数组长度
+</span><span class="c1"></span>                    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">hiHead</span> <span class="o">=</span> <span class="kc">null</span><span class="o">,</span> <span class="n">hiTail</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+                    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">;</span>
+                    <span class="k">do</span> <span class="o">{</span>
+                        <span class="n">next</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+                        <span class="c1">// 判断为低位链表
+</span><span class="c1"></span>                        <span class="k">if</span> <span class="o">((</span><span class="n">e</span><span class="o">.</span><span class="na">hash</span> <span class="o">&amp;</span> <span class="n">oldCap</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="k">if</span> <span class="o">(</span><span class="n">loTail</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                                <span class="n">loHead</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+                            <span class="k">else</span>
+                                <span class="n">loTail</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+                            <span class="n">loTail</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+                        <span class="o">}</span>
+                        <span class="c1">// 判断为高位链表
+</span><span class="c1"></span>                        <span class="k">else</span> <span class="o">{</span>
+                            <span class="k">if</span> <span class="o">(</span><span class="n">hiTail</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                                <span class="n">hiHead</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+                            <span class="k">else</span>
+                                <span class="n">hiTail</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+                            <span class="n">hiTail</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+                        <span class="o">}</span>
+
+                    <span class="o">}</span> <span class="k">while</span> <span class="o">((</span><span class="n">e</span> <span class="o">=</span> <span class="n">next</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">);</span>
+
+                    <span class="k">if</span> <span class="o">(</span><span class="n">loTail</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="c1">// 虽然拆成两部分了，但是在存在于原链表中的next指针可能还连着，所以这里要去除一下
+</span><span class="c1"></span>                        <span class="n">loTail</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                        <span class="n">newTab</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">loHead</span><span class="o">;</span>
+                    <span class="o">}</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">hiTail</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">hiTail</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                        <span class="c1">// 这里就是高位链表下标 = 原数组下标 + 原数组长度
+</span><span class="c1"></span>                        <span class="n">newTab</span><span class="o">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">oldCap</span><span class="o">]</span> <span class="o">=</span> <span class="n">hiHead</span><span class="o">;</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">newTab</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>rehash的过程分为了三种情况：</p>
+<ol>
+<li>
+<p><strong>当前节点是单节点</strong></p>
+<p>原数组中桶位是单节点，在新数组中虽然可能在高桶位或低桶位（见下面第3点），但是也是和原数组下标一一对应的，在新数组中不会与别的节点冲突，所以直接放到新桶位就行不用其他操作。</p>
+</li>
+<li>
+<p><strong>当前节点树化了</strong></p>
+<p>本质上和第三种情况一样也是拆分成两块放在新数组的不同位置，只不过此时是红黑树，而第三种情况是链表。具体源码就不分析了，比较麻烦（其实是因为我也没去仔细看doge），大概过程如下：</p>
+<ol>
+<li>当低位区小红黑树元素个数小于等于6时，开始去树化<code>untreeify</code>操作；</li>
+<li>当低位区小红黑树元素个数大于6且高位区红黑树不为null时，开始树化操作(赋予红黑树的特性)。</li>
+</ol>
+</li>
+<li>
+<p><strong>当前节点链化了</strong></p>
+<p>这里拆成高低位两部分，拆分的依据就是，这个节点的hash值的二进制值在新长度二进制值为1的那个位，是1还是0。</p>
+<p>这样说比较抽象，举个例子，原来数组长度是16，扩容之后就变成了32，对应的二进制就分别是<code>10000</code> 和 <code>100000</code> ，就是多了一个0，这个1所在的位置就高了一位。</p>
+<p>现在有2个hash值分别为10（01010）和26（11010）的节点，他们在长度为16的数组中是同一个桶位，根据公式<code>hash&amp;(length-1)</code> 计算可得。但是在长度为32中，由于最高位的不同，计算结果也不同，从而被分成了两类，而<strong>高位的桶位下标 = 低位桶位下标 + 原数组长度</strong>（本例中是16），也正是多了最前面那个<code>1</code> （如下图）</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112312159350.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202112312159350.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>拆分成高低位链表过程看下图更明显（蓝色节点为低位链表，绿色为高位）：</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201010209223.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201010209223.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+</li>
+</ol>
+<h3 id="与jdk17相比">与JDK1.7相比</h3>
+<p>JDK1.7的HashMap中的链表采用的是<code>头插法</code>，当在扩容时需要对原数组的链表迁移到新数组的正确位置时，采用头插法就会使得链表元素的顺序倒过来了。而且，在<strong>多线程</strong>的情况下，可能在迁移过程中出现<code>循环链表</code>的情况，导致在之后遍历这个链表时出现死循环，问题就很大了。</p>
+<p>所以JDK1.8时采用的时<code>尾插法</code>避免了这种情况，但是无论如何在并发情况下还是不建议直接使用普通的HashMap的，因为它的线程不安全的。需要线程安全的场合建议用<code>ConcurrentHashMap</code>。</p>
+<h2 id="参考">参考</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1LJ411W7dP?p=6"  target="_blank" rel="noopener"
+    >HashMap全B站最细致源码分析课程，看完月薪最少涨5k！_哔哩哔哩_bilibili</a></p>
+<p><a class="link" href="https://tech.meituan.com/2016/06/24/java-hashmap.html"  target="_blank" rel="noopener"
+    >Java 8系列之重新认识HashMap</a></p>
+<p><a class="link" href="https://javaguide.cn/java/collection/hashmap-source-code/"  target="_blank" rel="noopener"
+    >HashMap源码&amp;底层数据结构分析</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%AE%B9%E5%99%A8/">容器</a>
+        
+            <a href="/tags/hashmap/">HashMap</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/red_black_tree/">
+        
+        
+            <div class="article-image">
+                <img src="/p/red_black_tree/cover.48d1c20f3879f82758e77d14bb4fd118_hub9c0e50fdb57d51b987a72e16255d0e2_204381_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="red_black_tree" 
+                        data-hash="md5-SNHCDzh5&#43;CdY530Uu0/RGA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">红黑树，这次终于拿下了</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_volatile/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_volatile/cover.533970812e1dfd0c0f1cf766509ee13d_hu7fad456951eb20fdb97374db4ac4bdd8_54974_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_volatile" 
+                        data-hash="md5-UzlwgS4d/QwPHPdmUJ7hPQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]volatile篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized_optimization/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized_optimization/cover.c3ae00288d98394524bc6ead85ec211d_hu4d840036f83d7884a510888303887b86_1060410_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized_optimization" 
+                        data-hash="md5-w64AKI2YOUUkvG6thewhHQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]Synchronized优化篇——Java中的各种锁</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_reentrantlock/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_reentrantlock/cover.863c8908ba19abe122f188d57cbb4190_huceae91d367533a91416a74330952ccc4_41335_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_reentrantlock" 
+                        data-hash="md5-hjyJCLoZq&#43;Ei8YjVfLtBkA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]ReentrantLock篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized/cover.0fec37ffa5d7b5f5c3963f9caa306d29_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized" 
+                        data-hash="md5-D&#43;w3/6XXtfXDlj&#43;cqjBtKQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]synchronized篇</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2022 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#四个构造方法">四个构造方法</a></li>
+    <li><a href="#为什么负载因子默认是075f">为什么负载因子默认是0.75f？</a></li>
+    <li><a href="#与-hashtable-的比较">与 HashTable 的比较</a></li>
+    <li><a href="#fail-fast机制">fail-fast机制</a></li>
+    <li><a href="#为什么数组的长度总是2的幂">为什么数组的长度总是2的幂</a></li>
+    <li><a href="#hash方法">hash方法</a></li>
+    <li><a href="#put方法过程">put方法过程</a></li>
+    <li><a href="#扩容机制">扩容机制</a>
+      <ol>
+        <li><a href="#为什么需要扩容">为什么需要扩容？</a></li>
+        <li><a href="#扩容时机">扩容时机</a></li>
+        <li><a href="#resize方法源码分析">resize方法源码分析</a></li>
+        <li><a href="#与jdk17相比">与JDK1.7相比</a></li>
+      </ol>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
