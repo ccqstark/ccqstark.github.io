@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 上篇分析完HashMap之后，这次来分析下ConcurrentHashMap这个并发条件下线程安全的HashMap又有哪些精妙绝伦、惊为天人的设计呢🤔
+ 本文同样主要分析JDK1.8版本的ConcurrentHashMap
+ sizeCtl的作用 这个变量的作用比较复杂，起到标识位作用的同时也可以记录阈值等实际意义，主要有以下几种情况
+   sizeCtl值的情况 意义     0 代表数组未初始化，且数组的初始容量为16   正数 如果数组未初始化，那么其记录的是数组的初始容量；如果数组已经初始化，那么其记录的就是i扩容阈值（数组的初始容量*0.75）   -1 表示数组正在进行初始化   负数且不是-1 表示数组正在扩容，高16位是扩容标识戳，低16位是扩容线程数&#43;1    扰动函数 static final int spread(int h) { // HASH_BITS（01111111111111111111111111111111）保证hash值一定是为正数，因为符号位为0  // 高低位去异或运算，这里和HashMap的类似，让高位参与运算是为了哈希得更均匀  return (h ^ (h &amp;gt;&amp;gt;&amp;gt; 16)) &amp;amp; HASH_BITS; } table数组的初始化 private final Node&amp;lt;K,V&amp;gt;[] initTable() { Node&amp;lt;K,V&amp;gt;[] tab; int sc; while ((tab = table) == null || tab.'><title>ConcurrentHashMap源码分析</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/concurrenthashmap/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='ConcurrentHashMap源码分析'>
+<meta property='og:description' content='前言 上篇分析完HashMap之后，这次来分析下ConcurrentHashMap这个并发条件下线程安全的HashMap又有哪些精妙绝伦、惊为天人的设计呢🤔
+ 本文同样主要分析JDK1.8版本的ConcurrentHashMap
+ sizeCtl的作用 这个变量的作用比较复杂，起到标识位作用的同时也可以记录阈值等实际意义，主要有以下几种情况
+   sizeCtl值的情况 意义     0 代表数组未初始化，且数组的初始容量为16   正数 如果数组未初始化，那么其记录的是数组的初始容量；如果数组已经初始化，那么其记录的就是i扩容阈值（数组的初始容量*0.75）   -1 表示数组正在进行初始化   负数且不是-1 表示数组正在扩容，高16位是扩容标识戳，低16位是扩容线程数&#43;1    扰动函数 static final int spread(int h) { // HASH_BITS（01111111111111111111111111111111）保证hash值一定是为正数，因为符号位为0  // 高低位去异或运算，这里和HashMap的类似，让高位参与运算是为了哈希得更均匀  return (h ^ (h &amp;gt;&amp;gt;&amp;gt; 16)) &amp;amp; HASH_BITS; } table数组的初始化 private final Node&amp;lt;K,V&amp;gt;[] initTable() { Node&amp;lt;K,V&amp;gt;[] tab; int sc; while ((tab = table) == null || tab.'>
+<meta property='og:url' content='https://ccqstark.github.io/p/concurrenthashmap/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='并发编程' /><meta property='article:tag' content='容器' /><meta property='article:tag' content='ConcurrentHashMap' /><meta property='article:published_time' content='2022-01-03T02:15:23&#43;08:00'/><meta property='article:modified_time' content='2022-01-03T02:15:23&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/concurrenthashmap/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="ConcurrentHashMap源码分析">
+<meta name="twitter:description" content="前言 上篇分析完HashMap之后，这次来分析下ConcurrentHashMap这个并发条件下线程安全的HashMap又有哪些精妙绝伦、惊为天人的设计呢🤔
+ 本文同样主要分析JDK1.8版本的ConcurrentHashMap
+ sizeCtl的作用 这个变量的作用比较复杂，起到标识位作用的同时也可以记录阈值等实际意义，主要有以下几种情况
+   sizeCtl值的情况 意义     0 代表数组未初始化，且数组的初始容量为16   正数 如果数组未初始化，那么其记录的是数组的初始容量；如果数组已经初始化，那么其记录的就是i扩容阈值（数组的初始容量*0.75）   -1 表示数组正在进行初始化   负数且不是-1 表示数组正在扩容，高16位是扩容标识戳，低16位是扩容线程数&#43;1    扰动函数 static final int spread(int h) { // HASH_BITS（01111111111111111111111111111111）保证hash值一定是为正数，因为符号位为0  // 高低位去异或运算，这里和HashMap的类似，让高位参与运算是为了哈希得更均匀  return (h ^ (h &amp;gt;&amp;gt;&amp;gt; 16)) &amp;amp; HASH_BITS; } table数组的初始化 private final Node&amp;lt;K,V&amp;gt;[] initTable() { Node&amp;lt;K,V&amp;gt;[] tab; int sc; while ((tab = table) == null || tab."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/concurrenthashmap/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/concurrenthashmap/">
+                <img src="/p/concurrenthashmap/cover_huc96d02dfde7960de9a20cc4a3d1809da_315641_800x0_resize_box_3.png"
+                        srcset="/p/concurrenthashmap/cover_huc96d02dfde7960de9a20cc4a3d1809da_315641_800x0_resize_box_3.png 800w, /p/concurrenthashmap/cover_huc96d02dfde7960de9a20cc4a3d1809da_315641_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="400" 
+                        loading="lazy"
+                        alt="Featured image of post ConcurrentHashMap源码分析" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javase/" >
+                JavaSE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/concurrenthashmap/">ConcurrentHashMap源码分析</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 03, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>上篇分析完HashMap之后，这次来分析下ConcurrentHashMap这个并发条件下线程安全的HashMap又有哪些精妙绝伦、惊为天人的设计呢🤔</p>
+<blockquote>
+<p>本文同样主要分析JDK1.8版本的ConcurrentHashMap</p>
+</blockquote>
+<h2 id="sizectl的作用">sizeCtl的作用</h2>
+<p>这个变量的作用比较复杂，起到标识位作用的同时也可以记录阈值等实际意义，主要有以下几种情况</p>
+<table>
+<thead>
+<tr>
+<th>sizeCtl值的情况</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>代表数组未初始化，且数组的初始容量为16</td>
+</tr>
+<tr>
+<td>正数</td>
+<td>如果数组未初始化，那么其记录的是数组的初始容量；如果数组已经初始化，那么其记录的就是i扩容阈值（数组的初始容量*0.75）</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>表示数组正在进行初始化</td>
+</tr>
+<tr>
+<td>负数且不是-1</td>
+<td>表示数组正在扩容，高16位是扩容标识戳，低16位是扩容线程数+1</td>
+</tr>
+</tbody>
+</table>
+<h2 id="扰动函数">扰动函数</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">spread</span><span class="o">(</span><span class="kt">int</span> <span class="n">h</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// HASH_BITS（01111111111111111111111111111111）保证hash值一定是为正数，因为符号位为0
+</span><span class="c1"></span>    <span class="c1">// 高低位去异或运算，这里和HashMap的类似，让高位参与运算是为了哈希得更均匀
+</span><span class="c1"></span>    <span class="k">return</span> <span class="o">(</span><span class="n">h</span> <span class="o">^</span> <span class="o">(</span><span class="n">h</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">16</span><span class="o">))</span> <span class="o">&amp;</span> <span class="n">HASH_BITS</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="table数组的初始化">table数组的初始化</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">final</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="nf">initTable</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">tab</span><span class="o">;</span> <span class="kt">int</span> <span class="n">sc</span><span class="o">;</span>
+    <span class="k">while</span> <span class="o">((</span><span class="n">tab</span> <span class="o">=</span> <span class="n">table</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">tab</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">((</span><span class="n">sc</span> <span class="o">=</span> <span class="n">sizeCtl</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">)</span>
+            <span class="c1">// 如果sizeCtl小于0说明数组要么在初始化，要么在扩容，所以当前线程在让出CPU资源，也就是自旋
+</span><span class="c1"></span>            <span class="n">Thread</span><span class="o">.</span><span class="na">yield</span><span class="o">();</span> <span class="c1">// lost initialization race; just spin
+</span><span class="c1"></span>        <span class="c1">// 这里就是用CAS操作吧sizeCtl修改为-1，表示数组数组正在扩容
+</span><span class="c1"></span>        <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">SIZECTL</span><span class="o">,</span> <span class="n">sc</span><span class="o">,</span> <span class="o">-</span><span class="n">1</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">// 这里采用双重校验锁的形式，防止别的线程拿到锁之后重复初始化操作
+</span><span class="c1"></span>                <span class="k">if</span> <span class="o">((</span><span class="n">tab</span> <span class="o">=</span> <span class="n">table</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">tab</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="c1">// 下面就是简单的初始化Node数组并赋给table成员变量的过程
+</span><span class="c1"></span>                    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="o">(</span><span class="n">sc</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="n">sc</span> <span class="o">:</span> <span class="n">DEFAULT_CAPACITY</span><span class="o">;</span>
+                    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&#34;unchecked&#34;</span><span class="o">)</span>
+                    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">nt</span> <span class="o">=</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[])</span><span class="k">new</span> <span class="n">Node</span><span class="o">&lt;?,?&gt;[</span><span class="n">n</span><span class="o">];</span>
+                    <span class="n">table</span> <span class="o">=</span> <span class="n">tab</span> <span class="o">=</span> <span class="n">nt</span><span class="o">;</span>
+                    <span class="c1">// (n &gt;&gt;&gt; 2)就是n/4，所以这里相当于 n * 0.75 ，也就是计算扩容阈值
+</span><span class="c1"></span>                    <span class="n">sc</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">2</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                <span class="c1">// 初始化完成后，sizeCtl记录的就是数组的扩容阈值了
+</span><span class="c1"></span>                <span class="n">sizeCtl</span> <span class="o">=</span> <span class="n">sc</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">tab</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="putval方法分析">putVal()方法分析</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">final</span> <span class="n">V</span> <span class="nf">putVal</span><span class="o">(</span><span class="n">K</span> <span class="n">key</span><span class="o">,</span> <span class="n">V</span> <span class="n">value</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">onlyIfAbsent</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">key</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">value</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">NullPointerException</span><span class="o">();</span>
+    <span class="c1">// 扰动函数计算哈希值
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">hash</span> <span class="o">=</span> <span class="n">spread</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+    <span class="kt">int</span> <span class="n">binCount</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+    <span class="c1">// 这里是一个死循环
+</span><span class="c1"></span>    <span class="k">for</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">tab</span> <span class="o">=</span> <span class="n">table</span><span class="o">;;)</span> <span class="o">{</span>
+        <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">f</span><span class="o">;</span> <span class="kt">int</span> <span class="n">n</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="n">fh</span><span class="o">;</span>
+        <span class="c1">// 判断到table数组为null或者长度为0，此时要先进行初始化
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">tab</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">(</span><span class="n">n</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="na">length</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span>
+            <span class="n">tab</span> <span class="o">=</span> <span class="n">initTable</span><span class="o">();</span>
+        <span class="c1">// tabAt()就是用UnSafe类去获取对应下标的节点，下标的计算方式和HashMap的一样都是(n - 1) &amp; hash)
+</span><span class="c1"></span>        <span class="c1">// 如果桶位为null的话，可以CAS放到桶中，结束循环
+</span><span class="c1"></span>        <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">f</span> <span class="o">=</span> <span class="n">tabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span> <span class="o">=</span> <span class="o">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">1</span><span class="o">)</span> <span class="o">&amp;</span> <span class="n">hash</span><span class="o">))</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">casTabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span>
+                    <span class="k">new</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;(</span><span class="n">hash</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">,</span> <span class="kc">null</span><span class="o">)))</span>
+                <span class="k">break</span><span class="o">;</span>                   <span class="c1">// no lock when adding to empty bin
+</span><span class="c1"></span>        <span class="o">}</span>
+        <span class="c1">// 这里的MOVED表示这是一个Forward节点，说明在扩容过程中已经迁移到新数组中去了
+</span><span class="c1"></span>        <span class="c1">// 所以不能直接放进数组中，要进行协助扩容
+</span><span class="c1"></span>        <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">fh</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">hash</span><span class="o">)</span> <span class="o">==</span> <span class="n">MOVED</span><span class="o">)</span>
+            <span class="n">tab</span> <span class="o">=</span> <span class="n">helpTransfer</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">f</span><span class="o">);</span>
+
+        <span class="k">else</span> <span class="o">{</span>
+            <span class="n">V</span> <span class="n">oldVal</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="c1">// 这里就用synchronized锁住了当前的桶位
+</span><span class="c1"></span>            <span class="c1">// 注意这里只是锁住了当前这一个桶位以及其链表或红黑树，不影响其它桶位
+</span><span class="c1"></span>            <span class="c1">// 相比HashTable一锁就是锁住整个数组来说提高了并发度，同时也保证了线程安全
+</span><span class="c1"></span>            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">f</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// 下面就是比较常规的变量这个链表中是否存在这个key，去决定下一步是覆盖还是插在链表中
+</span><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">tabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">)</span> <span class="o">==</span> <span class="n">f</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">fh</span> <span class="o">&gt;=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">binCount</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
+                        <span class="k">for</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">f</span><span class="o">;;</span> <span class="o">++</span><span class="n">binCount</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="n">K</span> <span class="n">ek</span><span class="o">;</span>
+                            <span class="k">if</span> <span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">hash</span> <span class="o">==</span> <span class="n">hash</span> <span class="o">&amp;&amp;</span>
+                                    <span class="o">((</span><span class="n">ek</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">key</span><span class="o">)</span> <span class="o">==</span> <span class="n">key</span> <span class="o">||</span>
+                                            <span class="o">(</span><span class="n">ek</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">key</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">ek</span><span class="o">))))</span> <span class="o">{</span>
+                                <span class="n">oldVal</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">val</span><span class="o">;</span>
+                                <span class="k">if</span> <span class="o">(!</span><span class="n">onlyIfAbsent</span><span class="o">)</span>
+                                    <span class="n">e</span><span class="o">.</span><span class="na">val</span> <span class="o">=</span> <span class="n">value</span><span class="o">;</span>
+                                <span class="k">break</span><span class="o">;</span>
+                            <span class="o">}</span>
+                            <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+                            <span class="k">if</span> <span class="o">((</span><span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                                <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;(</span><span class="n">hash</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span>
+                                        <span class="n">value</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+                                <span class="k">break</span><span class="o">;</span>
+                            <span class="o">}</span>
+                        <span class="o">}</span>
+                    <span class="o">}</span>
+                    <span class="c1">// 这就是红黑树的情况了
+</span><span class="c1"></span>                    <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">f</span> <span class="k">instanceof</span> <span class="n">TreeBin</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">;</span>
+                        <span class="n">binCount</span> <span class="o">=</span> <span class="n">2</span><span class="o">;</span>
+                        <span class="k">if</span> <span class="o">((</span><span class="n">p</span> <span class="o">=</span> <span class="o">((</span><span class="n">TreeBin</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;)</span><span class="n">f</span><span class="o">).</span><span class="na">putTreeVal</span><span class="o">(</span><span class="n">hash</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span>
+                                <span class="n">value</span><span class="o">))</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="n">oldVal</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">val</span><span class="o">;</span>
+                            <span class="k">if</span> <span class="o">(!</span><span class="n">onlyIfAbsent</span><span class="o">)</span>
+                                <span class="n">p</span><span class="o">.</span><span class="na">val</span> <span class="o">=</span> <span class="n">value</span><span class="o">;</span>
+                        <span class="o">}</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">binCount</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// 这里就是判断链表节点是否达到8个，以及treeifyBin()方法中判断数组长度是否到达64来决定是否树化
+</span><span class="c1"></span>                <span class="c1">// 这里的判断逻辑就和HashMap基本是一样的
+</span><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">binCount</span> <span class="o">&gt;=</span> <span class="n">TREEIFY_THRESHOLD</span><span class="o">)</span>
+                    <span class="n">treeifyBin</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">);</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">oldVal</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+                    <span class="k">return</span> <span class="n">oldVal</span><span class="o">;</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="c1">// 维护集合的长度，包含fullAddCount()方法
+</span><span class="c1"></span>    <span class="n">addCount</span><span class="o">(</span><span class="n">1L</span><span class="o">,</span> <span class="n">binCount</span><span class="o">);</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>当要往一个桶位添加节点的时候，synchronized只会锁住当前这个桶位，不会其它的桶位，如图：</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030146828.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030146828.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h2 id="集合长度的维护">集合长度的维护</h2>
+<p>这里其实就和<code>LongAdder</code> 的设计基本一样：</p>
+<p>就是把集合里元素的数量拆分成一个<code>baseCount</code>和一个<code>CounterCell</code>数组之和，每次新增一个元素需要对元素的数量+1，首先优先会对baseCount进行CAS+1的操作，如果失败则跳到<code>fullAddCount</code> 方法。
+<code>fullAddCount</code> 方法会来到CounterCell数组中找一个位置进行+1，数组中的每一个CounterCell对象就维护这个一个value来+1，而找到我们要操作的位置就是通过当前线程进行哈希来定位，之后的+1也是通过CAS。而且这个过程中可能还会对CounterCell数组进行扩容，但是数组长度受到当前机器CPU核数的限制，因为超过同时竞争的线程数再扩容就意义不大。</p>
+<p>其中<code>fullAddCount</code> 方法中是通过一个for的死循环，会进行很多次CAS操作直到成功为止。涉及到以下几个变量：</p>
+<ul>
+<li><code>cellsBusy</code> CountCell 的操作标记位，如果正在修改、新建、操作 CountCell 数组中的元素会，会将其 cas 为 1，否则为0。</li>
+<li><code>wasUncontended</code> 表示 cas 是否失败，如果失败则考虑操作升级。</li>
+<li><code>collide</code> 是否冲突，如果冲突，则考虑扩容 CountCell 数组的长度。</li>
+</ul>
+<p>其中涉及到一些double check保证线程安全，还有尝试更新失败后的操作可能是下一个循环重试、或者对线程的rehash再重试、或者是对baseCount进行CAS重试等操作，基本都是逐步升级的，以最小代价完成这个+1的操作。</p>
+<p>这个<code>fullAddCount</code>方法基本上思路就是这样，这里就不一行行分析了，因为这个方法非常复杂，可以看<a class="link" href="https://www.bilibili.com/video/BV1KE411K7Ts?p=3"  target="_blank" rel="noopener"
+    >这个视频</a>的讲解就带你一行行去看懂。(ConcurrentHashMap的fullAddCount方法就对应LongAdder的longAccumulate方法)</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201021543870.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201021543870.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>这样做的意义其实是为了提高高并发下统计数量的性能，也就是与<code>AtomicLong</code> 这种对一个value值进行CAS的操作相比，在大量线程竞争的时候，会有很多线程自旋造成CPU的较大的开销；而使用<code>LongAdder</code> 这种设计思路来维护一个数组就让多个线程来增加这个统计数的时候可以分散的操作，减少竞争冲突，提高了并发度，而我们要得到这个统计数就只需用baseCount去加上数组里所有元素之和就可以了。</p>
+<p>高并发情况下<code>LongAdder</code> 性能是比<code>AtomicLong</code> 要好的，但是<code>LongAdder</code>在计算统计值的时候如果有线程在修改那么可能就会有些许误差，所以一般也用于允许一定误差的场景来提高性能。</p>
+<h2 id="扩容">扩容</h2>
+<h3 id="扩容标识sizectl">扩容标识sizeCtl</h3>
+<p>首先在扩容过程中，sizeCtl的值会经过一系列操作：</p>
+<p>下面是resizeStamp()方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">resizeStamp</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">Integer</span><span class="o">.</span><span class="na">numberOfLeadingZeros</span><span class="o">(</span><span class="n">n</span><span class="o">)</span> <span class="o">|</span> <span class="o">(</span><span class="n">1</span> <span class="o">&lt;&lt;</span> <span class="o">(</span><span class="n">RESIZE_STAMP_BITS</span> <span class="o">-</span> <span class="n">1</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div><p>首先numberOfLeadingZeros(n)的作用是返回n的最高非0位前面的0的个数，比如n=16，因为16是 10000。一个int是32位，32-5就是27。那么 Integer.numberOfLeadingZeros(n)返回值就是27。</p>
+<p>然后RESIZE_STAMP_BITS是16，<code>1 &lt;&lt; (RESIZE_STAMP_BITS - 1)</code>就是让1左移15位，最后得到1后面15个0。
+两者相或，会让这个numberOfLeadingZeros(n)得到的这个数的第16位变成1，这个1待会会用到。addCount()方法中把这个resizeStamp()方法的返回值赋给变量<code>rs</code>。</p>
+<p>然后看到addCount()方法中在发现元素数量已经超过扩容阈值时，有这么一段：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">SIZECTL</span><span class="o">,</span> <span class="n">sc</span><span class="o">,</span>
+                         <span class="o">(</span><span class="n">rs</span> <span class="o">&lt;&lt;</span> <span class="n">RESIZE_STAMP_SHIFT</span><span class="o">)</span> <span class="o">+</span> <span class="n">2</span><span class="o">))</span>
+    <span class="n">transfer</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</code></pre></div><p><code>rs &lt;&lt; RESIZE_STAMP_SHIFT) + 2</code> 这个表达式的作用就是把rs左移16位，这样一来上面原本rs的第16位的1就变成了符号位，这个也就变成了负数，原本的rs被移到了高16位；然后加2，低16位就是2，也就是表示<code>当前扩容的线程数+1</code> 。而上面这个CAS操作成功的话，sizeCtl就变成了这个很大的负数，也就标志着当前容器正式进入了扩容状态。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201022216868.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201022216868.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>判断扩容是否结束也是靠这个标识，在transfer()方法中：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">SIZECTL</span><span class="o">,</span> <span class="n">sc</span> <span class="o">=</span> <span class="n">sizeCtl</span><span class="o">,</span> <span class="n">sc</span> <span class="o">-</span> <span class="n">1</span><span class="o">))</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">((</span><span class="n">sc</span> <span class="o">-</span> <span class="n">2</span><span class="o">)</span> <span class="o">!=</span> <span class="n">resizeStamp</span><span class="o">(</span><span class="n">n</span><span class="o">)</span> <span class="o">&lt;&lt;</span> <span class="n">RESIZE_STAMP_SHIFT</span><span class="o">)</span>
+        <span class="k">return</span><span class="o">;</span>
+    <span class="n">finishing</span> <span class="o">=</span> <span class="n">advance</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">n</span><span class="o">;</span> <span class="c1">// recheck before commit
+</span><span class="c1"></span><span class="o">}</span>
+</code></pre></div><p>先对线程数-1，判断<code>(sc - 2) != resizeStamp(n) &lt;&lt; RESIZE_STAMP_SHIFT</code> 是否为真，其实就是形式变换了一下，本质上还是判断这个扩容标识值是否还原为原来初始化时的值，如果是则证明扩容迁移过程都完成了，<code>finishing</code> 标志为置为true。</p>
+<h3 id="协助扩容的时机">协助扩容的时机</h3>
+<p>有两种情况会让这个线程一起协助扩容</p>
+<ol>
+<li>
+<p>addCount()方法</p>
+<p>addCount方法在判断sizeCtl&lt;0后会有这么一段：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">SIZECTL</span><span class="o">,</span> <span class="n">sc</span><span class="o">,</span> <span class="n">sc</span> <span class="o">+</span> <span class="n">1</span><span class="o">))</span>
+        <span class="n">transfer</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">nt</span><span class="o">);</span>
+</code></pre></div><p>这里CAS是把当前协助扩容的线程数+1，因为只有低16位与扩容线程数有关，所以尽管此时sizeCtl为负数也是直接+1的。CAS成功后就进入transfer()方法进行扩容</p>
+</li>
+<li>
+<p>putVal()方法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">fh</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">hash</span><span class="o">)</span> <span class="o">==</span> <span class="n">MOVED</span><span class="o">)</span>
+    <span class="n">tab</span> <span class="o">=</span> <span class="n">helpTransfer</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">f</span><span class="o">);</span>
+</code></pre></div><p>上面分析putVal()方法中也分析了这一点，<code>MOVED</code>表示这是一个<strong>Forward节点</strong>，说明在扩容过程中已经迁移到新数组中去了，所以不能直接放进数组中，要进行协助扩容。</p>
+<p><code>helpTransfer</code> 方法中同样有对线程数+1的操作：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">SIZECTL</span><span class="o">,</span> <span class="n">sc</span><span class="o">,</span> <span class="n">sc</span> <span class="o">+</span> <span class="n">1</span><span class="o">))</span> <span class="o">{</span>
+    <span class="n">transfer</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">nextTab</span><span class="o">);</span>
+    <span class="k">break</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ol>
+<h3 id="多线程协助扩容">多线程协助扩容</h3>
+<p>正式开始扩容后，新建一个新的数组，长度为原来的2倍，然后我们就需要把原数组中的数据迁移过去。由于是多线程环境，所以迁移过程由多个线程共同完成，它是将数组划分成了几个部分，每个部分由一个线程来进行迁移操作，顺序是从后往前迁移的。每个线程迁移的最小任务量是16个桶位。</p>
+<p>每迁移完一个节点，就会把这个桶位的节点变为<code>Forward节点(fwd)</code>，这种节点的hash为常量<code>MOVED</code>，相当于一个标识位，表示当前节点已经迁移到新数组中去了。当某个putVal时遇到这种节点就要去协助扩容而不能直接插入了。</p>
+<p>在多线程环境下，如果该线程触发了上面说的协助扩容的时机，就会去“领任务”，也就是被分配一段自己负责的迁移数据的范围，由<code>transferIndex</code> 记录下一个分配工作范围开始的位置，更具一个线程的任务量 <code>stride</code> 去计算此次分配任务的左边界<code>bound</code> ，再CAS去更新<code>transferIndex</code> 的值让他向左移动一个<code>stride</code> 为下一次分配做准备。</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030058140.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030058140.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>这里图解一下，为了容易看一点这里假设最小任务量是4，原数组有16个桶位，所以可以划分出4个工作量。每次分配完transferIndex就左移一个线程工作量，当扩容时有多个线程触发协助扩容条件就会进来拿到一个自己要帮助迁移的工作范围，做完之后可以领下一个直到全部迁移完。所以同一时刻可能有多个不同的线程在一起帮助扩容，利用了多线程的特点提高了迁移的效率。</p>
+<h3 id="transfer方法源码解析">transfer()方法源码解析</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">transfer</span><span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">tab</span><span class="o">,</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">nextTab</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">tab</span><span class="o">.</span><span class="na">length</span><span class="o">,</span> <span class="n">stride</span><span class="o">;</span>
+    <span class="c1">// stride就是每次给线程分配的任务数
+</span><span class="c1"></span>    <span class="c1">// 如果是多cpu，那么每个线程划分任务，最小任务量是16个桶位的迁移
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">((</span><span class="n">stride</span> <span class="o">=</span> <span class="o">(</span><span class="n">NCPU</span> <span class="o">&gt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">3</span><span class="o">)</span> <span class="o">/</span> <span class="n">NCPU</span> <span class="o">:</span> <span class="n">n</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">MIN_TRANSFER_STRIDE</span><span class="o">)</span>
+        <span class="n">stride</span> <span class="o">=</span> <span class="n">MIN_TRANSFER_STRIDE</span><span class="o">;</span> <span class="c1">// subdivide range
+</span><span class="c1"></span>    <span class="c1">// 如果是第一个发起扩容的线程(非协助迁移的)，此时新数组为null
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">nextTab</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>            <span class="c1">// initiating
+</span><span class="c1"></span>        <span class="k">try</span> <span class="o">{</span>
+            <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&#34;unchecked&#34;</span><span class="o">)</span>
+            <span class="c1">// 两倍扩容创建新数组
+</span><span class="c1"></span>            <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">nt</span> <span class="o">=</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[])</span><span class="k">new</span> <span class="n">Node</span><span class="o">&lt;?,?&gt;[</span><span class="n">n</span> <span class="o">&lt;&lt;</span> <span class="n">1</span><span class="o">];</span>
+            <span class="n">nextTab</span> <span class="o">=</span> <span class="n">nt</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>      <span class="c1">// try to cope with OOME
+</span><span class="c1"></span>            <span class="n">sizeCtl</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">;</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">nextTable</span> <span class="o">=</span> <span class="n">nextTab</span><span class="o">;</span>
+        <span class="c1">// 记录线程开始迁移的桶位，从后往前迁移
+</span><span class="c1"></span>        <span class="n">transferIndex</span> <span class="o">=</span> <span class="n">n</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">// 记录新数组的末尾
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">nextn</span> <span class="o">=</span> <span class="n">nextTab</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="c1">// 已经迁移的桶位，会用ForwardingNode节点占位（这个节点的hash值为-1（MOVED））
+</span><span class="c1"></span>    <span class="n">ForwardingNode</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">fwd</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ForwardingNode</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;(</span><span class="n">nextTab</span><span class="o">);</span>
+    <span class="kt">boolean</span> <span class="n">advance</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="kt">boolean</span> <span class="n">finishing</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span> <span class="c1">// to ensure sweep before committing nextTab
+</span><span class="c1"></span>    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">bound</span> <span class="o">=</span> <span class="n">0</span><span class="o">;;)</span> <span class="o">{</span>
+        <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">f</span><span class="o">;</span> <span class="kt">int</span> <span class="n">fh</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">advance</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">nextIndex</span><span class="o">,</span> <span class="n">nextBound</span><span class="o">;</span>
+            <span class="c1">// i记录当前正在迁移桶位的索引值
+</span><span class="c1"></span>            <span class="c1">// bound记录下一次任务迁移的开始桶位
+</span><span class="c1"></span>
+            <span class="c1">// --i也是从后往前迁移的体现
+</span><span class="c1"></span>            <span class="c1">// --i &gt;= bound 成立表示当前线程分配的迁移任务还没有完成
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(--</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="n">bound</span> <span class="o">||</span> <span class="n">finishing</span><span class="o">)</span>
+                <span class="n">advance</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="c1">// 没有元素需要迁移 =&gt; 后续会去将扩容线程数减1，并判断扩容是否完成
+</span><span class="c1"></span>            <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">nextIndex</span> <span class="o">=</span> <span class="n">transferIndex</span><span class="o">)</span> <span class="o">&lt;=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+                <span class="n">advance</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="c1">// 计算下一次任务迁移的开始桶位，并将这个值赋值给transferIndex
+</span><span class="c1"></span>            <span class="c1">// 因为迁移是从后往前的，所以用 nextIndex - stride
+</span><span class="c1"></span>            <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span>
+                    <span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">TRANSFERINDEX</span><span class="o">,</span> <span class="n">nextIndex</span><span class="o">,</span>
+                            <span class="n">nextBound</span> <span class="o">=</span> <span class="o">(</span><span class="n">nextIndex</span> <span class="o">&gt;</span> <span class="n">stride</span> <span class="o">?</span>
+                                    <span class="n">nextIndex</span> <span class="o">-</span> <span class="n">stride</span> <span class="o">:</span> <span class="n">0</span><span class="o">)))</span> <span class="o">{</span>
+                <span class="n">bound</span> <span class="o">=</span> <span class="n">nextBound</span><span class="o">;</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">nextIndex</span> <span class="o">-</span> <span class="n">1</span><span class="o">;</span>
+                <span class="n">advance</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="c1">// 如果没有更多的需要迁移的桶位，就进入该if
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">0</span> <span class="o">||</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">n</span> <span class="o">||</span> <span class="n">i</span> <span class="o">+</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="n">nextn</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">sc</span><span class="o">;</span>
+            <span class="c1">// 扩容结束后，保存新数组，并重新计算扩容阈值，赋值给sizeCtl
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">finishing</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">nextTable</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">nextTab</span><span class="o">;</span>
+                <span class="c1">// 这里实际上是0.75n * 2，用位运算加速
+</span><span class="c1"></span>                <span class="n">sizeCtl</span> <span class="o">=</span> <span class="o">(</span><span class="n">n</span> <span class="o">&lt;&lt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">-</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">1</span><span class="o">);</span>
+                <span class="k">return</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="c1">// 扩容任务线程数减1
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">U</span><span class="o">.</span><span class="na">compareAndSwapInt</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">SIZECTL</span><span class="o">,</span> <span class="n">sc</span> <span class="o">=</span> <span class="n">sizeCtl</span><span class="o">,</span> <span class="n">sc</span> <span class="o">-</span> <span class="n">1</span><span class="o">))</span> <span class="o">{</span>
+                <span class="c1">// 判断当前所有扩容任务线程是否都执行完成
+</span><span class="c1"></span>                <span class="k">if</span> <span class="o">((</span><span class="n">sc</span> <span class="o">-</span> <span class="n">2</span><span class="o">)</span> <span class="o">!=</span> <span class="n">resizeStamp</span><span class="o">(</span><span class="n">n</span><span class="o">)</span> <span class="o">&lt;&lt;</span> <span class="n">RESIZE_STAMP_SHIFT</span><span class="o">)</span>
+                    <span class="k">return</span><span class="o">;</span>
+                <span class="c1">// 所有扩容线程都执行完，标识结束
+</span><span class="c1"></span>                <span class="n">finishing</span> <span class="o">=</span> <span class="n">advance</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">n</span><span class="o">;</span> <span class="c1">// recheck before commit
+</span><span class="c1"></span>            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="c1">// 当前迁移的桶位没有元素，直接在该位置添加一个fwd节点
+</span><span class="c1"></span>        <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">f</span> <span class="o">=</span> <span class="n">tabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">))</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">advance</span> <span class="o">=</span> <span class="n">casTabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">fwd</span><span class="o">);</span>
+        <span class="c1">// 当前节点已经被迁移
+</span><span class="c1"></span>        <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">fh</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">hash</span><span class="o">)</span> <span class="o">==</span> <span class="n">MOVED</span><span class="o">)</span>
+            <span class="n">advance</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span> <span class="c1">// already processed
+</span><span class="c1"></span>        <span class="k">else</span> <span class="o">{</span>
+            <span class="c1">// 当前节点需要迁移，加锁迁移，保证多线程安全
+</span><span class="c1"></span>            <span class="c1">// 此处的迁移逻辑和HashMap的基本一样，也就是拆分高低位链表，所以就不再重复分析了
+</span><span class="c1"></span>            <span class="kd">synchronized</span> <span class="o">(</span><span class="n">f</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">tabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">)</span> <span class="o">==</span> <span class="n">f</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">ln</span><span class="o">,</span> <span class="n">hn</span><span class="o">;</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">fh</span> <span class="o">&gt;=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="kt">int</span> <span class="n">runBit</span> <span class="o">=</span> <span class="n">fh</span> <span class="o">&amp;</span> <span class="n">n</span><span class="o">;</span>
+                        <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">lastRun</span> <span class="o">=</span> <span class="n">f</span><span class="o">;</span>
+                        <span class="k">for</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">next</span><span class="o">;</span> <span class="n">p</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">hash</span> <span class="o">&amp;</span> <span class="n">n</span><span class="o">;</span>
+                            <span class="k">if</span> <span class="o">(</span><span class="n">b</span> <span class="o">!=</span> <span class="n">runBit</span><span class="o">)</span> <span class="o">{</span>
+                                <span class="n">runBit</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span>
+                                <span class="n">lastRun</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                            <span class="o">}</span>
+                        <span class="o">}</span>
+                        <span class="k">if</span> <span class="o">(</span><span class="n">runBit</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="n">ln</span> <span class="o">=</span> <span class="n">lastRun</span><span class="o">;</span>
+                            <span class="n">hn</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                        <span class="o">}</span>
+                        <span class="k">else</span> <span class="o">{</span>
+                            <span class="n">hn</span> <span class="o">=</span> <span class="n">lastRun</span><span class="o">;</span>
+                            <span class="n">ln</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                        <span class="o">}</span>
+                        <span class="k">for</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">f</span><span class="o">;</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">lastRun</span><span class="o">;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="kt">int</span> <span class="n">ph</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">hash</span><span class="o">;</span> <span class="n">K</span> <span class="n">pk</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">key</span><span class="o">;</span> <span class="n">V</span> <span class="n">pv</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">val</span><span class="o">;</span>
+                            <span class="k">if</span> <span class="o">((</span><span class="n">ph</span> <span class="o">&amp;</span> <span class="n">n</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span>
+                                <span class="n">ln</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;(</span><span class="n">ph</span><span class="o">,</span> <span class="n">pk</span><span class="o">,</span> <span class="n">pv</span><span class="o">,</span> <span class="n">ln</span><span class="o">);</span>
+                            <span class="k">else</span>
+                                <span class="n">hn</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;(</span><span class="n">ph</span><span class="o">,</span> <span class="n">pk</span><span class="o">,</span> <span class="n">pv</span><span class="o">,</span> <span class="n">hn</span><span class="o">);</span>
+                        <span class="o">}</span>
+                        <span class="n">setTabAt</span><span class="o">(</span><span class="n">nextTab</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="n">ln</span><span class="o">);</span>
+                        <span class="n">setTabAt</span><span class="o">(</span><span class="n">nextTab</span><span class="o">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">n</span><span class="o">,</span> <span class="n">hn</span><span class="o">);</span>
+                        <span class="n">setTabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="n">fwd</span><span class="o">);</span>
+                        <span class="n">advance</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                    <span class="o">}</span>
+                    <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">f</span> <span class="k">instanceof</span> <span class="n">TreeBin</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">TreeBin</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="o">(</span><span class="n">TreeBin</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;)</span><span class="n">f</span><span class="o">;</span>
+                        <span class="n">TreeNode</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">lo</span> <span class="o">=</span> <span class="kc">null</span><span class="o">,</span> <span class="n">loTail</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                        <span class="n">TreeNode</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">hi</span> <span class="o">=</span> <span class="kc">null</span><span class="o">,</span> <span class="n">hiTail</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                        <span class="kt">int</span> <span class="n">lc</span> <span class="o">=</span> <span class="n">0</span><span class="o">,</span> <span class="n">hc</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+                        <span class="k">for</span> <span class="o">(</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="na">first</span><span class="o">;</span> <span class="n">e</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+                            <span class="kt">int</span> <span class="n">h</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">hash</span><span class="o">;</span>
+                            <span class="n">TreeNode</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span>
+                                    <span class="o">(</span><span class="n">h</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">key</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">val</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+                            <span class="k">if</span> <span class="o">((</span><span class="n">h</span> <span class="o">&amp;</span> <span class="n">n</span><span class="o">)</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                                <span class="k">if</span> <span class="o">((</span><span class="n">p</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">loTail</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                                    <span class="n">lo</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                                <span class="k">else</span>
+                                    <span class="n">loTail</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                                <span class="n">loTail</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                                <span class="o">++</span><span class="n">lc</span><span class="o">;</span>
+                            <span class="o">}</span>
+                            <span class="k">else</span> <span class="o">{</span>
+                                <span class="k">if</span> <span class="o">((</span><span class="n">p</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">hiTail</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                                    <span class="n">hi</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                                <span class="k">else</span>
+                                    <span class="n">hiTail</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                                <span class="n">hiTail</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                                <span class="o">++</span><span class="n">hc</span><span class="o">;</span>
+                            <span class="o">}</span>
+                        <span class="o">}</span>
+                        <span class="n">ln</span> <span class="o">=</span> <span class="o">(</span><span class="n">lc</span> <span class="o">&lt;=</span> <span class="n">UNTREEIFY_THRESHOLD</span><span class="o">)</span> <span class="o">?</span> <span class="n">untreeify</span><span class="o">(</span><span class="n">lo</span><span class="o">)</span> <span class="o">:</span>
+                                <span class="o">(</span><span class="n">hc</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="k">new</span> <span class="n">TreeBin</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;(</span><span class="n">lo</span><span class="o">)</span> <span class="o">:</span> <span class="n">t</span><span class="o">;</span>
+                        <span class="n">hn</span> <span class="o">=</span> <span class="o">(</span><span class="n">hc</span> <span class="o">&lt;=</span> <span class="n">UNTREEIFY_THRESHOLD</span><span class="o">)</span> <span class="o">?</span> <span class="n">untreeify</span><span class="o">(</span><span class="n">hi</span><span class="o">)</span> <span class="o">:</span>
+                                <span class="o">(</span><span class="n">lc</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span> <span class="o">?</span> <span class="k">new</span> <span class="n">TreeBin</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;(</span><span class="n">hi</span><span class="o">)</span> <span class="o">:</span> <span class="n">t</span><span class="o">;</span>
+                        <span class="n">setTabAt</span><span class="o">(</span><span class="n">nextTab</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="n">ln</span><span class="o">);</span>
+                        <span class="n">setTabAt</span><span class="o">(</span><span class="n">nextTab</span><span class="o">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">n</span><span class="o">,</span> <span class="n">hn</span><span class="o">);</span>
+                        <span class="n">setTabAt</span><span class="o">(</span><span class="n">tab</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="n">fwd</span><span class="o">);</span>
+                        <span class="n">advance</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="与jdk17相比">与JDK1.7相比</h2>
+<p>1.7 中的 concurrentHashMap 使用了多段锁的机制，定义了<code>Segment</code>，每个 Segment 是 一个单独的容器，也是一把锁。Segment 都是一个类似 HashMap 数组的结构，它可以扩容，它的冲突会转化为链表。但是 Segment 的个数一但初始化就不能改变。</p>
+<p>1.8的ConCurrentHashMap大部分采用的是synchronized与CAS操作去保证线程安全的，synchronized现在有锁升级机制性能好很多了，CAS是用<code>sun.misc.Unsafe</code> 类实现的底层是<strong>CMPXCHG</strong>指令，putVal的时候加锁只会锁住一个桶位不影响其他的，容器内元素的长度采用的是LongAdder的数组累加的提高并发的设计，扩容时允许多个线程一起协助迁移数据，还有一个sizeCtl的变量来标识当前容器的各种状态、扩容阈值或者扩容线程数。</p>
+<h2 id="一些感想">一些感想</h2>
+<p>看了ConcurrentHashMap的源码以及之前的HashMap源码不得不感叹真的是太精妙了，不仅大量使用位运算来提高性能，甚至一个变量都掰成高16位和低16位使用，大量使用CAS能不加锁的地方绝不加锁，最绝的是一个统计长度的变量都能拆成一个数组的和来优化，真的是对性能追求到了极致，优化到了极致。最后说一句：Doug Lea大神牛逼！</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030154708.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030154708.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h2 id="参考">参考</h2>
+<p><a class="link" href="https://xilidou.com/2018/11/27/LongAdder/"  target="_blank" rel="noopener"
+    >https://xilidou.com/2018/11/27/LongAdder/</a></p>
+<p><a class="link" href="https://www.cnblogs.com/juniorMa/p/13838947.html"  target="_blank" rel="noopener"
+    >https://www.cnblogs.com/juniorMa/p/13838947.html</a></p>
+<p><a class="link" href="https://www.bilibili.com/video/BV17i4y1x71z"  target="_blank" rel="noopener"
+    >面试必备之ConcurrentHashMap终结篇-黑马程序员杭州校区出品_哔哩哔哩_bilibili</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
+        
+            <a href="/tags/%E5%AE%B9%E5%99%A8/">容器</a>
+        
+            <a href="/tags/concurrenthashmap/">ConcurrentHashMap</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/hashmap/">
+        
+        
+            <div class="article-image">
+                <img src="/p/hashmap/cover.535529dc9861b5ef4fc0cf82a2087830_hu1511f3a3e5b8bd5321cac5b96fbe8ed4_1324881_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="hashmap" 
+                        data-hash="md5-U1Up3Jhhte9PwM&#43;Cogh4MA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">HashMap源码与扩容机制分析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_volatile/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_volatile/cover.533970812e1dfd0c0f1cf766509ee13d_hu7fad456951eb20fdb97374db4ac4bdd8_54974_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_volatile" 
+                        data-hash="md5-UzlwgS4d/QwPHPdmUJ7hPQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]volatile篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized_optimization/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized_optimization/cover.c3ae00288d98394524bc6ead85ec211d_hu4d840036f83d7884a510888303887b86_1060410_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized_optimization" 
+                        data-hash="md5-w64AKI2YOUUkvG6thewhHQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]Synchronized优化篇——Java中的各种锁</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_reentrantlock/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_reentrantlock/cover.863c8908ba19abe122f188d57cbb4190_huceae91d367533a91416a74330952ccc4_41335_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_reentrantlock" 
+                        data-hash="md5-hjyJCLoZq&#43;Ei8YjVfLtBkA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]ReentrantLock篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized/cover.0fec37ffa5d7b5f5c3963f9caa306d29_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized" 
+                        data-hash="md5-D&#43;w3/6XXtfXDlj&#43;cqjBtKQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]synchronized篇</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2022 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#sizectl的作用">sizeCtl的作用</a></li>
+    <li><a href="#扰动函数">扰动函数</a></li>
+    <li><a href="#table数组的初始化">table数组的初始化</a></li>
+    <li><a href="#putval方法分析">putVal()方法分析</a></li>
+    <li><a href="#集合长度的维护">集合长度的维护</a></li>
+    <li><a href="#扩容">扩容</a>
+      <ol>
+        <li><a href="#扩容标识sizectl">扩容标识sizeCtl</a></li>
+        <li><a href="#协助扩容的时机">协助扩容的时机</a></li>
+        <li><a href="#多线程协助扩容">多线程协助扩容</a></li>
+        <li><a href="#transfer方法源码解析">transfer()方法源码解析</a></li>
+      </ol>
+    </li>
+    <li><a href="#与jdk17相比">与JDK1.7相比</a></li>
+    <li><a href="#一些感想">一些感想</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

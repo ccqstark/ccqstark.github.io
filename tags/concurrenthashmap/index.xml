@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ConcurrentHashMap on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/concurrenthashmap/</link>
+    <description>Recent content in ConcurrentHashMap on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 03 Jan 2022 02:15:23 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/concurrenthashmap/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ConcurrentHashMap源码分析</title>
+      <link>https://ccqstark.github.io/p/concurrenthashmap/</link>
+      <pubDate>Mon, 03 Jan 2022 02:15:23 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/concurrenthashmap/</guid>
+      <description>前言 上篇分析完HashMap之后，这次来分析下ConcurrentHashMap这个并发条件下线程安全的HashMap又有哪些精妙绝伦、惊为天人的设计呢🤔
+ 本文同样主要分析JDK1.8版本的ConcurrentHashMap
+ sizeCtl的作用 这个变量的作用比较复杂，起到标识位作用的同时也可以记录阈值等实际意义，主要有以下几种情况
+   sizeCtl值的情况 意义     0 代表数组未初始化，且数组的初始容量为16   正数 如果数组未初始化，那么其记录的是数组的初始容量；如果数组已经初始化，那么其记录的就是i扩容阈值（数组的初始容量*0.75）   -1 表示数组正在进行初始化   负数且不是-1 表示数组正在扩容，高16位是扩容标识戳，低16位是扩容线程数+1    扰动函数 static final int spread(int h) { // HASH_BITS（01111111111111111111111111111111）保证hash值一定是为正数，因为符号位为0  // 高低位去异或运算，这里和HashMap的类似，让高位参与运算是为了哈希得更均匀  return (h ^ (h &amp;gt;&amp;gt;&amp;gt; 16)) &amp;amp; HASH_BITS; } table数组的初始化 private final Node&amp;lt;K,V&amp;gt;[] initTable() { Node&amp;lt;K,V&amp;gt;[] tab; int sc; while ((tab = table) == null || tab.</description>
+    </item>
+    
+  </channel>
+</rss>
