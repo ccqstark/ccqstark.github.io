@@ -300,7 +300,7 @@ if (!doNotTrack) {
 </span><span class="c1"></span>    <span class="n">addCount</span><span class="o">(</span><span class="n">1L</span><span class="o">,</span> <span class="n">binCount</span><span class="o">);</span>
     <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
 <span class="o">}</span>
-</code></pre></div><p>当要往一个桶位添加节点的时候，synchronized只会锁住当前这个桶位，不会其它的桶位，如图：</p>
+</code></pre></div><p>当要往一个桶位添加节点的时候，synchronized只会锁住当前这个桶位，不会影响其它桶位，如图：</p>
 <p><figure 
 	>
 	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030146828.png" >
