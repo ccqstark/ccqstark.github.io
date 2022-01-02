@@ -433,7 +433,7 @@
     &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;与jdk17相比&#34;&gt;与JDK1.7相比&lt;/h2&gt;
-&lt;p&gt;1.7 中的 concurrentHashMap 使用了多段锁的机制，定义了&lt;code&gt;Segment&lt;/code&gt;，每个 Segment 是 一个单独的容器，也是一把锁。Segment 都是一个类似 HashMap 数组的结构，它可以扩容，它的冲突会转化为链表。但是 Segment 的个数一但初始化就不能改变。&lt;/p&gt;
+&lt;p&gt;1.7 中的 concurrentHashMap 使用了分段锁的机制，定义了&lt;code&gt;Segment&lt;/code&gt;，每个 Segment 是 一个单独的容器，单独获取一把&lt;code&gt;ReentrantLock&lt;/code&gt;锁。Segment 都是一个类似 HashMap 数组的结构，它可以扩容，它的冲突会转化为链表。但是 Segment 的个数一但初始化就不能改变。&lt;/p&gt;
 &lt;p&gt;1.8的ConCurrentHashMap大部分采用的是synchronized与CAS操作去保证线程安全的，synchronized现在有锁升级机制性能好很多了，CAS是用&lt;code&gt;sun.misc.Unsafe&lt;/code&gt; 类实现的底层是&lt;strong&gt;CMPXCHG&lt;/strong&gt;指令，putVal的时候加锁只会锁住一个桶位不影响其他的，容器内元素的长度采用的是LongAdder的数组累加的提高并发的设计，扩容时允许多个线程一起协助迁移数据，还有一个sizeCtl的变量来标识当前容器的各种状态、扩容阈值或者扩容线程数。&lt;/p&gt;
 &lt;h2 id=&#34;一些感想&#34;&gt;一些感想&lt;/h2&gt;
 &lt;p&gt;看了ConcurrentHashMap的源码以及之前的HashMap源码不得不感叹真的是太精妙了，不仅大量使用位运算来提高性能，甚至一个变量都掰成高16位和低16位使用，大量使用CAS能不加锁的地方绝不加锁，最绝的是一个统计长度的变量都能拆成一个数组的和来优化，真的是对性能追求到了极致，优化到了极致。最后说一句：Doug Lea大神牛逼！&lt;/p&gt;
