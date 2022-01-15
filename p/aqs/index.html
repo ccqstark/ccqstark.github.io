@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='简介 AQS（Abstract Queue Synchronizer）在java.util.concurrent.locks包下面，是一个用来构建锁和同步器的框架，使用AQS可以简单高效地构造出大量应用广泛的同步器，比如我们提到的 ReentrantLock，Semaphore，其他的诸如 ReentrantReadWriteLock，SynchronousQueue，FutureTask 等等皆是基于 AQS 的。当然，我们自己也能利用 AQS 非常轻松容易地构造出符合我们自己需求的同步器。
+基本原理   AQS内部维护了一个FIFO的CLH队列，用来对获取资源线程的阻塞和排队。 还使用一个 int 成员变量state来表示同步状态，AQS 使用 CAS 对该同步状态进行原子操作实现对其值的修改。
+private volatile int state; // 共享变量，使用volatile修饰保证线程可见性 状态信息通过 protected 类型的getState()，setState()，compareAndSetState() 进行操作。 不同的自定义同步器争用共享资源的方式也不同，实际上就是对共享资源state的获取与释放方式进行不同的实现，至于具体线程等待队列的维护（如获取资源失败入队/唤醒出队等），AQS已经在顶层实现好了。自定义同步器实现时主要实现以下几种方法：
+  tryAcquire(int)：独占方式。尝试获取资源，成功则返回true，失败则返回false。
+  tryRelease(int)：独占方式。尝试释放资源，成功则返回true，失败则返回false。
+  tryAcquireShared(int)：共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
+  tryReleaseShared(int)：共享方式。尝试释放资源，如果释放后允许唤醒后续等待结点返回true，否则返回false。 AQS使用了模板方法的设计模式，用户实现自己的同步组件的时候只需要重写以上几个方法，实现自己对state操作的逻辑，然后这些子类重写的方法就会被AQS顶层的一些方法调用去实现线程排队阻塞唤醒等具体操作。
+实现例子     ReentrantLock：state初始化为0，表示未锁定状态。A线程lock()时，会调用tryAcquire()独占该锁并将state&#43;1。此后，其他线程再tryAcquire()时就会失败，直到A线程unlock()到state=0（即释放锁）为止，其它线程才有机会获取该锁。当然，释放锁之前，A线程自己是可以重复获取此锁的（state会累加），这就是可重入的概念。但要注意，获取多少次就要释放多么次，这样才能保证state是能回到零态的。
+  CountDownLatch：任务分为N个子线程去执行，state也初始化为N，每个子线程执行完后countDown()一次，state会CAS减1。等到所有子线程都执行完后(即state=0)，会唤醒主调用线程，然后主调用线程就会从await()函数返回，继续后续动作。
+锁的分类    独占锁：也就是同一时刻只允许一个线程访问资源，类似写锁。 共享锁：允许多个线程同时访问一个资源，类似读锁。  Node节点状态  CANCELLED(1)：表示当前结点已取消调度。当timeout或被中断（响应中断的情况下），会触发变更为此状态，进入该状态后的结点将不会再变化。 SIGNAL(-1)：表示后继结点在等待当前结点唤醒。后继结点入队时，会将前继结点的状态更新为SIGNAL。 CONDITION(-2)：表示结点等待在Condition上，当其他线程调用了Condition的signal()方法后，CONDITION状态的结点将从等待队列转移到同步队列中，等待获取同步锁。（使用到Condition时才有等待队列的概念，原本的CLH队列是同步队列） PROPAGATE(-3)：共享模式下，前继结点不仅会唤醒其后继结点，同时也可能会唤醒后继的后继结点。共享式同步状态获取将会无条件传播下去。 初始值(0)：新结点入队时的默认状态。   负值表示结点处于有效等待状态，而正值表示结点已被取消。所以源码中很多地方用&amp;gt;0、&amp;lt;0来判断结点的状态是否正常。'><title>[并发编程]AQS源码分析</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/aqs/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='[并发编程]AQS源码分析'>
+<meta property='og:description' content='简介 AQS（Abstract Queue Synchronizer）在java.util.concurrent.locks包下面，是一个用来构建锁和同步器的框架，使用AQS可以简单高效地构造出大量应用广泛的同步器，比如我们提到的 ReentrantLock，Semaphore，其他的诸如 ReentrantReadWriteLock，SynchronousQueue，FutureTask 等等皆是基于 AQS 的。当然，我们自己也能利用 AQS 非常轻松容易地构造出符合我们自己需求的同步器。
+基本原理   AQS内部维护了一个FIFO的CLH队列，用来对获取资源线程的阻塞和排队。 还使用一个 int 成员变量state来表示同步状态，AQS 使用 CAS 对该同步状态进行原子操作实现对其值的修改。
+private volatile int state; // 共享变量，使用volatile修饰保证线程可见性 状态信息通过 protected 类型的getState()，setState()，compareAndSetState() 进行操作。 不同的自定义同步器争用共享资源的方式也不同，实际上就是对共享资源state的获取与释放方式进行不同的实现，至于具体线程等待队列的维护（如获取资源失败入队/唤醒出队等），AQS已经在顶层实现好了。自定义同步器实现时主要实现以下几种方法：
+  tryAcquire(int)：独占方式。尝试获取资源，成功则返回true，失败则返回false。
+  tryRelease(int)：独占方式。尝试释放资源，成功则返回true，失败则返回false。
+  tryAcquireShared(int)：共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
+  tryReleaseShared(int)：共享方式。尝试释放资源，如果释放后允许唤醒后续等待结点返回true，否则返回false。 AQS使用了模板方法的设计模式，用户实现自己的同步组件的时候只需要重写以上几个方法，实现自己对state操作的逻辑，然后这些子类重写的方法就会被AQS顶层的一些方法调用去实现线程排队阻塞唤醒等具体操作。
+实现例子     ReentrantLock：state初始化为0，表示未锁定状态。A线程lock()时，会调用tryAcquire()独占该锁并将state&#43;1。此后，其他线程再tryAcquire()时就会失败，直到A线程unlock()到state=0（即释放锁）为止，其它线程才有机会获取该锁。当然，释放锁之前，A线程自己是可以重复获取此锁的（state会累加），这就是可重入的概念。但要注意，获取多少次就要释放多么次，这样才能保证state是能回到零态的。
+  CountDownLatch：任务分为N个子线程去执行，state也初始化为N，每个子线程执行完后countDown()一次，state会CAS减1。等到所有子线程都执行完后(即state=0)，会唤醒主调用线程，然后主调用线程就会从await()函数返回，继续后续动作。
+锁的分类    独占锁：也就是同一时刻只允许一个线程访问资源，类似写锁。 共享锁：允许多个线程同时访问一个资源，类似读锁。  Node节点状态  CANCELLED(1)：表示当前结点已取消调度。当timeout或被中断（响应中断的情况下），会触发变更为此状态，进入该状态后的结点将不会再变化。 SIGNAL(-1)：表示后继结点在等待当前结点唤醒。后继结点入队时，会将前继结点的状态更新为SIGNAL。 CONDITION(-2)：表示结点等待在Condition上，当其他线程调用了Condition的signal()方法后，CONDITION状态的结点将从等待队列转移到同步队列中，等待获取同步锁。（使用到Condition时才有等待队列的概念，原本的CLH队列是同步队列） PROPAGATE(-3)：共享模式下，前继结点不仅会唤醒其后继结点，同时也可能会唤醒后继的后继结点。共享式同步状态获取将会无条件传播下去。 初始值(0)：新结点入队时的默认状态。   负值表示结点处于有效等待状态，而正值表示结点已被取消。所以源码中很多地方用&amp;gt;0、&amp;lt;0来判断结点的状态是否正常。'>
+<meta property='og:url' content='https://ccqstark.github.io/p/aqs/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='并发编程' /><meta property='article:tag' content='AQS' /><meta property='article:published_time' content='2022-01-15T17:13:23&#43;08:00'/><meta property='article:modified_time' content='2022-01-15T17:13:23&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/aqs/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="[并发编程]AQS源码分析">
+<meta name="twitter:description" content="简介 AQS（Abstract Queue Synchronizer）在java.util.concurrent.locks包下面，是一个用来构建锁和同步器的框架，使用AQS可以简单高效地构造出大量应用广泛的同步器，比如我们提到的 ReentrantLock，Semaphore，其他的诸如 ReentrantReadWriteLock，SynchronousQueue，FutureTask 等等皆是基于 AQS 的。当然，我们自己也能利用 AQS 非常轻松容易地构造出符合我们自己需求的同步器。
+基本原理   AQS内部维护了一个FIFO的CLH队列，用来对获取资源线程的阻塞和排队。 还使用一个 int 成员变量state来表示同步状态，AQS 使用 CAS 对该同步状态进行原子操作实现对其值的修改。
+private volatile int state; // 共享变量，使用volatile修饰保证线程可见性 状态信息通过 protected 类型的getState()，setState()，compareAndSetState() 进行操作。 不同的自定义同步器争用共享资源的方式也不同，实际上就是对共享资源state的获取与释放方式进行不同的实现，至于具体线程等待队列的维护（如获取资源失败入队/唤醒出队等），AQS已经在顶层实现好了。自定义同步器实现时主要实现以下几种方法：
+  tryAcquire(int)：独占方式。尝试获取资源，成功则返回true，失败则返回false。
+  tryRelease(int)：独占方式。尝试释放资源，成功则返回true，失败则返回false。
+  tryAcquireShared(int)：共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
+  tryReleaseShared(int)：共享方式。尝试释放资源，如果释放后允许唤醒后续等待结点返回true，否则返回false。 AQS使用了模板方法的设计模式，用户实现自己的同步组件的时候只需要重写以上几个方法，实现自己对state操作的逻辑，然后这些子类重写的方法就会被AQS顶层的一些方法调用去实现线程排队阻塞唤醒等具体操作。
+实现例子     ReentrantLock：state初始化为0，表示未锁定状态。A线程lock()时，会调用tryAcquire()独占该锁并将state&#43;1。此后，其他线程再tryAcquire()时就会失败，直到A线程unlock()到state=0（即释放锁）为止，其它线程才有机会获取该锁。当然，释放锁之前，A线程自己是可以重复获取此锁的（state会累加），这就是可重入的概念。但要注意，获取多少次就要释放多么次，这样才能保证state是能回到零态的。
+  CountDownLatch：任务分为N个子线程去执行，state也初始化为N，每个子线程执行完后countDown()一次，state会CAS减1。等到所有子线程都执行完后(即state=0)，会唤醒主调用线程，然后主调用线程就会从await()函数返回，继续后续动作。
+锁的分类    独占锁：也就是同一时刻只允许一个线程访问资源，类似写锁。 共享锁：允许多个线程同时访问一个资源，类似读锁。  Node节点状态  CANCELLED(1)：表示当前结点已取消调度。当timeout或被中断（响应中断的情况下），会触发变更为此状态，进入该状态后的结点将不会再变化。 SIGNAL(-1)：表示后继结点在等待当前结点唤醒。后继结点入队时，会将前继结点的状态更新为SIGNAL。 CONDITION(-2)：表示结点等待在Condition上，当其他线程调用了Condition的signal()方法后，CONDITION状态的结点将从等待队列转移到同步队列中，等待获取同步锁。（使用到Condition时才有等待队列的概念，原本的CLH队列是同步队列） PROPAGATE(-3)：共享模式下，前继结点不仅会唤醒其后继结点，同时也可能会唤醒后继的后继结点。共享式同步状态获取将会无条件传播下去。 初始值(0)：新结点入队时的默认状态。   负值表示结点处于有效等待状态，而正值表示结点已被取消。所以源码中很多地方用&amp;gt;0、&amp;lt;0来判断结点的状态是否正常。"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/aqs/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/aqs/">
+                <img src="/p/aqs/cover_hu61c3bca774698dc1e72a329e3b4305c2_117700_800x0_resize_box_3.png"
+                        srcset="/p/aqs/cover_hu61c3bca774698dc1e72a329e3b4305c2_117700_800x0_resize_box_3.png 800w, /p/aqs/cover_hu61c3bca774698dc1e72a329e3b4305c2_117700_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="329" 
+                        loading="lazy"
+                        alt="Featured image of post [并发编程]AQS源码分析" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/javase/" >
+                JavaSE
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/aqs/">[并发编程]AQS源码分析</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 15, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="简介">简介</h2>
+<p>AQS（<code>Abstract Queue Synchronizer</code>）在<code>java.util.concurrent.locks</code>包下面，是一个用来构建锁和同步器的框架，使用AQS可以简单高效地构造出大量应用广泛的同步器，比如我们提到的 <code>ReentrantLock</code>，<code>Semaphore</code>，其他的诸如 <code>ReentrantReadWriteLock</code>，<code>SynchronousQueue</code>，<code>FutureTask</code> 等等皆是基于 AQS 的。当然，我们自己也能利用 AQS 非常轻松容易地构造出符合我们自己需求的同步器。</p>
+<h2 id="基本原理">基本原理</h2>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201142338176.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201142338176.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure>
+AQS内部维护了一个FIFO的CLH队列，用来对获取资源线程的阻塞和排队。
+还使用一个 int 成员变量state来表示同步状态，AQS 使用 CAS 对该同步状态进行原子操作实现对其值的修改。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">state</span><span class="o">;</span> <span class="c1">// 共享变量，使用volatile修饰保证线程可见性
+</span></code></pre></div><p>状态信息通过 <code>protected</code> 类型的<code>getState()</code>，<code>setState()</code>，<code>compareAndSetState()</code> 进行操作。
+不同的自定义同步器争用共享资源的方式也不同，<strong>实际上就是对共享资源state的获取与释放方式进行不同的实现</strong>，至于具体线程等待队列的维护（如获取资源失败入队/唤醒出队等），AQS已经在顶层实现好了。自定义同步器实现时主要实现以下几种方法：</p>
+<ul>
+<li>
+<p><code>tryAcquire(int)</code>：独占方式。尝试获取资源，成功则返回true，失败则返回false。</p>
+</li>
+<li>
+<p><code>tryRelease(int)</code>：独占方式。尝试释放资源，成功则返回true，失败则返回false。</p>
+</li>
+<li>
+<p><code>tryAcquireShared(int)</code>：共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。</p>
+</li>
+<li>
+<p><code>tryReleaseShared(int)</code>：共享方式。尝试释放资源，如果释放后允许唤醒后续等待结点返回true，否则返回false。
+AQS使用了<strong>模板方法</strong>的设计模式，用户实现自己的同步组件的时候只需要重写以上几个方法，实现自己对state操作的逻辑，然后这些子类重写的方法就会被AQS顶层的一些方法调用去实现线程排队阻塞唤醒等具体操作。</p>
+<h3 id="实现例子">实现例子</h3>
+</li>
+</ul>
+<ol>
+<li>
+<p><code>ReentrantLock</code>：state初始化为0，表示未锁定状态。A线程lock()时，会调用tryAcquire()独占该锁并将state+1。此后，其他线程再tryAcquire()时就会失败，直到A线程unlock()到state=0（即释放锁）为止，其它线程才有机会获取该锁。当然，释放锁之前，A线程自己是可以重复获取此锁的（state会累加），这就是可重入的概念。但要注意，获取多少次就要释放多么次，这样才能保证state是能回到零态的。</p>
+</li>
+<li>
+<p><code>CountDownLatch</code>：任务分为N个子线程去执行，state也初始化为N，每个子线程执行完后countDown()一次，state会CAS减1。等到所有子线程都执行完后(即state=0)，会唤醒主调用线程，然后主调用线程就会从await()函数返回，继续后续动作。</p>
+<h3 id="锁的分类">锁的分类</h3>
+</li>
+</ol>
+<ul>
+<li>独占锁：也就是同一时刻只允许一个线程访问资源，类似写锁。</li>
+<li>共享锁：允许多个线程同时访问一个资源，类似读锁。</li>
+</ul>
+<h2 id="node节点状态">Node节点状态</h2>
+<ul>
+<li><code>CANCELLED</code>(1)：表示当前结点已取消调度。当timeout或被中断（响应中断的情况下），会触发变更为此状态，进入该状态后的结点将不会再变化。</li>
+<li><code>SIGNAL</code>(-1)：表示后继结点在等待当前结点唤醒。后继结点入队时，会将前继结点的状态更新为SIGNAL。</li>
+<li><code>CONDITION</code>(-2)：表示结点等待在Condition上，当其他线程调用了Condition的signal()方法后，CONDITION状态的结点将<strong>从等待队列转移到同步队列中</strong>，等待获取同步锁。（使用到<code>Condition</code>时才有<strong>等待队列</strong>的概念，原本的CLH队列是<strong>同步队列</strong>）</li>
+<li><code>PROPAGATE</code>(-3)：共享模式下，前继结点不仅会唤醒其后继结点，同时也可能会唤醒后继的后继结点。共享式同步状态获取将会无条件传播下去。</li>
+<li><code>初始值</code>(0)：新结点入队时的默认状态。</li>
+</ul>
+<blockquote>
+<p>负值表示结点处于有效等待状态，而正值表示结点已被取消。所以源码中很多地方用<code>&gt;0</code>、<code>&lt;0</code>来判断结点的状态是否正常。</p>
+</blockquote>
+<h2 id="独占锁源码">独占锁源码</h2>
+<h3 id="获取">获取</h3>
+<h4 id="acquire">acquire()</h4>
+<blockquote>
+<p><code>acquire()</code>方法就是用来获取锁的，ReentrantLock的lock()方法实际上也就是调用AQS这个方法。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">acquire</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>  
+ <span class="c1">// 先看尝试获取同步状态看是否成功，如果成功则方法结束返回  
+</span><span class="c1"></span> <span class="c1">// 若失败则先调用addWaiter()方法加入到等待队列尾
+</span><span class="c1"></span> <span class="c1">// 再调用acquireQueued()方法在队列中等待重试竞争锁或休眠
+</span><span class="c1"></span> <span class="k">if</span> <span class="o">(!</span><span class="n">tryAcquire</span><span class="o">(</span><span class="n">arg</span><span class="o">)</span> <span class="o">&amp;&amp;</span>  
+ <span class="n">acquireQueued</span><span class="o">(</span><span class="n">addWaiter</span><span class="o">(</span><span class="n">Node</span><span class="o">.</span><span class="na">EXCLUSIVE</span><span class="o">),</span> <span class="n">arg</span><span class="o">))</span>  
+ <span class="n">selfInterrupt</span><span class="o">();</span>  
+<span class="o">}</span>
+</code></pre></div><p>acquire()根据<code>tryAcquire()</code>尝试获得同步状态成功与否做了两件事情：</p>
+<ol>
+<li>成功，则方法结束返回</li>
+<li>失败，则先调用<code>addWaiter()</code>然后在调用<code>acquireQueued()</code>方法。</li>
+</ol>
+<h4 id="addwaiter">addWaiter()</h4>
+<blockquote>
+<p>获取同步状态失败，进行入队操作
+当线程获取独占式锁失败后就会将当前线程加入同步队列，那么加入队列的方式是怎样的了？我们接下来就应该去研究一下addWaiter()和acquireQueued()。<code>addWaiter()</code>源码如下：</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="n">Node</span> <span class="nf">addWaiter</span><span class="o">(</span><span class="n">Node</span> <span class="n">mode</span><span class="o">)</span> <span class="o">{</span>  
+    <span class="c1">// 1.将当前线程构建成Node类型  
+</span><span class="c1"></span>    <span class="n">Node</span> <span class="n">node</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">(),</span> <span class="n">mode</span><span class="o">);</span>  
+    <span class="c1">// Try the fast path of enq; backup to full enq on failure  
+</span><span class="c1"></span>    <span class="c1">// 2.尾节点是否为null？  
+</span><span class="c1"></span>    <span class="n">Node</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">tail</span><span class="o">;</span>  
+    <span class="k">if</span> <span class="o">(</span><span class="n">pred</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>  
+        <span class="c1">// 2.2 将当前节点以尾插的方式插入同步队列中  
+</span><span class="c1"></span>        <span class="n">node</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">pred</span><span class="o">;</span>  
+        <span class="k">if</span> <span class="o">(</span><span class="n">compareAndSetTail</span><span class="o">(</span><span class="n">pred</span><span class="o">,</span> <span class="n">node</span><span class="o">))</span> <span class="o">{</span>  
+             <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">node</span><span class="o">;</span>
+             <span class="k">return</span> <span class="n">node</span><span class="o">;</span>
+        <span class="o">}</span>  
+    <span class="o">}</span>  
+    <span class="c1">//2.1 当前同步队列尾节点为null，说明当前线程是第一个加入同步队列进行等待的线程  
+</span><span class="c1"></span>    <span class="n">enq</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">node</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>分析可以看上面的注释。程序的逻辑主要分为两个部分：</p>
+<ol>
+<li>当前同步队列的尾节点为null，调用方法enq()插入;</li>
+<li>当前队列的尾节点不为null，则采用尾插入（先node.prev = tail再compareAndSetTail()方法）的方式入队。</li>
+</ol>
+<h4 id="enq">enq()</h4>
+<p>此时还会有另外一个问题：如果 <code>if (compareAndSetTail(pred, node))</code>为false怎么办？确实会继续执行到<code>enq()</code>方法，同时很明显compareAndSetTail是一个CAS操作，通常来说如果CAS操作失败会继续自旋（死循环）进行重试。因此，enq()方法可能承担两个任务：</p>
+<ol>
+<li>
+<p>处理当前同步队列尾节点为null时进行入队操作，同时完成头节点初始化;</p>
+</li>
+<li>
+<p>如果CAS尾插入节点失败后负责自旋进行重试，直到成功。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="n">Node</span> <span class="nf">enq</span><span class="o">(</span><span class="kd">final</span> <span class="n">Node</span> <span class="n">node</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+        <span class="n">Node</span> <span class="n">t</span> <span class="o">=</span> <span class="n">tail</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">t</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// Must initialize
+</span><span class="c1"></span>            <span class="c1">//1. 构造头结点
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">compareAndSetHead</span><span class="o">(</span><span class="k">new</span> <span class="n">Node</span><span class="o">()))</span>
+                <span class="n">tail</span> <span class="o">=</span> <span class="n">head</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="c1">// 2. 尾插入，CAS操作失败自旋尝试
+</span><span class="c1"></span>            <span class="n">node</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">compareAndSetTail</span><span class="o">(</span><span class="n">t</span><span class="o">,</span> <span class="n">node</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">t</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">node</span><span class="o">;</span>
+                <span class="k">return</span> <span class="n">t</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ol>
+<p>在上面的分析中我们可以看出，如果当前插入的节点是第一个入队的（tail为null时），那么会会先创建头结点，说明同步队列是<strong>带头结点的链式存储结构（实际上这个头节点是个傀儡节点，后面可以体会到真正在竞争资源的是老二节点）</strong>。带头结点与不带头结点相比，会在入队和出队的操作中获得更大的便捷性，因此同步队列选择了带头结点的链式存储结构。
+compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操作失败会在<code>for (;;)</code>死循环中不断尝试，直至成功return返回为止。</p>
+<h4 id="acquirequeued">acquireQueued()</h4>
+<p>现在我们已经知道获取独占式锁失败的线程被包装成Node，然后插入同步队列的过程了。那么紧接着会有下一个问题：进入了同步队列中的节点会做什么事情了来保证自己能够有机会再次尝试获取独占式锁？来看看<code>acquireQueued()</code>方法，从方法名就可以很清楚，这个方法的作用就是排队来获取锁的过程，源码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">acquireQueued</span><span class="o">(</span><span class="kd">final</span> <span class="n">Node</span> <span class="n">node</span><span class="o">,</span> <span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">failed</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="kt">boolean</span> <span class="n">interrupted</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+                <span class="c1">// 1.获得当前节点的先驱节点
+</span><span class="c1"></span>                <span class="kd">final</span> <span class="n">Node</span> <span class="n">p</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">predecessor</span><span class="o">();</span>
+                <span class="c1">// 2.当前节点能否获取独占式锁                    
+</span><span class="c1"></span>                <span class="c1">// 2.1 如果当前节点的先驱节点是头结点并且成功tryAcquire获取同步状态，即可以获得独占式锁
+</span><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">p</span> <span class="o">==</span> <span class="n">head</span> <span class="o">&amp;&amp;</span> <span class="n">tryAcquire</span><span class="o">(</span><span class="n">arg</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="c1">// 队列头指针用指向当前节点
+</span><span class="c1"></span>                    <span class="n">setHead</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+                    <span class="c1">// 释放前驱节点
+</span><span class="c1"></span>                    <span class="n">p</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// help GC
+</span><span class="c1"></span>                    <span class="n">failed</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+                    <span class="k">return</span> <span class="n">interrupted</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="c1">// 2.2 获取锁失败，线程进入等待状态，尝试park挂起
+</span><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">shouldParkAfterFailedAcquire</span><span class="o">(</span><span class="n">p</span><span class="o">,</span> <span class="n">node</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+                    <span class="n">parkAndCheckInterrupt</span><span class="o">())</span>
+                    <span class="n">interrupted</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">failed</span><span class="o">)</span>
+                <span class="n">cancelAcquire</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>程序逻辑通过注释已经标出，整体来看这是一个这又是一个自旋的过程（<code>for (;;)</code>），代码首先获取当前节点的先驱节点，<strong>如果先驱节点是头结点的并且成功获得同步状态的时候（if (p == head &amp;&amp; tryAcquire(arg))），当前节点所指向的线程就能够获取锁</strong>。反之，获取锁失败进入等待状态park挂起。整体示意图为下图：
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201150113134.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201150113134.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<blockquote>
+<p><strong>获取锁成功，出队操作</strong></p>
+</blockquote>
+<p>获取锁的节点出队的逻辑是：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 队列头结点引用指向当前节点，因为头结点是傀儡节点，所以相当于出队了
+</span><span class="c1"></span><span class="n">setHead</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>  
+<span class="c1">// 释放前驱节点
+</span><span class="c1">// 拆掉原头结点的next引用，指向它的prev引用在setHead()中已经拆掉
+</span><span class="c1"></span><span class="n">p</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// help GC  
+</span><span class="c1"></span><span class="n">failed</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>  
+<span class="k">return</span> <span class="n">interrupted</span><span class="o">;</span>
+</code></pre></div><p><strong>acquireQueued()在自旋过程中主要完成了两件事情</strong>：</p>
+<ol>
+<li>如果当前节点的前驱节点是头节点，并且能够获得同步状态也就是锁的话，头节点出队，当前节点成为新的头结点，方法结束；</li>
+<li>获取锁失败的话，先将前驱节点状态设置成SIGNAL表示当前节点之后需要被唤醒，然后调用LookSupport.park()方法使得当前线程阻塞(shouldParkAfterFailedAcquire(p, node) &amp;&amp;parkAndCheckInterrupt())。<em>等待下一次唤醒，一般就是此节点的前驱结点获取到了锁后执行完了他想要的操作，然后要release了，就会去唤醒它（unparkSuccessor()）。</em></li>
+</ol>
+<h4 id="sethead">setHead()</h4>
+<p>setHead()方法设置头结点为：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">setHead</span><span class="o">(</span><span class="n">Node</span> <span class="n">node</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">node</span><span class="o">;</span>
+        <span class="n">node</span><span class="o">.</span><span class="na">thread</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">node</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>拆掉原头节点的next的prev，无任何引用方便GC时能够将内存进行回收。示意图如下：
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201150140567.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201150140567.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h4 id="shouldparkafterfailedacquire">shouldParkAfterFailedAcquire()</h4>
+<p>那么当获取锁失败的时候会调用<code>shouldParkAfterFailedAcquire()</code>方法和<code>parkAndCheckInterrupt()</code>方法，看看他们做了什么事情。shouldParkAfterFailedAcquire()方法源码为：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">shouldParkAfterFailedAcquire</span><span class="o">(</span><span class="n">Node</span> <span class="n">pred</span><span class="o">,</span> <span class="n">Node</span> <span class="n">node</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">ws</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="na">waitStatus</span><span class="o">;</span>
+    <span class="c1">// 前驱节点为signal状态
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">ws</span> <span class="o">==</span> <span class="n">Node</span><span class="o">.</span><span class="na">SIGNAL</span><span class="o">)</span>
+        <span class="cm">/*
+</span><span class="cm">         * This node has already set status asking a release
+</span><span class="cm">         * to signal it, so it can safely park.
+</span><span class="cm">         */</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="c1">// 前驱节点为cancel状态
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">ws</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="cm">/*
+</span><span class="cm">         * Predecessor was cancelled. Skip over predecessors and
+</span><span class="cm">         * indicate retry.
+</span><span class="cm">         */</span>
+        <span class="k">do</span> <span class="o">{</span>
+            <span class="n">node</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">while</span> <span class="o">(</span><span class="n">pred</span><span class="o">.</span><span class="na">waitStatus</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">);</span>
+        <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">node</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="cm">/*
+</span><span class="cm">         * waitStatus must be 0 or PROPAGATE.  Indicate that we
+</span><span class="cm">         * need a signal, but don&#39;t park yet.  Caller will need to
+</span><span class="cm">         * retry to make sure it cannot acquire before parking.
+</span><span class="cm">         */</span>
+        <span class="c1">// 将前驱节点设置为signal，表示当前需要被唤醒
+</span><span class="c1"></span>        <span class="c1">// 相当于给自己设一个闹钟再去睡，这个闹钟会在恰当的时候叫醒自己
+</span><span class="c1"></span>        <span class="n">compareAndSetWaitStatus</span><span class="o">(</span><span class="n">pred</span><span class="o">,</span> <span class="n">ws</span><span class="o">,</span> <span class="n">Node</span><span class="o">.</span><span class="na">SIGNAL</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>shouldParkAfterFailedAcquire()方法主要逻辑是使用<code>compareAndSetWaitStatus(pred, ws, Node.SIGNAL)</code>使用CAS将节点状态由初始值设置成<strong>SIGNAL</strong>，表示当前线程阻塞。当compareAndSetWaitStatus设置失败则说明shouldParkAfterFailedAcquire方法返回false，然后会在acquireQueued()方法中for (;;)死循环中会继续重试，直至compareAndSetWaitStatus设置节点状态位为SIGNAL时shouldParkAfterFailedAcquire返回true时才会执行方法<code>parkAndCheckInterrupt()</code>方法，该方法的源码为：</p>
+<h4 id="parkandcheckinterrupt">parkAndCheckInterrupt()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">parkAndCheckInterrupt</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">//使得该线程阻塞
+</span><span class="c1"></span>        <span class="n">LockSupport</span><span class="o">.</span><span class="na">park</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div><p>该方法的关键是会调用<code>LookSupport.park()</code>方法，该方法是用来阻塞当前线程的。</p>
+<p>经过上面的分析，独占式锁的获取过程也就是acquire()方法的执行流程如下图所示：
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201151104577.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201151104577.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h3 id="释放">释放</h3>
+<h4 id="release">release()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">release</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tryRelease</span><span class="o">(</span><span class="n">arg</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">Node</span> <span class="n">h</span> <span class="o">=</span> <span class="n">head</span><span class="o">;</span>
+            <span class="c1">// 唤醒头节点的后继节点
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">h</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">h</span><span class="o">.</span><span class="na">waitStatus</span> <span class="o">!=</span> <span class="n">0</span><span class="o">)</span>
+                <span class="n">unparkSuccessor</span><span class="o">(</span><span class="n">h</span><span class="o">);</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>如果tryRelease成功的话，就获取头结点h，当判断到头节点不为null且状态不为0，就使用<code>unparkSuccessor()</code>唤醒头结点的下一个节点</p>
+<blockquote>
+<p>h != null &amp;&amp; h.waitStatus != 0的意思</p>
+</blockquote>
+<p>当一个head节点的<code>waitStatus</code>为0说明什么呢，说明这个head节点后面没有在挂起等待中的后继节点了(如果有的话, head的ws就会被后继节点设为<code>Node.SIGNAL</code>了)， 自然也就不用执行 <code>unparkSuccessor</code> 操作了.</p>
+<h4 id="unparksuccessor">unparkSuccessor()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">unparkSuccessor</span><span class="o">(</span><span class="n">Node</span> <span class="n">node</span><span class="o">)</span> <span class="o">{</span>
+    <span class="cm">/*
+</span><span class="cm">     * If status is negative (i.e., possibly needing signal) try
+</span><span class="cm">     * to clear in anticipation of signalling.  It is OK if this
+</span><span class="cm">     * fails or if status is changed by waiting thread.
+</span><span class="cm">     */</span>
+    <span class="kt">int</span> <span class="n">ws</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">waitStatus</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">ws</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">)</span>
+        <span class="n">compareAndSetWaitStatus</span><span class="o">(</span><span class="n">node</span><span class="o">,</span> <span class="n">ws</span><span class="o">,</span> <span class="n">0</span><span class="o">);</span>
+
+    <span class="cm">/*
+</span><span class="cm">     * Thread to unpark is held in successor, which is normally
+</span><span class="cm">     * just the next node.  But if cancelled or apparently null,
+</span><span class="cm">     * traverse backwards from tail to find the actual
+</span><span class="cm">     * non-cancelled successor.
+</span><span class="cm">     */</span>
+
+    <span class="c1">// 获取头节点的后继节点
+</span><span class="c1"></span>    <span class="n">Node</span> <span class="n">s</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+   <span class="c1">// 此后继节点为null或处于cancel状态
+</span><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">s</span><span class="o">.</span><span class="na">waitStatus</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="c1">// 通常情况下, 要唤醒的节点就是自己的后继节点
+</span><span class="c1"></span>        <span class="c1">// 如果后继节点存在且也在等待锁, 那就直接唤醒它
+</span><span class="c1"></span>        <span class="c1">// 但是有可能存在 后继节点是取消等待锁（ws&gt;0）的情况
+</span><span class="c1"></span>        <span class="c1">// 此时从尾节点开始向前找起, 直到找到距离head节点最近的ws&lt;=0的节点
+</span><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="n">Node</span> <span class="n">t</span> <span class="o">=</span> <span class="n">tail</span><span class="o">;</span> <span class="n">t</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">node</span><span class="o">;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="na">prev</span><span class="o">)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="na">waitStatus</span> <span class="o">&lt;=</span> <span class="n">0</span><span class="o">)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="c1">// 后继节点不为null时唤醒节点对应线程
+</span><span class="c1"></span>        <span class="n">LockSupport</span><span class="o">.</span><span class="na">unpark</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">thread</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>首先获取头节点的后继节点，当后继节点的时候会调用LookSupport.unpark()方法，该方法会唤醒该节点的后继节点所包装的线程。<em>因此，每一次锁释放后就会唤醒队列中该节点的后继节点所引用的线程，从而进一步可以佐证获得锁的过程是一个FIFO（先进先出）的过程</em>。</p>
+<h3 id="独占锁总结">独占锁总结</h3>
+<p>通过学习源码的方式非常深刻的学习到了独占式锁的获取和释放的过程以及同步队列。可以做一下总结：</p>
+<ol>
+<li><strong>线程获取锁失败，线程被封装成Node进行入队操作，核心方法在于addWaiter()和enq()，同时enq()完成对同步队列的头结点初始化工作以及CAS操作失败的重试</strong>;</li>
+<li><strong>线程获取锁是一个自旋的过程，当且仅当 当前节点的前驱节点是头结点并且成功获得同步状态时，节点出队即该节点引用的线程获得锁，否则，当不满足条件时就会调用LookSupport.park()方法使得线程阻塞</strong>；</li>
+<li><strong>释放锁的时候会唤醒后继节点，也就是在unparkSuccessor()中使用LookSupport.unpark()；</strong></li>
+</ol>
+<p>总体来说：<strong>在获取同步状态时，AQS维护一个同步队列，获取同步状态失败的线程会加入到队列中进行自旋；移除队列（或停止自旋）的条件是前驱节点是头结点并且成功获得了同步状态。在释放同步状态时，同步器会调用unparkSuccessor()方法唤醒后继节点。</strong></p>
+<h2 id="共享锁源码">共享锁源码</h2>
+<h3 id="获取-1">获取</h3>
+<h4 id="acquireshared">acquireShared()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">acquireShared</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">tryAcquireShared</span><span class="o">(</span><span class="n">arg</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">)</span>
+        <span class="n">doAcquireShared</span><span class="o">(</span><span class="n">arg</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>tryAcquireShared返回值是一个int类型，当返回值为大于等于0的时候方法结束说明获得成功获取锁，否则，表明获取同步状态失败即所引用的线程获取锁失败</p>
+<h4 id="doacquireshared">doAcquireShared()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">doAcquireShared</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">Node</span> <span class="n">node</span> <span class="o">=</span> <span class="n">addWaiter</span><span class="o">(</span><span class="n">Node</span><span class="o">.</span><span class="na">SHARED</span><span class="o">);</span>
+    <span class="kt">boolean</span> <span class="n">failed</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">interrupted</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="kd">final</span> <span class="n">Node</span> <span class="n">p</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">predecessor</span><span class="o">();</span>
+            <span class="c1">// 当前节点的前驱节点是头结点并且tryAcquireShared()返回值大于等于0即表示能成功获得同步状态。
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">p</span> <span class="o">==</span> <span class="n">head</span><span class="o">)</span> <span class="o">{</span>
+                <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">tryAcquireShared</span><span class="o">(</span><span class="n">arg</span><span class="o">);</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">r</span> <span class="o">&gt;=</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="c1">// 当该节点的前驱节点是头结点且成功获取同步状态
+</span><span class="c1"></span>                    <span class="n">setHeadAndPropagate</span><span class="o">(</span><span class="n">node</span><span class="o">,</span> <span class="n">r</span><span class="o">);</span>
+                    <span class="n">p</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// help GC
+</span><span class="c1"></span>                    <span class="k">if</span> <span class="o">(</span><span class="n">interrupted</span><span class="o">)</span>
+                        <span class="n">selfInterrupt</span><span class="o">();</span>
+                    <span class="n">failed</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+                    <span class="k">return</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">shouldParkAfterFailedAcquire</span><span class="o">(</span><span class="n">p</span><span class="o">,</span> <span class="n">node</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+                <span class="n">parkAndCheckInterrupt</span><span class="o">())</span>
+                <span class="n">interrupted</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">failed</span><span class="o">)</span>
+            <span class="n">cancelAcquire</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>这段逻辑和独占锁的<code>accquireQueued()</code>的大同小异，只是对获取到同步状态的判断有点不同而已（见上方注释）。而且由于是共享式，会有多个线程同时获取到线程，也可能同时释放线程，空出很多同步状态，所以当排队中的老二获取到同步状态，如果还有可用资源，会继续传播下去（通过<code>setHeadAndPropagate()</code>方法）。</p>
+<h4 id="setheadandpropagate">setHeadAndPropagate()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">setHeadAndPropagate</span><span class="o">(</span><span class="n">Node</span> <span class="n">node</span><span class="o">,</span> <span class="kt">int</span> <span class="n">propagate</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Node</span> <span class="n">h</span> <span class="o">=</span> <span class="n">head</span><span class="o">;</span> <span class="c1">// Record old head for check below
+</span><span class="c1"></span>    <span class="c1">// 设置新的头节点就是为了让获取共享资源的操作传播下去
+</span><span class="c1"></span>    <span class="n">setHead</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">propagate</span> <span class="o">&gt;</span> <span class="n">0</span> <span class="o">||</span> <span class="n">h</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">h</span><span class="o">.</span><span class="na">waitStatus</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Node</span> <span class="n">s</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+        <span class="c1">// 如果下个节点为null或是共享的就进行释放
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">s</span><span class="o">.</span><span class="na">isShared</span><span class="o">())</span>
+            <span class="n">doReleaseShared</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>这个方法就是设置了新的头结点，就是为了让获取资源这个操作传播下去，直到资源都被用完了（因为只有前驱节点为头结点的节点才可以去tryAcquireShared），如果下个节点为空节点或也是共享节点就要调用doReleaseShared释放，但是实际上是为了唤醒后续的节点，使其也来拿锁。</p>
+<h3 id="释放-1">释放</h3>
+<h4 id="releaseshared">releaseShared()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">releaseShared</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">tryReleaseShared</span><span class="o">(</span><span class="n">arg</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">doReleaseShared</span><span class="o">();</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>这个就没啥好说的，就尝试释放，成功了就doReleaseShared。</p>
+<h4 id="doreleaseshared">doReleaseShared()</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">doReleaseShared</span><span class="o">()</span> <span class="o">{</span>
+    <span class="cm">/*
+</span><span class="cm">     * Ensure that a release propagates, even if there are other
+</span><span class="cm">     * in-progress acquires/releases.  This proceeds in the usual
+</span><span class="cm">     * way of trying to unparkSuccessor of head if it needs
+</span><span class="cm">     * signal. But if it does not, status is set to PROPAGATE to
+</span><span class="cm">     * ensure that upon release, propagation continues.
+</span><span class="cm">     * Additionally, we must loop in case a new node is added
+</span><span class="cm">     * while we are doing this. Also, unlike other uses of
+</span><span class="cm">     * unparkSuccessor, we need to know if CAS to reset status
+</span><span class="cm">     * fails, if so rechecking.
+</span><span class="cm">     */</span>
+    <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+        <span class="n">Node</span> <span class="n">h</span> <span class="o">=</span> <span class="n">head</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">h</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">h</span> <span class="o">!=</span> <span class="n">tail</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">ws</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="na">waitStatus</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">ws</span> <span class="o">==</span> <span class="n">Node</span><span class="o">.</span><span class="na">SIGNAL</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(!</span><span class="n">compareAndSetWaitStatus</span><span class="o">(</span><span class="n">h</span><span class="o">,</span> <span class="n">Node</span><span class="o">.</span><span class="na">SIGNAL</span><span class="o">,</span> <span class="n">0</span><span class="o">))</span>
+                    <span class="k">continue</span><span class="o">;</span>            <span class="c1">// loop to recheck cases
+</span><span class="c1"></span>                    <span class="c1">// 唤醒后续节点
+</span><span class="c1"></span>                    <span class="n">unparkSuccessor</span><span class="o">(</span><span class="n">h</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">ws</span> <span class="o">==</span> <span class="n">0</span> <span class="o">&amp;&amp;</span>
+                     <span class="o">!</span><span class="n">compareAndSetWaitStatus</span><span class="o">(</span><span class="n">h</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">Node</span><span class="o">.</span><span class="na">PROPAGATE</span><span class="o">))</span>
+                <span class="k">continue</span><span class="o">;</span>                <span class="c1">// loop on failed CAS
+</span><span class="c1"></span>        <span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">h</span> <span class="o">==</span> <span class="n">head</span><span class="o">)</span>                   <span class="c1">// loop if head changed
+</span><span class="c1"></span>            <span class="k">break</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>这段方法跟独占式锁释放过程有一点点不同，在共享式锁的释放过程中，持有同步状态的线程可能有多个，必须保证多个线程能够安全的释放同步状态，这里采用的CAS保证，当CAS操作失败continue，在下一次循环中进行重试。</p>
+<h2 id="细节">细节</h2>
+<h3 id="为什么从后往前遍历">为什么从后往前遍历？</h3>
+<p>unparkSuccessor()方法中的遍历是从尾节点开始的，那为什么不从头开始呢？
+看到入队方法addWaiter()中有这么一段</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="n">node</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">pred</span><span class="o">;</span>  
+<span class="k">if</span> <span class="o">(</span><span class="n">compareAndSetTail</span><span class="o">(</span><span class="n">pred</span><span class="o">,</span> <span class="n">node</span><span class="o">))</span> <span class="o">{</span>  
+     <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">node</span><span class="o">;</span>
+     <span class="k">return</span> <span class="n">node</span><span class="o">;</span>
+<span class="o">}</span>  
+</code></pre></div><p>可以看到是先设置了prev指针，再通过CAS去设置tail，成功后再设置next指针，所以如果在遍历过程中，恰好有一个节点入队，但是只设置了prev指针，在CAS操作之后<code>t.next=node</code>之前，这时候切换上下文到别的线程，那么<strong>从头往后</strong>遍历就会因为没有next指针而漏掉这个节点以及其之后的节点，<strong>从后往前</strong>因为有prev指针而不会漏掉。可以看图：
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201151708791.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201151708791.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h3 id="interrupted变量的作用">interrupted变量的作用</h3>
+<p>在源码中，我们随处可见一个叫interrupted的变量，从字面意义上来看它就是用来标志当前线程是否被终端的，但是它其实只是一个标志位，并不能真正强行进行强行中断线程，具体进行什么操作还是线程自己决定的（这样有利于资源回收，和Thread类中的中断标志位如出一辙）。
+那具体怎么发挥作用的呢？
+看到parkAndCheckInterrupt()方法，最后是return了Thread.interrupted()，这个方法是返回线程的中断标志位，并清除它。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">parkAndCheckInterrupt</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">LockSupport</span><span class="o">.</span><span class="na">park</span><span class="o">(</span><span class="k">this</span><span class="o">);</span> <span class="c1">// 在这里被挂起了, 唤醒之后就能继续往下执行了
+</span><span class="c1"></span>    <span class="k">return</span> <span class="n">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div><p>如果这里返回true，那么返回来到下面的语句(acquireQueued()方法)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="k">if</span> <span class="o">(</span><span class="n">shouldParkAfterFailedAcquire</span><span class="o">(</span><span class="n">p</span><span class="o">,</span> <span class="n">node</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">parkAndCheckInterrupt</span><span class="o">())</span>
+    <span class="n">interrupted</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</code></pre></div><p>那么if判断为true，来到语句<code>interrupted = true;</code>，因为这里是<code>for (;;)</code>死循环，要抢到锁才返回，所以就继续下一次循环直到抢到锁然后会返回<code>interrupted</code>，acquireQueued()方法结束，再返回到acquire()方法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">acquire</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">tryAcquire</span><span class="o">(</span><span class="n">arg</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">acquireQueued</span><span class="o">(</span><span class="n">addWaiter</span><span class="o">(</span><span class="n">Node</span><span class="o">.</span><span class="na">EXCLUSIVE</span><span class="o">),</span> <span class="n">arg</span><span class="o">))</span>
+        <span class="n">selfInterrupt</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div><p>此时上面这个大if为true，就执行selfInterrupt();，源码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kt">void</span> <span class="nf">selfInterrupt</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div><p>这个方法就是自我中断了。
+那么这么一圈下来，它的意义是什么？
+当我们从<code>park(this)</code>处被唤醒，我们并不知道是因为什么原因被唤醒，可能是因为别的线程释放了锁，调用了<code>unpark(s.thread)</code>，<em>也有可能是因为当前线程被其他线程调用interrupt()方法中断了park()</em>，因此我们通过<code>Thread.interrupted()</code>方法检查了当前线程的中断标志，并将它记录下来，在我们最后返回<code>acquire()</code>方法后，<strong>如果发现当前线程曾经被其它线程中断过，那我们就把当前线程再中断一次。</strong></p>
+<blockquote>
+<p>为什么要这么做呢？</p>
+</blockquote>
+<p>从上面的代码中我们知道，即使线程在等待资源的过程中被中断唤醒，它还是会不依不饶的继续抢锁，直到它抢到锁为止。也就是说，<strong>当线程处于等待队列中时，是不去响应外部的中断请求的</strong>，仅仅是记录下自己被人中断过。
+最后，当它抢到锁返回了，如果它发现自己曾经被中断过，它就再中断自己一次，将这个中断补上。</p>
+<p>注意，中断对线程来说只是一个建议，一个线程被中断只是其中断状态被设为<code>true</code>，线程可以选择忽略这个中断，中断一个线程并不会影响线程的执行，当然也可以自己决定响应这个中断要去执行的操作。</p>
+<h2 id="总结">总结</h2>
+<p><code>AQS</code>是JUC中很多同步组件的构建基础，简单来讲，它内部实现主要是状态变量state和一个FIFO队列来完成，同步队列的头结点是当前获取到同步状态的结点，获取同步状态state失败的线程，会被构造成一个结点（或共享式或独占式）加入到同步队列尾部（采用自旋CAS来保证此操作的线程安全），随后线程会阻塞；释放时唤醒头结点的后继结点，使其加入对同步状态的争夺中。</p>
+<p>AQS为我们定义好了顶层的处理实现逻辑，我们在使用AQS构建符合我们需求的同步组件时，只需重写tryAcquire，tryAcquireShared，tryRelease，tryReleaseShared几个方法，来决定同步状态的释放和获取即可，至于背后复杂的线程排队，线程阻塞/唤醒，如何保证线程安全，都由AQS为我们完成了，这也是非常典型的模板方法的应用。AQS定义好顶级逻辑的骨架，并提取出公用的线程入队列/出队列，阻塞/唤醒等一系列复杂逻辑的实现，将部分简单的可由使用者决定的操作逻辑<em>延迟到子类中去实现</em>。</p>
+<h2 id="参考">参考</h2>
+<p><a class="link" href="https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html"  target="_blank" rel="noopener"
+    >https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html</a><br>
+<a class="link" href="https://github.com/CL0610/Java-concurrency"  target="_blank" rel="noopener"
+    >https://github.com/CL0610/Java-concurrency</a><br>
+<a class="link" href="https://segmentfault.com/a/1190000015752512"  target="_blank" rel="noopener"
+    >https://segmentfault.com/a/1190000015752512</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
+        
+            <a href="/tags/aqs/">AQS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrenthashmap/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrenthashmap/cover.79972d4c2cfda116716444e55dd80233_huc96d02dfde7960de9a20cc4a3d1809da_315641_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrenthashmap" 
+                        data-hash="md5-eZctTCz9oRZxZETlXdgCMw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ConcurrentHashMap源码分析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_volatile/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_volatile/cover.533970812e1dfd0c0f1cf766509ee13d_hu7fad456951eb20fdb97374db4ac4bdd8_54974_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_volatile" 
+                        data-hash="md5-UzlwgS4d/QwPHPdmUJ7hPQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]volatile篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized_optimization/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized_optimization/cover.c3ae00288d98394524bc6ead85ec211d_hu4d840036f83d7884a510888303887b86_1060410_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized_optimization" 
+                        data-hash="md5-w64AKI2YOUUkvG6thewhHQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]Synchronized优化篇——Java中的各种锁</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_reentrantlock/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_reentrantlock/cover.863c8908ba19abe122f188d57cbb4190_huceae91d367533a91416a74330952ccc4_41335_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_reentrantlock" 
+                        data-hash="md5-hjyJCLoZq&#43;Ei8YjVfLtBkA==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]ReentrantLock篇</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="has-image">
+    <a href="/p/concurrent_synchronized/">
+        
+        
+            <div class="article-image">
+                <img src="/p/concurrent_synchronized/cover.0fec37ffa5d7b5f5c3963f9caa306d29_hu2a1927aa31c8cd3f96cce7e92e6162a3_102344_250x150_fill_box_smart1_3.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy" 
+                        data-key="concurrent_synchronized" 
+                        data-hash="md5-D&#43;w3/6XXtfXDlj&#43;cqjBtKQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[并发编程]synchronized篇</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2022 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#简介">简介</a></li>
+    <li><a href="#基本原理">基本原理</a>
+      <ol>
+        <li><a href="#实现例子">实现例子</a></li>
+        <li><a href="#锁的分类">锁的分类</a></li>
+      </ol>
+    </li>
+    <li><a href="#node节点状态">Node节点状态</a></li>
+    <li><a href="#独占锁源码">独占锁源码</a>
+      <ol>
+        <li><a href="#获取">获取</a>
+          <ol>
+            <li><a href="#acquire">acquire()</a></li>
+            <li><a href="#addwaiter">addWaiter()</a></li>
+            <li><a href="#enq">enq()</a></li>
+            <li><a href="#acquirequeued">acquireQueued()</a></li>
+            <li><a href="#sethead">setHead()</a></li>
+            <li><a href="#shouldparkafterfailedacquire">shouldParkAfterFailedAcquire()</a></li>
+            <li><a href="#parkandcheckinterrupt">parkAndCheckInterrupt()</a></li>
+          </ol>
+        </li>
+        <li><a href="#释放">释放</a>
+          <ol>
+            <li><a href="#release">release()</a></li>
+            <li><a href="#unparksuccessor">unparkSuccessor()</a></li>
+          </ol>
+        </li>
+        <li><a href="#独占锁总结">独占锁总结</a></li>
+      </ol>
+    </li>
+    <li><a href="#共享锁源码">共享锁源码</a>
+      <ol>
+        <li><a href="#获取-1">获取</a>
+          <ol>
+            <li><a href="#acquireshared">acquireShared()</a></li>
+            <li><a href="#doacquireshared">doAcquireShared()</a></li>
+            <li><a href="#setheadandpropagate">setHeadAndPropagate()</a></li>
+          </ol>
+        </li>
+        <li><a href="#释放-1">释放</a>
+          <ol>
+            <li><a href="#releaseshared">releaseShared()</a></li>
+            <li><a href="#doreleaseshared">doReleaseShared()</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#细节">细节</a>
+      <ol>
+        <li><a href="#为什么从后往前遍历">为什么从后往前遍历？</a></li>
+        <li><a href="#interrupted变量的作用">interrupted变量的作用</a></li>
+      </ol>
+    </li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>
