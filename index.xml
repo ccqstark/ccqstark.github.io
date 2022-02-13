@@ -2750,7 +2750,7 @@ redis-cli
 &lt;h3 id=&#34;简单使用demo&#34;&gt;简单使用demo&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Test&lt;/span&gt;
 &lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;TestRedissonBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
-		&lt;span class=&#34;c1&#34;&gt;// 先根据key获取一个布隆过滤器（不管存不存在）
+        &lt;span class=&#34;c1&#34;&gt;// 先根据key获取一个布隆过滤器（不管存不存在）
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;RBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Integer&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;redissonClient&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;getBloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;phoneList&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
     &lt;span class=&#34;c1&#34;&gt;//初始化布隆过滤器：预计元素为100000000L,误差率为3%
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;bloomFilter&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;tryInit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;100000000L&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;03&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
@@ -2819,7 +2819,7 @@ redis-cli
 &lt;p&gt;第一个本质就是一个计数器，我们需要对每一个帖子被点赞的次数进行计数&lt;/p&gt;
 &lt;p&gt;第二个主要是用来判断此用户是否已经点赞过文章，从而避免二次点赞或者进行取消点赞的操作，需要维护的是一个类似二元组的关系结构（用户id，帖子id）&lt;/p&gt;
 &lt;p&gt;方案主要也是从两个数据库入手，即MySQL和Redis，也就是怎么处理好存储层和缓存层之间的关系、怎么最合理地配合使用它们来达到最佳的实现效果，这也是这个问题的本质。&lt;/p&gt;
-&lt;p&gt;看透问题的本质再思考方案与动手实践，才是正确的解决问题的方式。教父曾经说过：”花半秒钟就看透事物本质的人，和花一辈子都看不清事物本质的人，注定是截然不同的命运。”（doge）&lt;/p&gt;
+&lt;p&gt;看透问题的本质再思考方案与动手实践，才是正确的解决问题的方式。教父曾经说过：“花半秒钟就看透事物本质的人，和花一辈子都看不清事物本质的人，注定是截然不同的命运。”（doge）&lt;/p&gt;
 &lt;h3 id=&#34;方案一&#34;&gt;方案一&lt;/h3&gt;
 &lt;p&gt;这个方案是我最开始在翻阅查询了晚上的一些资料后想出来的，看起来好像有模有样，其实问题还是挺多的，主要也是和公司的同事讨论后被指出很多不合理的地方。&lt;/p&gt;
 &lt;p&gt;&lt;figure 
@@ -2845,7 +2845,7 @@ redis-cli
 &lt;p&gt;前端本地先+1主要是为了用户直观感觉到点赞可以立马得到反馈，而不是因为到等待后端返回而带来的延迟感，影响用户体验。&lt;/p&gt;
 &lt;p&gt;消息队列，加入它的本意是为了让消息可以被准确消费从未保证点赞数较为精确，后来发现这样失去了实时性同时增加了开销，而且我还得去保证消息的可靠消费，就为了其实压根不需要很准确的点赞数，实在没有必要，所以后续删了。&lt;/p&gt;
 &lt;p&gt;之前在学redis的应用场景的时候好像就听过可以用incr来做点赞，所以这次要做点赞就直接先到了incr。得益于redis单线程，这样没有并发修改问题，速度也快，但同步到mysql是个大问题。&lt;/p&gt;
-&lt;p&gt;没错，我直接用一个布隆过滤器当做存储用了，还在想之后持久化到mysql可以用binary类型来存，完全没有意识到人家是一个过滤器，不是一个存储器，我直接忽略了误判率。导致这些错误的使用也是当时对它认识还不够深刻。&lt;/p&gt;
+&lt;p&gt;没错，我直接用一个布隆过滤器当做存储用了，还在想之后持久化到mysql可以用binary类型来存，完全没有意识到人家是一个过滤器，不是一个存储器，我直接忽略了布隆过滤器的误判率可能导致人家都没点赞过你给直接判定为点赞过了的情况。导致这些错误的使用也是当时对它认识还不够深刻。&lt;/p&gt;
 &lt;p&gt;对于持久化到mysql，当时还没仔细往下查具体的方案，感觉业内应该会有一个成熟的机制或者什么插件中间件之类的可以方便快捷稳定地完成这个任务，后来发现并没有，需要自己业务代码做定时任务定期写入库，感觉就比较麻烦不好非常优雅完美地实现，如果缓存中的数据越来越多，这个同步任务岂不是越来越庞大？这个暂时不知道如何解决。&lt;/p&gt;
 &lt;p&gt;总结就是方案十分不成熟，漏洞百出，是一个孬方案。&lt;/p&gt;
 &lt;h3 id=&#34;方案二&#34;&gt;方案二&lt;/h3&gt;
@@ -2879,6 +2879,10 @@ redis-cli
 &lt;/ol&gt;
 &lt;p&gt;后来在学习redis当MyBatis的二级缓存中发现其实没有必要搞这个了，二级缓存本质已经解决了数据需要更新的问题（清除再设置）&lt;/p&gt;
 &lt;p&gt;总结就是改进不少，但是仍有不足，或许是现阶段现情景下最好的选择。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;说完上面两个用了布隆过滤器的方案，该对自己进行一个灵魂拷问，用布隆过滤器到底是为了什么？它到底优化了什么？&lt;/p&gt;
+&lt;p&gt;实际上，过滤器过滤器，说到底就是用来过滤的，由于布隆过滤器最大的优点是缓解我们redis的缓存穿透，也就是挡住了很多不存在的数据防止打到mysql上，那么想一下我们的业务场景中用户获取文章被点赞的状态的时候，大部分肯定都是没有被点赞过的，因为系统给用户推荐的内容肯定大部分都是用户没浏览过的，那么实际上这部分判断到没有点赞过的流量就被bloom filter拦截下来了，而不是去mysql中去查文章id和user id对应记录是否存在来判断，就减轻了数据库很大的压力，达到了一定的优化效果。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h3 id=&#34;方案三&#34;&gt;方案三&lt;/h3&gt;
 &lt;p&gt;这个是在我对着搜索引擎直接输入关键字“redis实现点赞功能”后查出来的常见方案，大同小异，这里简答讲下就行。和之前的方案主要的不同是数据修改都是直接缓存中操作，然后再在业务代码中用定时任务例如&lt;code&gt;Quartz&lt;/code&gt;每隔一段时间写入到mysql中；还有一个是存储点赞关系用redis的Hash。&lt;/p&gt;
 &lt;p&gt;我这于两个不同点的看法上面也提到过了，在这里只能这样说也不失为一种方案吧。&lt;/p&gt;
