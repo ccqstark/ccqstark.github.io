@@ -205,7 +205,7 @@ if (!doNotTrack) {
 </span><span class="c1"></span>     <span class="c1">// h ^ (h &gt;&gt;&gt; 16)  为第二步 高位参与运算
 </span><span class="c1"></span>     <span class="k">return</span> <span class="o">(</span><span class="n">key</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="o">(</span><span class="n">h</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="na">hashCode</span><span class="o">())</span> <span class="o">^</span> <span class="o">(</span><span class="n">h</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">16</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre></div><p>通过hashCode()的高16位异或低16位实现的：(h = k.hashCode()) ^ (h &raquo;&gt; 16)，主要是从速度、功效、质量来考虑的，这么做可以在数组table的length比较小的时候，也能保证考虑到高低Bit都参与到Hash的计算中，同时不会有太大的开销。</p>
+</code></pre></div><p>通过hashCode()的高16位异或低16位实现的：<code>(h = k.hashCode()) ^ (h &gt;&gt;&gt; 16)</code>，主要是从速度、功效、质量来考虑的，这么做可以在数组table的length比较小的时候，也能保证考虑到高低Bit都参与到Hash的计算中，同时不会有太大的开销。</p>
 <p>上面代码是JDK1.8的实现，相比1.7减少了扰动次数，优化了一点性能。</p>
 <p><figure 
 	>
