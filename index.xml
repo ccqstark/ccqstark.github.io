@@ -1270,6 +1270,7 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;ul&gt;
 &lt;li&gt;JDK的HashMap、TreeMap和TreeSet&lt;/li&gt;
 &lt;li&gt;Linux内核的虚拟内存管理&lt;/li&gt;
+&lt;li&gt;epoll监控socket的文件描述符&lt;/li&gt;
 &lt;li&gt;Nginx的Timer管理&lt;/li&gt;
 &lt;li&gt;C++的STL&lt;/li&gt;
 &lt;/ul&gt;
