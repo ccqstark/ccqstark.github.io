@@ -400,7 +400,7 @@ if (!doNotTrack) {
 <h3 id="多线程协助扩容">多线程协助扩容</h3>
 <p>正式开始扩容后，新建一个新的数组，长度为原来的2倍，然后我们就需要把原数组中的数据迁移过去。由于是多线程环境，所以迁移过程由多个线程共同完成，它是将数组划分成了几个部分，每个部分由一个线程来进行迁移操作，顺序是从后往前迁移的。每个线程迁移的最小任务量是16个桶位。</p>
 <p>每迁移完一个节点，就会把这个桶位的节点变为<code>Forward节点(fwd)</code>，这种节点的hash为常量<code>MOVED</code>，相当于一个标识位，表示当前节点已经迁移到新数组中去了。当某个putVal时遇到这种节点就要去协助扩容而不能直接插入了。</p>
-<p>在多线程环境下，如果该线程触发了上面说的协助扩容的时机，就会去“领任务”，也就是被分配一段自己负责的迁移数据的范围，由<code>transferIndex</code> 记录下一个分配工作范围开始的位置，更具一个线程的任务量 <code>stride</code> 去计算此次分配任务的左边界<code>bound</code> ，再CAS去更新<code>transferIndex</code> 的值让他向左移动一个<code>stride</code> 为下一次分配做准备。</p>
+<p>在多线程环境下，如果该线程触发了上面说的协助扩容的时机，就会去“领任务”，也就是被分配一段自己负责的迁移数据的范围，由<code>transferIndex</code> 记录下一个分配工作范围开始的位置，根据一个线程的任务量 <code>stride</code> 去计算此次分配任务的左边界<code>bound</code> ，再CAS去更新<code>transferIndex</code> 的值让他向左移动一个<code>stride</code> 为下一次分配做准备。</p>
 <p><figure 
 	>
 	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030058140.png" >

@@ -752,7 +752,7 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;h3 id=&#34;多线程协助扩容&#34;&gt;多线程协助扩容&lt;/h3&gt;
 &lt;p&gt;正式开始扩容后，新建一个新的数组，长度为原来的2倍，然后我们就需要把原数组中的数据迁移过去。由于是多线程环境，所以迁移过程由多个线程共同完成，它是将数组划分成了几个部分，每个部分由一个线程来进行迁移操作，顺序是从后往前迁移的。每个线程迁移的最小任务量是16个桶位。&lt;/p&gt;
 &lt;p&gt;每迁移完一个节点，就会把这个桶位的节点变为&lt;code&gt;Forward节点(fwd)&lt;/code&gt;，这种节点的hash为常量&lt;code&gt;MOVED&lt;/code&gt;，相当于一个标识位，表示当前节点已经迁移到新数组中去了。当某个putVal时遇到这种节点就要去协助扩容而不能直接插入了。&lt;/p&gt;
-&lt;p&gt;在多线程环境下，如果该线程触发了上面说的协助扩容的时机，就会去“领任务”，也就是被分配一段自己负责的迁移数据的范围，由&lt;code&gt;transferIndex&lt;/code&gt; 记录下一个分配工作范围开始的位置，更具一个线程的任务量 &lt;code&gt;stride&lt;/code&gt; 去计算此次分配任务的左边界&lt;code&gt;bound&lt;/code&gt; ，再CAS去更新&lt;code&gt;transferIndex&lt;/code&gt; 的值让他向左移动一个&lt;code&gt;stride&lt;/code&gt; 为下一次分配做准备。&lt;/p&gt;
+&lt;p&gt;在多线程环境下，如果该线程触发了上面说的协助扩容的时机，就会去“领任务”，也就是被分配一段自己负责的迁移数据的范围，由&lt;code&gt;transferIndex&lt;/code&gt; 记录下一个分配工作范围开始的位置，根据一个线程的任务量 &lt;code&gt;stride&lt;/code&gt; 去计算此次分配任务的左边界&lt;code&gt;bound&lt;/code&gt; ，再CAS去更新&lt;code&gt;transferIndex&lt;/code&gt; 的值让他向左移动一个&lt;code&gt;stride&lt;/code&gt; 为下一次分配做准备。&lt;/p&gt;
 &lt;p&gt;&lt;figure 
 	&gt;
 	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202201030058140.png&#34; &gt;
