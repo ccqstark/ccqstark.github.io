@@ -6,7 +6,16 @@
     <description>Recent content in Categories on ccq&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 15 Jan 2022 17:13:23 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 28 Mar 2022 01:56:51 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Redis</title>
+      <link>https://ccqstark.github.io/categories/redis/</link>
+      <pubDate>Mon, 28 Mar 2022 01:56:51 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/categories/redis/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>JavaSE</title>
       <link>https://ccqstark.github.io/categories/javase/</link>

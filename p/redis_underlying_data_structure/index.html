@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='面试问到Redis的数据结构类型，如果可以深入下去，说出五个基本类型的底层数据结构实现，那必然是非常加分的。所以要继续深入学习redis，如果之后有时间希望还可以好好阅读一下它的源码，听说非常整洁非常美。
+简单动态字符串 SDS String底层实现不是用C语言自带的以空字符结尾的字符串，而是自己实现了SDS（简单动态字符串Simple Dynamic String）。C字符串只会用在一些无需对字符进行修改的地方，比如打印日志。如果是一个可以被修改的字符串值的话就会使用SDS。
+实现 struct sdshdr { // 记录buf数组中已使用的字节的数量 （等于SDS中所保存字符串的长度） 	int len; // 记录buf数组中未使用字节的数量 	int free; // 字节数组，用于保存字符串 	char buf[]; } buf数组中的字符串同样和C字符串一样用&#39;\0&amp;rsquo;结尾，可以和C语言的字符串处理函数兼容。  
+使用SDS的优点 O(1)获取字符串长度 SDS中有一个len字段来保存当前的buf存储的字符串的长度，当要获取的时候就可以直接O(1)时间复杂度拿到长度，不然的话需要遍历字符串来计算长度，那就需要O(n)复杂度了。如果字符串非常长的时候就可以减少不少开销。
+避免缓冲区溢出 C语言原本的字符串拼接函数strcat，是假定用户已经为字符串提前分配了足够的内存，假设用户没有分配好足够的内存，拼接字符串的时候导致溢出，此时原字符串后面还有别的字符串就可能会被覆盖。 SDS的空间分配策略就杜绝了这种问题的发生，它的拼接函数sdscat会先检查空间时候满足要求，如果不足的话就先扩展空间，再进行拼接操作。
+减少修改字符串带来的内存重新分配次数  空间预分配  SDS的长度小于1MB，程序会分配和len属性相同大小的free空间。比如现在字符串拼接后长度变为13，此时也会分配13的未使用空间。 如果SDS的长度大于等于1MB，那么会多分配1MB的未使用空间。 这样可以有效减少重新分配内存空间的次数。   惰性空间释放  当由于SDS字符串缩短，程序不会立刻使用回收这部分内存，而是用free属性记录下来，未来还可以继续使用。当然SDS也有相应的API来释放真正的未使用空间，所以不用担心内存泄漏。    二进制安全 使用C字符串因为是用空字符结尾的，所以遇到二进制数据比如图片、视频、压缩文件等可能中间也含有空字符串的数据就可能出问题，而SDS有len来记录数据长度，所以buf数组可以保存一系列二进制数据，这也是buf被称为字节数组的原因。
+兼容部分C字符串函数 由于SDS也是会多分配一个字节来存储最后的空字符，这一点和C字符串一样，所以部分&amp;lt;string.h&amp;gt;的函数也是可以兼容的，就不用自己再写一套库函数了。
+双端链表 linkedlist 双端链表在Redis中使用非常广泛，除了链表键之外，发布与订阅、慢查询、监视器等功能也用到了，Redis服务器本身还实用化链表来保存多个客户端的状态信息，以及使用链表来构建客户端输出缓冲区（output buffer）。
+实现 listNode list的一个节点的结构：
+typedef struct listNode { // 前置节点 	struct listNode *prev; // 后置节点 	struct listNode *next; // 节点的值 	void *value; }'><title>Redis底层数据结构</title>
+
+<link rel='canonical' href='https://ccqstark.github.io/p/redis_underlying_data_structure/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Redis底层数据结构'>
+<meta property='og:description' content='面试问到Redis的数据结构类型，如果可以深入下去，说出五个基本类型的底层数据结构实现，那必然是非常加分的。所以要继续深入学习redis，如果之后有时间希望还可以好好阅读一下它的源码，听说非常整洁非常美。
+简单动态字符串 SDS String底层实现不是用C语言自带的以空字符结尾的字符串，而是自己实现了SDS（简单动态字符串Simple Dynamic String）。C字符串只会用在一些无需对字符进行修改的地方，比如打印日志。如果是一个可以被修改的字符串值的话就会使用SDS。
+实现 struct sdshdr { // 记录buf数组中已使用的字节的数量 （等于SDS中所保存字符串的长度） 	int len; // 记录buf数组中未使用字节的数量 	int free; // 字节数组，用于保存字符串 	char buf[]; } buf数组中的字符串同样和C字符串一样用&#39;\0&amp;rsquo;结尾，可以和C语言的字符串处理函数兼容。  
+使用SDS的优点 O(1)获取字符串长度 SDS中有一个len字段来保存当前的buf存储的字符串的长度，当要获取的时候就可以直接O(1)时间复杂度拿到长度，不然的话需要遍历字符串来计算长度，那就需要O(n)复杂度了。如果字符串非常长的时候就可以减少不少开销。
+避免缓冲区溢出 C语言原本的字符串拼接函数strcat，是假定用户已经为字符串提前分配了足够的内存，假设用户没有分配好足够的内存，拼接字符串的时候导致溢出，此时原字符串后面还有别的字符串就可能会被覆盖。 SDS的空间分配策略就杜绝了这种问题的发生，它的拼接函数sdscat会先检查空间时候满足要求，如果不足的话就先扩展空间，再进行拼接操作。
+减少修改字符串带来的内存重新分配次数  空间预分配  SDS的长度小于1MB，程序会分配和len属性相同大小的free空间。比如现在字符串拼接后长度变为13，此时也会分配13的未使用空间。 如果SDS的长度大于等于1MB，那么会多分配1MB的未使用空间。 这样可以有效减少重新分配内存空间的次数。   惰性空间释放  当由于SDS字符串缩短，程序不会立刻使用回收这部分内存，而是用free属性记录下来，未来还可以继续使用。当然SDS也有相应的API来释放真正的未使用空间，所以不用担心内存泄漏。    二进制安全 使用C字符串因为是用空字符结尾的，所以遇到二进制数据比如图片、视频、压缩文件等可能中间也含有空字符串的数据就可能出问题，而SDS有len来记录数据长度，所以buf数组可以保存一系列二进制数据，这也是buf被称为字节数组的原因。
+兼容部分C字符串函数 由于SDS也是会多分配一个字节来存储最后的空字符，这一点和C字符串一样，所以部分&amp;lt;string.h&amp;gt;的函数也是可以兼容的，就不用自己再写一套库函数了。
+双端链表 linkedlist 双端链表在Redis中使用非常广泛，除了链表键之外，发布与订阅、慢查询、监视器等功能也用到了，Redis服务器本身还实用化链表来保存多个客户端的状态信息，以及使用链表来构建客户端输出缓冲区（output buffer）。
+实现 listNode list的一个节点的结构：
+typedef struct listNode { // 前置节点 	struct listNode *prev; // 后置节点 	struct listNode *next; // 节点的值 	void *value; }'>
+<meta property='og:url' content='https://ccqstark.github.io/p/redis_underlying_data_structure/'>
+<meta property='og:site_name' content='ccq&#39;s blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='底层' /><meta property='article:tag' content='源码' /><meta property='article:published_time' content='2022-03-28T01:56:51&#43;08:00'/><meta property='article:modified_time' content='2022-03-28T01:56:51&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/redis_underlying_data_structure/cover.png' />
+<meta name="twitter:site" content="@ccqstark">
+    <meta name="twitter:creator" content="@ccqstark"><meta name="twitter:title" content="Redis底层数据结构">
+<meta name="twitter:description" content="面试问到Redis的数据结构类型，如果可以深入下去，说出五个基本类型的底层数据结构实现，那必然是非常加分的。所以要继续深入学习redis，如果之后有时间希望还可以好好阅读一下它的源码，听说非常整洁非常美。
+简单动态字符串 SDS String底层实现不是用C语言自带的以空字符结尾的字符串，而是自己实现了SDS（简单动态字符串Simple Dynamic String）。C字符串只会用在一些无需对字符进行修改的地方，比如打印日志。如果是一个可以被修改的字符串值的话就会使用SDS。
+实现 struct sdshdr { // 记录buf数组中已使用的字节的数量 （等于SDS中所保存字符串的长度） 	int len; // 记录buf数组中未使用字节的数量 	int free; // 字节数组，用于保存字符串 	char buf[]; } buf数组中的字符串同样和C字符串一样用&#39;\0&amp;rsquo;结尾，可以和C语言的字符串处理函数兼容。  
+使用SDS的优点 O(1)获取字符串长度 SDS中有一个len字段来保存当前的buf存储的字符串的长度，当要获取的时候就可以直接O(1)时间复杂度拿到长度，不然的话需要遍历字符串来计算长度，那就需要O(n)复杂度了。如果字符串非常长的时候就可以减少不少开销。
+避免缓冲区溢出 C语言原本的字符串拼接函数strcat，是假定用户已经为字符串提前分配了足够的内存，假设用户没有分配好足够的内存，拼接字符串的时候导致溢出，此时原字符串后面还有别的字符串就可能会被覆盖。 SDS的空间分配策略就杜绝了这种问题的发生，它的拼接函数sdscat会先检查空间时候满足要求，如果不足的话就先扩展空间，再进行拼接操作。
+减少修改字符串带来的内存重新分配次数  空间预分配  SDS的长度小于1MB，程序会分配和len属性相同大小的free空间。比如现在字符串拼接后长度变为13，此时也会分配13的未使用空间。 如果SDS的长度大于等于1MB，那么会多分配1MB的未使用空间。 这样可以有效减少重新分配内存空间的次数。   惰性空间释放  当由于SDS字符串缩短，程序不会立刻使用回收这部分内存，而是用free属性记录下来，未来还可以继续使用。当然SDS也有相应的API来释放真正的未使用空间，所以不用担心内存泄漏。    二进制安全 使用C字符串因为是用空字符结尾的，所以遇到二进制数据比如图片、视频、压缩文件等可能中间也含有空字符串的数据就可能出问题，而SDS有len来记录数据长度，所以buf数组可以保存一系列二进制数据，这也是buf被称为字节数组的原因。
+兼容部分C字符串函数 由于SDS也是会多分配一个字节来存储最后的空字符，这一点和C字符串一样，所以部分&amp;lt;string.h&amp;gt;的函数也是可以兼容的，就不用自己再写一套库函数了。
+双端链表 linkedlist 双端链表在Redis中使用非常广泛，除了链表键之外，发布与订阅、慢查询、监视器等功能也用到了，Redis服务器本身还实用化链表来保存多个客户端的状态信息，以及使用链表来构建客户端输出缓冲区（output buffer）。
+实现 listNode list的一个节点的结构：
+typedef struct listNode { // 前置节点 	struct listNode *prev; // 后置节点 	struct listNode *next; // 节点的值 	void *value; }"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ccqstark.github.io/p/redis_underlying_data_structure/cover.png' />
+    <link rel="shortcut icon" href="/icon.ico" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-PXLPFFZ3XD', { 'anonymize_ip': false });
+}
+</script>
+<a href="https://github.com/ccqstark" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/redis_underlying_data_structure/">
+                <img src="/p/redis_underlying_data_structure/cover_hua791eee922061e1e160c0af5aa233cc6_560678_800x0_resize_box_3.png"
+                        srcset="/p/redis_underlying_data_structure/cover_hua791eee922061e1e160c0af5aa233cc6_560678_800x0_resize_box_3.png 800w, /p/redis_underlying_data_structure/cover_hua791eee922061e1e160c0af5aa233cc6_560678_1600x0_resize_box_3.png 1600w"
+                        width="800" 
+                        height="246" 
+                        loading="lazy"
+                        alt="Featured image of post Redis底层数据结构" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/redis/" >
+                Redis
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/redis_underlying_data_structure/">Redis底层数据结构</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 28, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>面试问到Redis的数据结构类型，如果可以深入下去，说出五个基本类型的底层数据结构实现，那必然是非常加分的。所以要继续深入学习redis，如果之后有时间希望还可以好好阅读一下它的源码，听说非常整洁非常美。</p>
+<h2 id="简单动态字符串-sds">简单动态字符串 SDS</h2>
+<p>String底层实现不是用C语言自带的以空字符结尾的字符串，而是自己实现了<code>SDS</code>（简单动态字符串<code>Simple Dynamic String</code>）。C字符串只会用在一些无需对字符进行修改的地方，比如打印日志。如果是一个可以被修改的字符串值的话就会使用SDS。</p>
+<h3 id="实现">实现</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">sdshdr</span> <span class="p">{</span>
+	<span class="c1">// 记录buf数组中已使用的字节的数量 （等于SDS中所保存字符串的长度）
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+	<span class="c1">// 记录buf数组中未使用字节的数量
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">free</span><span class="p">;</span>
+	<span class="c1">// 字节数组，用于保存字符串
+</span><span class="c1"></span>	<span class="kt">char</span> <span class="n">buf</span><span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div><p>buf数组中的字符串同样和C字符串一样用'\0&rsquo;结尾，可以和C语言的字符串处理函数兼容。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203202334966.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203202334966.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h3 id="使用sds的优点">使用SDS的优点</h3>
+<h4 id="o1获取字符串长度">O(1)获取字符串长度</h4>
+<p>SDS中有一个len字段来保存当前的buf存储的字符串的长度，当要获取的时候就可以直接O(1)时间复杂度拿到长度，不然的话需要遍历字符串来计算长度，那就需要O(n)复杂度了。如果字符串非常长的时候就可以减少不少开销。</p>
+<h4 id="避免缓冲区溢出">避免缓冲区溢出</h4>
+<p>C语言原本的字符串拼接函数<code>strcat</code>，是假定用户已经为字符串提前分配了足够的内存，假设用户没有分配好足够的内存，拼接字符串的时候导致溢出，此时原字符串后面还有别的字符串就可能会被覆盖。
+SDS的空间分配策略就杜绝了这种问题的发生，它的拼接函数<code>sdscat</code>会先检查空间时候满足要求，如果不足的话就先扩展空间，再进行拼接操作。</p>
+<h4 id="减少修改字符串带来的内存重新分配次数">减少修改字符串带来的内存重新分配次数</h4>
+<ul>
+<li>空间预分配
+<ul>
+<li>SDS的长度小于1MB，程序会分配和len属性相同大小的free空间。比如现在字符串拼接后长度变为13，此时也会分配13的未使用空间。</li>
+<li>如果SDS的长度大于等于1MB，那么会多分配1MB的未使用空间。</li>
+<li>这样可以有效减少重新分配内存空间的次数。</li>
+</ul>
+</li>
+<li>惰性空间释放
+<ul>
+<li>当由于SDS字符串缩短，程序不会立刻使用回收这部分内存，而是用free属性记录下来，未来还可以继续使用。当然SDS也有相应的API来释放真正的未使用空间，所以不用担心内存泄漏。</li>
+</ul>
+</li>
+</ul>
+<h4 id="二进制安全">二进制安全</h4>
+<p>使用C字符串因为是用空字符结尾的，所以遇到二进制数据比如图片、视频、压缩文件等可能中间也含有空字符串的数据就可能出问题，而SDS有len来记录数据长度，所以buf数组可以保存一系列二进制数据，这也是buf被称为<strong>字节数组</strong>的原因。</p>
+<h4 id="兼容部分c字符串函数">兼容部分C字符串函数</h4>
+<p>由于SDS也是会多分配一个字节来存储最后的空字符，这一点和C字符串一样，所以部分<code>&lt;string.h&gt;</code>的函数也是可以兼容的，就不用自己再写一套库函数了。</p>
+<h2 id="双端链表-linkedlist">双端链表 linkedlist</h2>
+<p>双端链表在Redis中使用非常广泛，除了链表键之外，发布与订阅、慢查询、监视器等功能也用到了，Redis服务器本身还实用化链表来保存多个客户端的状态信息，以及使用链表来构建客户端输出缓冲区（output buffer）。</p>
+<h3 id="实现-1">实现</h3>
+<h4 id="listnode">listNode</h4>
+<p>list的一个节点的结构：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">listNode</span> <span class="p">{</span>
+	<span class="c1">// 前置节点
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">listNode</span> <span class="o">*</span><span class="n">prev</span><span class="p">;</span>
+	<span class="c1">// 后置节点
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">listNode</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+	<span class="c1">// 节点的值
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">value</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203202335599.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203202335599.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h4 id="list">list</h4>
+<p>list整体结构：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">list</span> <span class="p">{</span>
+    <span class="c1">// 表头节点
+</span><span class="c1"></span>    <span class="n">listNode</span> <span class="o">*</span><span class="n">head</span><span class="p">;</span>
+    <span class="c1">// 表尾节点
+</span><span class="c1"></span>    <span class="n">listNode</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>
+    <span class="c1">// 链表所包含的节点数量
+</span><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">len</span><span class="p">;</span>
+    <span class="c1">// 节点复制函数
+</span><span class="c1"></span>    <span class="kt">void</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">dup</span><span class="p">)</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">);</span>
+    <span class="c1">// 节点释放函数
+</span><span class="c1"></span>    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">free</span><span class="p">)</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">);</span>
+    <span class="c1">// 节点值对比函数
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">match</span><span class="p">)</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">);</span>
+<span class="p">}</span> <span class="n">list</span><span class="p">;</span>
+</code></pre></div><p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203202357210.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203202357210.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure>
+特点：</p>
+<ul>
+<li>双端</li>
+<li>无环</li>
+<li>带表头节点和表尾节点</li>
+<li>带链表长度计数器</li>
+<li>多态：使用void*指针来保存节点值，并且可以通过list结构的dup、free、match来设置不同的类型特定函数，所以链表可以用于保存各种不同类型的值。</li>
+</ul>
+<h2 id="字典-dicthashtable">字典 Dict(hashtable)</h2>
+<p>Redis的字典使用哈希表作为底层实现。</p>
+<h3 id="哈希表">哈希表</h3>
+<p>Redis字典所使用的哈希表由dict.h/dictht结果定义：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">dictht</span> <span class="p">{</span>
+	<span class="c1">// 哈希表数组
+</span><span class="c1"></span>	<span class="n">dictEntry</span> <span class="o">**</span><span class="n">table</span><span class="p">;</span>
+	<span class="c1">// 哈希表大小
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">size</span><span class="p">;</span>
+	<span class="c1">// 哈希表大小掩码，用于计算索引值
+</span><span class="c1"></span>	<span class="c1">// 总是等于size-1
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">sizemask</span><span class="p">;</span>
+	<span class="c1">// 该哈希表已有的节点的数量
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">used</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">dictht</span><span class="p">;</span>
+</code></pre></div><p>table是一个数组，数组中的每一个元素都是指向dict.h/dictEntry结构的指针，每个dictEntry结构保存着一个键值对。</p>
+<h3 id="哈希表节点">哈希表节点</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">dictEntry</span> <span class="p">{</span>
+	<span class="c1">// 键
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">;</span>
+	<span class="c1">// 值
+</span><span class="c1"></span>	<span class="k">union</span> <span class="p">{</span>
+		<span class="kt">void</span> <span class="o">*</span><span class="n">val</span><span class="p">;</span>
+		<span class="kt">uint64_t</span> <span class="n">u64</span><span class="p">;</span>
+		<span class="kt">int64_t</span> <span class="n">s64</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">v</span><span class="p">;</span>
+	<span class="c1">// 指向下个哈希表节点，形成链表
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">dictEntry</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">dictEntry</span><span class="p">;</span>
+</code></pre></div><p>key属性保存着键值对中的键，而v属性保存键值对中的值。
+next属性是指向另一个哈希表节点的指针，这个指针可以将多个哈希值相同的键值对连接在一起，以此来解决哈希冲突问题。</p>
+<h3 id="字典">字典</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">dict</span> <span class="p">{</span>
+	<span class="c1">// 类型特定函数
+</span><span class="c1"></span>	<span class="n">dictType</span> <span class="o">*</span><span class="n">type</span><span class="p">;</span>
+	<span class="c1">// 私有数据
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">privdata</span><span class="p">;</span>
+	<span class="c1">// 哈希表
+</span><span class="c1"></span>	<span class="n">dictht</span> <span class="n">ht</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+	<span class="c1">// rehash索引
+</span><span class="c1"></span>	<span class="c1">// 当rehash不在进行时，值为-1
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">rehashidx</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><ul>
+<li>type是一个指向dictType结构的指针，每个dictType结构保存了一簇用于操作特定类型键值对的函数，Redis会为不同的字典设置不同类型的特定函数。</li>
+<li>privdata属性保存了需要传给那些类型特定函数的可选参数。</li>
+<li>ht属性包含2个dictht哈希表，一般只用ht[0]，ht[1]只会在对ht[0]进行rehash的时候使用。</li>
+<li>rehashidx记录了rehash目前的进度，如果目前没有在rehash那么它的值为-1。</li>
+</ul>
+<h3 id="实现细节">实现细节</h3>
+<h4 id="计算索引值">计算索引值</h4>
+<p>sizemark是size-1，计算出hash后进行与运算，也就是<code>hash&amp;(size-1)</code>，这个就和我们的HashMap是差不多的。
+哈希值的计算redis使用的是<code>MurmurHash2</code>。</p>
+<h4 id="键冲突">键冲突</h4>
+<p>拉链法，dictEntry中有个next指针。</p>
+<h4 id="rehash">rehash</h4>
+<p>先将ht[1]哈希表的大小设置为ht[0]的2倍，然后把在ht[0]的键值对都rehash过去到ht[1]，释放ht[0]，并将ht[1]设置为ht[0]，最后再为ht[1]分配一个空白哈希表。</p>
+<h2 id="跳表-skiplist">跳表 skiplist</h2>
+<h3 id="跳表节点">跳表节点</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="p">{</span>
+	<span class="c1">// 后退指针
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
+	<span class="c1">// 分值
+</span><span class="c1"></span>	<span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
+	<span class="c1">// 成员对象
+</span><span class="c1"></span>	<span class="n">robj</span> <span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+	<span class="c1">// 层
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
+		<span class="c1">// 前进指针
+</span><span class="c1"></span>		<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">forward</span><span class="p">;</span>
+		<span class="c1">// 跨度
+</span><span class="c1"></span>		<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">span</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">level</span><span class="p">[];</span>
+<span class="p">}</span> <span class="n">zskiplistNode</span><span class="p">;</span>
+</code></pre></div><h4 id="层">层</h4>
+<p>跳跃表节点的<code>level</code>数组可以包含多个元素，每一个元素都包含一个指向其他节点的指针，程序可以通过这些层来加快访问其他节点的速度，一般来说，层的数量越多，访问其他节点的速度就越快。
+每次创建一个新的跳跃表节点的时候，程序都会根据幂次定律随机生成一个介于1-32之间的值作为level数组的大小，这个大小就是层的高度。</p>
+<h4 id="前进指针">前进指针</h4>
+<p><code>level[i].forward</code>，每个层都有一个指向表尾方向的前进指针，用于从表头向表尾方向访问节点。</p>
+<h4 id="跨度">跨度</h4>
+<p>层的跨度（<code>level[i].span</code>）用于记录两个节点之间的距离；</p>
+<ul>
+<li>两个节点之间的跨度越大，他们相距的就越远。</li>
+<li>指向NULL的所有前进指针的跨度为0
+跨度的主要作用为计算排位rank，在查找某个节点的过程中，将沿途访问过的所有层的跨度累加起来，得到的结果就是目标节点在跳表中的排位。</li>
+</ul>
+<h4 id="后退指针">后退指针</h4>
+<p><code>backward</code>用于从表尾向表头方向访问节点，每个节点每次只能后退至前一个节点。</p>
+<h4 id="分值和成员">分值和成员</h4>
+<p>节点的分值<code>score</code>是一个double类型的数，跳跃表中的所有节点都按分值从小到大来排序。
+节点的成员对象<code>obj</code>是一个指针，它指向一个字符串对象，字符串对象则保存一个SDS。
+如果score相同，那么跳表节点就再按成员对象在字典序中的大小进行排序。</p>
+<h3 id="跳表整体结构">跳表整体结构</h3>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203262103478.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203262103478.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplist</span> <span class="p">{</span>
+	<span class="c1">// 表头节点和表尾节点
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">skiplistNode</span> <span class="o">*</span><span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>
+	<span class="c1">// 表中节点的数量
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>
+	<span class="c1">// 表中层数最大的节点的层数
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">level</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
+</code></pre></div><p><code>header</code>和tail可以让我们直接O(1)定位到跳表的表头和表尾。
+<code>length</code>可以直接获得跳跃表的长度。
+<code>level</code>可以直接获取跳跃表中层数最大的那个节点的层数量（不包括表头节点）。</p>
+<h2 id="整数集合-intset">整数集合 intset</h2>
+<h3 id="实现-2">实现</h3>
+<p>当一个集合只包含整数值元素时，并且这个集合的元素个数不多的时候，Redis就会使用intset作为集合键的底层实现。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">intset</span> <span class="p">{</span>
+	<span class="c1">// 编码方式
+</span><span class="c1"></span>	<span class="kt">uint32_t</span> <span class="n">encoding</span><span class="p">;</span>
+	<span class="c1">// 集合包含的元素的数量
+</span><span class="c1"></span>	<span class="kt">uint32_t</span> <span class="n">length</span><span class="p">;</span>
+	<span class="c1">// 保存元素的数组
+</span><span class="c1"></span>	<span class="kt">int8_t</span> <span class="n">contents</span><span class="p">[];</span>
+<span class="p">}</span> <span class="n">intset</span><span class="p">;</span>
+</code></pre></div><ul>
+<li><code>contents</code>数组是整数集合的底层实现：整数集合的每个元素都是contents数组的一个数组项(item)，每个元素在数组中从小到大排列，数组中不包含重复项。</li>
+<li><code>length</code>记录了整数集合包含的元素数量，也就是conents数组的长度</li>
+<li><code>encoding</code>记录contents数组的真正类型，它的值与对应类型如下表：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>encoding</th>
+<th>contents实际类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INTSET_ENC_INT16</td>
+<td>int16_t</td>
+</tr>
+<tr>
+<td>INTSET_ENC_INT32</td>
+<td>int32_t</td>
+</tr>
+<tr>
+<td>INTSET_ENC_INT64</td>
+<td>int64_t</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>contents是int8_t类型的数组，如果表示int16_t就要2个int8_t，int32_t就要4个，int64_t就要8个。</p>
+</blockquote>
+<h3 id="升级">升级</h3>
+<p>每当我们要将一个新元素添加到整数集合里面，并且新元素的类型比整数集合现有的元素都长的话，都要进行升级，然后才能添加新元素。
+步骤：</p>
+<ol>
+<li>根据新元素的类型，扩展整数集合底层数组的大小，并为新元素分配空间。</li>
+<li>将底层数组现有的所有元素都转换成与新元素相同的类型，并将类型转换后的元素放置到新的正确的位置上，同时保持从小到大排序。</li>
+<li>将新元素添加到底层数组里面。同时对应更新encoding和length。</li>
+</ol>
+<h3 id="升级的好处">升级的好处</h3>
+<ul>
+<li>提升灵活性，整数集合可以通过自动升级底层数组来适应新的元素，而不用担心类型错误</li>
+<li>节约内存，如果用一个int64_t类型去同时保存这三种类型的整数就会比较浪费内存，而用升级的方式则保证只会在需要存储更大类型的数时才去申请更多的内存，节约了空间</li>
+</ul>
+<blockquote>
+<p>intset一旦升级就不能降级，编码会一直保持升级后的状态</p>
+</blockquote>
+<h2 id="压缩列表-ziplist">压缩列表 ziplist</h2>
+<p>压缩链表是列表键和哈希键的底层实现之一，当一个列表键只包含少量列表项，并且每个列表项要么是小整数值，要么是比较短的字符串，那么Redis就会使用ziplist来做底层实现。</p>
+<h3 id="实现-3">实现</h3>
+<p>压缩列表的出现是为了节约内存，是由连续内存块组成的顺序型数据结构。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203271433774.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203271433774.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>长度</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>zlbytes</code></td>
+<td><code>uint32_t</code></td>
+<td><code>4</code>字节</td>
+<td>记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 <code>zlend</code> 的位置时使用。</td>
+</tr>
+<tr>
+<td><code>zltail</code></td>
+<td><code>uint32_t</code></td>
+<td><code>4</code>字节</td>
+<td>记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。</td>
+</tr>
+<tr>
+<td><code>zllen</code></td>
+<td><code>uint16_t</code></td>
+<td><code>2</code>字节</td>
+<td>记录了压缩列表包含的节点数量： 当这个属性的值小于 <code>UINT16_MAX</code> （<code>65535</code>）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 <code>UINT16_MAX</code> 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。</td>
+</tr>
+<tr>
+<td><code>entryX</code></td>
+<td>列表节点</td>
+<td>不定</td>
+<td>压缩列表包含的各个节点，节点的长度由节点保存的内容决定。</td>
+</tr>
+<tr>
+<td><code>zlend</code></td>
+<td><code>uint8_t</code></td>
+<td><code>1</code>字节</td>
+<td>特殊值 <code>0xFF</code> （十进制 <code>255</code> ），用于标记压缩列表的末端。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="压缩列表节点">压缩列表节点</h3>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203271447849.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203271447849.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<ul>
+<li><code>previous_entry_length</code>属性以字节为单位，记录了压缩列表中前一个节点的长度。利用这个属性可以通过指针运算，根据当前节点的起始地址来计算出上一个节点的起始地址。
+<ul>
+<li>如果前一个节点的长度小于254字节，那么previous_entry_length长度为1字节：前一个节点的长度就被保存在这一个字节中</li>
+<li>如果大于254字节，长度为5字节，并且第一个直接被设置为0xFE，之后的4个字节用于保存前一节点长度</li>
+</ul>
+</li>
+<li><code>encoding</code>记录了节点content属性所保存的数据的类型以及长度。（具体可以查表，就是一串二进制数字，从中按照一定规律记录了长度和类型两个信息点）</li>
+<li><code>content</code>属性负责保存节点的值，节点值可以是一个字节数组或者整数，值的类型和长度由节点的encoding属性决定。</li>
+</ul>
+<p>例子：
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203271454722.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203271454722.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<h3 id="连锁更新">连锁更新</h3>
+<p>如果遇到这样一种情况：在一个压缩列表中，有多个连续的、长度介于250字节到253字节之间的节点，因为这些节点的长度都小于254，所以previous_entry_length属性都是1字节。如果这时将一个大于等于254字节的新节点插入到原第一个节点之前，那么原第一个节点的previous_entry_length因为要记录大于254字节的新节点的长度而要变成5字节，而此时整个节点也因为previous_entry_length的变长而导致整个节点长度超过254（原本就很接近254），导致原对第二个节点也要进行扩展，同理再而影响到第三、第四的节点。。。产生了一系列连锁反应，这种现象称为<code>连锁更新</code>。
+连锁更新最坏情况下的时间复杂度是O(N ^2)，但是出现这种情况概率很低，而且就算出现但是节点不多，对性能影响也不大，所以不用担心这种情况会影响压缩列表的性能。</p>
+<h2 id="对象">对象</h2>
+<p>Redis并不是直接使用上面所说的SDS、跳表、压缩列表、intset等底层数据结构来构建这个key-value数据库的，而是基于他们构建一个对象系统，包括字符串对象，列表对象，哈希对象、集合对象和有序集合对象这五种类型，每种对象都用到了至少一种底层数据结构。
+Redis执行命令之前，根据对象的类型来判断是否可以执行给定的命令，而且可以根据不同的场景，更换底层的实现的数据结构，从而优化不同场景下的效率。</p>
+<h3 id="对象的类型与编码">对象的类型与编码</h3>
+<p>Redis每次创建一个键值对的时候，都至少会创建2个对象，一个键对象，一个值对象。
+每个对象就是一个redisObject结构，该结构中和保存数据有关的三个属性分别是type、encoding、ptr</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">redisObject</span> <span class="p">{</span>
+	<span class="c1">// 类型
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="nl">type</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>
+	<span class="c1">// 编码
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="nl">encoding</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>
+	<span class="c1">// 指向底层实现数据结构的指针
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+	
+	<span class="c1">// ...
+</span><span class="c1"></span><span class="p">}</span> <span class="n">robj</span><span class="p">;</span>
+</code></pre></div><h3 id="类型">类型</h3>
+<p><code>type</code>记录了对象的属性，这个属性如下表
+<code>TYPE</code>命令可以查看这个键对应的值的类型</p>
+<table>
+<thead>
+<tr>
+<th>类型常量</th>
+<th>对象的名称</th>
+<th>TYPE命令输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REDIS_STRING</td>
+<td>字符串对象</td>
+<td>&ldquo;string&rdquo;</td>
+</tr>
+<tr>
+<td>REDIS_LIST</td>
+<td>列表对象</td>
+<td>&ldquo;list&rdquo;</td>
+</tr>
+<tr>
+<td>REDIS_HASH</td>
+<td>哈希对象</td>
+<td>&ldquo;hash&rdquo;</td>
+</tr>
+<tr>
+<td>REDIS_SET</td>
+<td>集合对象</td>
+<td>&ldquo;set&rdquo;</td>
+</tr>
+<tr>
+<td>REDIS_ZSET</td>
+<td>有序集合对象</td>
+<td>&ldquo;zset&rdquo;</td>
+</tr>
+</tbody>
+</table>
+<h3 id="编码和底层实现">编码和底层实现</h3>
+<p>encoding属性记录了这个对象底层使用了哪种底层数据结构，在这里我们叫<strong>编码</strong>。
+有一个encoding的值以及对应的编码的对应表，这里就不列了。
+可以使用<code>OBJECT ENCODING</code>命令来查看一个数据库键的值对象的编码
+Redis通过encoding来记录一个对象的编码，就可以通过不同场景选择不同的底层结构来对特定场景进行优化，灵活且高效，举个例子：</p>
+<ul>
+<li>因为压缩链表比双端链表更节约内存，元素较少的情况下，在内存中以连续块的方式保存的压缩列表比起双端链表可以更快地被加载到缓存中。</li>
+<li>随着列表对象中的元素越来越多，使用压缩列表来保存元素的优势逐渐消失，对象就会将底层的实现转换为功能更强、也更适合保存大量元素的双端链表。</li>
+</ul>
+<p>其他类型也会使用多种不同的编码来优化不同的场景。</p>
+<h4 id="字符串对象">字符串对象</h4>
+<p>字符串对象的编码可以是<code>int</code>、<code>raw</code>或者<code>embstr</code>。</p>
+<ul>
+<li>如果保存的字符串对象是一个整数值，并且这个整数值可以用long类型来表示，那么字符串对象会将整数值保存在字符串对象结构的ptr属性中。编码就为<code>int</code>。</li>
+<li>如果是一个字符串值，并且长度大于39字节，那么就是用ptr指向一个SDS，编码就是<code>raw</code>。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272018224.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272018224.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></li>
+<li>如果是字符串，并且长度小于等于39字节，就是使用<code>embstr</code>编码。
+<ul>
+<li><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272020020.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272020020.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></li>
+<li>embstr是专门为保存短字符串的一种优化编码方式。优点是：</li>
+<li>这种编码只需要调用一次内存分配函数来分配一块连续的空间，而raw编码需要调用两次</li>
+<li>释放内存只需调用一次内存释放函数，而raw需要两次</li>
+<li>embstr编码的字符串对象所有的数据都保存在一块连续的内存中，比raw可以更好地利用缓存带来的优势</li>
+</ul>
+</li>
+</ul>
+<h4 id="列表对象">列表对象</h4>
+<p>列表对象的编码可以是<code>ziplist</code>或者<code>linkedlist</code>。
+如果使用的是ziplist编码，那么每个压缩列表节点entry保存一个列表的元素。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272030121.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272030121.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure>
+如果用linklist编码作为底层实现，那么每个双端链表节点node都保存了一个<strong>字符串对象</strong>，而每个字符串对象都保存了一个列表元素。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272031873.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272031873.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<blockquote>
+<p>编码转换</p>
+</blockquote>
+<p>当列表对象同时满足以下两个条件时，列表对象使用ziplist编码：</p>
+<ol>
+<li>列表对象保存的所有字符串元素的长度都小于64字节</li>
+<li>列表对象保存的元素数量小于512个
+不满足以上两个条件的需要使用linkedlist编码</li>
+</ol>
+<h4 id="哈希对象">哈希对象</h4>
+<p>哈希对象的编码可以是<code>ziplist</code>或者<code>hashtable</code>。
+ziplist编码的哈希对象，每次有新的键加入时，程序先将键对象的列表节点推入，再将值对象的节点推入
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272052643.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272052643.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure>
+如果用hashtable作为编码的话：</p>
+<ul>
+<li>字典的每个键都是一个<strong>字符串对象</strong>，对象保存的就是键值对的键</li>
+<li>字典的每个值都是一个<strong>字符串对象</strong>，对象保存的就是键值对的值</li>
+</ul>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272054715.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272054715.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<blockquote>
+<p>编码转换</p>
+</blockquote>
+<p>当哈希对象同时满足以下两个条件时，哈希对象使用ziplist编码：</p>
+<ol>
+<li>哈希对象保存的所有键和值字符串的长度都小于64字节</li>
+<li>哈希对象保存的键值对数量小于512个
+不满足以上两个条件的需要使用hashtable编码</li>
+</ol>
+<h4 id="集合对象">集合对象</h4>
+<p>集合对象的编码可以是<code>intset</code>或者<code>hashtable</code></p>
+<ul>
+<li>使用intset编码的集合对象里的所有元素都是整数</li>
+<li>使用hashtable编码的集合对象，字典中每个键都是一个字符串对象，字典的值都是NULL</li>
+</ul>
+<h4 id="有序集合对象">有序集合对象</h4>
+<p>有序集合的编码可以是<code>ziplist</code>或者<code>skiplist</code>
+使用ziplist编码的有序集合对象，每个集合元素使用两个紧挨在一起的压缩列表节点来保存，第一个节点保存元素的成员(member)，第二个节点存储元素的分值(score)。ziplist中的元素按分值从小到大排序，所以集合有序。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272203287.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272203287.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<p>skiplist编码的有序集合对象使用zset结构作为底层实现，一个zset结构同时包含一个字典和一个跳跃表</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zset</span> <span class="p">{</span>
+	<span class="n">zskiplist</span> <span class="o">*</span><span class="n">zsl</span><span class="p">;</span>
+	<span class="n">dict</span> <span class="o">*</span><span class="n">dict</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zset</span><span class="p">;</span>
+</code></pre></div><p>zset结构中的zsl跳跃表按照分值从小到大保存了所有集合元素，每个跳跃表节点都保存了一个集合元素：跳跃表节点的object属性保存了元素的成员，score属性保存了元素的分值。
+除此之外，zset结构的dict字典为有序集合创建了一个从成员到分值的映射，字典中的键值对：key为元素成员，value为分值。
+zet的跳跃表和字典的两种数据结构会通过指针来共享相同元素的成员和分值，所以同时使用这两种数据结构不会浪费额外的内存。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272203603.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272203603.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<blockquote>
+<p>为什么同时使用ziplist和dict来存储排序集合?</p>
+</blockquote>
+<p>使用ziplist是为了提高<code>ZRANK</code>、<code>ZRANGE</code>等命令的速度，如果只用字典的话每次还需要O(NlogN)时间复杂度来排序。
+使用dict是为了O(1)复杂度来查找成员的分值。
+所以为了让查找和范围型操作都尽可能快的执行，所以redis同时使用了这两种数据结构。</p>
+<h3 id="类型检查与多态">类型检查与多态</h3>
+<h4 id="类型检查">类型检查</h4>
+<p>在执行一个命令前，为确保执行某些特定的命令在指定类型的键上，Redis都会检查输入的键的类型时候正确，然后再决定是否执行给定的命令。
+这种类型检查是通过redisObject结构的type属性来实现的。</p>
+<h4 id="多态命令">多态命令</h4>
+<p>redis还会根据值对象的编码方式，选择一个命令的针对某个编码的特定实现方式来执行。
+比如一个<code>LLEN</code>命令，对列表执行，在列表编码为ziplist时用<code>ziplistLen</code>函数返回列表的长度；在列表编码为linkedlist时使用<code>listLength</code>来获取双端链表的长度。
+所以可以说<code>LLEN</code>命令是多态的，而且是基于编码的多态。
+<code>DEL</code>、<code>EXPIRE</code>则是基于类型的多态，也就是说可以对多种上层类型执行。</p>
+<h3 id="内存回收">内存回收</h3>
+<p>C语言并不具备自动内存回收功能，所以Redis自己在对象系统中构建了一个引用技术实现的内存回收机制，通过这一机制来在适当的时候回收对象。
+引用计数的信息来值redisObject的refcount属性：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">redisObject</span> <span class="p">{</span>
+	<span class="c1">// ... 
+</span><span class="c1"></span>	<span class="c1">// 引用计数
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">refcount</span><span class="p">;</span>
+	<span class="c1">// ...
+</span><span class="c1"></span><span class="p">}</span> <span class="n">robj</span><span class="p">;</span>
+</code></pre></div><ul>
+<li>创建一个对象时引用计数初始化为1</li>
+<li>当对象被一个新的程序使用的时候，引用计数增加1</li>
+<li>当不再被一个程序使用的时候，引用计数减去1</li>
+<li>当计数为0是，对象占用的内存就会被释放</li>
+</ul>
+<h3 id="对象共享">对象共享</h3>
+<p>引用计数还带有对象共享的功能。
+如果键A和键B的值都是一个整数值100的字符串对象，那么他们可以共享一个对象，对象的引用计数就变为2。
+Redis会在初始化服务器时，创建一万个字符串对象，这些对象包含了从0到9999所有的整数值，当服务器需要他们时就直接共享对象，而不是新创建对象。
+<strong>Redis只对包含整数值的字符串对象进行共享</strong>，因为考虑一个对象时候能共享时需要检查它与目标对象是否相同，如果是保存字符串值的字符串对象，那验证的时间复杂度为O(N)，如果是列表对象或哈希对象的验证时间复杂度则是O(N^2)，而整数就是O(1)，所以受到CPU限制，Redis只对包含整数值的字符串对象进行共享。</p>
+<h3 id="对象的空转时长">对象的空转时长</h3>
+<p>redisObject结构还包含最后一个属性为<code>lru</code>，该属性记录了对象最后一次被命令程序访问的时间</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">redisObject</span> <span class="p">{</span>
+	<span class="c1">// ...
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="nl">lru</span><span class="p">:</span><span class="mi">22</span><span class="p">;</span>
+	<span class="c1">// ...
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p><code>OBJECT IDLETIME</code>命令可以打印出给定键的空转时长，这一空转时长就是当前时间减去lru得出的。这一命令本身不会修改lru值，也就是不会被当作访问对象的命令
+键的空转时长还有另一个重要作用：服务器打开了<code>maxmemory</code>选项，并且服务器用于回收垃圾的算法为<code>volatile-lru</code>或者<code>allkeys-lru</code>，那么服务器占用的内存超过了<code>maxmemory</code>设置的上限值，空转时长较高的那部分键会优先被服务器释放来回收内存。也就是redis的<code>LRU</code>内存淘汰策略的实现！</p>
+<h2 id="总结">总结</h2>
+<p>本文主要介绍了以下底层数据结构：</p>
+<ul>
+<li>简单动态字符串 SDS</li>
+<li>双端链表 linkedlist</li>
+<li>字典 Dict(hashtable)</li>
+<li>跳表 skiplist</li>
+<li>整数集合 intset</li>
+<li>压缩列表 ziplist</li>
+</ul>
+<p>最后分别讲述了五大类型的底层数据结构实现，以及命令多态、内存回收、对象共享、空转时长等特性。
+<figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272302360.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202203272302360.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
+<blockquote>
+<p>Redis 3.2版本后list的实现引入新的数据结构——quicklist，这个之后有空再补充了。</p>
+</blockquote>
+<h2 id="参考">参考</h2>
+<ul>
+<li>《Redis设计与实现》——黄健宏</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%BA%95%E5%B1%82/">底层</a>
+        
+            <a href="/tags/%E6%BA%90%E7%A0%81/">源码</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-ccqstark-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2022 ccq&#39;s blog
+    </section>
+    
+    <section class="powerby">
+        
+            一辈子热爱技术 <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#简单动态字符串-sds">简单动态字符串 SDS</a>
+      <ol>
+        <li><a href="#实现">实现</a></li>
+        <li><a href="#使用sds的优点">使用SDS的优点</a>
+          <ol>
+            <li><a href="#o1获取字符串长度">O(1)获取字符串长度</a></li>
+            <li><a href="#避免缓冲区溢出">避免缓冲区溢出</a></li>
+            <li><a href="#减少修改字符串带来的内存重新分配次数">减少修改字符串带来的内存重新分配次数</a></li>
+            <li><a href="#二进制安全">二进制安全</a></li>
+            <li><a href="#兼容部分c字符串函数">兼容部分C字符串函数</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#双端链表-linkedlist">双端链表 linkedlist</a>
+      <ol>
+        <li><a href="#实现-1">实现</a>
+          <ol>
+            <li><a href="#listnode">listNode</a></li>
+            <li><a href="#list">list</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#字典-dicthashtable">字典 Dict(hashtable)</a>
+      <ol>
+        <li><a href="#哈希表">哈希表</a></li>
+        <li><a href="#哈希表节点">哈希表节点</a></li>
+        <li><a href="#字典">字典</a></li>
+        <li><a href="#实现细节">实现细节</a>
+          <ol>
+            <li><a href="#计算索引值">计算索引值</a></li>
+            <li><a href="#键冲突">键冲突</a></li>
+            <li><a href="#rehash">rehash</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#跳表-skiplist">跳表 skiplist</a>
+      <ol>
+        <li><a href="#跳表节点">跳表节点</a>
+          <ol>
+            <li><a href="#层">层</a></li>
+            <li><a href="#前进指针">前进指针</a></li>
+            <li><a href="#跨度">跨度</a></li>
+            <li><a href="#后退指针">后退指针</a></li>
+            <li><a href="#分值和成员">分值和成员</a></li>
+          </ol>
+        </li>
+        <li><a href="#跳表整体结构">跳表整体结构</a></li>
+      </ol>
+    </li>
+    <li><a href="#整数集合-intset">整数集合 intset</a>
+      <ol>
+        <li><a href="#实现-2">实现</a></li>
+        <li><a href="#升级">升级</a></li>
+        <li><a href="#升级的好处">升级的好处</a></li>
+      </ol>
+    </li>
+    <li><a href="#压缩列表-ziplist">压缩列表 ziplist</a>
+      <ol>
+        <li><a href="#实现-3">实现</a></li>
+        <li><a href="#压缩列表节点">压缩列表节点</a></li>
+        <li><a href="#连锁更新">连锁更新</a></li>
+      </ol>
+    </li>
+    <li><a href="#对象">对象</a>
+      <ol>
+        <li><a href="#对象的类型与编码">对象的类型与编码</a></li>
+        <li><a href="#类型">类型</a></li>
+        <li><a href="#编码和底层实现">编码和底层实现</a>
+          <ol>
+            <li><a href="#字符串对象">字符串对象</a></li>
+            <li><a href="#列表对象">列表对象</a></li>
+            <li><a href="#哈希对象">哈希对象</a></li>
+            <li><a href="#集合对象">集合对象</a></li>
+            <li><a href="#有序集合对象">有序集合对象</a></li>
+          </ol>
+        </li>
+        <li><a href="#类型检查与多态">类型检查与多态</a>
+          <ol>
+            <li><a href="#类型检查">类型检查</a></li>
+            <li><a href="#多态命令">多态命令</a></li>
+          </ol>
+        </li>
+        <li><a href="#内存回收">内存回收</a></li>
+        <li><a href="#对象共享">对象共享</a></li>
+        <li><a href="#对象的空转时长">对象的空转时长</a></li>
+      </ol>
+    </li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gopher</title>
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXLPFFZ3XD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-PXLPFFZ3XD');
+	</script>
+</head>
+<body>
+<canvas id="view" width="200" height="180" style="position: fixed; right: 0; bottom: 0; z-index: 9999"></canvas>
+<script type="text/javascript">
+    "use strict";
+
+    if(window.animationLoop) {
+        window.cancelAnimationFrame(window.animationLoop)
+    }
+
+    class HSL {
+        constructor(h, s, l) {
+            this.h = h
+            this.s = s
+            this.l = l
+        }
+
+        toString() {
+            return "hsl(" +
+                (this.h * 360).toFixed(2) + "," +
+                (this.s * 100).toFixed(2) + "%," +
+                (this.l * 100).toFixed(2) + "%)";
+        }
+    }
+
+    const tau = Math.PI * 2
+
+    let view = document.getElementById("view")
+    let context = view.getContext("2d")
+    updateViewSize()
+
+    let gopher = {
+        body: new HSL(205.0/360, 1.0,  0.81),
+        bodyDark: new HSL(205.0/360, 0.55,  0.71),
+        dark: new HSL(217.0/360, 0.19, 0.18),
+        light: new HSL(217.0/360, 0.0, 1.00),
+        lightDark: new HSL(217.0/360, 0.0, 0.90),
+        limb: new HSL(46.0/360, 0.38, 0.80),
+
+        head: {x: 0, y:0},
+        gaze: {x: 0, y:0},
+    };
+
+    window.animationLoop = tick();
+
+    window.addEventListener("resize", updateViewSize)
+
+    function updateViewSize() {
+        
+        
+
+        view.width = view.clientWidth;
+        view.height = view.clientHeight;
+    }
+
+    window.addEventListener("mousemove", (ev) => {
+        let screenSize = {x: view.width, y: view.height}
+
+		gopher.gaze.x = - (ev.clientX * 1.5 / view.width-1);
+		gopher.gaze.y = - (ev.clientY * 1.5 / view.height-1);
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+   
+    });
+
+    window.addEventListener("touchmove", (ev) => {
+        if(ev.targetTouches.length == 0) return;
+
+        let screenSize = {x: view.width, y: view.height}
+        let touch = ev.targetTouches[0]
+
+        gopher.gaze.x = touch.clientX * 2.0 / view.width - 1;
+        gopher.gaze.y = touch.clientY * 2.0 / view.height - 1;
+
+        gopher.head.x = gopher.gaze.x * 0.5;
+        gopher.head.y = gopher.gaze.y * 0.5;
+
+    });
+
+    function tick(t) {
+        context.clearRect(0,0,10000,10000);
+        context.save()
+
+        
+        
+        
+
+        let screenSize = {x: view.width, y: view.height}
+        render(gopher, context, screenSize)
+        context.restore()
+        return window.requestAnimationFrame(tick)
+    }
+
+    function stringify(v) {
+        return JSON.stringify(v, (key, val) => {
+            if(typeof val == "number"){
+                return val.toFixed(2)
+            }
+            return val
+        })
+    }
+
+    function render(gopher, draw, screenSize) {
+        let bodyRadius = Math.min(screenSize.x, screenSize.y) / 2
+        bodyRadius *= 0.8
+
+        let eyeRadius = bodyRadius * 0.4
+        let earRadius = eyeRadius * 0.53
+        let lineWidth = bodyRadius * 0.045
+        let highlightSize = eyeRadius * 0.06
+
+        draw.lineWidth = lineWidth
+        draw.strokeStyle = gopher.dark.toString()
+
+        
+        draw.translate(screenSize.x/2, screenSize.y)
+
+        for(let ear = -1; ear <= 1; ear+=2){
+            saved(draw, (draw) => { 
+                let earOffset = headOffset(gopher, -ear, bodyRadius)
+                earOffset.x *= -1
+                earOffset.x += ear*earRadius*0.3
+                earOffset.y = -bodyRadius*1.8 - Math.sin(gopher.head.y)*earRadius * 0.5
+
+                draw.translate(earOffset.x, earOffset.y)
+                draw.scale(ear, 1)
+                draw.rotate(tau / 10)
+                draw.translate(0, earRadius)
+
+                let earPath = new Path2D()
+
+                earPath.moveTo(-earRadius, earRadius)
+                earPath.lineTo(-earRadius, -earRadius)
+                earPath.bezierCurveTo(
+                    -earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius-earRadius*1.3,
+                    earRadius, -earRadius)
+                earPath.lineTo(earRadius, earRadius)
+
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(earPath)
+                draw.stroke(earPath)
+
+                let earInline = new Path2D()
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.2, -earRadius*1.4
+                );
+                earInline.moveTo(0, 0)
+                earInline.quadraticCurveTo(
+                    -earRadius*0.6, -earRadius,
+                    earRadius*0.3, -earRadius*1.0
+                );
+
+                draw.lineWidth = lineWidth * 0.7
+                draw.lineCap = "round"
+                draw.stroke(earInline)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let bodyPath = new Path2D()
+
+            bodyPath.moveTo(-bodyRadius, 0)
+            bodyPath.lineTo(-bodyRadius, -bodyRadius)
+            bodyPath.bezierCurveTo(
+                -bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius-bodyRadius*1.2,
+                bodyRadius, -bodyRadius)
+            bodyPath.lineTo(bodyRadius, 0)
+
+            draw.fillStyle = gopher.bodyDark.toString()
+            draw.fill(bodyPath)
+            saved(draw, (draw) => {
+                draw.clip(bodyPath)
+                draw.translate(bodyRadius * 0.1, 0)
+                draw.fillStyle = gopher.body.toString()
+                draw.fill(bodyPath)
+            })
+            draw.stroke(bodyPath)
+        })
+
+        for(let eye = -1; eye <= 1; eye+=2){
+            let gaze = gopher.gaze;
+
+            saved(draw, (draw) => { 
+                let eyeOffset = headOffset(gopher, eye, bodyRadius);
+                draw.translate(eyeOffset.x, eyeOffset.y);
+
+                let eyePath = new Path2D();
+                eyePath.arc(0, 0, eyeRadius, 0, tau, true);
+
+                draw.fillStyle = gopher.lightDark.toString()
+                draw.fill(eyePath)
+
+                saved(draw, (draw) => {
+                    draw.clip(eyePath)
+                    draw.translate(eyeRadius*0.2, -eyeRadius*0.15)
+                    draw.fillStyle = gopher.light.toString()
+                    draw.fill(eyePath)
+                })
+
+                draw.stroke(eyePath)
+
+                let pupil = { x: gaze.x, y: gaze.y}
+                let mag = Math.sqrt(pupil.x*pupil.x + pupil.y*pupil.y)
+                if(mag > 1){
+                    pupil.x /= mag + 0.0001;
+                    pupil.y /= mag + 0.0001;
+                }
+                pupil.x = Math.sin(pupil.x + eye * 0.4) * eyeRadius * 0.6
+                pupil.y = Math.sin(pupil.y) * eyeRadius * 0.6
+                let pupilSize = eyeRadius*0.25
+
+                let pupilPath = new Path2D();
+                pupilPath.arc(pupil.x, pupil.y, pupilSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill(pupilPath)
+
+                
+                let highlighPath = new Path2D()
+                highlighPath.arc(
+                    pupil.x + pupilSize * 0.3 - gaze.x * highlightSize * 0.3,
+                    pupil.y - pupilSize * 0.3 - gaze.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill(highlighPath)
+            })
+        }
+
+        saved(draw, (draw) => { 
+            let tipSize = eyeRadius*0.2;
+            let toothSize = tipSize;
+            let noseSize = tipSize * 2.2;
+
+            let noseOffset = headOffset(gopher, 0, bodyRadius)
+            noseOffset.y += eyeRadius * 0.8;
+            draw.translate(noseOffset.x, noseOffset.y);
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2 - gopher.head.y * tipSize * 0.3)
+                draw.beginPath()
+                draw.moveTo(-toothSize, 0)
+                draw.lineTo(-toothSize, toothSize*1.5)
+                draw.bezierCurveTo(
+                    -toothSize, toothSize*2,
+                    toothSize, toothSize*2,
+                    toothSize, toothSize*1.5,
+                )
+                draw.lineTo(toothSize, 0)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+                draw.lineWidth = lineWidth * 0.7;
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                draw.translate(0, tipSize*1.2)
+                draw.beginPath()
+
+                draw.moveTo(-noseSize, 0)
+                draw.bezierCurveTo(
+                    -noseSize, -noseSize,
+                    noseSize, -noseSize,
+                    noseSize, 0
+                )
+                draw.bezierCurveTo(
+                    noseSize, noseSize*0.4,
+                    -noseSize, noseSize*0.4,
+                    -noseSize, 0
+                )
+                draw.closePath()
+
+                draw.fillStyle = gopher.limb.toString()
+                draw.fill()
+                draw.stroke()
+            })
+
+            saved(draw, (draw) => { 
+                let tip = {
+                    x: Math.sin(gopher.head.x) * tipSize,
+                    y: Math.sin(gopher.head.y) * tipSize * 0.5 - tipSize*0.2,
+                };
+
+                draw.beginPath()
+                draw.scale(1.2, 0.9)
+                draw.arc(tip.x, tip.y, tipSize, 0, tau, true)
+                draw.fillStyle = gopher.dark.toString()
+                draw.fill()
+
+                
+                draw.beginPath()
+                draw.arc(
+                    tip.x + tipSize * 0.3 - gopher.head.x * highlightSize * 0.3,
+                    tip.y - tipSize * 0.3 - gopher.head.y * highlightSize * 0.3, highlightSize, 0, tau, true)
+                draw.fillStyle = gopher.light.toString()
+                draw.fill()
+            })
+        })
+    }
+
+    function headOffset(gopher, eye, bodyRadius) {
+        let x = eye*bodyRadius*0.4
+        let y = -bodyRadius*1.1
+
+        x += Math.sin(gopher.head.x - eye*0.4) * bodyRadius*0.3
+        y += Math.sin(gopher.head.y*tau/4) * bodyRadius*0.15
+
+        return {x: x, y: y}
+    }
+
+    function saved(draw, fn) {
+        draw.save()
+        fn(draw)
+        draw.restore()
+    }
+</script>
+</body>
+</html>
+    </body>
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>底层 on ccq&#39;s blog</title>
+    <link>https://ccqstark.github.io/tags/%E5%BA%95%E5%B1%82/</link>
+    <description>Recent content in 底层 on ccq&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 28 Mar 2022 01:56:51 +0800</lastBuildDate><atom:link href="https://ccqstark.github.io/tags/%E5%BA%95%E5%B1%82/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Redis底层数据结构</title>
+      <link>https://ccqstark.github.io/p/redis_underlying_data_structure/</link>
+      <pubDate>Mon, 28 Mar 2022 01:56:51 +0800</pubDate>
+      
+      <guid>https://ccqstark.github.io/p/redis_underlying_data_structure/</guid>
+      <description>面试问到Redis的数据结构类型，如果可以深入下去，说出五个基本类型的底层数据结构实现，那必然是非常加分的。所以要继续深入学习redis，如果之后有时间希望还可以好好阅读一下它的源码，听说非常整洁非常美。
+简单动态字符串 SDS String底层实现不是用C语言自带的以空字符结尾的字符串，而是自己实现了SDS（简单动态字符串Simple Dynamic String）。C字符串只会用在一些无需对字符进行修改的地方，比如打印日志。如果是一个可以被修改的字符串值的话就会使用SDS。
+实现 struct sdshdr { // 记录buf数组中已使用的字节的数量 （等于SDS中所保存字符串的长度） 	int len; // 记录buf数组中未使用字节的数量 	int free; // 字节数组，用于保存字符串 	char buf[]; } buf数组中的字符串同样和C字符串一样用&#39;\0&amp;rsquo;结尾，可以和C语言的字符串处理函数兼容。  
+使用SDS的优点 O(1)获取字符串长度 SDS中有一个len字段来保存当前的buf存储的字符串的长度，当要获取的时候就可以直接O(1)时间复杂度拿到长度，不然的话需要遍历字符串来计算长度，那就需要O(n)复杂度了。如果字符串非常长的时候就可以减少不少开销。
+避免缓冲区溢出 C语言原本的字符串拼接函数strcat，是假定用户已经为字符串提前分配了足够的内存，假设用户没有分配好足够的内存，拼接字符串的时候导致溢出，此时原字符串后面还有别的字符串就可能会被覆盖。 SDS的空间分配策略就杜绝了这种问题的发生，它的拼接函数sdscat会先检查空间时候满足要求，如果不足的话就先扩展空间，再进行拼接操作。
+减少修改字符串带来的内存重新分配次数  空间预分配  SDS的长度小于1MB，程序会分配和len属性相同大小的free空间。比如现在字符串拼接后长度变为13，此时也会分配13的未使用空间。 如果SDS的长度大于等于1MB，那么会多分配1MB的未使用空间。 这样可以有效减少重新分配内存空间的次数。   惰性空间释放  当由于SDS字符串缩短，程序不会立刻使用回收这部分内存，而是用free属性记录下来，未来还可以继续使用。当然SDS也有相应的API来释放真正的未使用空间，所以不用担心内存泄漏。    二进制安全 使用C字符串因为是用空字符结尾的，所以遇到二进制数据比如图片、视频、压缩文件等可能中间也含有空字符串的数据就可能出问题，而SDS有len来记录数据长度，所以buf数组可以保存一系列二进制数据，这也是buf被称为字节数组的原因。
+兼容部分C字符串函数 由于SDS也是会多分配一个字节来存储最后的空字符，这一点和C字符串一样，所以部分&amp;lt;string.h&amp;gt;的函数也是可以兼容的，就不用自己再写一套库函数了。
+双端链表 linkedlist 双端链表在Redis中使用非常广泛，除了链表键之外，发布与订阅、慢查询、监视器等功能也用到了，Redis服务器本身还实用化链表来保存多个客户端的状态信息，以及使用链表来构建客户端输出缓冲区（output buffer）。
+实现 listNode list的一个节点的结构：
+typedef struct listNode { // 前置节点 	struct listNode *prev; // 后置节点 	struct listNode *next; // 节点的值 	void *value; }</description>
+    </item>
+    
+  </channel>
+</rss>
