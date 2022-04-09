@@ -2538,7 +2538,8 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;li&gt;&lt;code&gt;Object Reference&lt;/code&gt; 存储的是加锁对象的对象头的指针，即指向了加锁对象的对象头&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;Displaced Mark Word&lt;/code&gt; 存储的是加锁对象&lt;strong&gt;无锁状态的Mark Word&lt;/strong&gt;，以便释放锁时恢复Mark Word（例如保留了hash值、分代年龄等信息）&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word（无锁状态的）复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向&lt;code&gt;Lock Record&lt;/code&gt;的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用&lt;code&gt;自旋&lt;/code&gt;来获取锁。&lt;/p&gt;
+&lt;p&gt;如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word（无锁状态的）复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向&lt;code&gt;Lock Record&lt;/code&gt;的指针。所以CAS要成功，则当前Mark Word的必须为无锁状态，表示此时没有线程占有，也好复制Mark Word过去Lock Record，轻量级锁释放后Mark Word也会还原为无锁状态。&lt;/p&gt;
+&lt;p&gt;如果CAS成功，当前线程获得锁；如果失败，且Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用&lt;code&gt;自旋&lt;/code&gt;来获取锁。（如果失败但是是本线程，那么看下面的可重入实现）&lt;/p&gt;
 &lt;p&gt;如下图，如果Mark Word成功更新为指向了某一线程栈帧中的Lock Record则证明此线程获得锁成功：&lt;/p&gt;
 &lt;p&gt;&lt;figure 
 	&gt;
@@ -2556,6 +2557,27 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;p&gt;复制Mark Word的原因：&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;由上面的Mark Word的结构就知道，如果是轻量级锁，Mark Word有62位就都用来存储指向Lock Record指针了，那么原本无锁状态存储的hashcode、分代年龄等信息会被覆盖，所以必须用复制一份到Displaced Mark Word想当于一个备份，之后这个线程释放轻量级锁的时候需要将&lt;code&gt;Displaced Mark Word&lt;/code&gt;替换回原来的&lt;code&gt;mark word&lt;/code&gt;中。&lt;/p&gt;
+&lt;h3 id=&#34;轻量级锁的可重入实现&#34;&gt;轻量级锁的可重入实现&lt;/h3&gt;
+&lt;p&gt;synchronized对可重入实现，重量级锁是哟monitor里的计数器，那轻量级锁是怎么实现可重入的呢？&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;synchronized&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;obj&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;kd&#34;&gt;synchronized&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;obj&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;kd&#34;&gt;synchronized&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;obj&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+  &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如上面代码所示，直接锁3次，此时第一次就是正常的轻量级锁获取流程，后面的两次就会往栈中新增一个&lt;code&gt;Displaced Mark word&lt;/code&gt;为&lt;code&gt;null&lt;/code&gt;的&lt;code&gt;Lock Record&lt;/code&gt;，所以重入之后栈中就会有多个Lock Record（如下图）（偏向锁也是类似地通过增加lock record来计数）&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204100018297.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204100018297.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&#34;适应性自旋&#34;&gt;适应性自旋&lt;/h3&gt;
 &lt;p&gt;自旋过多也会造成CPU较大的开销，JDK采用的是更好的&lt;code&gt;适应性自旋&lt;/code&gt; 。&lt;/p&gt;
 &lt;p&gt;自适应意味着自旋的时间（次数）不再固定，而是由&lt;strong&gt;前一次在同一个锁上的自旋时间&lt;/strong&gt;及&lt;strong&gt;锁的拥有者的状态&lt;/strong&gt;来决定。如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也是很有可能再次成功，进而它将允许自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那在以后尝试获取这个锁时将可能就会减少自选的次数或者省略掉自旋过程，直接阻塞线程，避免浪费处理器资源。&lt;/p&gt;

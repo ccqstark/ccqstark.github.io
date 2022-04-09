@@ -308,7 +308,8 @@ if (!doNotTrack) {
 <li><code>Object Reference</code> 存储的是加锁对象的对象头的指针，即指向了加锁对象的对象头</li>
 <li><code>Displaced Mark Word</code> 存储的是加锁对象<strong>无锁状态的Mark Word</strong>，以便释放锁时恢复Mark Word（例如保留了hash值、分代年龄等信息）</li>
 </ol>
-<p>如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word（无锁状态的）复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向<code>Lock Record</code>的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用<code>自旋</code>来获取锁。</p>
+<p>如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word（无锁状态的）复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向<code>Lock Record</code>的指针。所以CAS要成功，则当前Mark Word的必须为无锁状态，表示此时没有线程占有，也好复制Mark Word过去Lock Record，轻量级锁释放后Mark Word也会还原为无锁状态。</p>
+<p>如果CAS成功，当前线程获得锁；如果失败，且Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用<code>自旋</code>来获取锁。（如果失败但是是本线程，那么看下面的可重入实现）</p>
 <p>如下图，如果Mark Word成功更新为指向了某一线程栈帧中的Lock Record则证明此线程获得锁成功：</p>
 <p><figure 
 	>
@@ -326,6 +327,27 @@ if (!doNotTrack) {
 <p>复制Mark Word的原因：</p>
 </blockquote>
 <p>由上面的Mark Word的结构就知道，如果是轻量级锁，Mark Word有62位就都用来存储指向Lock Record指针了，那么原本无锁状态存储的hashcode、分代年龄等信息会被覆盖，所以必须用复制一份到Displaced Mark Word想当于一个备份，之后这个线程释放轻量级锁的时候需要将<code>Displaced Mark Word</code>替换回原来的<code>mark word</code>中。</p>
+<h3 id="轻量级锁的可重入实现">轻量级锁的可重入实现</h3>
+<p>synchronized对可重入实现，重量级锁是哟monitor里的计数器，那轻量级锁是怎么实现可重入的呢？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">synchronized</span><span class="o">(</span><span class="n">obj</span><span class="o">)</span> <span class="o">{</span>
+	<span class="kd">synchronized</span><span class="o">(</span><span class="n">obj</span><span class="o">)</span> <span class="o">{</span>
+		<span class="kd">synchronized</span><span class="o">(</span><span class="n">obj</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>如上面代码所示，直接锁3次，此时第一次就是正常的轻量级锁获取流程，后面的两次就会往栈中新增一个<code>Displaced Mark word</code>为<code>null</code>的<code>Lock Record</code>，所以重入之后栈中就会有多个Lock Record（如下图）（偏向锁也是类似地通过增加lock record来计数）</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204100018297.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204100018297.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <h3 id="适应性自旋">适应性自旋</h3>
 <p>自旋过多也会造成CPU较大的开销，JDK采用的是更好的<code>适应性自旋</code> 。</p>
 <p>自适应意味着自旋的时间（次数）不再固定，而是由<strong>前一次在同一个锁上的自旋时间</strong>及<strong>锁的拥有者的状态</strong>来决定。如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也是很有可能再次成功，进而它将允许自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那在以后尝试获取这个锁时将可能就会减少自选的次数或者省略掉自旋过程，直接阻塞线程，避免浪费处理器资源。</p>
@@ -792,6 +814,7 @@ Owner：获得锁的线程称为Owner
     <li><a href="#轻量级锁">轻量级锁</a>
       <ol>
         <li><a href="#轻量级锁的获取">轻量级锁的获取</a></li>
+        <li><a href="#轻量级锁的可重入实现">轻量级锁的可重入实现</a></li>
         <li><a href="#适应性自旋">适应性自旋</a></li>
         <li><a href="#轻量级锁的释放">轻量级锁的释放</a></li>
       </ol>
