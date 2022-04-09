@@ -142,7 +142,7 @@ if (!doNotTrack) {
 
 
                 <time class="article-time--reading">
-                    6 minute read
+                    7 minute read
                 </time>
             </div>
         
@@ -575,6 +575,23 @@ if (!doNotTrack) {
 </code></pre></div><h2 id="与jdk17相比">与JDK1.7相比</h2>
 <p>1.7 中的 concurrentHashMap 使用了分段锁的机制，定义了<code>Segment</code>，每个 Segment 是 一个单独的容器，单独获取一把<code>ReentrantLock</code>锁。Segment 都是一个类似 HashMap 数组的结构，它可以扩容，它的冲突会转化为链表。但是 Segment 的个数一但初始化就不能改变。</p>
 <p>1.8的ConCurrentHashMap大部分采用的是synchronized与CAS操作去保证线程安全的，synchronized现在有锁升级机制性能好很多了，CAS是用<code>sun.misc.Unsafe</code> 类实现的底层是<strong>CMPXCHG</strong>指令，putVal的时候加锁只会锁住一个桶位不影响其他的，容器内元素的长度采用的是LongAdder的数组累加的提高并发的设计，扩容时允许多个线程一起协助迁移数据，还有一个sizeCtl的变量来标识当前容器的各种状态、扩容阈值或者扩容线程数。</p>
+<h2 id="关于concurrenthashmap不能存null值">关于ConcurrentHashMap不能存null值</h2>
+<p>ConcurrentHashMap<strong>无论是key还是value</strong>，<strong>都是不能为null的</strong>！</p>
+<h3 id="二义性问题">二义性问题</h3>
+<p>如果ConcurrentHashMap允许插入 null，那么此时就会有二义性问题：</p>
+<ol>
+<li>key不存在，所以返回 null。</li>
+<li>key的value就是 null，所以返回的就是它原本的 null 值。</li>
+</ol>
+<p>可以看出这就是 ConcurrentHashMap 的二义性问题，那为什么 HashMap 就不怕二义性问题呢？</p>
+<h3 id="可证伪的-hashmap">可证伪的 HashMap</h3>
+<p>这是因为 HashMap 的设计是给单线程使用的，所以如果查询到了 null 值，我们可以通过<code>hashMap.containsKey(key)</code>的方法来区分到底是key本来就不存在？还是key的value就为null？这样二义性问题就得到了解决，所以 HashMap 不怕二义性问题。</p>
+<h3 id="不可证伪的-concurrenthashmap">不可证伪的 ConcurrentHashMap</h3>
+<p>而 ConcurrentHashMap 就不一样了，因为 ConcurrentHashMap 使用的场景是多线程，所以它的情况更加复杂。
+我们假设 ConcurrentHashMap 可以存入 null 值，有这样一个场景，现在有一个线程 A 调用了get方法获得一个key的值，得到null，这个key在这一刻实际上是不存在的key，但是因为二义性我们无法确定是哪一种情况，所以再调用了 <code>containsKey(key)</code>，原本应该返回false的，但是由于是多线程环境，在这之前又有一个线程B去put了这个key进去（value不为null），导致 <code>containsKey(key)</code>返回变成true了，最后让我们以为这个key是存在的只是value为null，实际上那个时候key压根就不存在。</p>
+<p>也就是说，多线程的状况非常复杂，我们没办法判断某一个时刻返回的 null 值，到底是值为 null，还是压根就不存在，也就是二义性问题不可被证伪，所以 ConcurrentHashMap 才会在源码中这样设计，直接杜绝 key 或 value 为 null 的歧义问题。</p>
+<p>对于这个问题，有人问过 ConcurrentHashMap 的作者 Doug Lea，他的回复就是：不容忍在并发场景下出现歧义！</p>
+<p>还有一点就是Hashtable也是不允许key和value为null的，所以也是为了这两个线程安全的哈希表在做迁移的时候保持一致性。</p>
 <h2 id="一些感想">一些感想</h2>
 <p>看了ConcurrentHashMap的源码以及之前的HashMap源码不得不感叹真的是太精妙了，不仅大量使用位运算来提高性能，甚至一个变量都掰成高16位和低16位使用，大量使用CAS能不加锁的地方绝不加锁，最绝的是一个统计长度的变量都能拆成一个数组的和来优化，真的是对性能追求到了极致，优化到了极致。最后说一句：Doug Lea大神牛逼！</p>
 <p><figure 
@@ -955,6 +972,13 @@ if (!doNotTrack) {
       </ol>
     </li>
     <li><a href="#与jdk17相比">与JDK1.7相比</a></li>
+    <li><a href="#关于concurrenthashmap不能存null值">关于ConcurrentHashMap不能存null值</a>
+      <ol>
+        <li><a href="#二义性问题">二义性问题</a></li>
+        <li><a href="#可证伪的-hashmap">可证伪的 HashMap</a></li>
+        <li><a href="#不可证伪的-concurrenthashmap">不可证伪的 ConcurrentHashMap</a></li>
+      </ol>
+    </li>
     <li><a href="#一些感想">一些感想</a></li>
     <li><a href="#参考">参考</a></li>
   </ol>

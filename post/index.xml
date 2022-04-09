@@ -138,8 +138,11 @@ CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果�
 当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
   Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
 1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
-   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
-   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；</description>
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式（64位为例）：
+ 
+当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；
+当状态为轻量级锁时，Mark Word存储的是指向线程栈中Lock Record的指针；
+当状态为重量级锁时，Mark Word为指向堆中的monitor对象的指针。</description>
     </item>
     
     <item>

@@ -1612,6 +1612,23 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;与jdk17相比&#34;&gt;与JDK1.7相比&lt;/h2&gt;
 &lt;p&gt;1.7 中的 concurrentHashMap 使用了分段锁的机制，定义了&lt;code&gt;Segment&lt;/code&gt;，每个 Segment 是 一个单独的容器，单独获取一把&lt;code&gt;ReentrantLock&lt;/code&gt;锁。Segment 都是一个类似 HashMap 数组的结构，它可以扩容，它的冲突会转化为链表。但是 Segment 的个数一但初始化就不能改变。&lt;/p&gt;
 &lt;p&gt;1.8的ConCurrentHashMap大部分采用的是synchronized与CAS操作去保证线程安全的，synchronized现在有锁升级机制性能好很多了，CAS是用&lt;code&gt;sun.misc.Unsafe&lt;/code&gt; 类实现的底层是&lt;strong&gt;CMPXCHG&lt;/strong&gt;指令，putVal的时候加锁只会锁住一个桶位不影响其他的，容器内元素的长度采用的是LongAdder的数组累加的提高并发的设计，扩容时允许多个线程一起协助迁移数据，还有一个sizeCtl的变量来标识当前容器的各种状态、扩容阈值或者扩容线程数。&lt;/p&gt;
+&lt;h2 id=&#34;关于concurrenthashmap不能存null值&#34;&gt;关于ConcurrentHashMap不能存null值&lt;/h2&gt;
+&lt;p&gt;ConcurrentHashMap&lt;strong&gt;无论是key还是value&lt;/strong&gt;，&lt;strong&gt;都是不能为null的&lt;/strong&gt;！&lt;/p&gt;
+&lt;h3 id=&#34;二义性问题&#34;&gt;二义性问题&lt;/h3&gt;
+&lt;p&gt;如果ConcurrentHashMap允许插入 null，那么此时就会有二义性问题：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;key不存在，所以返回 null。&lt;/li&gt;
+&lt;li&gt;key的value就是 null，所以返回的就是它原本的 null 值。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;可以看出这就是 ConcurrentHashMap 的二义性问题，那为什么 HashMap 就不怕二义性问题呢？&lt;/p&gt;
+&lt;h3 id=&#34;可证伪的-hashmap&#34;&gt;可证伪的 HashMap&lt;/h3&gt;
+&lt;p&gt;这是因为 HashMap 的设计是给单线程使用的，所以如果查询到了 null 值，我们可以通过&lt;code&gt;hashMap.containsKey(key)&lt;/code&gt;的方法来区分到底是key本来就不存在？还是key的value就为null？这样二义性问题就得到了解决，所以 HashMap 不怕二义性问题。&lt;/p&gt;
+&lt;h3 id=&#34;不可证伪的-concurrenthashmap&#34;&gt;不可证伪的 ConcurrentHashMap&lt;/h3&gt;
+&lt;p&gt;而 ConcurrentHashMap 就不一样了，因为 ConcurrentHashMap 使用的场景是多线程，所以它的情况更加复杂。
+我们假设 ConcurrentHashMap 可以存入 null 值，有这样一个场景，现在有一个线程 A 调用了get方法获得一个key的值，得到null，这个key在这一刻实际上是不存在的key，但是因为二义性我们无法确定是哪一种情况，所以再调用了 &lt;code&gt;containsKey(key)&lt;/code&gt;，原本应该返回false的，但是由于是多线程环境，在这之前又有一个线程B去put了这个key进去（value不为null），导致 &lt;code&gt;containsKey(key)&lt;/code&gt;返回变成true了，最后让我们以为这个key是存在的只是value为null，实际上那个时候key压根就不存在。&lt;/p&gt;
+&lt;p&gt;也就是说，多线程的状况非常复杂，我们没办法判断某一个时刻返回的 null 值，到底是值为 null，还是压根就不存在，也就是二义性问题不可被证伪，所以 ConcurrentHashMap 才会在源码中这样设计，直接杜绝 key 或 value 为 null 的歧义问题。&lt;/p&gt;
+&lt;p&gt;对于这个问题，有人问过 ConcurrentHashMap 的作者 Doug Lea，他的回复就是：不容忍在并发场景下出现歧义！&lt;/p&gt;
+&lt;p&gt;还有一点就是Hashtable也是不允许key和value为null的，所以也是为了这两个线程安全的哈希表在做迁移的时候保持一致性。&lt;/p&gt;
 &lt;h2 id=&#34;一些感想&#34;&gt;一些感想&lt;/h2&gt;
 &lt;p&gt;看了ConcurrentHashMap的源码以及之前的HashMap源码不得不感叹真的是太精妙了，不仅大量使用位运算来提高性能，甚至一个变量都掰成高16位和低16位使用，大量使用CAS能不加锁的地方绝不加锁，最绝的是一个统计长度的变量都能拆成一个数组的和来优化，真的是对性能追求到了极致，优化到了极致。最后说一句：Doug Lea大神牛逼！&lt;/p&gt;
 &lt;p&gt;&lt;figure 
@@ -2458,49 +2475,19 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;Mark Word的格式：&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;锁状态&lt;/th&gt;
-&lt;th&gt;29 bit 或 61 bit&lt;/th&gt;
-&lt;th&gt;1 bit 是否是偏向锁？&lt;/th&gt;
-&lt;th&gt;2 bit 锁标志位&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;无锁&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;0&lt;/td&gt;
-&lt;td&gt;01&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;偏向锁&lt;/td&gt;
-&lt;td&gt;线程ID&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;01&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;轻量级锁&lt;/td&gt;
-&lt;td&gt;指向栈中锁记录的指针&lt;/td&gt;
-&lt;td&gt;此时这一位不用于标识偏向锁&lt;/td&gt;
-&lt;td&gt;00&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;重量级锁&lt;/td&gt;
-&lt;td&gt;指向互斥量（重量级锁）的指针&lt;/td&gt;
-&lt;td&gt;此时这一位不用于标识偏向锁&lt;/td&gt;
-&lt;td&gt;10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;GC标记&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;此时这一位不用于标识偏向锁&lt;/td&gt;
-&lt;td&gt;11&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
+&lt;p&gt;Mark Word的格式（64位为例）：&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	&gt;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204092223536.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204092223536.png&#34;
+			
+			
+			
+			loading=&#34;lazy&#34;
+			&gt;
+	&lt;/a&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;当对象状态为偏向锁时，&lt;code&gt;Mark Word&lt;/code&gt;存储的是偏向的线程ID；&lt;/p&gt;
 &lt;p&gt;当状态为轻量级锁时，&lt;code&gt;Mark Word&lt;/code&gt;存储的是指向线程栈中&lt;code&gt;Lock Record&lt;/code&gt;的指针；&lt;/p&gt;
 &lt;p&gt;当状态为重量级锁时，&lt;code&gt;Mark Word&lt;/code&gt;为指向堆中的&lt;code&gt;monitor&lt;/code&gt;对象的指针。&lt;/p&gt;
@@ -2519,7 +2506,7 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;li&gt;失败，表示之前的线程仍然存在，那么暂停之前的线程，进行&lt;strong&gt;偏向锁的撤销&lt;/strong&gt;（下面介绍），设置偏向锁标识为0，并设置锁标志位为00，升级为轻量级锁，会按照轻量级锁的方式进行竞争锁。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&#34;偏向锁的撤销&#34;&gt;偏向锁的撤销&lt;/h3&gt;
-&lt;p&gt;偏向锁使用了一种&lt;strong&gt;等到竞争出现才释放锁的机制&lt;/strong&gt;，所以当其他线程尝试竞争偏向锁时， 持有偏向锁的线程才会释放锁。&lt;/p&gt;
+&lt;p&gt;偏向锁使用了一种&lt;strong&gt;等到竞争出现才释放锁的机制&lt;/strong&gt;，线程不会主动释放偏向锁，所以当其他线程尝试竞争偏向锁时， 持有偏向锁的线程才会释放锁。&lt;/p&gt;
 &lt;p&gt;偏向锁升级成轻量级锁时，会暂停拥有偏向锁的线程，重置偏向锁标识，过程如下：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;在一个全局安全点（没有字节码在执行）停止拥有锁的线程。&lt;/li&gt;
@@ -2531,8 +2518,8 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;下面有个经典的图总结了偏向锁的获得和撤销：&lt;/p&gt;
 &lt;p&gt;&lt;figure 
 	&gt;
-	&lt;a href=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png&#34; &gt;
-		&lt;img src=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png&#34;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091845218.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091845218.png&#34;
 			
 			
 			
@@ -2541,20 +2528,22 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 	&lt;/a&gt;
 	
 &lt;/figure&gt;&lt;/p&gt;
+&lt;h3 id=&#34;相比轻量级锁的优势&#34;&gt;相比轻量级锁的优势&lt;/h3&gt;
+&lt;p&gt;当一个线程访问同步代码块并获取锁时，会在Mark Word里存储锁偏向的线程ID。在线程进入和退出同步块时不再通过CAS操作来加锁和解锁，而是检测Mark Word里是否存储着指向当前线程的偏向锁。引入偏向锁是为了在无多线程竞争的情况下尽量减少不必要的轻量级锁执行路径，因为轻量级锁的获取及释放依赖多次CAS原子指令，而偏向锁只需要在置换ThreadID的时候依赖一次CAS原子指令即可。&lt;/p&gt;
 &lt;h2 id=&#34;轻量级锁&#34;&gt;轻量级锁&lt;/h2&gt;
-&lt;p&gt;多个线程在不同时段获取同一把锁，即不存在锁竞争的情况，也就没有线程阻塞。针对这种情况，JVM采用轻量级锁来避免线程的阻塞与唤醒。&lt;/p&gt;
+&lt;p&gt;多个线程在不同时段获取同一把锁，锁竞争不激烈的情况，采用轻量级锁，其他想获取锁的线程会通过自旋的形式尝试获取锁，避免线程的阻塞与唤醒，从而提高性能。&lt;/p&gt;
 &lt;h3 id=&#34;轻量级锁的获取&#34;&gt;轻量级锁的获取&lt;/h3&gt;
 &lt;p&gt;JVM会为每个线程在当前线程的栈帧中创建用于存储锁记录的空间&lt;code&gt;Lock Record&lt;/code&gt; , 包含两部分：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;识别哪个对象被锁的所必需的元数据&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;Displaced Mark Word&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Object Reference&lt;/code&gt; 存储的是加锁对象的对象头的指针，即指向了加锁对象的对象头&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Displaced Mark Word&lt;/code&gt; 存储的是加锁对象&lt;strong&gt;无锁状态的Mark Word&lt;/strong&gt;，以便释放锁时恢复Mark Word（例如保留了hash值、分代年龄等信息）&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向&lt;code&gt;Lock Record&lt;/code&gt;的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用&lt;code&gt;自旋&lt;/code&gt;来获取锁。&lt;/p&gt;
+&lt;p&gt;如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word（无锁状态的）复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向&lt;code&gt;Lock Record&lt;/code&gt;的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用&lt;code&gt;自旋&lt;/code&gt;来获取锁。&lt;/p&gt;
 &lt;p&gt;如下图，如果Mark Word成功更新为指向了某一线程栈帧中的Lock Record则证明此线程获得锁成功：&lt;/p&gt;
 &lt;p&gt;&lt;figure 
 	&gt;
-	&lt;a href=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png&#34; &gt;
-		&lt;img src=&#34;https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png&#34;
+	&lt;a href=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091846199.png&#34; &gt;
+		&lt;img src=&#34;https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091846199.png&#34;
 			
 			
 			
@@ -2563,10 +2552,14 @@ compareAndSetTail(t, node)方法会利用CAS操作设置尾节点，如果CAS操
 	&lt;/a&gt;
 	
 &lt;/figure&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;复制Mark Word的原因：&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;由上面的Mark Word的结构就知道，如果是轻量级锁，Mark Word有62位就都用来存储指向Lock Record指针了，那么原本无锁状态存储的hashcode、分代年龄等信息会被覆盖，所以必须用复制一份到Displaced Mark Word想当于一个备份，之后这个线程释放轻量级锁的时候需要将&lt;code&gt;Displaced Mark Word&lt;/code&gt;替换回原来的&lt;code&gt;mark word&lt;/code&gt;中。&lt;/p&gt;
 &lt;h3 id=&#34;适应性自旋&#34;&gt;适应性自旋&lt;/h3&gt;
 &lt;p&gt;自旋过多也会造成CPU较大的开销，JDK采用的是更好的&lt;code&gt;适应性自旋&lt;/code&gt; 。&lt;/p&gt;
 &lt;p&gt;自适应意味着自旋的时间（次数）不再固定，而是由&lt;strong&gt;前一次在同一个锁上的自旋时间&lt;/strong&gt;及&lt;strong&gt;锁的拥有者的状态&lt;/strong&gt;来决定。如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也是很有可能再次成功，进而它将允许自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那在以后尝试获取这个锁时将可能就会减少自选的次数或者省略掉自旋过程，直接阻塞线程，避免浪费处理器资源。&lt;/p&gt;
-&lt;p&gt;自旋也不是一直进行下去的，如果自旋到一定程度（和JVM、操作系统相关），依然没有获取到锁，称为自旋失败，那么这个线程会阻塞。同时这个锁就会&lt;strong&gt;升级成重量级锁&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;若当前只有一个等待线程，则该线程通过自旋进行等待。但是当自旋超过一定的次数依然没有获取到锁；或者一个线程在持有锁，一个在自旋，又有第三个线程来竞争时，轻量级锁&lt;strong&gt;升级为重量级锁&lt;/strong&gt;。&lt;/p&gt;
 &lt;h3 id=&#34;轻量级锁的释放&#34;&gt;轻量级锁的释放&lt;/h3&gt;
 &lt;p&gt;在释放锁时，当前线程会使用CAS操作将&lt;code&gt;Displaced Mark Word&lt;/code&gt;的内容复制回锁的&lt;code&gt;Mark Word&lt;/code&gt;里面。如果没有发生竞争，那么这个复制的操作会成功。如果有其他线程因为自旋多次导致轻量级锁升级成了重量级锁，那么CAS操作会失败，此时会释放锁并唤醒被阻塞的线程。&lt;/p&gt;
 &lt;p&gt;&lt;figure 
@@ -2840,6 +2833,9 @@ Owner：获得锁的线程称为Owner
 &lt;li&gt;两者都是可重入锁&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;“可重入锁”指的是可以再次获取自己已经获得的锁。如果锁不可重入的话就会导致死锁。同一个线程获取锁，锁的计数器会自增1，所以要等到锁的计数器下降为0时才能释放锁。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;synchronized的可重入是利用monitor的计数器来实现的，而ReentrantLock则是利用底层AQS的state来实现的。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h3 id=&#34;不同点&#34;&gt;不同点：&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;synchronized依赖于JVM而ReentrantLock依赖于API&lt;/li&gt;

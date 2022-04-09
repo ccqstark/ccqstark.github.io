@@ -14,8 +14,11 @@ CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果�
 当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
   Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
 1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
-   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
-   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；'><title>[并发编程]Synchronized优化篇——Java中的各种锁</title>
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式（64位为例）：
+ 
+当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；
+当状态为轻量级锁时，Mark Word存储的是指向线程栈中Lock Record的指针；
+当状态为重量级锁时，Mark Word为指向堆中的monitor对象的指针。'><title>[并发编程]Synchronized优化篇——Java中的各种锁</title>
 
 <link rel='canonical' href='https://ccqstark.github.io/p/concurrent_synchronized_optimization/'>
 
@@ -33,8 +36,11 @@ CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果�
 当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
   Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
 1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
-   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
-   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；'>
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式（64位为例）：
+ 
+当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；
+当状态为轻量级锁时，Mark Word存储的是指向线程栈中Lock Record的指针；
+当状态为重量级锁时，Mark Word为指向堆中的monitor对象的指针。'>
 <meta property='og:url' content='https://ccqstark.github.io/p/concurrent_synchronized_optimization/'>
 <meta property='og:site_name' content='ccq&#39;s blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='并发编程' /><meta property='article:tag' content='多线程' /><meta property='article:published_time' content='2021-12-11T17:09:24&#43;08:00'/><meta property='article:modified_time' content='2021-12-11T17:09:24&#43;08:00'/><meta property='og:image' content='https://ccqstark.github.io/p/concurrent_synchronized_optimization/cover.png' />
@@ -53,8 +59,11 @@ CAS是非阻塞同步，会自选（死循环）进行下一次尝试，如果�
 当CAS对一个变量进行操作时可以保证其原子性，如果对多个变量进行操作就不能保证其原子性，解决办法就是利用对象去整合多个共享变量，然后对整个对象进行CAS操作就可以保证原子性来。atomic包提供来AtomicReference来保证引用对象之间的原子性。
   Java对象头 Java的锁是基于对象的，而不是基于线程的（所以wait、notify等方法是Object中的不是Thread中的），那锁的存放自然是在对象中，存储在Java的对象头中。
 1字宽在32位处理器中是32位，64位中是64。每个对象都有对象头，非数组类型长度是2个字宽，数组是3个。
-   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式：
-   锁状态 29 bit 或 61 bit 1 bit 是否是偏向锁？ 2 bit 锁标志位     无锁  0 01   偏向锁 线程ID 1 01   轻量级锁 指向栈中锁记录的指针 此时这一位不用于标识偏向锁 00   重量级锁 指向互斥量（重量级锁）的指针 此时这一位不用于标识偏向锁 10   GC标记  此时这一位不用于标识偏向锁 11    当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；"><meta name="twitter:card" content="summary_large_image">
+   长度 内容 说明     1字宽 Mark Word 存储对象的hashCode、分代信息、锁信息等   1字宽 Class Metadata Address 存储到对象类型数据的指针   1字宽 Array length 数组的长度（如果是数组）    Mark Word的格式（64位为例）：
+ 
+当对象状态为偏向锁时，Mark Word存储的是偏向的线程ID；
+当状态为轻量级锁时，Mark Word存储的是指向线程栈中Lock Record的指针；
+当状态为重量级锁时，Mark Word为指向堆中的monitor对象的指针。"><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://ccqstark.github.io/p/concurrent_synchronized_optimization/cover.png' />
     <link rel="shortcut icon" href="/icon.ico" />
 
@@ -236,49 +245,19 @@ if (!doNotTrack) {
 </tr>
 </tbody>
 </table>
-<p>Mark Word的格式：</p>
-<table>
-<thead>
-<tr>
-<th>锁状态</th>
-<th>29 bit 或 61 bit</th>
-<th>1 bit 是否是偏向锁？</th>
-<th>2 bit 锁标志位</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>无锁</td>
-<td></td>
-<td>0</td>
-<td>01</td>
-</tr>
-<tr>
-<td>偏向锁</td>
-<td>线程ID</td>
-<td>1</td>
-<td>01</td>
-</tr>
-<tr>
-<td>轻量级锁</td>
-<td>指向栈中锁记录的指针</td>
-<td>此时这一位不用于标识偏向锁</td>
-<td>00</td>
-</tr>
-<tr>
-<td>重量级锁</td>
-<td>指向互斥量（重量级锁）的指针</td>
-<td>此时这一位不用于标识偏向锁</td>
-<td>10</td>
-</tr>
-<tr>
-<td>GC标记</td>
-<td></td>
-<td>此时这一位不用于标识偏向锁</td>
-<td>11</td>
-</tr>
-</tbody>
-</table>
+<p>Mark Word的格式（64位为例）：</p>
+<p><figure 
+	>
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204092223536.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204092223536.png"
+			
+			
+			
+			loading="lazy"
+			>
+	</a>
+	
+</figure></p>
 <p>当对象状态为偏向锁时，<code>Mark Word</code>存储的是偏向的线程ID；</p>
 <p>当状态为轻量级锁时，<code>Mark Word</code>存储的是指向线程栈中<code>Lock Record</code>的指针；</p>
 <p>当状态为重量级锁时，<code>Mark Word</code>为指向堆中的<code>monitor</code>对象的指针。</p>
@@ -297,7 +276,7 @@ if (!doNotTrack) {
 <li>失败，表示之前的线程仍然存在，那么暂停之前的线程，进行<strong>偏向锁的撤销</strong>（下面介绍），设置偏向锁标识为0，并设置锁标志位为00，升级为轻量级锁，会按照轻量级锁的方式进行竞争锁。</li>
 </ul>
 <h3 id="偏向锁的撤销">偏向锁的撤销</h3>
-<p>偏向锁使用了一种<strong>等到竞争出现才释放锁的机制</strong>，所以当其他线程尝试竞争偏向锁时， 持有偏向锁的线程才会释放锁。</p>
+<p>偏向锁使用了一种<strong>等到竞争出现才释放锁的机制</strong>，线程不会主动释放偏向锁，所以当其他线程尝试竞争偏向锁时， 持有偏向锁的线程才会释放锁。</p>
 <p>偏向锁升级成轻量级锁时，会暂停拥有偏向锁的线程，重置偏向锁标识，过程如下：</p>
 <ol>
 <li>在一个全局安全点（没有字节码在执行）停止拥有锁的线程。</li>
@@ -309,8 +288,8 @@ if (!doNotTrack) {
 </code></pre></div><p>下面有个经典的图总结了偏向锁的获得和撤销：</p>
 <p><figure 
 	>
-	<a href="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png" >
-		<img src="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145457.png"
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091845218.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091845218.png"
 			
 			
 			
@@ -319,20 +298,22 @@ if (!doNotTrack) {
 	</a>
 	
 </figure></p>
+<h3 id="相比轻量级锁的优势">相比轻量级锁的优势</h3>
+<p>当一个线程访问同步代码块并获取锁时，会在Mark Word里存储锁偏向的线程ID。在线程进入和退出同步块时不再通过CAS操作来加锁和解锁，而是检测Mark Word里是否存储着指向当前线程的偏向锁。引入偏向锁是为了在无多线程竞争的情况下尽量减少不必要的轻量级锁执行路径，因为轻量级锁的获取及释放依赖多次CAS原子指令，而偏向锁只需要在置换ThreadID的时候依赖一次CAS原子指令即可。</p>
 <h2 id="轻量级锁">轻量级锁</h2>
-<p>多个线程在不同时段获取同一把锁，即不存在锁竞争的情况，也就没有线程阻塞。针对这种情况，JVM采用轻量级锁来避免线程的阻塞与唤醒。</p>
+<p>多个线程在不同时段获取同一把锁，锁竞争不激烈的情况，采用轻量级锁，其他想获取锁的线程会通过自旋的形式尝试获取锁，避免线程的阻塞与唤醒，从而提高性能。</p>
 <h3 id="轻量级锁的获取">轻量级锁的获取</h3>
 <p>JVM会为每个线程在当前线程的栈帧中创建用于存储锁记录的空间<code>Lock Record</code> , 包含两部分：</p>
 <ol>
-<li>识别哪个对象被锁的所必需的元数据</li>
-<li><code>Displaced Mark Word</code></li>
+<li><code>Object Reference</code> 存储的是加锁对象的对象头的指针，即指向了加锁对象的对象头</li>
+<li><code>Displaced Mark Word</code> 存储的是加锁对象<strong>无锁状态的Mark Word</strong>，以便释放锁时恢复Mark Word（例如保留了hash值、分代年龄等信息）</li>
 </ol>
-<p>如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向<code>Lock Record</code>的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用<code>自旋</code>来获取锁。</p>
+<p>如果一个线程获得锁的时候发现是轻量级锁，会把锁的Mark Word（无锁状态的）复制到自己的Displaced Mark Word里面。然后线程尝试用CAS将锁的Mark Word替换为指向<code>Lock Record</code>的指针。如果成功，当前线程获得锁；如果失败，表示Mark Word已经被替换成了其他线程的锁记录，说明在与其它线程竞争锁，当前线程就尝试使用<code>自旋</code>来获取锁。</p>
 <p>如下图，如果Mark Word成功更新为指向了某一线程栈帧中的Lock Record则证明此线程获得锁成功：</p>
 <p><figure 
 	>
-	<a href="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png" >
-		<img src="https://gitee.com/ccqstark/image-bed/raw/master/images/20211211145632.png"
+	<a href="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091846199.png" >
+		<img src="https://cdn.jsdelivr.net/gh/ccqstark/image-bed/images/202204091846199.png"
 			
 			
 			
@@ -341,10 +322,14 @@ if (!doNotTrack) {
 	</a>
 	
 </figure></p>
+<blockquote>
+<p>复制Mark Word的原因：</p>
+</blockquote>
+<p>由上面的Mark Word的结构就知道，如果是轻量级锁，Mark Word有62位就都用来存储指向Lock Record指针了，那么原本无锁状态存储的hashcode、分代年龄等信息会被覆盖，所以必须用复制一份到Displaced Mark Word想当于一个备份，之后这个线程释放轻量级锁的时候需要将<code>Displaced Mark Word</code>替换回原来的<code>mark word</code>中。</p>
 <h3 id="适应性自旋">适应性自旋</h3>
 <p>自旋过多也会造成CPU较大的开销，JDK采用的是更好的<code>适应性自旋</code> 。</p>
 <p>自适应意味着自旋的时间（次数）不再固定，而是由<strong>前一次在同一个锁上的自旋时间</strong>及<strong>锁的拥有者的状态</strong>来决定。如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也是很有可能再次成功，进而它将允许自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那在以后尝试获取这个锁时将可能就会减少自选的次数或者省略掉自旋过程，直接阻塞线程，避免浪费处理器资源。</p>
-<p>自旋也不是一直进行下去的，如果自旋到一定程度（和JVM、操作系统相关），依然没有获取到锁，称为自旋失败，那么这个线程会阻塞。同时这个锁就会<strong>升级成重量级锁</strong>。</p>
+<p>若当前只有一个等待线程，则该线程通过自旋进行等待。但是当自旋超过一定的次数依然没有获取到锁；或者一个线程在持有锁，一个在自旋，又有第三个线程来竞争时，轻量级锁<strong>升级为重量级锁</strong>。</p>
 <h3 id="轻量级锁的释放">轻量级锁的释放</h3>
 <p>在释放锁时，当前线程会使用CAS操作将<code>Displaced Mark Word</code>的内容复制回锁的<code>Mark Word</code>里面。如果没有发生竞争，那么这个复制的操作会成功。如果有其他线程因为自旋多次导致轻量级锁升级成了重量级锁，那么CAS操作会失败，此时会释放锁并唤醒被阻塞的线程。</p>
 <p><figure 
@@ -801,6 +786,7 @@ Owner：获得锁的线程称为Owner
       <ol>
         <li><a href="#偏向锁的获取">偏向锁的获取</a></li>
         <li><a href="#偏向锁的撤销">偏向锁的撤销</a></li>
+        <li><a href="#相比轻量级锁的优势">相比轻量级锁的优势</a></li>
       </ol>
     </li>
     <li><a href="#轻量级锁">轻量级锁</a>

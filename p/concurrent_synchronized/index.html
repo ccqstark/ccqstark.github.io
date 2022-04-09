@@ -223,6 +223,9 @@ if (!doNotTrack) {
 <li>两者都是可重入锁</li>
 </ul>
 <p>“可重入锁”指的是可以再次获取自己已经获得的锁。如果锁不可重入的话就会导致死锁。同一个线程获取锁，锁的计数器会自增1，所以要等到锁的计数器下降为0时才能释放锁。</p>
+<blockquote>
+<p>synchronized的可重入是利用monitor的计数器来实现的，而ReentrantLock则是利用底层AQS的state来实现的。</p>
+</blockquote>
 <h3 id="不同点">不同点：</h3>
 <ul>
 <li>synchronized依赖于JVM而ReentrantLock依赖于API</li>
